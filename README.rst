@@ -55,7 +55,7 @@ Install Steps
 
   1. Clone the repository from github or download and extract the zip from here_.
 
-  2. Add the module to your PYTHONPATH
+  2. Add the folder ON TOP of the blond_common module to your PYTHONPATH (e.g. if the folders are structured as /foo/bar/blond_common, you should add the "bar" folder to the PYTHONPATH, see in __EXAMPLES)
 
 
 CURRENT DEVELOPERS
