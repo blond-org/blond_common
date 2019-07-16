@@ -40,15 +40,12 @@ Install Steps
 -------------
 
 
-* The blond_common module is initially meant to be used as a submodule to other code developments.
-If you would like to add the blond_common module into your own development, you need to:
+* The blond_common module is initially meant to be used as a submodule to other code developments. If you would like to add the blond_common module into your own development, you need to:
     .. code-block:: bash
 
         $ git submodule add https://github.com/blond-org/blond_common.git your_project
 
-* If the blond_common module is included as a submodule into another project,
-remember to initialize the module using (NB: this will update the submodule to
-the version defined by the project):
+* If the blond_common module is included as a submodule into another project, remember to initialize the module using (NB: this will update the submodule to the version defined by the project):
     .. code-block:: bash
 
         $ git submodule init
@@ -56,7 +53,7 @@ the version defined by the project):
 
 * The code can also be used standalone (e.g. to use fitting functions)
 
-  1. Clone the repository from github or download and extract the zip from here_.
+  1. Clone the repository from github or download and extract the zip from here.
 
   2. Add the module to your PYTHONPATH
 
