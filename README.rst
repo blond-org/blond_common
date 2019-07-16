@@ -53,7 +53,7 @@ Install Steps
 
 * The code can also be used standalone (e.g. to use fitting functions)
 
-  1. Clone the repository from github or download and extract the zip from here.
+  1. Clone the repository from github or download and extract the zip from here_.
 
   2. Add the module to your PYTHONPATH
 
@@ -71,9 +71,9 @@ CURRENT DEVELOPERS
 PREVIOUS DEVELOPERS
 ===================
 
-Juan Esteban Muller
-Danilo Quartullo
-Joel Repond
+* Juan Esteban Muller
+* Danilo Quartullo
+* Joel Repond
 
 
 STRUCTURE
