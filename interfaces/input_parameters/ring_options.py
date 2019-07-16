@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import c
 from scipy.interpolate import splrep, splev
-from ..plots.plot import fig_folder
+from ...devtools.path import makedir
 
 
 class RingOptions(object):
@@ -469,7 +469,7 @@ class RingOptions(object):
 
         if self.plot:
             # Directory where longitudinal_plots will be stored
-            fig_folder(self.figdir)
+            makedir(self.figdir)
 
             # Plot
             plt.figure(1, figsize=(8, 6))

@@ -19,7 +19,7 @@ from builtins import str, range
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import splrep, splev
-from ..plots.plot import fig_folder
+from ...devtools.path import makedir
 
 
 class RFStationOptions(object):
