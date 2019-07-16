@@ -106,3 +106,4 @@ venv.bak/
 # Pydev
 .project
 .pydevproject
+.settings
