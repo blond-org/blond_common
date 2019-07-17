@@ -124,8 +124,9 @@ class Ring(object):
     kin_energy : float matrix [n_sections, n_turns+1]
         Synchronous kinetic energy program for each segment of the ring
         :math:`E_{s,kin} = \sqrt{ p_{s,k,n}^2 + m^2 } - m` [eV]
-    delta_E : float matrix [n_sections, n_turns+1]
-        Derivative of synchronous total energy w.r.t. time, for all sections,
+    delta_E : float matrix [n_sections, n_turns]
+        Gain in synchronous total energy from one point to another,
+        for all sections,
         :math:`: \quad E_{s,k,n+1}- E_{s,k,n}` [eV]
     t_rev : float array [n_turns+1]
         Revolution period turn by turn.

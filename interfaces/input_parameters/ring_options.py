@@ -40,12 +40,12 @@ class RingOptions(object):
     flat_top : int
         Number of turns to be added on flat top; default is 0. Constant
         extrapolation is used for the synchronous data
-    t_start : int
-        Starting index from which the time array input should be taken into
-        account; default is 0
-    t_end : int
-        Last index up to which the time array input should be taken into
-        account; default is -1
+    t_start : float or None
+        Starting time from which the time array input should be taken into
+        account; default is None
+    t_end : float or None
+        Last time up to which the time array input should be taken into
+        account; default is None
     plot : bool
         Option to plot interpolated arrays; default is False
     figdir : str
