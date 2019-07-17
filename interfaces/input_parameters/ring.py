@@ -212,6 +212,7 @@ class Ring(object):
             synchronous_data,
             self.n_turns,
             self.n_sections,
+            interp_time=RingOptions.interp_time,
             input_to_momentum=True,
             synchronous_data_type=synchronous_data_type,
             mass=self.Particle.mass,
@@ -235,7 +236,16 @@ class Ring(object):
             self.Particle.mass
         self.delta_E = np.diff(self.energy, axis=1)
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))
-        self.cycle_time = np.cumsum(self.t_rev)  # Always starts with zero
+        if RingOptions.interp_time == 't_rev':
+            self.cycle_time = np.cumsum(self.t_rev)  # Always starts with zero
+        elif isinstance(RingOptions.interp_time, float):
+            self.cycle_time = np.arange(
+                0, len(self.t_rev)*RingOptions.interp_time,
+                RingOptions.interp_time)  # Always starts with zero
+        elif isinstance(RingOptions.interp_time, np.ndarray) or \
+                isinstance(RingOptions.interp_time, list):
+            self.cycle_time = np.array(RingOptions.interp_time)
+            self.cycle_time -= self.cycle_time[0]  # Always starts with zero
         self.f_rev = 1/self.t_rev
         self.omega_rev = 2*np.pi*self.f_rev
 

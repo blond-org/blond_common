@@ -124,7 +124,7 @@ class RFStation(object):
     energy : float array [n_turns+1]
         Total energy of the present RF section; inherited from
         :py:attr:`input_parameters.ring.Ring.energy`
-    delta_E : float array [n_turns+1]
+    delta_E : float array [n_turns]
         Time derivative of total energy of the present section; inherited from
         :py:attr:`input_parameters.ring.Ring.delta_E`
     alpha_order : int
@@ -197,9 +197,9 @@ class RFStation(object):
     >>>
     >>> n_turns = 10
     >>> C = 26659
-    >>> alpha = 3.21e-4
+    >>> alpha_0 = 3.21e-4
     >>> momentum = 450e9
-    >>> ring = Ring(n_turns, C, alpha, momentum)
+    >>> ring = Ring(C, alpha_0, momentum, n_turns)
     >>> rf_station = RFStation(ring, [35640, 71280], [6e6, 6e5], [0, 0], 2)
 
     """

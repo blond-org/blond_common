@@ -46,6 +46,11 @@ class RingOptions(object):
     t_end : float or None
         Last time up to which the time array input should be taken into
         account; default is None
+    interp_time : 't_rev', float or array
+        Time on which the momentum program should be interpolated;
+        default is 't_rev' to compute at each revolution period (for tracking)
+        if a float is passed, will interpolate at regular time
+        if an array/list is passed, will interpolate at given time
     plot : bool
         Option to plot interpolated arrays; default is False
     figdir : str
@@ -57,8 +62,9 @@ class RingOptions(object):
 
     """
     def __init__(self, interpolation='linear', smoothing=0, flat_bottom=0,
-                 flat_top=0, t_start=None, t_end=None, plot=False,
-                 figdir='fig', figname='preprocess_ramp', sampling=1):
+                 flat_top=0, t_start=None, t_end=None, interp_time='t_rev',
+                 plot=False, figdir='fig', figname='preprocess_ramp',
+                 sampling=1):
 
         if interpolation in ['linear', 'cubic', 'derivative']:
             self.interpolation = str(interpolation)
@@ -85,6 +91,16 @@ class RingOptions(object):
 
         self.t_start = t_start
         self.t_end = t_end
+
+        if (interp_time != 't_rev') and \
+                not isinstance(interp_time, float) and \
+                not isinstance(interp_time, np.ndarray) and \
+                not isinstance(interp_time, list):
+            #MomentumError
+            raise RuntimeError("ERROR: interp_time value in PreprocessRamp" +
+                               " not recognised. Aborting...")
+        else:
+            self.interp_time = interp_time
 
         if (plot is True) or (plot is False):
             self.plot = bool(plot)
@@ -124,7 +140,7 @@ class RingOptions(object):
             The number of sections of the ring. The simulation is stopped
             if the input_data shape does not correspond to the expected number
             of sections.
-        interp_time : str or float or float array [n_turns+1]
+        interp_time : str or float or float array
             Optional : defines the time on which the program will be
             interpolated. If 't_rev' is passed and if the input_data is
             momentum (see input_to_momentum option) the momentum program
