@@ -125,7 +125,6 @@ class RFStationOptions(object):
 
             output_data = []
 
-            #Hot fix to safely treat t_start 
             if t_start is None:
                 t_start = 0
 
@@ -170,7 +169,7 @@ class RFStationOptions(object):
             # Plot original and interpolated data
             if self.plot:
                 # Directory where plots will be stored
-                fig_folder(self.figdir)
+                makedir(self.figdir)
 
                 # Plot
                 for index_rf in range(n_rf):
