@@ -20,7 +20,7 @@ LINKS
 
 Repository: https://github.com/blond-org/blond_common
 
-Documentation: To be included
+Documentation: http://blond-org.github.io/blond_common/
 
 Project website: http://blond.web.cern.ch
 

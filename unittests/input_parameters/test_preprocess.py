@@ -12,12 +12,15 @@ Test preprocess.py
 
 '''
 
+# General imports
+# ---------------
 import sys
 import unittest
 import numpy as np
 
+# BLonD imports
+# -------------
 sys.path.append('./../../../')
-
 from blond_common.interfaces.input_parameters.ring import RingOptions
 
 

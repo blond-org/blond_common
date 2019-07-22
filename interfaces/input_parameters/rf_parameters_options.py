@@ -1,5 +1,5 @@
 # coding: utf8
-# Copyright 2014-2017 CERN. This software is distributed under the
+# Copyright 2014-2019 CERN. This software is distributed under the
 # terms of the GNU General Public License version 3 (GPL Version 3),
 # copied verbatim in the file LICENSE.md.
 # In applying this license, CERN does not waive the privileges and immunities
@@ -125,7 +125,6 @@ class RFStationOptions(object):
 
             output_data = []
 
-            #Hot fix to safely treat t_start 
             if t_start is None:
                 t_start = 0
 
@@ -170,7 +169,7 @@ class RFStationOptions(object):
             # Plot original and interpolated data
             if self.plot:
                 # Directory where plots will be stored
-                fig_folder(self.figdir)
+                makedir(self.figdir)
 
                 # Plot
                 for index_rf in range(n_rf):

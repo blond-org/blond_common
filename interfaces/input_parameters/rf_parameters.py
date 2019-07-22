@@ -1,5 +1,5 @@
 # coding: utf8
-# Copyright 2014-2017 CERN. This software is distributed under the
+# Copyright 2014-2019 CERN. This software is distributed under the
 # terms of the GNU General Public Licence version 3 (GPL Version 3),
 # copied verbatim in the file LICENCE.md.
 # In applying this licence, CERN does not waive the privileges and immunities
@@ -290,46 +290,46 @@ class RFStation(object):
                 Ring.RingOptions.t_start)
         else:
             self.phi_noise = None
-            
+
         if phi_modulation is not None:
-            
+
             try:
                 iter(phi_modulation)
             except TypeError:
                 phi_modulation = [phi_modulation]
-            
+
             dPhi = np.zeros([self.n_rf, self.n_turns+1])
             dOmega = np.zeros([self.n_rf, self.n_turns+1])
             for pMod in phi_modulation:
-                system = np.where(self.harmonic[:,0] == pMod.harmonic)[0]
+                system = np.where(self.harmonic[:, 0] == pMod.harmonic)[0]
                 if len(system) == 0:
                     raise ValueError("No matching harmonic in phi_modulation")
                 elif len(system) > 1:
-                    raise RuntimeError("""Phase modulation not yet 
-                                       implemented with multiple systems 
+                    raise RuntimeError("""Phase modulation not yet
+                                       implemented with multiple systems
                                        at the same harmonic.""")
                 else:
                     system = system[0]
-                    
+
                 pMod.calc_modulation()
-                pMod.calc_delta_omega((Ring.cycle_time, self.omega_rf_d[system]))
-                dPhiInput, dOmegaInput =  pMod.extend_to_n_rf(self.harmonic[:,0])
-                dPhi += RFStationOptions.reshape_data(dPhiInput,
-                                                     self.n_turns,
-                                                     self.n_rf,
-                                                     Ring.cycle_time,
-                                                     Ring.RingOptions.t_start)
-                dOmega += RFStationOptions.reshape_data(dOmegaInput,
-                                                       self.n_turns,
-                                                       self.n_rf,
-                                                       Ring.cycle_time,
-                                                       Ring.RingOptions.t_start)
-                
-                
-            
+                pMod.calc_delta_omega(
+                    (Ring.cycle_time, self.omega_rf_d[system]))
+                dPhiInput, dOmegaInput = pMod.extend_to_n_rf(
+                    self.harmonic[:, 0])
+                dPhi += RFStationOptions.reshape_data(
+                    dPhiInput,
+                    self.n_turns,
+                    self.n_rf,
+                    Ring.cycle_time,
+                    Ring.RingOptions.t_start)
+                dOmega += RFStationOptions.reshape_data(
+                    dOmegaInput,
+                    self.n_turns,
+                    self.n_rf,
+                    Ring.cycle_time,
+                    Ring.RingOptions.t_start)
             self.phi_modulation = (dPhi, dOmega)
         else:
-            
             self.phi_modulation = None
 
         # Copy of the desing rf programs in the one used for tracking
