@@ -21,15 +21,15 @@ from __future__ import division, print_function
 from builtins import range, object
 import numpy as np
 from scipy.constants import c, physical_constants
-import ctypes
+# import ctypes
 # from ..setup_cpp import libblond
-from .. import libblond
+# from .. import libblond
 
 
 class _ImpedanceObject(object):
 
     """
-    Parent impedance object to implement required methods and attributes 
+    Parent impedance object to implement required methods and attributes
     common to all the child classes. The attributes are initialised to 0 but
     they are overwritten by float arrays when the child classes are used.
     """
@@ -266,7 +266,7 @@ class Resonators(_ImpedanceObject):
     >>> resonators.imped_calc(frequency)
     """
 
-    def __init__(self, R_S, frequency_R, Q, method='c++'):
+    def __init__(self, R_S, frequency_R, Q, method='python'):
 
         _ImpedanceObject.__init__(self)
 
@@ -282,9 +282,9 @@ class Resonators(_ImpedanceObject):
         # Number of resonant modes
         self.n_resonators = len(self.R_S)
 
-        if method == 'c++':
-            self.imped_calc = self._imped_calc_cpp
-        elif method == 'python':
+#         if method == 'c++':
+#             self.imped_calc = self._imped_calc_cpp
+        if method == 'python':
             self.imped_calc = self._imped_calc_python
         else:
             #WrongCalcError
@@ -368,41 +368,41 @@ class Resonators(_ImpedanceObject):
                     self.frequency_array[1:] / self.frequency_R[i] -
                     self.frequency_R[i] / self.frequency_array[1:]))
 
-    def _imped_calc_cpp(self, frequency_array):
-        r"""
-        Impedance calculation method as a function of frequency optimised in
-        C++
-
-        Parameters
-        ----------
-        frequency_array : float array
-            Input frequency array in Hz
-
-        Attributes
-        ----------
-        frequency_array : float array
-            nput frequency array in Hz
-        impedance : complex array
-            Output impedance in :math:`\Omega + j \Omega`
-        """
-
-        self.frequency_array = frequency_array
-        self.impedance = np.zeros(len(self.frequency_array), complex)
-        realImp = np.zeros(len(self.frequency_array))
-        imagImp = np.zeros(len(self.frequency_array))
-
-        libblond.fast_resonator_real_imag(
-            realImp.ctypes.data_as(ctypes.c_void_p),
-            imagImp.ctypes.data_as(ctypes.c_void_p),
-            self.frequency_array.ctypes.data_as(ctypes.c_void_p),
-            self.R_S.ctypes.data_as(ctypes.c_void_p),
-            self.Q.ctypes.data_as(ctypes.c_void_p),
-            self.frequency_R.ctypes.data_as(ctypes.c_void_p),
-            ctypes.c_uint(self.n_resonators),
-            ctypes.c_uint(len(self.frequency_array)))
-
-        self.impedance.real = realImp
-        self.impedance.imag = imagImp
+#     def _imped_calc_cpp(self, frequency_array):
+#         r"""
+#         Impedance calculation method as a function of frequency optimised in
+#         C++
+# 
+#         Parameters
+#         ----------
+#         frequency_array : float array
+#             Input frequency array in Hz
+# 
+#         Attributes
+#         ----------
+#         frequency_array : float array
+#             nput frequency array in Hz
+#         impedance : complex array
+#             Output impedance in :math:`\Omega + j \Omega`
+#         """
+# 
+#         self.frequency_array = frequency_array
+#         self.impedance = np.zeros(len(self.frequency_array), complex)
+#         realImp = np.zeros(len(self.frequency_array))
+#         imagImp = np.zeros(len(self.frequency_array))
+# 
+#         libblond.fast_resonator_real_imag(
+#             realImp.ctypes.data_as(ctypes.c_void_p),
+#             imagImp.ctypes.data_as(ctypes.c_void_p),
+#             self.frequency_array.ctypes.data_as(ctypes.c_void_p),
+#             self.R_S.ctypes.data_as(ctypes.c_void_p),
+#             self.Q.ctypes.data_as(ctypes.c_void_p),
+#             self.frequency_R.ctypes.data_as(ctypes.c_void_p),
+#             ctypes.c_uint(self.n_resonators),
+#             ctypes.c_uint(len(self.frequency_array)))
+# 
+#         self.impedance.real = realImp
+#         self.impedance.imag = imagImp
 
 
 class TravelingWaveCavity(_ImpedanceObject):
