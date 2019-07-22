@@ -12,13 +12,15 @@ Unit-test for general_parameters.py
 :Authors: **Markus Schwarz**, **Alexandre Lasheen**
 """
 
-
+# General imports
+# ---------------
 import sys
 import unittest
 import numpy as np
 
+# BLonD imports
+# -------------
 sys.path.append('./../../../')
-
 from blond_common.interfaces.input_parameters.ring import Ring
 from blond_common.interfaces.input_parameters.ring_options import convert_data
 from blond_common.interfaces.beam.beam import Electron
