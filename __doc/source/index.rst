@@ -25,6 +25,7 @@ Modules
    
    _modules/interfaces.rst
    _modules/fitting.rst
+   _modules/maths.rst
 
 Indices and tables
 ==================
