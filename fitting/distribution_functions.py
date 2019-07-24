@@ -141,6 +141,14 @@ def binomialAmplitudeN(time, *fitParameters):
     return lineDensityFunction
 
 
+def _binomialRMS(full_bunch_length, exponent):
+    '''
+    Returns the RMS bunch length from the full bunch length and exponent
+    '''
+
+    return full_bunch_length/(2*np.sqrt(3+2*exponent))
+
+
 def cosine(time, *fitParameters):
     '''
     * Cosine line density *
