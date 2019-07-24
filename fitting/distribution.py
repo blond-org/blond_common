@@ -185,7 +185,7 @@ def profileSum(time, bunch, fitOpt=None, plotOpt=None):
     return bunchPosition, bunchLength, extraParameters
 
 
-def profileRMSDistrib(time, bunch, fitOpt=None):
+def RMS(time, bunch, fitOpt=None):
     '''
     Compute the rms bunch length and position from the profile.
     '''
@@ -625,10 +625,10 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
 
     # Computing RMS from fit if required
     if fitOpt.bunchLengthFactor == 'RMS':
-        profileRMSDistribOutput = profileRMSDistrib(
+        profileRMSOutput = RMS(
             time, profileFitFunction(time, *extraParameters))
-        bunchPosition = profileRMSDistribOutput[0] + fitOpt.bunchPositionOffset
-        bunchLength = profileRMSDistribOutput[1]
+        bunchPosition = profileRMSOutput[0] + fitOpt.bunchPositionOffset
+        bunchLength = profileRMSOutput[1]
     else:
         bunchPosition = extraParameters[1] + fitOpt.bunchPositionOffset
         bunchLength = fitOpt.bunchLengthFactor * extraParameters[2]
