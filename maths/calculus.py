@@ -14,8 +14,7 @@ maxima**
 :Authors: **Alexandre Lasheen**
 '''
 
-
-# External imports
+# General imports
 import numpy as np
 import scipy.interpolate as interp
 import scipy.integrate as integ
@@ -89,9 +88,20 @@ def integ_cubic(x, y, constant=0., s=0, tck=None,
         return x, Y
 
 
-def find_zeros_cubic(x, y, der, tck):
+def find_zeros_cubic(x, y, tck=None, s=0, rettck=False, mest=10):
+    '''
+    Function to find the location of all zero crossings of a numerical function
+    '''
 
-    pass
+    if tck is None:
+        tck = interp.splrep(x, y, s=s)
+
+    roots = interp.sproot(tck, mest=mest)
+
+    if rettck:
+        return roots, tck
+    else:
+        return roots
 
 
 def minmax_location_cubic(x, y, der=None, tck=None,
@@ -105,11 +115,11 @@ def minmax_location_cubic(x, y, der=None, tck=None,
     if tck is None:
         tck = interp.splrep(x, y, s=s)
     if tck_der is None and der is None:
-        der = deriv_cubic(y, x, tck, s=s)
+        der = deriv_cubic(x, y, tck, s=s)[1]
     if tck_der is None:
         tck_der = interp.splrep(x, der, s=s)
 
-    roots = interp.sproot(tck_der, mest=mest)
+    roots = find_zeros_cubic(0, 0, tck=tck_der, s=s, mest=mest)
 
     if len(roots) == 0:
         return None
@@ -136,18 +146,18 @@ def minmax_location_cubic(x, y, der=None, tck=None,
     if rettck:
         return ([np.array(min_pos), np.array(max_pos)],
                 [np.array(min_val), np.array(max_val)],
-                tck)
+                tck, tck_der)
     else:
         return ([np.array(min_pos), np.array(max_pos)],
                 [np.array(min_val), np.array(max_val)])
 
 
-def minmax_location_discrete(x, f):
+def minmax_location_discrete(x, f, interp=False):
     '''Function to locate the minima and maxima of the f(x)
     numerical function.'''
 
     f_derivative = np.diff(f)
-    x_derivative = x[0:-1] + (x[1]-x[0])/2
+    x_derivative = x[0:-1] + np.diff(x)/2
     f_derivative = np.interp(x, x_derivative, f_derivative)
 
     f_derivative_second = np.diff(f_derivative)
@@ -159,15 +169,36 @@ def minmax_location_discrete(x, f):
     f_derivative_zeros = np.unique(
         np.append(np.where(f_derivative == 0),
                   np.where(f_derivative[1:]/f_derivative[0:-1] < 0)))
-    min_x_position = (
-        x[f_derivative_zeros[f_derivative_second[f_derivative_zeros] > 0] + 1]
-        + x[f_derivative_zeros[f_derivative_second[f_derivative_zeros] > 0]])/2
-    max_x_position = (
-        x[f_derivative_zeros[f_derivative_second[f_derivative_zeros] < 0] + 1]
-        + x[f_derivative_zeros[f_derivative_second[f_derivative_zeros] < 0]])/2
 
-    min_values = np.interp(min_x_position, x, f)
-    max_values = np.interp(max_x_position, x, f)
+    indexes_min = f_derivative_zeros[
+        f_derivative_second[f_derivative_zeros] > 0]
+    interp_min = 0.5-1/np.pi*np.arctan(
+        (f[indexes_min+1]-f[indexes_min]) /
+        (x[indexes_min+1]-x[indexes_min]))
+
+    indexes_max = f_derivative_zeros[
+        f_derivative_second[f_derivative_zeros] < 0]
+    interp_max = 0.5+1/np.pi*np.arctan(
+        (f[indexes_max+1]-f[indexes_max]) /
+        (x[indexes_max+1]-x[indexes_max]))
+
+    if interp:
+        min_x_position = x[indexes_min] + interp_min*(
+            x[indexes_min+1]-x[indexes_min])
+        max_x_position = x[indexes_max] + interp_max*(
+            x[indexes_max+1]-x[indexes_max])
+
+        min_values = np.interp(min_x_position, x, f)
+        max_values = np.interp(max_x_position, x, f)
+
+    else:
+        min_x_position = x[
+            indexes_min+np.array(np.round(interp_min), dtype=int)]
+        max_x_position = x[
+            indexes_max+np.array(np.round(interp_max), dtype=int)]
+
+        min_values = f[indexes_min+np.array(np.round(interp_min), dtype=int)]
+        max_values = f[indexes_max+np.array(np.round(interp_max), dtype=int)]
 
     warnings.filterwarnings("default")
 
