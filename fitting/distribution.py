@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module to fit disitrubution functions, such as bunch line densities**
+**Module to fit distribution functions, such as bunch line densities**
 
 :Authors: **Alexandre Lasheen**, **Juan F. Esteban Mueller**,
           **Markus Schwarz**

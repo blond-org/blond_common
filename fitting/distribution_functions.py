@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module containing all base disitrubution functions used for fitting in
+**Module containing all base distribution functions used for fitting in
 the distribution.py module**
 
 :Authors: **Alexandre Lasheen**
