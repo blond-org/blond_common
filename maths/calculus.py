@@ -22,35 +22,27 @@ import scipy.integrate as integ
 import warnings
 
 
-def integ_linear(x, y, constant=0.):
+def deriv_diff(x, y):
     '''
-    Function returning the integral of a given function y, using cumtrapz
-    '''
-
-    out = integ.cumtrapz(y, x=x, initial=0) + constant
-
-    return out
-
-
-def integ_cubic(x, y, constant=0., s=0, tck=None):
-    '''
-    Function returning the integral of a given function y, using cubic spline
-    interpolation
+    Function returning the derivative of a given function y, using diff
+    Since the returned array is 1 element shorter, a new_x array is also
+    returned
     '''
 
-    if tck is None:
-        tck = interp.splrep(x, y, s=s)
+    yprime = np.diff(y)/np.diff(x)
+    new_x = x[0:-1]+np.diff(x)/2
 
-    x = np.atleast_1d(x)
-    dx = x[1]-x[0]
-    out = np.zeros(x.shape, dtype=y.dtype)
+    return new_x, yprime
 
-    for n in range(len(out)):
-        out[n] = interp.splint(0, x[n], tck)
-    out += constant
-    out *= dx
 
-    return out
+def deriv_gradient(x, y):
+    '''
+    Function returning the derivative of a given function y, using gradient
+    '''
+
+    yprime = np.gradient(y, x)
+
+    return x, yprime
 
 
 def deriv_cubic(x, y, tck=None, s=0):
@@ -61,10 +53,45 @@ def deriv_cubic(x, y, tck=None, s=0):
 
     if tck is None:
         tck = interp.splrep(x, y, s=s)
-    x = np.atleast_1d(x)
-    out = interp.splev(x, tck, der=1)
 
-    return out
+    yprime = interp.splev(x, tck, der=1)
+
+    return x, yprime
+
+
+def integ_trapz(x, y, constant=0.):
+    '''
+    Function returning the primitive of a given function y, using cumtrapz
+    '''
+
+    Y = integ.cumtrapz(y, x=x, initial=0) + constant
+
+    return x, Y
+
+
+def integ_cubic(x, y, constant=0., s=0, tck=None,
+                tck_ader=None, rettck=False):
+    '''
+    Function returning the primitive of a given function y, using cubic spline
+    interpolation
+    '''
+
+    if tck is None:
+        tck = interp.splrep(x, y, s=s)
+    if tck_ader is None:
+        tck_ader = interp.splantider(tck)
+
+    Y = interp.splev(x, tck_ader) + constant
+
+    if rettck:
+        return x, Y, tck, tck_ader
+    else:
+        return x, Y
+
+
+def find_zeros_cubic(x, y, der, tck):
+
+    pass
 
 
 def minmax_location_cubic(x, y, der=None, tck=None,
@@ -89,22 +116,17 @@ def minmax_location_cubic(x, y, der=None, tck=None,
 
     values = interp.splev(roots, tck)
 
+    # Taking the second derivative to find whether min or max
+    sign_root = np.sign(interp.splev(roots, tck_der, der=1))
+
     min_pos = []
     max_pos = []
     min_val = []
     max_val = []
 
-    index_slope = 1/(x[1]-x[0])
-    index_origin = -index_slope*x[0]
-
     for rootLoop in range(len(roots)):
-        index_root = roots[rootLoop] * index_slope + index_origin
-        sign_root = np.sign(
-            interp.splev(
-                x[int(np.ceil(index_root))], tck_der) -
-            interp.splev(x[int(np.floor(index_root))], tck_der))
 
-        if sign_root > 0:
+        if sign_root[rootLoop] > 0:
             min_pos.append(roots[rootLoop])
             min_val.append(values[rootLoop])
         else:
@@ -120,7 +142,7 @@ def minmax_location_cubic(x, y, der=None, tck=None,
                 [np.array(min_val), np.array(max_val)])
 
 
-def minmax_location(x, f):
+def minmax_location_discrete(x, f):
     '''Function to locate the minima and maxima of the f(x)
     numerical function.'''
 
