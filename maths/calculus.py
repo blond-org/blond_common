@@ -23,6 +23,9 @@ import warnings
 
 
 def integ_linear(x, y, constant=0.):
+    '''
+    Function returning the integral of a given function y, using cumtrapz
+    '''
 
     out = integ.cumtrapz(y, x=x, initial=0) + constant
 
@@ -30,6 +33,10 @@ def integ_linear(x, y, constant=0.):
 
 
 def integ_cubic(x, y, constant=0., s=0, tck=None):
+    '''
+    Function returning the integral of a given function y, using cubic spline
+    interpolation
+    '''
 
     if tck is None:
         tck = interp.splrep(x, y, s=s)
@@ -47,6 +54,10 @@ def integ_cubic(x, y, constant=0., s=0, tck=None):
 
 
 def deriv_cubic(x, y, tck=None, s=0):
+    '''
+    Function returning the derivative of a given function y, using cubic spline
+    interpolation
+    '''
 
     if tck is None:
         tck = interp.splrep(x, y, s=s)
@@ -59,6 +70,10 @@ def deriv_cubic(x, y, tck=None, s=0):
 def minmax_location_cubic(x, y, der=None, tck=None,
                           tck_der=None, s=0, rettck=False,
                           mest=10):
+    '''
+    Function returning the minima, maxima of a given function y,
+    as well as their location in x
+    '''
 
     if tck is None:
         tck = interp.splrep(x, y, s=s)
@@ -112,10 +127,13 @@ def minmax_location(x, f):
     f_derivative = np.diff(f)
     x_derivative = x[0:-1] + (x[1]-x[0])/2
     f_derivative = np.interp(x, x_derivative, f_derivative)
+
     f_derivative_second = np.diff(f_derivative)
     f_derivative_second = np.interp(x, x_derivative,
                                     f_derivative_second)
+
     warnings.filterwarnings("ignore")
+
     f_derivative_zeros = np.unique(
         np.append(np.where(f_derivative == 0),
                   np.where(f_derivative[1:]/f_derivative[0:-1] < 0)))
