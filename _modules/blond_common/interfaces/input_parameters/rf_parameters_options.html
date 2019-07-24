@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>blond_common_fork.interfaces.input_parameters.rf_parameters_options &mdash; BLonD Common  documentation</title>
+  <title>blond_common.interfaces.input_parameters.rf_parameters_options &mdash; BLonD Common  documentation</title>
   
 
   
@@ -89,6 +89,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../interfaces.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">fitting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../fitting.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../fitting.distribution.html">fitting.distribution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maths.html">maths package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maths.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../maths.calculus.html">maths.calculus module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../maths.html#examples">Examples</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -137,7 +154,7 @@
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
-      <li>blond_common_fork.interfaces.input_parameters.rf_parameters_options</li>
+      <li>blond_common.interfaces.input_parameters.rf_parameters_options</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,7 +169,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for blond_common_fork.interfaces.input_parameters.rf_parameters_options</h1><div class="highlight"><pre>
+  <h1>Source code for blond_common.interfaces.input_parameters.rf_parameters_options</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf8</span>
 <span class="c1"># Copyright 2014-2019 CERN. This software is distributed under the</span>
 <span class="c1"># terms of the GNU General Public License version 3 (GPL Version 3),</span>
@@ -177,7 +194,7 @@
 <span class="kn">from</span> <span class="nn">...devtools.path</span> <span class="k">import</span> <span class="n">makedir</span>
 
 
-<div class="viewcode-block" id="RFStationOptions"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters_options.RFStationOptions">[docs]</a><span class="k">class</span> <span class="nc">RFStationOptions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RFStationOptions"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters_options.RFStationOptions">[docs]</a><span class="k">class</span> <span class="nc">RFStationOptions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Class to preprocess the RF data (voltage, phase, harmonic) for</span>
 <span class="sd">    RFStation, interpolating it to every turn.</span>
 
@@ -230,7 +247,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;ERROR: sampling value in PreprocessRamp&quot;</span> <span class="o">+</span>
                                <span class="s2">&quot; not recognised. Aborting...&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="RFStationOptions.reshape_data"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters_options.RFStationOptions.reshape_data">[docs]</a>    <span class="k">def</span> <span class="nf">reshape_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">n_turns</span><span class="p">,</span> <span class="n">n_rf</span><span class="p">,</span> <span class="n">interp_time</span><span class="p">,</span>
+<div class="viewcode-block" id="RFStationOptions.reshape_data"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters_options.RFStationOptions.reshape_data">[docs]</a>    <span class="k">def</span> <span class="nf">reshape_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">n_turns</span><span class="p">,</span> <span class="n">n_rf</span><span class="p">,</span> <span class="n">interp_time</span><span class="p">,</span>
                      <span class="n">t_start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Checks whether the user input is consistent with the expectation</span>
 <span class="sd">        for the RFStation object. The possibilites are detailed in the</span>
@@ -389,7 +406,7 @@
         <span class="k">return</span> <span class="n">output_data</span></div></div>
 
 
-<div class="viewcode-block" id="combine_rf_functions"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters_options.combine_rf_functions">[docs]</a><span class="k">def</span> <span class="nf">combine_rf_functions</span><span class="p">(</span><span class="n">function_list</span><span class="p">,</span> <span class="n">merge_type</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+<div class="viewcode-block" id="combine_rf_functions"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters_options.combine_rf_functions">[docs]</a><span class="k">def</span> <span class="nf">combine_rf_functions</span><span class="p">(</span><span class="n">function_list</span><span class="p">,</span> <span class="n">merge_type</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
                          <span class="n">Ring</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">main_h</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Function to combine different RF programs. Each program is passed in a</span>
 <span class="sd">    tuple with complete function (single valued or numpy array) and 2-list</span>
