@@ -1,0 +1,877 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>blond_common_fork.fitting.distribution &mdash; BLonD Common  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> BLonD Common
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../interfaces.html">interfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../interfaces.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../interfaces.input_parameters.html">interfaces.input_parameters package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../fitting.html">fitting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../fitting.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution.html">fitting.distribution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BLonD Common</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>blond_common_fork.fitting.distribution</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for blond_common_fork.fitting.distribution</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf8</span>
+<span class="c1"># Copyright 2014-2019 CERN. This software is distributed under the</span>
+<span class="c1"># terms of the GNU General Public Licence version 3 (GPL Version 3),</span>
+<span class="c1"># copied verbatim in the file LICENCE.md.</span>
+<span class="c1"># In applying this licence, CERN does not waive the privileges and immunities</span>
+<span class="c1"># granted to it by virtue of its status as an Intergovernmental Organization or</span>
+<span class="c1"># submit itself to any jurisdiction.</span>
+<span class="c1"># Project website: http://blond.web.cern.ch/</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">**Module to fit disitrubution functions, such as bunch line densities**</span>
+
+<span class="sd">:Authors: **Alexandre Lasheen**, **Juan F. Esteban Mueller**,</span>
+<span class="sd">          **Markus Schwarz**</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># General imports</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">curve_fit</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># Cedar imports</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">distribution_functions</span>
+
+
+<div class="viewcode-block" id="FitOptions"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.FitOptions">[docs]</a><span class="k">class</span> <span class="nc">FitOptions</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bunchLengthFactor</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">bunchPositionOffset</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                 <span class="n">nPointsNoise</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fitInitialParameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fittingRoutine</span><span class="o">=</span><span class="s1">&#39;curve_fit&#39;</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Powell&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">residualFunction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">extraOptions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="n">bunchLengthFactor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bunchPositionOffset</span> <span class="o">=</span> <span class="n">bunchPositionOffset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nPointsNoise</span> <span class="o">=</span> <span class="n">nPointsNoise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">fitInitialParameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fittingRoutine</span> <span class="o">=</span> <span class="n">fittingRoutine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residualFunction</span> <span class="o">=</span> <span class="n">residualFunction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extraOptions</span> <span class="o">=</span> <span class="n">extraOptions</span></div>
+
+
+<div class="viewcode-block" id="PlotOptions"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.PlotOptions">[docs]</a><span class="k">class</span> <span class="nc">PlotOptions</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figname</span><span class="o">=</span><span class="s1">&#39;Bunch profile&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figname</span> <span class="o">=</span> <span class="n">figname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">clf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interactive</span> <span class="o">=</span> <span class="n">interactive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legend</span> <span class="o">=</span> <span class="n">legend</span></div>
+
+
+<div class="viewcode-block" id="FWHM"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.FWHM">[docs]</a><span class="k">def</span> <span class="nf">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute bunch length and bunch position from FWHM of the profile.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="c1"># Removing baseline</span>
+    <span class="n">profileToFit</span> <span class="o">=</span> <span class="n">bunch</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="c1"># Time resolution</span>
+    <span class="n">timeInterval</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Max and xFator times max values (defaults to half max)</span>
+    <span class="n">maximumValue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">)</span>
+    <span class="n">half_max</span> <span class="o">=</span> <span class="n">level</span> <span class="o">*</span> <span class="n">maximumValue</span>
+
+    <span class="c1"># First aproximation for the half maximum values</span>
+    <span class="n">taux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">profileToFit</span> <span class="o">&gt;=</span> <span class="n">half_max</span><span class="p">)</span>
+    <span class="n">taux1</span> <span class="o">=</span> <span class="n">taux</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">taux2</span> <span class="o">=</span> <span class="n">taux</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Interpolation of the time where the line density is half the maximun</span>
+    <span class="k">if</span> <span class="n">taux1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;FWHM is at left boundary of profile!&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span><span class="o">-</span><span class="n">half_max</span><span class="p">)</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span> <span class="o">-</span> <span class="n">profileToFit</span><span class="p">[</span><span class="n">taux1</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">timeInterval</span>
+
+    <span class="k">if</span> <span class="n">taux2</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;FWHM is at right boundary of profile!&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span><span class="o">-</span><span class="n">half_max</span><span class="p">)</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span> <span class="o">-</span> <span class="n">profileToFit</span><span class="p">[</span><span class="n">taux2</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">timeInterval</span>
+
+    <span class="c1"># Adjusting the FWHM with some scaling factor</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="ow">is</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">:</span>
+            <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="ow">is</span> <span class="s1">&#39;parabolic_line&#39;</span><span class="p">:</span>
+            <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">1.</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="ow">is</span> <span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">:</span>
+            <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">1.5</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span>
+
+    <span class="n">bunchLength</span> <span class="o">=</span> <span class="n">bunchLengthFactor</span> <span class="o">*</span> <span class="p">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span>
+    <span class="n">bunchPosition</span> <span class="o">=</span> <span class="p">(</span><span class="n">t1</span><span class="o">+</span><span class="n">t2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+    <span class="n">extraParameters</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">profileToFit</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">],</span> <span class="p">[</span><span class="n">half_max</span><span class="p">,</span> <span class="n">half_max</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">],</span> <span class="p">[</span><span class="n">half_max</span><span class="p">,</span> <span class="n">half_max</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="peakValue"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.peakValue">[docs]</a><span class="k">def</span> <span class="nf">peakValue</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Gives the peak of the profile averaged above the &#39;level&#39; (default is max).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="n">sampledNoise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="n">bunchPosition</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">bunchLength</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+        <span class="n">bunch</span><span class="p">[</span><span class="n">bunch</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">))]</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">))],</span>
+                 <span class="n">bunch</span><span class="p">[</span><span class="n">bunch</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">))]</span> <span class="o">-</span>
+                 <span class="n">sampledNoise</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="profileSum"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.profileSum">[docs]</a><span class="k">def</span> <span class="nf">profileSum</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute the sum of the profile.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="n">bunchPosition</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">bunchLength</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bunch</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">],</span>
+                 <span class="p">(</span><span class="n">bunch</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))[</span>
+                     <span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="RMS"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.RMS">[docs]</a><span class="k">def</span> <span class="nf">RMS</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute the rms bunch length and position from the profile.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="n">deltaX</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Removing baseline</span>
+    <span class="n">profileToFit</span> <span class="o">=</span> <span class="n">bunch</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="n">normalizedProfileInputY</span> <span class="o">=</span> <span class="n">profileToFit</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">deltaX</span><span class="p">)</span>
+
+    <span class="n">bunchPosition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">time</span> <span class="o">*</span> <span class="n">normalizedProfileInputY</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">deltaX</span><span class="p">)</span>
+    <span class="n">bunchLength</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(((</span><span class="n">time</span> <span class="o">-</span> <span class="n">bunchPosition</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">normalizedProfileInputY</span><span class="p">,</span>
+                 <span class="n">dx</span><span class="o">=</span><span class="n">deltaX</span><span class="p">))</span>
+    <span class="n">bunchPosition</span> <span class="o">+=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+    <span class="n">extraParameters</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="binomialParametersFromRatio"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.binomialParametersFromRatio">[docs]</a><span class="k">def</span> <span class="nf">binomialParametersFromRatio</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+                                <span class="n">ratioLookUpTable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    *Compute RMS bunch length, bunch position, exponent assuming a binomial</span>
+<span class="sd">    line density from Full-Width at different levels.*</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">ratioLookUpTable</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">level1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">level2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">ratioLookUpTable</span> <span class="o">=</span> <span class="n">_binomialParametersFromRatioLookupTable</span><span class="p">(</span>
+            <span class="n">level1</span><span class="p">,</span> <span class="n">level2</span><span class="p">)</span>
+        <span class="n">exponentArray</span><span class="p">,</span> <span class="n">ratioFWArray</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">ratioLookUpTable</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ratioLookUpTable</span> <span class="o">=</span> <span class="n">ratioLookUpTable</span>
+        <span class="n">exponentArray</span><span class="p">,</span> <span class="n">ratioFWArray</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">ratioLookUpTable</span>
+        <span class="n">level1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">level2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+
+    <span class="c1"># Finding the width at two different levels</span>
+    <span class="n">bunchPosition_1</span><span class="p">,</span> <span class="n">bunchLength_1</span> <span class="o">=</span> <span class="n">FWHM</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level1</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">bunchPosition_2</span><span class="p">,</span> <span class="n">bunchLength_2</span> <span class="o">=</span> <span class="n">FWHM</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level2</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">ratioFW</span> <span class="o">=</span> <span class="n">bunchLength_1</span><span class="o">/</span><span class="n">bunchLength_2</span>
+
+    <span class="n">exponentFromRatio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">ratioFW</span><span class="p">,</span> <span class="n">ratioFWArray</span><span class="p">,</span> <span class="n">exponentArray</span><span class="p">)</span>
+
+    <span class="n">fullBunchLengthFromRatio</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">bunchLength_2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level2</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponentFromRatio</span><span class="p">))</span> <span class="o">+</span>
+        <span class="n">bunchLength_1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level1</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponentFromRatio</span><span class="p">)))</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">bunchLength</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span><span class="o">*</span><span class="n">fullBunchLengthFromRatio</span> <span class="o">/</span> \
+        <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="o">+</span><span class="mf">2.</span><span class="o">*</span><span class="n">exponentFromRatio</span><span class="p">))</span>
+    <span class="n">bunchPosition</span> <span class="o">=</span> <span class="p">(</span><span class="n">bunchPosition_1</span> <span class="o">+</span> <span class="n">bunchPosition_2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> \
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+    <span class="n">returnFitParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">fullBunchLengthFromRatio</span><span class="p">,</span> <span class="n">exponentFromRatio</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">bunchPosition_2</span><span class="o">-</span><span class="n">bunchLength_2</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">bunchPosition_2</span><span class="o">+</span><span class="n">bunchLength_2</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span>
+                 <span class="p">[</span><span class="n">level2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+                  <span class="n">level2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">bunchPosition_1</span><span class="o">-</span><span class="n">bunchLength_1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">bunchPosition_1</span><span class="o">+</span><span class="n">bunchLength_1</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span>
+                 <span class="p">[</span><span class="n">level1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+                  <span class="n">level1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)],</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">binomialAmplitudeN</span><span class="p">(</span>
+            <span class="n">time</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+                    <span class="n">bunchPosition</span><span class="p">,</span>
+                    <span class="n">fullBunchLengthFromRatio</span><span class="p">,</span>
+                    <span class="n">exponentFromRatio</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">returnFitParameters</span></div>
+
+
+<span class="k">def</span> <span class="nf">_binomialParametersFromRatioLookupTable</span><span class="p">(</span><span class="n">level1</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">level2</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                                            <span class="n">exponentMin</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">exponentMax</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                            <span class="n">exponentDistrib</span><span class="o">=</span><span class="s1">&#39;logspace&#39;</span><span class="p">,</span>
+                                            <span class="n">exponentNPoints</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                            <span class="n">exponentArray</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    *Create the lookup table for the binomialParametersFromRatio function.*</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">exponentArray</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exponentDistrib</span> <span class="o">==</span> <span class="s1">&#39;linspace&#39;</span><span class="p">:</span>
+            <span class="n">exponentArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">exponentMin</span><span class="p">,</span> <span class="n">exponentMax</span><span class="p">,</span>
+                                        <span class="n">exponentNPoints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">exponentDistrib</span> <span class="o">==</span> <span class="s1">&#39;logspace&#39;</span><span class="p">:</span>
+            <span class="n">exponentArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">exponentMin</span><span class="p">),</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">exponentMax</span><span class="p">),</span>
+                                        <span class="n">exponentNPoints</span><span class="p">)</span>
+
+    <span class="n">ratioFWArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level1</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponentArray</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level2</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponentArray</span><span class="p">)))</span>
+
+    <span class="n">sortAscendingRatioFWArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">ratioFWArray</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">exponentArray</span><span class="p">[</span><span class="n">sortAscendingRatioFWArray</span><span class="p">],</span> \
+        <span class="n">ratioFWArray</span><span class="p">[</span><span class="n">sortAscendingRatioFWArray</span><span class="p">],</span> <span class="p">[</span><span class="n">level1</span><span class="p">,</span> <span class="n">level2</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="gaussianFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.gaussianFit">[docs]</a><span class="k">def</span> <span class="nf">gaussianFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a gaussian function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">gaussian</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">4.</span><span class="p">])</span>  <span class="c1"># 1 sigma !!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="generalizedGaussianFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.generalizedGaussianFit">[docs]</a><span class="k">def</span> <span class="nf">generalizedGaussianFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a generalizedGaussian function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">generalizedGaussian</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span>  <span class="c1"># 1 sigma !!</span>
+             <span class="mf">2.</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">])</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="waterbagFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.waterbagFit">[docs]</a><span class="k">def</span> <span class="nf">waterbagFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a waterbag function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">waterbag</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_line&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="parabolicLineFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.parabolicLineFit">[docs]</a><span class="k">def</span> <span class="nf">parabolicLineFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a parabolicLine function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">parabolicLine</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_line&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="parabolicAmplitudeFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.parabolicAmplitudeFit">[docs]</a><span class="k">def</span> <span class="nf">parabolicAmplitudeFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a parabolicAmplitude function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">parabolicAmplitude</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="binomialAmplitude2Fit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.binomialAmplitude2Fit">[docs]</a><span class="k">def</span> <span class="nf">binomialAmplitude2Fit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a binomialAmplitude2 function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">binomialAmplitude2</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="binomialAmplitudeNFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.binomialAmplitudeNFit">[docs]</a><span class="k">def</span> <span class="nf">binomialAmplitudeNFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a binomialAmplitudeN function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">binomialAmplitudeN</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Full bunch length!!</span>
+             <span class="mf">1.5</span><span class="p">])</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="cosineFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.cosineFit">[docs]</a><span class="k">def</span> <span class="nf">cosineFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a cosine function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">cosine</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<div class="viewcode-block" id="cosineSquaredFit"><a class="viewcode-back" href="../../fitting.distribution.html#blond_common_fork.fitting.distribution.cosineSquaredFit">[docs]</a><span class="k">def</span> <span class="nf">cosineSquaredFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with a cosineSquared function</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">distribution_functions</span><span class="o">.</span><span class="n">cosineSquared</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bunch</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="n">bunch</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                  <span class="n">bunch</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">_lineDensityFit</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span></div>
+
+
+<span class="k">def</span> <span class="nf">_lineDensityFit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fit the profile with the profileFitFunction</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="n">profileToFit</span> <span class="o">=</span> <span class="n">bunch</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bunch</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="c1"># Rescaling so that the fit parameters are around 1</span>
+    <span class="n">rescaleFactorX</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">rescaleFactorY</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">)</span>
+
+    <span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span><span class="p">)</span>
+
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rescaleFactorY</span>
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rescaleFactorX</span>
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rescaleFactorX</span>
+
+    <span class="c1"># Fitting</span>
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fittingRoutine</span> <span class="o">==</span> <span class="s1">&#39;curve_fit&#39;</span><span class="p">:</span>
+
+        <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+            <span class="n">profileFitFunction</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">time</span><span class="o">-</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">rescaleFactorX</span><span class="p">,</span>
+            <span class="n">profileToFit</span><span class="o">*</span><span class="n">rescaleFactorY</span><span class="p">,</span>
+            <span class="n">p0</span><span class="o">=</span><span class="n">fitInitialParameters</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fittingRoutine</span> <span class="o">==</span> <span class="s1">&#39;minimize&#39;</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">residualFunction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fitOpt</span><span class="o">.</span><span class="n">residualFunction</span> <span class="o">=</span> <span class="n">_leastSquareResidualFunction</span>
+
+        <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+            <span class="n">fitOpt</span><span class="o">.</span><span class="n">residualFunction</span><span class="p">,</span>
+            <span class="n">fitInitialParameters</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">profileFitFunction</span><span class="p">,</span>
+                  <span class="p">(</span><span class="n">time</span><span class="o">-</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">rescaleFactorX</span><span class="p">,</span>
+                  <span class="n">profileToFit</span><span class="o">*</span><span class="n">rescaleFactorY</span><span class="p">),</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">options</span><span class="p">)[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Abs on fit parameters</span>
+    <span class="n">extraParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">extraParameters</span><span class="p">)</span>
+
+    <span class="c1"># Rescaling back to the original dimensions</span>
+    <span class="n">extraParameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">rescaleFactorY</span>
+    <span class="n">extraParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">rescaleFactorX</span>
+    <span class="n">extraParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">extraParameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/=</span> <span class="n">rescaleFactorX</span>
+
+    <span class="c1"># Computing RMS from fit if required</span>
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">==</span> <span class="s1">&#39;RMS&#39;</span><span class="p">:</span>
+        <span class="n">profileRMSOutput</span> <span class="o">=</span> <span class="n">RMS</span><span class="p">(</span>
+            <span class="n">time</span><span class="p">,</span> <span class="n">profileFitFunction</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="o">*</span><span class="n">extraParameters</span><span class="p">))</span>
+        <span class="n">bunchPosition</span> <span class="o">=</span> <span class="n">profileRMSOutput</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+        <span class="n">bunchLength</span> <span class="o">=</span> <span class="n">profileRMSOutput</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bunchPosition</span> <span class="o">=</span> <span class="n">extraParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+        <span class="n">bunchLength</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">*</span> <span class="n">extraParameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                 <span class="n">profileToFit</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                 <span class="n">profileFitFunction</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="o">*</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span><span class="p">),</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Initial guess&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
+                 <span class="n">profileFitFunction</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="o">*</span><span class="n">extraParameters</span><span class="p">),</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fit&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">legend</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bunchPosition</span><span class="p">,</span> <span class="n">bunchLength</span><span class="p">,</span> <span class="n">extraParameters</span>
+
+
+<span class="k">def</span> <span class="nf">_leastSquareResidualFunction</span><span class="p">(</span><span class="n">fitParameters</span><span class="p">,</span> <span class="o">*</span><span class="n">fittingArgList</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    * Function to be used for fitting in the minimize function (least square).*</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">profileFitFunction</span> <span class="o">=</span> <span class="n">fittingArgList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">fittingArgList</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">fittedProfileInputY</span> <span class="o">=</span> <span class="n">fittingArgList</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">residue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">fittedProfileInputY</span> <span class="o">-</span>
+                      <span class="n">profileFitFunction</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="o">*</span><span class="n">fitParameters</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">residue</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BLonD-admin
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

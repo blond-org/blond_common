@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fitting.distribution module &mdash; BLonD Common  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fitting.distribution_functions module" href="fitting.distribution_functions.html" />
+    <link rel="prev" title="fitting package" href="fitting.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BLonD Common
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">interfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="interfaces.input_parameters.html">interfaces.input_parameters package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="fitting.html">fitting package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="fitting.html#modules">Modules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fitting.distribution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BLonD Common</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="fitting.html">fitting package</a> &raquo;</li>
+        
+      <li>fitting.distribution module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_modules/fitting.distribution.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-blond_common_fork.fitting.distribution">
+<span id="fitting-distribution-module"></span><h1>fitting.distribution module<a class="headerlink" href="#module-blond_common_fork.fitting.distribution" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module to fit disitrubution functions, such as bunch line densities</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Authors:</th><td class="field-body"><strong>Alexandre Lasheen</strong>, <strong>Juan F. Esteban Mueller</strong>,
+<strong>Markus Schwarz</strong></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.FWHM">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">FWHM</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>level=0.5</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#FWHM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.FWHM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute bunch length and bunch position from FWHM of the profile.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="blond_common_fork.fitting.distribution.FitOptions">
+<em class="property">class </em><code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">FitOptions</code><span class="sig-paren">(</span><em>bunchLengthFactor=1.0</em>, <em>bunchPositionOffset=0.0</em>, <em>nPointsNoise=3</em>, <em>fitInitialParameters=None</em>, <em>bounds=None</em>, <em>fittingRoutine='curve_fit'</em>, <em>method='Powell'</em>, <em>options=None</em>, <em>residualFunction=None</em>, <em>extraOptions=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#FitOptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.FitOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="blond_common_fork.fitting.distribution.PlotOptions">
+<em class="property">class </em><code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">PlotOptions</code><span class="sig-paren">(</span><em>figname='Bunch profile'</em>, <em>clf=True</em>, <em>interactive=True</em>, <em>legend=True</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#PlotOptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.PlotOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.RMS">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">RMS</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#RMS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.RMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the rms bunch length and position from the profile.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.binomialAmplitude2Fit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">binomialAmplitude2Fit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#binomialAmplitude2Fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.binomialAmplitude2Fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a binomialAmplitude2 function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.binomialAmplitudeNFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">binomialAmplitudeNFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#binomialAmplitudeNFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.binomialAmplitudeNFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a binomialAmplitudeN function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.binomialParametersFromRatio">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">binomialParametersFromRatio</code><span class="sig-paren">(</span><em>time, bunch, levels=[0.8, 0.2], ratioLookUpTable=None, fitOpt=None, plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#binomialParametersFromRatio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.binomialParametersFromRatio" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Compute RMS bunch length, bunch position, exponent assuming a binomial
+line density from Full-Width at different levels.</em></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.cosineFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">cosineFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#cosineFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.cosineFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a cosine function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.cosineSquaredFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">cosineSquaredFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#cosineSquaredFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.cosineSquaredFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a cosineSquared function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.gaussianFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">gaussianFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#gaussianFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.gaussianFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a gaussian function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.generalizedGaussianFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">generalizedGaussianFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#generalizedGaussianFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.generalizedGaussianFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a generalizedGaussian function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.parabolicAmplitudeFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">parabolicAmplitudeFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#parabolicAmplitudeFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.parabolicAmplitudeFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a parabolicAmplitude function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.parabolicLineFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">parabolicLineFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#parabolicLineFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.parabolicLineFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a parabolicLine function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.peakValue">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">peakValue</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>level=1</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#peakValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.peakValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the peak of the profile averaged above the ‘level’ (default is max).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.profileSum">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">profileSum</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#profileSum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.profileSum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the sum of the profile.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common_fork.fitting.distribution.waterbagFit">
+<code class="descclassname">blond_common_fork.fitting.distribution.</code><code class="descname">waterbagFit</code><span class="sig-paren">(</span><em>time</em>, <em>bunch</em>, <em>fitOpt=None</em>, <em>plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common_fork/fitting/distribution.html#waterbagFit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common_fork.fitting.distribution.waterbagFit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the profile with a waterbag function</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fitting.distribution_functions.html" class="btn btn-neutral float-right" title="fitting.distribution_functions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="fitting.html" class="btn btn-neutral float-left" title="fitting package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BLonD-admin
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
