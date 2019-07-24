@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>blond_common_fork.interfaces.input_parameters.rf_parameters &mdash; BLonD Common  documentation</title>
+  <title>blond_common.interfaces.input_parameters.rf_parameters &mdash; BLonD Common  documentation</title>
   
 
   
@@ -89,6 +89,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../interfaces.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">fitting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../fitting.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../fitting.distribution.html">fitting.distribution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maths.html">maths package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maths.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../maths.calculus.html">maths.calculus module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../maths.html#examples">Examples</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -137,7 +154,7 @@
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
-      <li>blond_common_fork.interfaces.input_parameters.rf_parameters</li>
+      <li>blond_common.interfaces.input_parameters.rf_parameters</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,7 +169,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for blond_common_fork.interfaces.input_parameters.rf_parameters</h1><div class="highlight"><pre>
+  <h1>Source code for blond_common.interfaces.input_parameters.rf_parameters</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf8</span>
 <span class="c1"># Copyright 2014-2019 CERN. This software is distributed under the</span>
 <span class="c1"># terms of the GNU General Public Licence version 3 (GPL Version 3),</span>
@@ -177,7 +194,7 @@
 <span class="kn">from</span> <span class="nn">..input_parameters.rf_parameters_options</span> <span class="k">import</span> <span class="n">RFStationOptions</span>
 
 
-<div class="viewcode-block" id="RFStation"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters.RFStation">[docs]</a><span class="k">class</span> <span class="nc">RFStation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RFStation"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.RFStation">[docs]</a><span class="k">class</span> <span class="nc">RFStation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Class containing all the RF parameters for all the RF systems in one</span>
 <span class="sd">    ring segment or RF station.</span>
 
@@ -499,7 +516,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Q_s</span> <span class="o">=</span> <span class="n">calculate_Q_s</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Particle</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omega_s0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q_s</span><span class="o">*</span><span class="n">Ring</span><span class="o">.</span><span class="n">omega_rev</span>
 
-<div class="viewcode-block" id="RFStation.eta_tracking"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters.RFStation.eta_tracking">[docs]</a>    <span class="k">def</span> <span class="nf">eta_tracking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beam</span><span class="p">,</span> <span class="n">counter</span><span class="p">,</span> <span class="n">dE</span><span class="p">):</span>
+<div class="viewcode-block" id="RFStation.eta_tracking"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.RFStation.eta_tracking">[docs]</a>    <span class="k">def</span> <span class="nf">eta_tracking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beam</span><span class="p">,</span> <span class="n">counter</span><span class="p">,</span> <span class="n">dE</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Function to calculate the slippage factor as a function of the</span>
 <span class="sd">        energy offset :math:`\Delta E` of the particle. The slippage factor</span>
 <span class="sd">        of the :math:`i` th order is :math:`\eta(\delta) = \sum_{i}(\eta_i \,</span>
@@ -519,7 +536,7 @@
             <span class="k">return</span> <span class="n">eta</span></div></div>
 
 
-<div class="viewcode-block" id="calculate_Q_s"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters.calculate_Q_s">[docs]</a><span class="k">def</span> <span class="nf">calculate_Q_s</span><span class="p">(</span><span class="n">RFStation</span><span class="p">,</span> <span class="n">Particle</span><span class="o">=</span><span class="n">Proton</span><span class="p">()):</span>
+<div class="viewcode-block" id="calculate_Q_s"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.calculate_Q_s">[docs]</a><span class="k">def</span> <span class="nf">calculate_Q_s</span><span class="p">(</span><span class="n">RFStation</span><span class="p">,</span> <span class="n">Particle</span><span class="o">=</span><span class="n">Proton</span><span class="p">()):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function calculating the turn-by-turn synchrotron tune for</span>
 <span class="sd">    single-harmonic RF, without intensity effects.</span>
 
@@ -543,7 +560,7 @@
                    <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">RFStation</span><span class="o">.</span><span class="n">beta</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">RFStation</span><span class="o">.</span><span class="n">energy</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="calculate_phi_s"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.rf_parameters.calculate_phi_s">[docs]</a><span class="k">def</span> <span class="nf">calculate_phi_s</span><span class="p">(</span><span class="n">RFStation</span><span class="p">,</span> <span class="n">Particle</span><span class="o">=</span><span class="n">Proton</span><span class="p">(),</span>
+<div class="viewcode-block" id="calculate_phi_s"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.calculate_phi_s">[docs]</a><span class="k">def</span> <span class="nf">calculate_phi_s</span><span class="p">(</span><span class="n">RFStation</span><span class="p">,</span> <span class="n">Particle</span><span class="o">=</span><span class="n">Proton</span><span class="p">(),</span>
                     <span class="n">accelerating_systems</span><span class="o">=</span><span class="s1">&#39;as_single&#39;</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Function calculating the turn-by-turn synchronous phase according to</span>
 <span class="sd">    the parameters in the RFStation object. The phase is expressed in</span>

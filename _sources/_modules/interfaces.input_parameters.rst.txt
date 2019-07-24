@@ -4,7 +4,7 @@ interfaces.input\_parameters package
 interfaces.input\_parameters.ring module
 ------------------------------------------------------------
 
-.. automodule:: blond_common_fork.interfaces.input_parameters.ring
+.. automodule:: blond_common.interfaces.input_parameters.ring
     :members:
     :undoc-members:
     :show-inheritance:
@@ -12,7 +12,7 @@ interfaces.input\_parameters.ring module
 interfaces.input\_parameters.ring\_options module
 ---------------------------------------------------------------------
 
-.. automodule:: blond_common_fork.interfaces.input_parameters.ring_options
+.. automodule:: blond_common.interfaces.input_parameters.ring_options
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,7 +20,7 @@ interfaces.input\_parameters.ring\_options module
 interfaces.input\_parameters.rf\_parameters module
 ----------------------------------------------------------------------
 
-.. automodule:: blond_common_fork.interfaces.input_parameters.rf_parameters
+.. automodule:: blond_common.interfaces.input_parameters.rf_parameters
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,7 +28,7 @@ interfaces.input\_parameters.rf\_parameters module
 interfaces.input\_parameters.rf\_parameters\_options module
 -------------------------------------------------------------------------------
 
-.. automodule:: blond_common_fork.interfaces.input_parameters.rf_parameters_options
+.. automodule:: blond_common.interfaces.input_parameters.rf_parameters_options
     :members:
     :undoc-members:
     :show-inheritance:

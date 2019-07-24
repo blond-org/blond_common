@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>blond_common_fork.interfaces.input_parameters.ring &mdash; BLonD Common  documentation</title>
+  <title>blond_common.interfaces.input_parameters.ring &mdash; BLonD Common  documentation</title>
   
 
   
@@ -89,6 +89,23 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../interfaces.html#examples">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">fitting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../fitting.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../fitting.distribution.html">fitting.distribution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maths.html">maths package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maths.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../maths.calculus.html">maths.calculus module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../maths.html#examples">Examples</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -137,7 +154,7 @@
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
-      <li>blond_common_fork.interfaces.input_parameters.ring</li>
+      <li>blond_common.interfaces.input_parameters.ring</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,7 +169,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for blond_common_fork.interfaces.input_parameters.ring</h1><div class="highlight"><pre>
+  <h1>Source code for blond_common.interfaces.input_parameters.ring</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf8</span>
 <span class="c1"># Copyright 2014-2019 CERN. This software is distributed under the</span>
 <span class="c1"># terms of the GNU General Public Licence version 3 (GPL Version 3),</span>
@@ -175,7 +192,7 @@
 <span class="kn">from</span> <span class="nn">..input_parameters.ring_options</span> <span class="k">import</span> <span class="n">RingOptions</span>
 
 
-<div class="viewcode-block" id="Ring"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.ring.Ring">[docs]</a><span class="k">class</span> <span class="nc">Ring</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Ring"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring.Ring">[docs]</a><span class="k">class</span> <span class="nc">Ring</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Class containing the general properties of the synchrotron that are</span>
 <span class="sd">    independent of the RF system or the beam.</span>
 
@@ -429,7 +446,7 @@
         <span class="c1"># Slippage factor derived from alpha, beta, gamma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eta_generation</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Ring.eta_generation"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.ring.Ring.eta_generation">[docs]</a>    <span class="k">def</span> <span class="nf">eta_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Ring.eta_generation"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring.Ring.eta_generation">[docs]</a>    <span class="k">def</span> <span class="nf">eta_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Function to generate the slippage factors (zeroth, first, and</span>
 <span class="sd">        second orders, see [1]_) from the momentum compaction and the</span>
 <span class="sd">        relativistic beta and gamma program through the cycle.</span>
@@ -477,7 +494,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">alpha_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">eta_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">alpha_0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Ring.parameters_at_time"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common_fork.interfaces.input_parameters.ring.Ring.parameters_at_time">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_at_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_moments</span><span class="p">):</span>
+<div class="viewcode-block" id="Ring.parameters_at_time"><a class="viewcode-back" href="../../../interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring.Ring.parameters_at_time">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_at_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_moments</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Function to return various cycle parameters at a specific moment in</span>
 <span class="sd">        time. The cycle time is defined to start at zero in turn zero.</span>
 
