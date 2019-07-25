@@ -40,28 +40,62 @@ def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
     return time_array, voltage_array
 
 
-def potential_well_generation_cubic(voltage_array, time_array, eta_0,
-                                    charge, t_rev, energy_increment,
+def potential_well_generation(n_points, t_rev, voltage, harmonic_number,
+                              phi_offset, eta_0, charge, energy_increment,
+                              time_bounds=None):
+
+    voltage = np.array(voltage, ndmin=1)
+    harmonic_number = np.array(harmonic_number, ndmin=1)
+    phi_offset = np.array(phi_offset, ndmin=1)
+
+    if time_bounds is None:
+        left_time = 0
+        right_time = t_rev / harmonic_number[0]
+        margin = 0.2
+    else:
+        left_time = time_bounds[0]
+        right_time = time_bounds[1]
+        margin = 0
+
+    omega_rev = 2*np.pi/t_rev
+
+    time_array = np.linspace(left_time-left_time*margin,
+                             right_time+right_time*margin,
+                             n_points)
+
+    potential_well = -energy_increment*time_array
+
+    eom_factor_potential = np.sign(eta_0) * charge / t_rev
+
+    for indexRF in range(len(voltage)):
+        potential_well += eom_factor_potential * \
+            voltage[indexRF]/(harmonic_number[indexRF]*omega_rev) * np.cos(
+                harmonic_number[indexRF]*omega_rev*time_array +
+                phi_offset[indexRF])
+
+    return time_array, potential_well
+
+
+def potential_well_generation_cubic(time_array, voltage_array, eta_0, charge,
+                                    t_rev, energy_increment,
                                     interpolated_voltage_minus_increment=None):
 
     eom_factor_potential = np.sign(eta_0) * charge / t_rev
 
     if interpolated_voltage_minus_increment is None:
-        voltage_minus_increment = (
-            voltage_array-(-energy_increment)/abs(charge))
+        voltage_minus_increment = voltage_array - \
+            (energy_increment)/abs(charge)
         interpolated_voltage_minus_increment = interp.splrep(
             time_array, voltage_minus_increment)
     else:
         pass
 
-    potential_well = (
-        -eom_factor_potential*integ_cubic(
-            voltage_minus_increment,
-            time_array,
-            tck=interpolated_voltage_minus_increment))
+    potential_well = - eom_factor_potential * integ_cubic(
+        time_array, voltage_minus_increment,
+        tck=interpolated_voltage_minus_increment)[1]
 
-    return (potential_well, time_array,
-            (voltage_minus_increment, interpolated_voltage_minus_increment))
+    return time_array, potential_well, (voltage_minus_increment,
+                                        interpolated_voltage_minus_increment)
 
 
 def potential_well_cut_cubic(x, y, der=None, tck=None, tck_der=None, s=0):
