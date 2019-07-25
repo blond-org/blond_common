@@ -63,9 +63,10 @@ def potential_well_generation(n_points, t_rev, voltage, harmonic_number,
                              right_time+right_time*margin,
                              n_points)
 
-    potential_well = -energy_increment*time_array
-
     eom_factor_potential = np.sign(eta_0) * charge / t_rev
+
+    potential_well = eom_factor_potential*energy_increment/abs(charge) * \
+        time_array
 
     for indexRF in range(len(voltage)):
         potential_well += eom_factor_potential * \
