@@ -10,31 +10,34 @@ from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic
 
 
 def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
-                          phi_offset):
-
-    left_time = 0
-    right_time = t_rev / np.min(harmonic_number)
-    margin = 0.2
-
-    omega_rev = 2*np.pi/t_rev
-
-    time_array = np.linspace(left_time-right_time*margin,
-                             right_time+right_time*margin,
-                             n_points)
+                          phi_offset, time_bounds=None):
 
     voltage = np.array(voltage, ndmin=1)
     harmonic_number = np.array(harmonic_number, ndmin=1)
     phi_offset = np.array(phi_offset, ndmin=1)
 
+    if time_bounds is None:
+        left_time = 0
+        right_time = t_rev / harmonic_number[0]
+        margin = 0.2
+    else:
+        left_time = time_bounds[0]
+        right_time = time_bounds[1]
+        margin = 0
+
+    omega_rev = 2*np.pi/t_rev
+
+    time_array = np.linspace(left_time-left_time*margin,
+                             right_time+right_time*margin,
+                             n_points)
+
     voltage_array = np.zeros(len(time_array))
 
     for indexRF in range(len(voltage)):
-        voltage_array += (
-            voltage[indexRF] * np.sin(
-                harmonic_number[indexRF]*omega_rev*time_array +
-                phi_offset[indexRF]))
+        voltage_array += voltage[indexRF] * np.sin(
+            harmonic_number[indexRF]*omega_rev*time_array+phi_offset[indexRF])
 
-    return voltage_array, time_array
+    return time_array, voltage_array
 
 
 def potential_well_generation_cubic(voltage_array, time_array, eta_0,
