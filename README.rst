@@ -1,3 +1,10 @@
+.. image:: https://travis-ci.org/blond-org/blond_common.svg?branch=master
+    :target: https://travis-ci.org/blond-org/blond_common
+.. image:: https://ci.appveyor.com/api/projects/status/065ucd9c93vm7089/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/blond-org/blond_common/branch/master
+.. image:: https://coveralls.io/repos/github/blond-org/blond_common/badge.svg?branch=master
+    :target: https://coveralls.io/github/blond-org/blond_common?branch=master
+
 Copyright 2019 CERN. This software is distributed under the terms of the
 GNU General Public Licence version 3 (GPL Version 3), copied verbatim in
 the file LICENCE.txt. In applying this licence, CERN does not waive the
