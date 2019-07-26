@@ -10,7 +10,7 @@ environment:
 # cache: 
 #   - C:\ProgramData\chocolatey\bin -> appveyor.yml 
 #   - C:\ProgramData\chocolatey\lib -> appveyor.yml
-
+clone_folder: C:\projects\blond_common
 platform: 
   - x86
   - Any CPU
@@ -41,7 +41,7 @@ before_build:
 build_script:
   # - python setup.py install
   - DIR
-  - SET PYTHONPATH=C:\projects;%PYTHONPATH%
+  # - SET PYTHONPATH=C:\projects;%PYTHONPATH%
   # - SET PYTHONPATH=%PYTHONPATH%;..\
 
 test_script:
