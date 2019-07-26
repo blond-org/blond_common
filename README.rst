@@ -1,7 +1,7 @@
 .. image:: https://travis-ci.org/blond-org/blond_common.svg?branch=master
     :target: https://travis-ci.org/blond-org/blond_common
 .. image:: https://ci.appveyor.com/api/projects/status/065ucd9c93vm7089/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/blond-org/blond_common/branch/master
+    :target: https://ci.appveyor.com/project/blond-admin/blond-common
 .. image:: https://coveralls.io/repos/github/blond-org/blond_common/badge.svg?branch=master
     :target: https://coveralls.io/github/blond-org/blond_common?branch=master
 
