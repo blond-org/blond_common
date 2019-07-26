@@ -32,15 +32,16 @@ before_build:
   # - g++ --version
   - conda update -q -y conda
   - conda info -a
-  - conda create -q -y -n test-environment python=3.6 pip numpy scipy matplotlib future h5py
+  - conda create -q -y -n test-environment python=3.6 pip
   - activate test-environment
-  - pip install coveralls pytest parameterized
+  - pip install -r requirements.txt
+  # - pip install coveralls pytest parameterized
 
 
 build_script:
-  - python setup.py install
+  # - python setup.py install
   - DIR
-  # - set PYTHONPATH=./
+  - SET PYTHONPATH=%PYTHONPATH%;%CD%
 
 test_script:
   - python -m pytest -v -k "unittests and test and py" unittests\

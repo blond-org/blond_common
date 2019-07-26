@@ -23,10 +23,10 @@ this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 # BLonD imports
 # -------------
-if os.path.abspath(this_directory + '../../../') not in sys.path:
-    sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
+# if os.path.abspath(this_directory + '../../../') not in sys.path:
+#     sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
 # sys.path.append(this_directory + '../../../')
-from blond_common.interfaces.input_parameters.ring import RingOptions
+from interfaces.input_parameters.ring import RingOptions
 
 
 class test_preprocess(unittest.TestCase):
