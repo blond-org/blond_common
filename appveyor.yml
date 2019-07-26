@@ -3,7 +3,6 @@ image:
 environment:
   matrix:
     - PATH: C:\Python36-x64;C:\Miniconda36-x64\Scripts;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
-    - PYTHONPATH: C:\projects;%PYTHONPATH%
   # matrix:
     # - VSVER: Visual Studio 14 2015
     # - VSVER: Visual Studio 14 2015 Win64
@@ -42,6 +41,7 @@ before_build:
 build_script:
   # - python setup.py install
   - DIR
+  - SET PYTHONPATH=C:\projects;%PYTHONPATH%
   # - SET PYTHONPATH=%PYTHONPATH%;..\
 
 test_script:
