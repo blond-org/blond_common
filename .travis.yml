@@ -50,13 +50,15 @@ install:
       conda create -y -n pyenv python=$TRAVIS_PYTHON_VERSION;
     fi
   - source activate pyenv
-  - conda install -y -q pip "numpy>=1.12" scipy matplotlib future h5py 
+  - pip install -r requirements.txt
+  # - conda install -y -q pip "numpy>=1.12" scipy matplotlib future h5py 
   - conda list numpy
   - conda list python
   # Replace dep1 dep2 ... with your dependencies
-  - pip install coveralls pytest parameterized
+  # - pip install coveralls pytest parameterized
 before_script:
   # - python setup.py compile install
+  - export PYTHONPATH=$HOME/:$PYTHONPATH
 script:
   - coverage run -m pytest -v unittests/*/test*.py
 after_success:

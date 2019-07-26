@@ -19,10 +19,15 @@ from __future__ import division, print_function
 import sys
 import unittest
 import numpy
+import os
+
+this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 # BLonD imports
 # -------------
-sys.path.append('./../../../')
+if os.path.abspath(this_directory + '../../../') not in sys.path:
+    sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
+# sys.path.append('./../../../')
 from blond_common.interfaces.input_parameters.ring import Ring
 from blond_common.interfaces.input_parameters.rf_parameters import RFStation
 from blond_common.interfaces.beam.beam import Beam, Proton
