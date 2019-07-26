@@ -40,9 +40,9 @@ def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
     return time_array, voltage_array
 
 
-def potential_well_generation(n_points, t_rev, voltage, harmonic_number,
-                              phi_offset, eta_0, charge, energy_increment,
-                              time_bounds=None):
+def rf_potential_generation(n_points, t_rev, voltage, harmonic_number,
+                            phi_offset, eta_0, charge, energy_increment,
+                            time_bounds=None):
 
     voltage = np.array(voltage, ndmin=1)
     harmonic_number = np.array(harmonic_number, ndmin=1)
@@ -77,9 +77,9 @@ def potential_well_generation(n_points, t_rev, voltage, harmonic_number,
     return time_array, potential_well
 
 
-def potential_well_generation_cubic(time_array, voltage_array, eta_0, charge,
-                                    t_rev, energy_increment,
-                                    interpolated_voltage_minus_increment=None):
+def rf_potential_generation_cubic(time_array, voltage_array, eta_0, charge,
+                                  t_rev, energy_increment,
+                                  interpolated_voltage_minus_increment=None):
 
     eom_factor_potential = np.sign(eta_0) * charge / t_rev
 
@@ -99,69 +99,332 @@ def potential_well_generation_cubic(time_array, voltage_array, eta_0, charge,
                                         interpolated_voltage_minus_increment)
 
 
-def potential_well_cut_cubic(x, y, der=None, tck=None, tck_der=None, s=0):
+# Defining a routine to locate potential wells and inner separatrices
+def find_potential_wells_cubic(time_array_full, potential_well_full,
+                               relative_max_val_precision_limit=1e-6,
+                               mest=10, verbose=False):
 
-    if tck is None:
-        tck = interp.splrep(x, y, s=s)
-    if tck_der is None and der is None:
-        der = deriv_cubic(y, x, tck, s=s)
-    if tck_der is None:
-        tck_der = interp.splrep(x, der, s=s)
+    potwell_max_locs = []
+    potwell_max_vals = []
+    potwell_inner_max = []
+    potwell_min_locs = []
+    potwell_min_vals = []
 
-    [min_pos, max_pos], [min_val, max_val] = minmax_location_cubic(
-                                               y, x, der=der, tck=tck,
-                                               tck_der=tck_der, s=s)
+    tck = interp.splrep(time_array_full, potential_well_full)
 
-    left_position = 0
-    right_position = 0
+    min_max_results = minmax_location_cubic(time_array_full,
+                                            potential_well_full,
+                                            tck=tck,
+                                            mest=mest)
 
-    lower_maximum = np.where(max_val == np.min([max_val[0], max_val[-1]]))[0]
+    min_pos = min_max_results[0][0]
+    max_pos = min_max_results[0][1]
+    min_val = min_max_results[1][0]
+    max_val = min_max_results[1][1]
 
-    precision_parameter = 1e-3
+    for index_max in range(len(max_val)):
 
-    if len(lower_maximum) > 1:
+        # Setting a max
+        present_max_val = max_val[index_max]
+        present_max_pos = max_pos[index_max]
 
-        left_position = max_pos[0]
-        right_position = max_pos[-1]
+        # Resetting the inner separatrix flag to 0
+        inner_sep_max_left = 0
+        inner_sep_max_right = 0
 
-        adjustment_value = np.mean(max_val)
-
-        tck_adjusted = (tck[0], tck[1]-adjustment_value, tck[2])
-        potential_well_roots = interp.sproot(tck_adjusted)
-
-    elif np.abs((max_val[0]-max_val[-1])/max_val[0]) < precision_parameter:
-
-        left_position = max_pos[0]
-        right_position = max_pos[-1]
-
-        adjustment_value = np.mean(max_val)
-
-        tck_adjusted = (tck[0], tck[1]-adjustment_value, tck[2])
-        potential_well_roots = interp.sproot(tck_adjusted)
-
-    else:
-        if lower_maximum == 0:
-            adjustment_value = max_val[0]
-            left_position = max_pos[0]
+        # Checking left
+        if index_max == 0:
+            # This is the most left max
+            pass
         else:
-            adjustment_value = max_val[-1]
-            right_position = max_pos[-1]
+            # This is a right max, checking for the left counterparts
+            for index_left in range(1, index_max+1):
+                left_max_val = max_val[index_max-index_left]
+                left_max_pos = max_pos[index_max-index_left]
 
-        tck_adjusted = (tck[0], tck[1]-adjustment_value, tck[2])
-        potential_well_roots = interp.sproot(tck_adjusted)
+                right_pos = present_max_pos
+                right_val = present_max_val
 
-        if lower_maximum == 0:
-            right_position = potential_well_roots[
-                potential_well_roots > min_pos[min_val == np.min(min_val)]][0]
+                if np.isclose(left_max_val, present_max_val,
+                              rtol=relative_max_val_precision_limit, atol=0):
+                    # The left max is identical to the present max, a pot. well
+                    # is found
+                    left_pos = left_max_pos
+                    left_val = left_max_val
+
+                    if [left_pos, right_pos] not in potwell_max_locs:
+                        potwell_max_locs.append([left_pos, right_pos])
+                        potwell_max_vals.append([left_val, right_val])
+
+                        if inner_sep_max_left > 0:
+                            potwell_inner_max.append(
+                                    float(inner_sep_max_left))
+                            potwell_min_locs.append(np.nan)
+                            potwell_min_vals.append(np.nan)
+                        else:
+                            potwell_inner_max.append(np.nan)
+                            deepest_min = np.min(
+                                min_pos[(min_pos > left_pos) *
+                                        (min_pos < right_pos)])
+                            potwell_min_vals.append(
+                                float(min_val[
+                                    (min_pos > left_pos) *
+                                    (min_pos < right_pos)][
+                                        min_pos[(min_pos > left_pos) *
+                                                (min_pos < right_pos)] ==
+                                        deepest_min]))
+                            potwell_min_locs.append(
+                                    float(deepest_min))
+
+                        if verbose:
+                            print('+L1 - IMAX '+str(index_max)+' - ILEFT ' +
+                                  str(index_left))
+                            print([left_pos, right_pos], inner_sep_max_left)
+                    else:
+                        pass
+                        if verbose:
+                            print('=L1 - IMAX '+str(index_max)+' - ILEFT ' +
+                                  str(index_left))
+
+                    # Breaking the loop
+                    break
+
+                elif left_max_val < present_max_val:
+                    # The left max is smaller than the present max, this
+                    # means that there is an inner separatrix
+
+                    inner_sep_max_left = np.max([
+                        inner_sep_max_left, left_max_val])
+
+                    if verbose:
+                        print('L2 - IMAX '+str(index_max)+' - ILEFT ' +
+                              str(index_left))
+                        print (inner_sep_max_left)
+
+                elif left_max_val > present_max_val:
+                    # The left max is higher than the present max, finding
+                    # the intersection and breaking the loop
+
+                    indexes_find_root = np.where((tck[0] >= left_max_pos) *
+                                                 (tck[0] <= present_max_pos))
+
+                    tck_adjusted = (
+                        tck[0][indexes_find_root],
+                        (tck[1]-present_max_val)[indexes_find_root],
+                        tck[2])
+
+                    potential_well_roots = interp.sproot(tck_adjusted,
+                                                         mest=mest)
+
+                    # Breaking if root finding fails (bucket too small or
+                    # precision param too fine)
+                    if len(potential_well_roots) == 0:
+                        print('FL')
+                        break
+
+                    left_pos = np.max(potential_well_roots)
+                    left_val = present_max_val
+
+                    if [left_pos, right_pos] not in potwell_max_locs:
+                        potwell_max_locs.append([left_pos, right_pos])
+                        potwell_max_vals.append([left_val, right_val])
+
+                        if inner_sep_max_left > 0:
+                            potwell_inner_max.append(
+                                    float(inner_sep_max_left))
+                            potwell_min_locs.append(np.nan)
+                            potwell_min_vals.append(np.nan)
+                        else:
+                            potwell_inner_max.append(np.nan)
+                            deepest_min = np.min(
+                                min_pos[(min_pos > left_pos) *
+                                        (min_pos < right_pos)])
+                            potwell_min_vals.append(
+                                float(min_val[
+                                    (min_pos > left_pos) *
+                                    (min_pos < right_pos)][
+                                        min_pos[(min_pos > left_pos) *
+                                                (min_pos < right_pos)] ==
+                                        deepest_min]))
+                            potwell_min_locs.append(
+                                    float(deepest_min))
+
+                        if verbose:
+                            print('+L3 - IMAX '+str(index_max)+' - ILEFT ' +
+                                  str(index_left))
+                            print([left_pos, right_pos], inner_sep_max_left)
+                    else:
+                        pass
+                        if verbose:
+                            print('=L3 - IMAX '+str(index_max)+' - ILEFT ' +
+                                  str(index_left))
+
+                    # Beaking the loop
+                    break
+
+        # Checking right:
+        if index_max == len(max_val)-1:
+            # This is the most right max
+            pass
         else:
-            left_position = potential_well_roots[
-                potential_well_roots < min_pos[min_val == np.min(min_val)]][-1]
+            # This is a left max, checking for the right counterpart
+            for index_right in range(1, len(max_val)-index_max):
+                right_max_val = max_val[index_max+index_right]
+                right_max_pos = max_pos[index_max+index_right]
 
-    new_n_points = len(x[(x >= left_position)*(x <= right_position)])
-    xnew = np.linspace(left_position, right_position, new_n_points)
-    out = interp.splev(xnew, (tck[0], tck[1]-np.min(min_val), tck[2]))
+                left_pos = present_max_pos
+                left_val = present_max_val
 
-    return out, xnew, (tck_adjusted)
+                if np.isclose(right_max_val, present_max_val,
+                              rtol=relative_max_val_precision_limit, atol=0):
+                    # The right max is identical to the present max, a pot.
+                    # well is found
+                    right_pos = right_max_pos
+                    right_val = right_max_val
+
+                    if [left_pos, right_pos] not in potwell_max_locs:
+                        potwell_max_locs.append([left_pos, right_pos])
+                        potwell_max_vals.append([left_val, right_val])
+
+                        if inner_sep_max_right > 0:
+                            potwell_inner_max.append(
+                                    float(inner_sep_max_right))
+                            potwell_min_locs.append(np.nan)
+                            potwell_min_vals.append(np.nan)
+                        else:
+                            potwell_inner_max.append(np.nan)
+                            deepest_min = np.min(
+                                min_pos[(min_pos > left_pos) *
+                                        (min_pos < right_pos)])
+                            potwell_min_vals.append(
+                                float(min_val[
+                                    (min_pos > left_pos) *
+                                    (min_pos < right_pos)][
+                                        min_pos[(min_pos > left_pos) *
+                                                (min_pos < right_pos)] ==
+                                        deepest_min]))
+                            potwell_min_locs.append(
+                                    float(deepest_min))
+
+                        if verbose:
+                            print('+R1 - IMAX '+str(index_max)+' - IRIGHT ' +
+                                  str(index_right))
+                            print([left_pos, right_pos], inner_sep_max_right)
+                    else:
+                        pass
+                        if verbose:
+                            print('=R1 - IMAX '+str(index_max)+' - IRIGHT ' +
+                                  str(index_right))
+
+                    # Breaking the loop
+                    break
+
+                elif right_max_val < present_max_val:
+                    # The right max is smaller than the present max, this
+                    # means that there is an inner separatrix
+
+                    inner_sep_max_right = np.max([inner_sep_max_right,
+                                                  right_max_val])
+
+                    if verbose:
+                        print('R2 - IMAX '+str(index_max)+' - IRIGHT ' +
+                              str(index_right))
+                        print(inner_sep_max_right)
+
+                elif right_max_val > present_max_val:
+                    # The right max is higher than the present max, finding
+                    # the intersection and breaking the loop
+
+                    indexes_find_root = np.where(
+                        (tck[0] >= present_max_pos) *
+                        (tck[0] <= right_max_pos))
+
+                    tck_adjusted = (
+                        tck[0][indexes_find_root],
+                        (tck[1]-present_max_val)[indexes_find_root],
+                        tck[2])
+                    potential_well_roots = interp.sproot(tck_adjusted,
+                                                         mest=mest)
+
+                    # Breaking if root finding fails (bucket too small or
+                    # precision param too fine)
+                    if len(potential_well_roots) == 0:
+                        print('FR')
+                        break
+
+                    right_pos = np.min(potential_well_roots)
+                    right_val = present_max_val
+
+                    if [left_pos, right_pos] not in potwell_max_locs:
+                        potwell_max_locs.append([left_pos, right_pos])
+                        potwell_max_vals.append([left_val, right_val])
+
+                        if inner_sep_max_right > 0:
+                            potwell_inner_max.append(
+                                    float(inner_sep_max_right))
+                            potwell_min_locs.append(np.nan)
+                            potwell_min_vals.append(np.nan)
+                        else:
+                            potwell_inner_max.append(np.nan)
+                            deepest_min = np.min(
+                                min_pos[(min_pos > left_pos) *
+                                        (min_pos < right_pos)])
+                            potwell_min_vals.append(
+                                float(min_val[
+                                    (min_pos > left_pos) *
+                                    (min_pos < right_pos)][
+                                        min_pos[(min_pos > left_pos) *
+                                                (min_pos < right_pos)] ==
+                                        deepest_min]))
+                            potwell_min_locs.append(
+                                    float(deepest_min))
+
+                        if verbose:
+                            print('+R3 - IMAX '+str(index_max)+' - IRIGHT ' +
+                                  str(index_right))
+                            print([left_pos, right_pos],
+                                  inner_sep_max_right)
+                    else:
+                        pass
+                        if verbose:
+                            print('=R3 - IMAX '+str(index_max)+' - IRIGHT ' +
+                                  str(index_right))
+
+                    # Beaking the loop
+                    break
+
+    return (potwell_max_locs, potwell_max_vals,
+            potwell_inner_max, potwell_min_locs,
+            potwell_min_vals)
+
+
+# Cutting the potential wells according to the previous function output
+def potential_well_cut(time_array_full, potential_well_full,
+                       potwell_max_locs):
+
+    tck_potential_well = interp.splrep(time_array_full,
+                                       potential_well_full)
+
+    potential_well_list = []
+    time_array_list = []
+    for index_well in range(len(potwell_max_locs)):
+
+        left_position = potwell_max_locs[index_well][0]
+        right_position = potwell_max_locs[index_well][1]
+
+        new_n_points = len(
+            time_array_full[
+                (time_array_full >= left_position) *
+                (time_array_full <= right_position)])
+
+        xnew = np.linspace(left_position, right_position, new_n_points)
+
+        out = interp.splev(xnew, tck_potential_well)
+
+        time_array_list.append(xnew)
+        potential_well_list.append(out)
+
+    return time_array_list, potential_well_list
 
 
 def bucket_area(time_array, potential_array, eom_factor_dE=1.):
@@ -176,4 +439,4 @@ def bucket_area(time_array, potential_array, eom_factor_dE=1.):
     calc_area = 2*integ_cubic(dEtraj, time_array)[-1]
     half_energy_height = np.sqrt((hamiltonian) / eom_factor_dE)
 
-    return calc_area, half_energy_height, hamiltonian
+    return hamiltonian, calc_area, half_energy_height
