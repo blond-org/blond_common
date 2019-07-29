@@ -379,9 +379,8 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             potwell_min_vals)
 
 
-# Cutting the potential wells according to the previous function output
-def potential_well_cut(time_array_full, potential_well_full,
-                       potwell_max_locs):
+def potential_well_cut_cubic(time_array_full, potential_well_full,
+                             potwell_max_locs):
 
     tck_potential_well = interp.splrep(time_array_full,
                                        potential_well_full)
