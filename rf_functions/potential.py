@@ -414,7 +414,7 @@ def trajectory_area_cubic(time_array, potential_array, eta_0, beta_rel,
         min_potential_well = np.min(minmax_location_cubic(
             time_array, potential_array)[1][0])
 
-    eom_factor_dE = abs(eta_0) / (beta_rel**2.*tot_energy)
+    eom_factor_dE = abs(eta_0) / (2*beta_rel**2.*tot_energy)
 
     dEtraj = np.sqrt((potential_array[0]-potential_array) / eom_factor_dE)
     dEtraj[np.isnan(dEtraj)] = 0
