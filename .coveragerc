@@ -1,0 +1,15 @@
+[run]
+branch = True
+
+# a list of packages or directories, the source to collect statistics for.
+source = 
+    fitting
+    interfaces
+    maths
+    rf_functions
+    devtools
+# a list of file name patterns, the files to include in measurement or reporting.
+# include = 
+
+# a list of file name patterns, the files to leave out of measurement or reporting.
+# omit = 

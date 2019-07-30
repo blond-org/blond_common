@@ -17,10 +17,15 @@ Test preprocess.py
 import sys
 import unittest
 import numpy as np
+import os
+
+this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
 # BLonD imports
 # -------------
-sys.path.append('./../../../')
+if os.path.abspath(this_directory + '../../../') not in sys.path:
+    sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
+# sys.path.append(this_directory + '../../../')
 from blond_common.interfaces.input_parameters.ring import RingOptions
 
 

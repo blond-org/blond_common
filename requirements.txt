@@ -1,0 +1,7 @@
+numpy>=1.12
+scipy
+h5py
+matplotlib
+future
+coveralls
+pytest
