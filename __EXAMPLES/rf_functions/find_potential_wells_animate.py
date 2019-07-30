@@ -9,7 +9,7 @@ import scipy.interpolate as interp
 import matplotlib.pyplot as plt
 sys.path.append('./../../../')
 
-from blond_common_fork.maths.calculus import minmax_location_cubic
+from blond_common.maths.calculus import minmax_location_cubic
 
 
 def find_potential_wells_cubic_animate(time_array_full, potential_well_full,

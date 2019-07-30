@@ -8,7 +8,7 @@ import numpy as np
 import time
 sys.path.append('./../../../')
 
-from blond_common_fork.rf_functions.potential import find_potential_wells_cubic
+from blond_common.rf_functions.potential import find_potential_wells_cubic
 
 
 if __name__ == "__main__":
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     t1 = time.perf_counter()
 
     print('Time per call: %.3e ms' % ((t1-t0)/1000*1e3))
-    print('Number of potentials found: %d' % (len(potential_well_locs)))
+    print('Number of potential wells found: %d' % (len(potential_well_locs)))
