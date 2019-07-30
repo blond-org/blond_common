@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>blond_common.rf_functions.potential &mdash; BLonD Common  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> BLonD Common
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../interfaces.html">interfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../interfaces.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../interfaces.input_parameters.html">interfaces.input_parameters package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../fitting.html">fitting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../fitting.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution.html">fitting.distribution module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../maths.html">maths package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../maths.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../maths.calculus.html">maths.calculus module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../maths.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../rf_functions.html">rf_functions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../rf_functions.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../rf_functions.potential.html">rf_functions.potential module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../rf_functions.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BLonD Common</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>blond_common.rf_functions.potential</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for blond_common.rf_functions.potential</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf8</span>
+<span class="c1"># Copyright 2014-2019 CERN. This software is distributed under the</span>
+<span class="c1"># terms of the GNU General Public Licence version 3 (GPL Version 3),</span>
+<span class="c1"># copied verbatim in the file LICENCE.md.</span>
+<span class="c1"># In applying this licence, CERN does not waive the privileges and immunities</span>
+<span class="c1"># granted to it by virtue of its status as an Intergovernmental Organization or</span>
+<span class="c1"># submit itself to any jurisdiction.</span>
+<span class="c1"># Project website: http://blond.web.cern.ch/</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">**Module containing base functions to compute like rf voltage, rf potential,</span>
+<span class="sd">separatrices, acceptance, emittance, synchrotron frequency**</span>
+
+<span class="sd">:Authors: **Simon Albright**, **Alexandre Lasheen**</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># External imports</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">interp</span>
+<span class="kn">from</span> <span class="nn">..maths.calculus</span> <span class="k">import</span> <span class="n">integ_cubic</span><span class="p">,</span> <span class="n">deriv_cubic</span><span class="p">,</span> <span class="n">minmax_location_cubic</span>
+
+
+<div class="viewcode-block" id="rf_voltage_generation"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.rf_voltage_generation">[docs]</a><span class="k">def</span> <span class="nf">rf_voltage_generation</span><span class="p">(</span><span class="n">n_points</span><span class="p">,</span> <span class="n">t_rev</span><span class="p">,</span> <span class="n">voltage</span><span class="p">,</span> <span class="n">harmonic_number</span><span class="p">,</span>
+                          <span class="n">phi_offset</span><span class="p">,</span> <span class="n">time_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">voltage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">voltage</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">harmonic_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">harmonic_number</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">phi_offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi_offset</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">time_bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">left_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">right_time</span> <span class="o">=</span> <span class="n">t_rev</span> <span class="o">/</span> <span class="n">harmonic_number</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">left_time</span> <span class="o">=</span> <span class="n">time_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">right_time</span> <span class="o">=</span> <span class="n">time_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">omega_rev</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">t_rev</span>
+
+    <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">left_time</span><span class="o">-</span><span class="n">left_time</span><span class="o">*</span><span class="n">margin</span><span class="p">,</span>
+                             <span class="n">right_time</span><span class="o">+</span><span class="n">right_time</span><span class="o">*</span><span class="n">margin</span><span class="p">,</span>
+                             <span class="n">n_points</span><span class="p">)</span>
+
+    <span class="n">voltage_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_array</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">indexRF</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">voltage</span><span class="p">)):</span>
+        <span class="n">voltage_array</span> <span class="o">+=</span> <span class="n">voltage</span><span class="p">[</span><span class="n">indexRF</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+            <span class="n">harmonic_number</span><span class="p">[</span><span class="n">indexRF</span><span class="p">]</span><span class="o">*</span><span class="n">omega_rev</span><span class="o">*</span><span class="n">time_array</span><span class="o">+</span><span class="n">phi_offset</span><span class="p">[</span><span class="n">indexRF</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">time_array</span><span class="p">,</span> <span class="n">voltage_array</span></div>
+
+
+<div class="viewcode-block" id="rf_potential_generation"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.rf_potential_generation">[docs]</a><span class="k">def</span> <span class="nf">rf_potential_generation</span><span class="p">(</span><span class="n">n_points</span><span class="p">,</span> <span class="n">t_rev</span><span class="p">,</span> <span class="n">voltage</span><span class="p">,</span> <span class="n">harmonic_number</span><span class="p">,</span>
+                            <span class="n">phi_offset</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">energy_increment</span><span class="p">,</span>
+                            <span class="n">time_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">voltage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">voltage</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">harmonic_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">harmonic_number</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">phi_offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phi_offset</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">time_bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">left_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">right_time</span> <span class="o">=</span> <span class="n">t_rev</span> <span class="o">/</span> <span class="n">harmonic_number</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">left_time</span> <span class="o">=</span> <span class="n">time_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">right_time</span> <span class="o">=</span> <span class="n">time_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">omega_rev</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">t_rev</span>
+
+    <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">left_time</span><span class="o">-</span><span class="n">left_time</span><span class="o">*</span><span class="n">margin</span><span class="p">,</span>
+                             <span class="n">right_time</span><span class="o">+</span><span class="n">right_time</span><span class="o">*</span><span class="n">margin</span><span class="p">,</span>
+                             <span class="n">n_points</span><span class="p">)</span>
+
+    <span class="n">eom_factor_potential</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">eta_0</span><span class="p">)</span> <span class="o">*</span> <span class="n">charge</span> <span class="o">/</span> <span class="n">t_rev</span>
+
+    <span class="n">potential_well</span> <span class="o">=</span> <span class="n">eom_factor_potential</span><span class="o">*</span><span class="n">energy_increment</span><span class="o">/</span><span class="nb">abs</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span> <span class="o">*</span> \
+        <span class="n">time_array</span>
+
+    <span class="k">for</span> <span class="n">indexRF</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">voltage</span><span class="p">)):</span>
+        <span class="n">potential_well</span> <span class="o">+=</span> <span class="n">eom_factor_potential</span> <span class="o">*</span> \
+            <span class="n">voltage</span><span class="p">[</span><span class="n">indexRF</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">harmonic_number</span><span class="p">[</span><span class="n">indexRF</span><span class="p">]</span><span class="o">*</span><span class="n">omega_rev</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+                <span class="n">harmonic_number</span><span class="p">[</span><span class="n">indexRF</span><span class="p">]</span><span class="o">*</span><span class="n">omega_rev</span><span class="o">*</span><span class="n">time_array</span> <span class="o">+</span>
+                <span class="n">phi_offset</span><span class="p">[</span><span class="n">indexRF</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">time_array</span><span class="p">,</span> <span class="n">potential_well</span></div>
+
+
+<div class="viewcode-block" id="rf_potential_generation_cubic"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.rf_potential_generation_cubic">[docs]</a><span class="k">def</span> <span class="nf">rf_potential_generation_cubic</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">voltage_array</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span>
+                                  <span class="n">t_rev</span><span class="p">,</span> <span class="n">energy_increment</span><span class="p">,</span>
+                                  <span class="n">interpolated_voltage_minus_increment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">eom_factor_potential</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">eta_0</span><span class="p">)</span> <span class="o">*</span> <span class="n">charge</span> <span class="o">/</span> <span class="n">t_rev</span>
+
+    <span class="k">if</span> <span class="n">interpolated_voltage_minus_increment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">voltage_minus_increment</span> <span class="o">=</span> <span class="n">voltage_array</span> <span class="o">-</span> \
+            <span class="p">(</span><span class="n">energy_increment</span><span class="p">)</span><span class="o">/</span><span class="nb">abs</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span>
+        <span class="n">interpolated_voltage_minus_increment</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">,</span> <span class="n">voltage_minus_increment</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">potential_well</span> <span class="o">=</span> <span class="o">-</span> <span class="n">eom_factor_potential</span> <span class="o">*</span> <span class="n">integ_cubic</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">voltage_minus_increment</span><span class="p">,</span>
+        <span class="n">tck</span><span class="o">=</span><span class="n">interpolated_voltage_minus_increment</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">time_array</span><span class="p">,</span> <span class="n">potential_well</span><span class="p">,</span> <span class="p">(</span><span class="n">voltage_minus_increment</span><span class="p">,</span>
+                                        <span class="n">interpolated_voltage_minus_increment</span><span class="p">)</span></div>
+
+
+<span class="c1"># Defining a routine to locate potential wells and inner separatrices</span>
+<div class="viewcode-block" id="find_potential_wells_cubic"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.find_potential_wells_cubic">[docs]</a><span class="k">def</span> <span class="nf">find_potential_wells_cubic</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span> <span class="n">potential_well_full</span><span class="p">,</span>
+                               <span class="n">relative_max_val_precision_limit</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+                               <span class="n">mest</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="n">potwell_max_locs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">potwell_max_vals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">potwell_inner_max</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">potwell_min_locs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">potwell_min_vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">tck</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span> <span class="n">potential_well_full</span><span class="p">)</span>
+
+    <span class="n">min_max_results</span> <span class="o">=</span> <span class="n">minmax_location_cubic</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span>
+                                            <span class="n">potential_well_full</span><span class="p">,</span>
+                                            <span class="n">tck</span><span class="o">=</span><span class="n">tck</span><span class="p">,</span>
+                                            <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
+
+    <span class="n">min_pos</span> <span class="o">=</span> <span class="n">min_max_results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">max_pos</span> <span class="o">=</span> <span class="n">min_max_results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">min_val</span> <span class="o">=</span> <span class="n">min_max_results</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">min_max_results</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">index_max</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)):</span>
+
+        <span class="c1"># Setting a max</span>
+        <span class="n">present_max_val</span> <span class="o">=</span> <span class="n">max_val</span><span class="p">[</span><span class="n">index_max</span><span class="p">]</span>
+        <span class="n">present_max_pos</span> <span class="o">=</span> <span class="n">max_pos</span><span class="p">[</span><span class="n">index_max</span><span class="p">]</span>
+
+        <span class="c1"># Resetting the inner separatrix flag to 0</span>
+        <span class="n">inner_sep_max_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">inner_sep_max_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># Checking left</span>
+        <span class="k">if</span> <span class="n">index_max</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># This is the most left max</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># This is a right max, checking for the left counterparts</span>
+            <span class="k">for</span> <span class="n">index_left</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">index_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">left_max_val</span> <span class="o">=</span> <span class="n">max_val</span><span class="p">[</span><span class="n">index_max</span><span class="o">-</span><span class="n">index_left</span><span class="p">]</span>
+                <span class="n">left_max_pos</span> <span class="o">=</span> <span class="n">max_pos</span><span class="p">[</span><span class="n">index_max</span><span class="o">-</span><span class="n">index_left</span><span class="p">]</span>
+
+                <span class="n">right_pos</span> <span class="o">=</span> <span class="n">present_max_pos</span>
+                <span class="n">right_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">left_max_val</span><span class="p">,</span> <span class="n">present_max_val</span><span class="p">,</span>
+                              <span class="n">rtol</span><span class="o">=</span><span class="n">relative_max_val_precision_limit</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                    <span class="c1"># The left max is identical to the present max, a pot. well</span>
+                    <span class="c1"># is found</span>
+                    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">left_max_pos</span>
+                    <span class="n">left_val</span> <span class="o">=</span> <span class="n">left_max_val</span>
+
+                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">):</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">))</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+L1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_left</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=L1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+
+                    <span class="c1"># Breaking the loop</span>
+                    <span class="k">break</span>
+
+                <span class="k">elif</span> <span class="n">left_max_val</span> <span class="o">&lt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                    <span class="c1"># The left max is smaller than the present max, this</span>
+                    <span class="c1"># means that there is an inner separatrix</span>
+
+                    <span class="n">inner_sep_max_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span>
+                        <span class="n">inner_sep_max_left</span><span class="p">,</span> <span class="n">left_max_val</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;L2 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+                        <span class="nb">print</span> <span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">left_max_val</span> <span class="o">&gt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                    <span class="c1"># The left max is higher than the present max, finding</span>
+                    <span class="c1"># the intersection and breaking the loop</span>
+
+                    <span class="n">indexes_find_root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">left_max_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                 <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">present_max_pos</span><span class="p">))</span>
+
+                    <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">present_max_val</span><span class="p">)[</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                        <span class="n">tck</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+                    <span class="n">potential_well_roots</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">,</span>
+                                                         <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
+
+                    <span class="c1"># Breaking if root finding fails (bucket too small or</span>
+                    <span class="c1"># precision param too fine)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FL&#39;</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span>
+                    <span class="n">left_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+
+                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">):</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">))</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+L3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_left</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=L3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+
+                    <span class="c1"># Beaking the loop</span>
+                    <span class="k">break</span>
+
+        <span class="c1"># Checking right:</span>
+        <span class="k">if</span> <span class="n">index_max</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># This is the most right max</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># This is a left max, checking for the right counterpart</span>
+            <span class="k">for</span> <span class="n">index_right</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="n">index_max</span><span class="p">):</span>
+                <span class="n">right_max_val</span> <span class="o">=</span> <span class="n">max_val</span><span class="p">[</span><span class="n">index_max</span><span class="o">+</span><span class="n">index_right</span><span class="p">]</span>
+                <span class="n">right_max_pos</span> <span class="o">=</span> <span class="n">max_pos</span><span class="p">[</span><span class="n">index_max</span><span class="o">+</span><span class="n">index_right</span><span class="p">]</span>
+
+                <span class="n">left_pos</span> <span class="o">=</span> <span class="n">present_max_pos</span>
+                <span class="n">left_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">right_max_val</span><span class="p">,</span> <span class="n">present_max_val</span><span class="p">,</span>
+                              <span class="n">rtol</span><span class="o">=</span><span class="n">relative_max_val_precision_limit</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                    <span class="c1"># The right max is identical to the present max, a pot.</span>
+                    <span class="c1"># well is found</span>
+                    <span class="n">right_pos</span> <span class="o">=</span> <span class="n">right_max_pos</span>
+                    <span class="n">right_val</span> <span class="o">=</span> <span class="n">right_max_val</span>
+
+                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">):</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">))</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+R1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_right</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=R1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+
+                    <span class="c1"># Breaking the loop</span>
+                    <span class="k">break</span>
+
+                <span class="k">elif</span> <span class="n">right_max_val</span> <span class="o">&lt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                    <span class="c1"># The right max is smaller than the present max, this</span>
+                    <span class="c1"># means that there is an inner separatrix</span>
+
+                    <span class="n">inner_sep_max_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span>
+                        <span class="n">inner_sep_max_right</span><span class="p">,</span> <span class="n">right_max_val</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;R2 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">right_max_val</span> <span class="o">&gt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                    <span class="c1"># The right max is higher than the present max, finding</span>
+                    <span class="c1"># the intersection and breaking the loop</span>
+
+                    <span class="n">indexes_find_root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">present_max_pos</span><span class="p">)</span> <span class="o">*</span>
+                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">right_max_pos</span><span class="p">))</span>
+
+                    <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">present_max_val</span><span class="p">)[</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                        <span class="n">tck</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">potential_well_roots</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">,</span>
+                                                         <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
+
+                    <span class="c1"># Breaking if root finding fails (bucket too small or</span>
+                    <span class="c1"># precision param too fine)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FR&#39;</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                    <span class="n">right_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span>
+                    <span class="n">right_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+
+                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">):</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">))</span>
+                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+R3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span>
+                                  <span class="n">inner_sep_max_right</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=R3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+
+                    <span class="c1"># Beaking the loop</span>
+                    <span class="k">break</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">potwell_max_locs</span><span class="p">,</span> <span class="n">potwell_max_vals</span><span class="p">,</span>
+            <span class="n">potwell_inner_max</span><span class="p">,</span> <span class="n">potwell_min_locs</span><span class="p">,</span>
+            <span class="n">potwell_min_vals</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="potential_well_cut_cubic"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.potential_well_cut_cubic">[docs]</a><span class="k">def</span> <span class="nf">potential_well_cut_cubic</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span> <span class="n">potential_well_full</span><span class="p">,</span>
+                             <span class="n">potwell_max_locs</span><span class="p">):</span>
+
+    <span class="n">tck_potential_well</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span>
+                                       <span class="n">potential_well_full</span><span class="p">)</span>
+
+    <span class="n">potential_well_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">time_array_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index_well</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">potwell_max_locs</span><span class="p">)):</span>
+
+        <span class="n">left_position</span> <span class="o">=</span> <span class="n">potwell_max_locs</span><span class="p">[</span><span class="n">index_well</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">right_position</span> <span class="o">=</span> <span class="n">potwell_max_locs</span><span class="p">[</span><span class="n">index_well</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">new_n_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">time_array_full</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">time_array_full</span> <span class="o">&gt;=</span> <span class="n">left_position</span><span class="p">)</span> <span class="o">*</span>
+                <span class="p">(</span><span class="n">time_array_full</span> <span class="o">&lt;=</span> <span class="n">right_position</span><span class="p">)])</span>
+
+        <span class="n">xnew</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">left_position</span><span class="p">,</span> <span class="n">right_position</span><span class="p">,</span> <span class="n">new_n_points</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">xnew</span><span class="p">,</span> <span class="n">tck_potential_well</span><span class="p">)</span>
+
+        <span class="n">time_array_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xnew</span><span class="p">)</span>
+        <span class="n">potential_well_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">time_array_list</span><span class="p">,</span> <span class="n">potential_well_list</span></div>
+
+
+<div class="viewcode-block" id="trajectory_area_cubic"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.trajectory_area_cubic">[docs]</a><span class="k">def</span> <span class="nf">trajectory_area_cubic</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">beta_rel</span><span class="p">,</span>
+                          <span class="n">tot_energy</span><span class="p">,</span> <span class="n">min_potential_well</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">min_potential_well</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_potential_well</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">minmax_location_cubic</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">eom_factor_dE</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">eta_0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">beta_rel</span><span class="o">**</span><span class="mf">2.</span><span class="o">*</span><span class="n">tot_energy</span><span class="p">)</span>
+
+    <span class="n">dEtraj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">potential_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">potential_array</span><span class="p">)</span> <span class="o">/</span> <span class="n">eom_factor_dE</span><span class="p">)</span>
+    <span class="n">dEtraj</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">dEtraj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">full_length_time</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">potential_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">min_potential_well</span>
+    <span class="n">calc_area</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">integ_cubic</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">dEtraj</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">half_energy_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">hamiltonian</span><span class="p">)</span> <span class="o">/</span> <span class="n">eom_factor_dE</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">time_array</span><span class="p">,</span> <span class="n">dEtraj</span><span class="p">,</span> <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">calc_area</span><span class="p">,</span> <span class="n">half_energy_height</span><span class="p">,</span> \
+        <span class="n">full_length_time</span></div>
+
+
+<div class="viewcode-block" id="area_vs_hamiltonian_cubic"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.area_vs_hamiltonian_cubic">[docs]</a><span class="k">def</span> <span class="nf">area_vs_hamiltonian_cubic</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">beta_rel</span><span class="p">,</span>
+                              <span class="n">tot_energy</span><span class="p">,</span> <span class="n">min_potential_well</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">inner_max_potential_well</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">n_points_reinterp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">inner_max_potential_well</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">inner_max_potential_well</span><span class="p">):</span>
+        <span class="n">n_points_above_inner_max</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span>
+            <span class="n">potential_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">inner_max_potential_well</span><span class="p">])</span>
+        <span class="n">index_above_inner_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">potential_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">inner_max_potential_well</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_points_above_inner_max</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_array</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span>
+        <span class="n">index_above_inner_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_array</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">tck_potential_well</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">min_potential_well</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_potential_well</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">minmax_location_cubic</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">,</span> <span class="n">tck</span><span class="o">=</span><span class="n">tck_potential_well</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">calc_area_scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_points_above_inner_max</span><span class="p">)</span>
+    <span class="n">calc_area_scan</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">hamiltonian_scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_points_above_inner_max</span><span class="p">)</span>
+    <span class="n">hamiltonian_scan</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">half_energy_height_scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_points_above_inner_max</span><span class="p">)</span>
+    <span class="n">half_energy_height_scan</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">full_length_time_scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_points_above_inner_max</span><span class="p">)</span>
+    <span class="n">full_length_time_scan</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">for</span> <span class="n">counter</span><span class="p">,</span> <span class="n">indexAmplitude</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">index_above_inner_max</span><span class="p">):</span>
+
+        <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">indexAmplitude</span><span class="p">],</span>
+            <span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">roots_adjusted</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">roots_adjusted</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">left_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">roots_adjusted</span><span class="p">)</span>
+        <span class="n">right_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">roots_adjusted</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">n_points_reinterp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_points_reinterp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">left_position</span><span class="p">)</span> <span class="o">*</span>
+                <span class="p">(</span><span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">right_position</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">fine_time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">left_position</span><span class="p">,</span> <span class="n">right_position</span><span class="p">,</span>
+                                      <span class="n">n_points_reinterp</span><span class="p">)</span>
+        <span class="n">fine_potential_well</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">fine_time_array</span><span class="p">,</span> <span class="n">tck_adjusted</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="n">tck_potential_well</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">indexAmplitude</span><span class="p">]</span>
+
+        <span class="p">(</span><span class="n">time_array_traj</span><span class="p">,</span> <span class="n">dEtraj</span><span class="p">,</span>
+         <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">calc_area</span><span class="p">,</span>
+         <span class="n">half_energy_height</span><span class="p">,</span>
+         <span class="n">full_length_time</span><span class="p">)</span> <span class="o">=</span> <span class="n">trajectory_area_cubic</span><span class="p">(</span>
+             <span class="n">fine_time_array</span><span class="p">,</span> <span class="n">fine_potential_well</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">beta_rel</span><span class="p">,</span>
+             <span class="n">tot_energy</span><span class="p">,</span> <span class="n">min_potential_well</span><span class="o">=</span><span class="n">min_potential_well</span><span class="p">)</span>
+
+        <span class="n">calc_area_scan</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_area</span>
+        <span class="n">hamiltonian_scan</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span> <span class="o">=</span> <span class="n">hamiltonian</span>
+        <span class="n">half_energy_height_scan</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span> <span class="o">=</span> <span class="n">half_energy_height</span>
+        <span class="n">full_length_time_scan</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_length_time</span>
+
+    <span class="n">good_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">time_array</span><span class="p">[</span><span class="n">index_above_inner_max</span><span class="p">][</span><span class="n">good_indexes</span><span class="p">],</span> \
+        <span class="n">hamiltonian_scan</span><span class="p">[</span><span class="n">good_indexes</span><span class="p">],</span> <span class="n">calc_area_scan</span><span class="p">[</span><span class="n">good_indexes</span><span class="p">],</span> \
+        <span class="n">half_energy_height_scan</span><span class="p">[</span><span class="n">good_indexes</span><span class="p">],</span> \
+        <span class="n">full_length_time_scan</span><span class="p">[</span><span class="n">good_indexes</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="synchrotron_frequency_cubic"><a class="viewcode-back" href="../../rf_functions.potential.html#blond_common.rf_functions.potential.synchrotron_frequency_cubic">[docs]</a><span class="k">def</span> <span class="nf">synchrotron_frequency_cubic</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">beta_rel</span><span class="p">,</span>
+                                <span class="n">tot_energy</span><span class="p">,</span> <span class="n">min_potential_well</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">inner_max_potential_well</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">n_points_reinterp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="p">(</span><span class="n">time_array_ham</span><span class="p">,</span> <span class="n">hamiltonian_scan</span><span class="p">,</span>
+     <span class="n">calc_area_scan</span><span class="p">,</span> <span class="n">half_energy_height_scan</span><span class="p">,</span>
+     <span class="n">full_length_time_scan</span><span class="p">)</span> <span class="o">=</span> <span class="n">area_vs_hamiltonian_cubic</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">potential_array</span><span class="p">,</span> <span class="n">eta_0</span><span class="p">,</span> <span class="n">beta_rel</span><span class="p">,</span>
+        <span class="n">tot_energy</span><span class="p">,</span> <span class="n">min_potential_well</span><span class="o">=</span><span class="n">min_potential_well</span><span class="p">,</span>
+        <span class="n">inner_max_potential_well</span><span class="o">=</span><span class="n">inner_max_potential_well</span><span class="p">,</span>
+        <span class="n">n_points_reinterp</span><span class="o">=</span><span class="n">n_points_reinterp</span><span class="p">)</span>
+
+    <span class="n">sync_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">))</span>
+    <span class="n">time_array_fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">))</span>
+    <span class="n">hamiltonian_scan_fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">))</span>
+    <span class="n">calc_area_scan_fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">))</span>
+    <span class="n">half_energy_height_scan_fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">))</span>
+    <span class="n">full_length_time_scan_fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">))</span>
+
+    <span class="c1"># Taking every second point, in single RF the consecutive points</span>
+    <span class="c1"># can be too close to each other for cubic spline interpolation</span>
+    <span class="n">sorted_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">sync_freq</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">deriv_cubic</span><span class="p">(</span>
+        <span class="n">calc_area_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">],</span>
+        <span class="n">hamiltonian_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">time_array_fs</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_array_ham</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">hamiltonian_scan_fs</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">hamiltonian_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">calc_area_scan_fs</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_area_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">half_energy_height_scan_fs</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">half_energy_height_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">full_length_time_scan_fs</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_length_time_scan</span><span class="p">[::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+
+    <span class="c1"># Doing the same with the second set of points</span>
+    <span class="n">sorted_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">calc_area_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">sync_freq</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">deriv_cubic</span><span class="p">(</span>
+        <span class="n">calc_area_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">],</span>
+        <span class="n">hamiltonian_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">time_array_fs</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_array_ham</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">hamiltonian_scan_fs</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">hamiltonian_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">calc_area_scan_fs</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_area_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">half_energy_height_scan_fs</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">half_energy_height_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span>
+        <span class="n">sorted_area</span><span class="p">]</span>
+    <span class="n">full_length_time_scan_fs</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_length_time_scan</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">][</span><span class="n">sorted_area</span><span class="p">]</span>
+
+    <span class="n">sorted_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">time_array_fs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">time_array_fs</span><span class="p">[</span><span class="n">sorted_time</span><span class="p">],</span> \
+        <span class="n">sync_freq</span><span class="p">[</span><span class="n">sorted_time</span><span class="p">],</span> \
+        <span class="n">hamiltonian_scan_fs</span><span class="p">[</span><span class="n">sorted_time</span><span class="p">],</span> \
+        <span class="n">calc_area_scan_fs</span><span class="p">[</span><span class="n">sorted_time</span><span class="p">],</span> \
+        <span class="n">half_energy_height_scan_fs</span><span class="p">[</span><span class="n">sorted_time</span><span class="p">],</span> \
+        <span class="n">full_length_time_scan_fs</span><span class="p">[</span><span class="n">sorted_time</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BLonD-admin
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
