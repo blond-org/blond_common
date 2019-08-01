@@ -170,6 +170,56 @@ class RingOptions(object):
 
         """
 
+        if hasattr(input_data, 'data_type'):
+            data_type = input_data.data_type
+            if data_type[:22] == 'momentum_single_valued':
+                if input_to_momentum:
+                    input_data = convert_data(input_data, mass, charge,
+                                              synchronous_data_type,
+                                              bending_radius)
+                output_data = input_data * np.ones((n_sections, n_turns+1))
+
+                return output_data
+
+            elif data_type[:16] == 'momentum_by_turn':
+                output_data = []
+                if data_type[16:] == '':
+                    input_data = (input_data, )
+                    
+                for i in range(n_sections):
+                    if input_to_momentum:
+                        output_data.append(convert_data(input_data[i], mass, charge, \
+                                                  synchronous_data_type, \
+                                                  bending_radius))
+                    else:
+                        output_data.append(input_data[i])
+                        
+                return output_data
+            
+            elif data_type[:16] == 'momentum_by_time':
+
+                inputTime = []
+                inputValues = []
+                output_data = []
+
+                if data_type[16:] == '':
+                    input_data == (input_data,)
+                
+                for i in range(n_sections):
+                    
+                    if input_to_momentum:
+                        inputValues.append(convert_data(input_data[i][1], mass, charge, \
+                                                  synchronous_data_type, \
+                                                  bending_radius))
+                    else:
+                        inputValues.append(input_data[i][1])
+                    
+                    inputTime.append(input_data[i][0])
+                
+                
+                
+                    
+
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
         # and reshape the data
         if isinstance(input_data, str):
