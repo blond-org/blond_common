@@ -11,7 +11,12 @@ class _function(np.ndarray):
         if data_type is None:
             raise exceptions.InputError("data_type must be specified")
         
-        obj = np.asarray(input_array).view(cls)
+        try:
+            obj = np.asarray(input_array).view(cls)
+        except ValueError:
+            raise exceptions.InputError("Function components could not be " \
+                                        + "correctly coerced into ndarray, " \
+                                        + "check input dimensionality")
         
         obj.data_type = data_type
         
@@ -30,33 +35,150 @@ class momentum_program(_function):
     
     def __new__(cls, *args, time = None, n_turns = None):
         
-        data_points = []
-        data_types = []
+        _check_time_turns(time, n_turns)
+            
+        data_points, data_types = _get_dats_types(*args, time = time, \
+                                                  n_turns = n_turns)
+        _check_data_types(data_types)
 
-        if time is not None and n_turns is not None:
-            raise exceptions.InputError("time and n_turns cannot both be specified")
-
-        for arg in args:
-            data_point, data_type = _check_dims(arg, time, n_turns)
-            data_points.append(data_point)
-            data_types.append(data_type)
-        
-        if not all(datType == data_types[0] for datType in data_types):
-            raise exceptions.DataDefinitionError("Input momentum programs " \
-                                                 + "follow different conventions")
-        
-        #If single section is passed data_type is unchanged,
-        #otherwise _and_section is appended to indicate multiple ring sections
+        if 'by_turn' in data_types:
+            _check_turn_numbers(data_points, data_types)
+            
         if len(data_types) == 1:
             return super().__new__(cls, data_points[0], \
                         ('momentum', data_types[0], 'single_section'))
         else:
             return super().__new__(cls, data_points, \
                         ('momentum', data_types[0], 'multi_section'))
+
+
+class RF_section_function(_function):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = None):
+        
+        _check_time_turns(time, n_turns)
+        
+        data_points, data_types = _get_dats_types(*args, time = time, \
+                                                  n_turns = n_turns)
+        
+        _check_data_types(data_types, allow_single=True)
+
+        if 'by_turn' in data_types:
+            n_turns = _check_turn_numbers(data_points, data_types, \
+                                          allow_single=True)
+        
+            if 'single' in data_types:
+                for i, t in enumerate(data_types):
+                    if t == 'single':
+                        data_types[i] = 'by_turn'
+                        data_points[i] = [data_points[i]]*n_turns
+
+        if 'by_time' in data_types and 'single' in data_types:
+
+            for i, t in enumerate(data_types):
+                if t == 'by_time':
+                    useTime = data_points[i][0]
+                    break
+
+            for i, t in enumerate(data_types):
+                if t == 'single':
+                    data_types[i] = 'by_time'
+                    data_points[i] = np.array([useTime, \
+                                               [data_points[i]]*len(useTime)])
+
+        try:
+            iter(harmonics)
+        except TypeError:
+            harmonics = (harmonics,)
+        
+        if len(data_points) != len(harmonics):
+            raise exceptions.InputError("Number of functions does not match " \
+                                        + "number of harmonics")
+                
+        if interpolation is None or len(data_points) == 1:
+            return super().__new__(cls, data_points, \
+                                    ('RF', data_types[0], harmonics))
+        
+        if interpolation is not None and data_types[0] != 'by_time':
+            raise exceptions.DataDefinitionError("Interpolation only possible" \
+                                                 + " if functions are defined" \
+                                                 + " by time")
+
+        if interpolation != 'linear':
+            raise RuntimeError("Only linear interpolation currently available")
             
+        input_times = []
+        for d in data_points:
+            input_times += d[0].tolist()
+        
+        interp_times = sorted(set(input_times))
+
+        for i in range(len(data_points)):
+             interp_data = np.interp(interp_times, data_points[i][0], \
+                                     data_points[i][1])
+             data_points[i] = np.array([interp_times, interp_data])
+        
+        return super().__new__(cls, data_points, ('RF', data_types[0], \
+                                                  harmonics))
+
+
+#For functions defined by turn number, check all have same number of turns
+def _check_turn_numbers(data_points, data_types, allow_single=False):
     
+    lengths = []
+    for datPt, datType in zip(data_points, data_types):
+        if datType == 'by_turn':
+            lengths.append(len(datPt))
+
+    if not allow_single:
+        if len(lengths) != len(data_types):
+            raise exceptions.InputError("Functions with single and by_turn " \
+                                        + "together not allowed")
+            
+    if not all(length == lengths[0] for length in lengths):
+        raise exceptions.DataDefinitionError("Functions defined by " \
+                                            + "turn with unequal " \
+                                            + "numbers of turns")
+    
+    return lengths[0]
+
+
+def _check_data_types(data_types, allow_single = False):
+
+    comparator = [data_types[0]]
+    if allow_single:
+        comparator.append('single')
+        
+    gen = (datType in comparator for datType in data_types)
+
+    if not all(gen):
+        raise exceptions.DataDefinitionError("Input programs " \
+                                     + "follow different conventions")
+            
+#Raise exceptions if both time and n_turns are not None
+def _check_time_turns(time, n_turns):
+    if time is not None and n_turns is not None:
+            raise exceptions.InputError("time and n_turns cannot both be specified")
+
+#Loop over _check_dims for all *args and return corresponding data_points 
+#and data_types
+def _get_dats_types(*args, time, n_turns):
+    
+    data_points = []
+    data_types = []
+    
+    for arg in args:
+        data_point, data_type = _check_dims(arg, time, n_turns)
+        data_points.append(data_point)
+        data_types.append(data_type)
+    
+    return data_points, data_types
+
+
+#Identify if data is single valued, by_turn, or by_time
 def _check_dims(data, time = None, n_turns = None):
-    
+
     #Check and handle single valued data
     #if not single valued coerce to numpy array and continue
     try:
@@ -88,17 +210,12 @@ def _check_dims(data, time = None, n_turns = None):
                 raise exceptions.InputError("time and data are of unequal" \
                                             + " length")
 
-    #If data has shape (2, n) data[0] is taken as time, which must be increasing
-    if data.shape[0] == 2:
-        if any(np.diff(data[0]) <= 0):
-            raise exceptions.InputError("Time component of input is not " \
-                                        + "increasing at all points")
-        else:
-            return data, 'by_time'
+    #If data has shape (2, n) data[0] is taken as time
+    if data.shape[0] == 2 and len(data.shape) == 2:
+        return data, 'by_time'
     #if data has shape (n,) data[0] is taken as momentum by turn
     elif len(data.shape) == 1:
         return data, 'by_turn'
-
 
     raise exceptions.InputError("Input data not understood")
 
@@ -109,10 +226,70 @@ if __name__ == "__main__":
     
     print(test)
     print(type(test))
+    print(test.data_type)
+    print("*********************")
     
+    test = momentum_program(np.array([[1, 2, 3], [4, 5, 6]]))
     
-    test = momentum_program([1, 2, 3], [4, 5, 6])
+    print(test)
+    print(type(test))
+    print(test.data_type)
+    print("*********************")    
+    
+    test = momentum_program([1, 2, 3], [4, 5, 7])
     
     print(test)
     print(type(test))    
+    print(test.data_type)
+    print("*********************")    
     
+    test = momentum_program([1, 2, 3])
+    
+    print(test)
+    print(type(test))    
+    print(test.data_type)
+    print("*********************")    
+    
+    test = momentum_program([1, 2, 3], time=[4, 5, 6])
+    
+    print(test)
+    print(type(test))    
+    print(test.data_type)
+    print("*********************")    
+    
+    test = momentum_program([1, 2, 3], n_turns = 3)
+    
+    print(test)
+    print(type(test))    
+    print(test.data_type)
+    print("*********************")    
+    
+    test = momentum_program(1, n_turns = 3)
+    
+    print(test)
+    print(type(test))    
+    print(test.data_type)
+    
+    
+    print("END MOMENTUM")
+    
+    test = RF_section_function([1, 2, 3], 1, harmonics=[1, 2])
+    
+    print(test)
+    print(type(test))
+    print(test.data_type)
+    print("*********************")
+    
+    test = RF_section_function(np.array([[1, 2, 3], [4, 5, 6]]), 1, harmonics=[1, 2])
+    
+    print(test)
+    print(type(test))
+    print(test.data_type)
+    print("*********************")
+    
+    test = RF_section_function(np.array([[1, 2, 3], [4, 5, 6]]), np.array([[1, 3], [4, 6]]), harmonics=[1, 2], interpolation = 'linear')
+    
+    print(test)
+    print(type(test))
+    print(test.data_type)
+    print("*********************")
