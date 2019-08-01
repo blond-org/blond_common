@@ -121,6 +121,8 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
     potwell_min_locs = []
     potwell_min_vals = []
 
+    time_resolution = time_array_full[1]-time_array_full[0]
+
     tck = interp.splrep(time_array_full, potential_well_full)
 
     min_max_results = minmax_location_cubic(time_array_full,
@@ -211,8 +213,9 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                     # The left max is higher than the present max, finding
                     # the intersection and breaking the loop
 
-                    indexes_find_root = np.where((tck[0] >= left_max_pos) *
-                                                 (tck[0] <= present_max_pos))
+                    indexes_find_root = np.where(
+                        (tck[0] >= (left_max_pos-3*time_resolution)) *
+                        (tck[0] < present_max_pos))
 
                     tck_adjusted = (
                         tck[0][indexes_find_root],
@@ -225,7 +228,9 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                     # Breaking if root finding fails (bucket too small or
                     # precision param too fine)
                     if len(potential_well_roots) == 0:
-                        print('FL')
+                        print('Warning: could not intersect potential well ' +
+                              'on the left! ' +
+                              'Try lowering relative_max_val_precision_limit')
                         break
 
                     left_pos = np.max(potential_well_roots)
@@ -332,20 +337,23 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                     # the intersection and breaking the loop
 
                     indexes_find_root = np.where(
-                        (tck[0] >= present_max_pos) *
-                        (tck[0] <= right_max_pos))
+                        (tck[0] > present_max_pos) *
+                        (tck[0] <= (right_max_pos+3*time_resolution)))
 
                     tck_adjusted = (
                         tck[0][indexes_find_root],
                         (tck[1]-present_max_val)[indexes_find_root],
                         tck[2])
+
                     potential_well_roots = interp.sproot(tck_adjusted,
                                                          mest=mest)
 
                     # Breaking if root finding fails (bucket too small or
                     # precision param too fine)
                     if len(potential_well_roots) == 0:
-                        print('FR')
+                        print('Warning: could not intersect potential well ' +
+                              'on the right! ' +
+                              'Try lowering relative_max_val_precision_limit')
                         break
 
                     right_pos = np.min(potential_well_roots)
