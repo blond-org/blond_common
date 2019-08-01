@@ -179,8 +179,6 @@ class RingOptions(object):
                                               bending_radius)
                 output_data = input_data * np.ones((n_sections, n_turns+1))
 
-                return output_data
-
             elif data_type[:16] == 'momentum_by_turn':
                 output_data = []
                 if data_type[16:] == '':
@@ -194,30 +192,38 @@ class RingOptions(object):
                     else:
                         output_data.append(input_data[i])
                         
-                return output_data
-            
             elif data_type[:16] == 'momentum_by_time':
-
-                inputTime = []
-                inputValues = []
                 output_data = []
-
                 if data_type[16:] == '':
                     input_data == (input_data,)
                 
                 for i in range(n_sections):
-                    
                     if input_to_momentum:
-                        inputValues.append(convert_data(input_data[i][1], mass, charge, \
+                        inputValues = convert_data(input_data[i][1], mass, charge, \
                                                   synchronous_data_type, \
-                                                  bending_radius))
+                                                  bending_radius)
                     else:
-                        inputValues.append(input_data[i][1])
+                        inputValues = input_data[i][1]
                     
-                    inputTime.append(input_data[i][0])
+                    inputTime = input_data[i][0]
                 
+                    if interp_time == 't_rev':
+                        output_data.append(self.preprocess(
+                                mass,
+                                circumference,
+                                inputTime, inputValues)[1])
+                    
+                    try:
+                        iter(interp_time)
+                    except TypeError:
+                        interp_time = np.arange(inputTime[0], inputTime[-1], \
+                                                float(interp_time))
                 
+                    output_data.append(np.interp(interp_time, inputTime, \
+                                                 inputValues))
                 
+                output_data = np.array(output_data, ndim=2, dtype=float)
+            return output_data
                     
 
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
