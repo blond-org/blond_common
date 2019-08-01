@@ -37,7 +37,7 @@ class momentum_program(_function):
             raise exceptions.InputError("time and n_turns cannot both be specified")
 
         for arg in args:
-            data_point, data_type = cls._check_dims(cls, arg, time, n_turns)
+            data_point, data_type = _check_dims(arg, time, n_turns)
             data_points.append(data_point)
             data_types.append(data_type)
         
@@ -48,57 +48,59 @@ class momentum_program(_function):
         #If single section is passed data_type is unchanged,
         #otherwise _and_section is appended to indicate multiple ring sections
         if len(data_types) == 1:
-            return super().__new__(cls, data_points[0], data_types[0])
+            return super().__new__(cls, data_points[0], \
+                        ('momentum', data_types[0], 'single_section'))
         else:
-            return super().__new__(cls, data_points, data_types[0]+'_and_section')
+            return super().__new__(cls, data_points, \
+                        ('momentum', data_types[0], 'multi_section'))
             
     
-    def _check_dims(self, data, time = None, n_turns = None):
-        
-        #Check and handle single valued data
-        #if not single valued coerce to numpy array and continue
-        try:
-            iter(data)
-            data = np.array(data)
-        except TypeError:
-            if n_turns is None:
-                return data, 'momentum_single_valued'
-            else:
-                return [data]*n_turns, 'momentum_by_turn'
+def _check_dims(data, time = None, n_turns = None):
+    
+    #Check and handle single valued data
+    #if not single valued coerce to numpy array and continue
+    try:
+        iter(data)
+        data = np.array(data)
+    except TypeError:
+        if n_turns is None:
+            return data, 'single'
+        else:
+            return [data]*n_turns, 'by_turn'
 
-        #If n_turns specified and data is not single valued it should be of len(n_turns)
-        if n_turns is not None:
-            if len(data) == n_turns:
-                return data, 'momentum_by_turn'
-            else:
-                raise exceptions.InputError("Input length does not match n_turns")
-        
-        elif time is not None:
-            if data.shape[0] == 2:
-                raise exceptions.InputError("Data has been passed with " \
-                                            + "[time, value] format and time " \
-                                            + "defined, only 1 should be given")
-            else:
-                #If time is passed don't return, use test below avoids duplication
-                if len(data) == len(time):
-                    data = np.array([time, data])
-                else:
-                    raise exceptions.InputError("time and data are of unequal" \
-                                                + " length")
-
-        #If data has shape (2, n) data[0] is taken as time, which must be increasing
+    #If n_turns specified and data is not single valued it should be of len(n_turns)
+    if n_turns is not None:
+        if len(data) == n_turns:
+            return data, 'by_turn'
+        else:
+            raise exceptions.InputError("Input length does not match n_turns")
+    
+    elif time is not None:
         if data.shape[0] == 2:
-            if any(np.diff(data[0]) <= 0):
-                raise exceptions.InputError("Time component of input is not " \
-                                            + "increasing at all points")
+            raise exceptions.InputError("Data has been passed with " \
+                                        + "[time, value] format and time " \
+                                        + "defined, only 1 should be given")
+        else:
+            #If time is passed don't return, use test below avoids duplication
+            if len(data) == len(time):
+                data = np.array([time, data])
             else:
-                return data, 'momentum_by_time'
-        #if data has shape (n,) data[0] is taken as momentum by turn
-        elif len(data.shape) == 1:
-            return data, 'momentum_by_turn'
+                raise exceptions.InputError("time and data are of unequal" \
+                                            + " length")
+
+    #If data has shape (2, n) data[0] is taken as time, which must be increasing
+    if data.shape[0] == 2:
+        if any(np.diff(data[0]) <= 0):
+            raise exceptions.InputError("Time component of input is not " \
+                                        + "increasing at all points")
+        else:
+            return data, 'by_time'
+    #if data has shape (n,) data[0] is taken as momentum by turn
+    elif len(data.shape) == 1:
+        return data, 'by_turn'
 
 
-        raise exceptions.InputError("Input data not understood")
+    raise exceptions.InputError("Input data not understood")
 
 
 if __name__ == "__main__":
