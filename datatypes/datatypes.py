@@ -37,6 +37,8 @@ class momentum_program(_function):
         data_points = []
         data_types = []
 
+        if time is not None and n_turns is not None:
+            raise exceptions.InputError("time and n_turns cannot both be specified")
 
         for arg in args:
             data_point, data_type = cls._check_dims(cls, arg, time, n_turns)
@@ -75,22 +77,44 @@ class momentum_program(_function):
             else:
                 raise exceptions.InputError("Input length does not match n_turns")
         
-        if time is not None:
+        elif time is not None:
             if data.shape[0] == 2:
                 raise exceptions.InputError("Data has been passed with " \
                                             + "[time, value] format and time " \
                                             + "defined, only 1 should be given")
             else:
-                #If time is passed don't return but use test below to avoid duplication
+                #If time is passed don't return, use test below avoids duplication
                 if len(data) == len(time):
                     data = np.array([time, data])
                 else:
                     raise exceptions.InputError("time and data are of unequal" \
                                                 + " length")
 
+        #If data has shape (2, n) data[0] is taken as time, which must be increasing
         if data.shape[0] == 2:
             if any(np.diff(data[0]) <= 0):
                 raise exceptions.InputError("Time component of input is not " \
                                             + "increasing at all points")
             else:
                 return data, 'momentum_by_time'
+        #if data has shape (n,) data[0] is taken as momentum by turn
+        elif len(data.shape) == 1:
+            return data, 'momentum_by_turn'
+
+
+        raise exceptions.InputError("Input data not understood")
+
+
+if __name__ == "__main__":
+    
+    test = momentum_program(np.array([[1, 2, 3], [4, 5, 6]]), np.array([[1, 2, 3], [4, 5, 6]]))
+    
+    print(test)
+    print(type(test))
+    
+    
+    test = momentum_program([1, 2, 3], [4, 5, 6])
+    
+    print(test)
+    print(type(test))    
+    
