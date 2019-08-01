@@ -8,10 +8,6 @@ class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None):
         
-        print(cls)
-        print(input_array)
-        print(data_type)
-        
         if data_type is None:
             raise exceptions.InputError("data_type must be specified")
         

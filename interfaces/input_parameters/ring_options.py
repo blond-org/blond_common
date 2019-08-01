@@ -383,7 +383,7 @@ class RingOptions(object):
                 #InputDataError
                 raise RuntimeError("ERROR: [t_start, t_end] should be " +
                                    "included in the passed time array.")
-        print(momentum)
+
         # Obtain flat bottom data, extrapolate to constant
         beta_0 = np.sqrt(1/(1 + (mass/momentum[0])**2))
         T0 = circumference/(beta_0*c)  # Initial revolution period [s]
