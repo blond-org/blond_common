@@ -170,6 +170,7 @@ class RingOptions(object):
 
         """
 
+        #TEST LOOP FOR DATA TYPE OBJECT
         if hasattr(input_data, 'data_type'):
             data_type = input_data.data_type
             if data_type[:22] == 'momentum_single_valued':
@@ -194,9 +195,10 @@ class RingOptions(object):
                         
             elif data_type[:16] == 'momentum_by_time':
                 output_data = []
+
                 if data_type[16:] == '':
-                    input_data == (input_data,)
-                
+                    input_data = (input_data,)
+
                 for i in range(n_sections):
                     if input_to_momentum:
                         inputValues = convert_data(input_data[i][1], mass, charge, \
@@ -212,19 +214,20 @@ class RingOptions(object):
                                 mass,
                                 circumference,
                                 inputTime, inputValues)[1])
+                    else:
+                        try:
+                            iter(interp_time)
+                        except TypeError:
+                            interp_time = np.arange(inputTime[0], inputTime[-1], \
+                                                    float(interp_time))
                     
-                    try:
-                        iter(interp_time)
-                    except TypeError:
-                        interp_time = np.arange(inputTime[0], inputTime[-1], \
-                                                float(interp_time))
+                        output_data.append(np.interp(interp_time, inputTime, \
+                                                     inputValues))
                 
-                    output_data.append(np.interp(interp_time, inputTime, \
-                                                 inputValues))
-                
-                output_data = np.array(output_data, ndim=2, dtype=float)
+                output_data = np.array(output_data, ndmin=2, dtype=float)
+
             return output_data
-                    
+            #END TEST LOOP FOR DATA TYPE OBJECT                    
 
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
         # and reshape the data
@@ -380,7 +383,7 @@ class RingOptions(object):
                 #InputDataError
                 raise RuntimeError("ERROR: [t_start, t_end] should be " +
                                    "included in the passed time array.")
-
+        print(momentum)
         # Obtain flat bottom data, extrapolate to constant
         beta_0 = np.sqrt(1/(1 + (mass/momentum[0])**2))
         T0 = circumference/(beta_0*c)  # Initial revolution period [s]
