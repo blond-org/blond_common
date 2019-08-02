@@ -177,6 +177,23 @@ class test_datatypes(unittest.TestCase):
                                         interpolation='cubic')
 
 
+    def test_RF_exceptions(self):
+        
+        with self.assertRaises(exceptions.InputError, \
+                               msg='If number of data points does not match ' \
+                                + 'number of harmonics InputError should ' \
+                                + 'be raised'):
+            
+            dtypes.RF_section_function(1, harmonics = [1, 2])
+        
+        with self.assertRaises(exceptions.DataDefinitionError, \
+                               msg='Attempting interpolation with by_turn ' \
+                               + 'data should raise DataDefinitionError'):
+            
+            dtypes.RF_section_function([1, 2, 3], [1, 2, 3], \
+                                       harmonics = [1, 2], interpolation=True)
+
+
     def test__check_turn_numbers(self):
 
         dtypes._check_turn_numbers(([1, 2, 3], [1, 2, 3]), ('by_turn',)*2)
@@ -220,6 +237,8 @@ class test_datatypes(unittest.TestCase):
         
 
     def test__check_dims(self):
+        
+        dtypes._check_dims([1, 2, 3], n_turns = 3)
         
         inArr1 = np.array([[1, 2, 3], [4, 5, 6]])
         outArr, outType = dtypes._check_dims(inArr1)
