@@ -3,10 +3,6 @@ import numpy as np
 import sys
 import os
 
-#if os.path.join(os.path.dirname(__file__), '..') not in sys.path:
-#    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-print(__name__)
 #Common imports
 if __name__ is not "__main__":
     from ..utilities import Exceptions as exceptions
@@ -15,13 +11,10 @@ else:
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     import utilities.Exceptions as exceptions
 
-print(exceptions)
-
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None):
         
-        print(exceptions.InputError)
         
         if data_type is None:
             raise exceptions.InputError("data_type must be specified")
@@ -140,7 +133,7 @@ class RF_section_function(_function):
 
 #For functions defined by turn number, check all have same number of turns
 def _check_turn_numbers(data_points, data_types, allow_single=False):
-    
+
     lengths = []
     for datPt, datType in zip(data_points, data_types):
         if datType == 'by_turn':
@@ -161,10 +154,18 @@ def _check_turn_numbers(data_points, data_types, allow_single=False):
 
 def _check_data_types(data_types, allow_single = False):
 
-    comparator = [data_types[0]]
-    if allow_single:
+    comparator = []
+    for t in data_types:
+        if t != 'single':
+            comparator.append(t)
+            break
+    
+    if len(comparator) == 0:
         comparator.append('single')
-        
+
+    if allow_single and 'single' not in comparator:
+        comparator.append('single')
+
     gen = (datType in comparator for datType in data_types)
 
     if not all(gen):
@@ -287,6 +288,13 @@ if __name__ == "__main__":
     
     
     print("END MOMENTUM")
+
+    test = RF_section_function([1, 2, 3], harmonics=[1])
+    
+    print(test)
+    print(type(test))
+    print(test.data_type)
+    print("*********************")
     
     test = RF_section_function([1, 2, 3], 1, harmonics=[1, 2])
     
