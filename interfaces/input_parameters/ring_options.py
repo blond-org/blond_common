@@ -175,7 +175,8 @@ class RingOptions(object):
             data_type = input_data.data_type
             if data_type[0] != 'momentum':
                 raise RuntimeError("Input data is not a momentum_program")
-                
+            
+            #Needs modifying for single valued multi-section functions
             if data_type[1] == 'single':
                 if input_to_momentum:
                     input_data = convert_data(input_data, mass, charge,
