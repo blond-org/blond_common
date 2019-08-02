@@ -4,12 +4,8 @@ import sys
 import os
 
 #Common imports
-if __name__ is not "__main__":
-    from ..utilities import Exceptions as exceptions
-else:
-    if os.path.join(os.path.dirname(__file__), '..') not in sys.path:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    import utilities.Exceptions as exceptions
+from ..utilities import Exceptions as exceptions
+
 
 class _function(np.ndarray):
     
@@ -234,85 +230,3 @@ def _check_dims(data, time = None, n_turns = None):
         return data, 'by_turn'
 
     raise exceptions.InputError("Input data not understood")
-
-
-if __name__ == "__main__":
-    
-    test = momentum_program(np.array([[1, 2, 3], [4, 5, 6]]), np.array([[1, 2, 3], [4, 5, 6]]))
-    
-    print(test)
-    print(type(test))
-    print(test.data_type)
-    print("*********************")
-    
-    test = momentum_program(np.array([[1, 2, 3], [4, 5, 6]]))
-    
-    print(test)
-    print(type(test))
-    print(test.data_type)
-    print("*********************")    
-    
-    test = momentum_program([1, 2, 3], [4, 5, 7])
-    
-    print(test)
-    print(type(test))    
-    print(test.data_type)
-    print("*********************")    
-    
-    test = momentum_program([1, 2, 3])
-    
-    print(test)
-    print(type(test))    
-    print(test.data_type)
-    print("*********************")    
-    
-    test = momentum_program([1, 2, 3], time=[4, 5, 6])
-    
-    print(test)
-    print(type(test))    
-    print(test.data_type)
-    print("*********************")    
-    
-    test = momentum_program([1, 2, 3], n_turns = 3)
-    
-    print(test)
-    print(type(test))    
-    print(test.data_type)
-    print("*********************")    
-    
-    test = momentum_program(1, n_turns = 3)
-    
-    print(test)
-    print(type(test))    
-    print(test.data_type)
-    
-    
-    print("END MOMENTUM")
-
-    test = RF_section_function([1, 2, 3], harmonics=[1])
-    
-    print(test)
-    print(type(test))
-    print(test.data_type)
-    print("*********************")
-    
-    test = RF_section_function([1, 2, 3], 1, harmonics=[1, 2])
-    
-    print(test)
-    print(type(test))
-    print(test.data_type)
-    print("*********************")
-    
-    test = RF_section_function(np.array([[1, 2, 3], [4, 5, 6]]), 1, harmonics=[1, 2])
-    
-    print(test)
-    print(type(test))
-    print(test.data_type)
-    print("*********************")
-    
-    test = RF_section_function(np.array([[1, 2, 3], [4, 5, 6]]), np.array([[1, 3], [4, 6]]), harmonics=[1, 2], interpolation = 'linear')
-    
-    print(test)
-    print(type(test))
-    print(test.data_type)
-    print("*********************")
