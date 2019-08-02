@@ -3,9 +3,19 @@ import numpy as np
 import sys
 import os
 
+#if os.path.join(os.path.dirname(__file__), '..') not in sys.path:
+#    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+print(__name__)
 #Common imports
-from ..utilities import Exceptions as exceptions
+if __name__ is not "__main__":
+    from ..utilities import Exceptions as exceptions
+else:
+    if os.path.join(os.path.dirname(__file__), '..') not in sys.path:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    import utilities.Exceptions as exceptions
+
+print(exceptions)
 
 class _function(np.ndarray):
     
