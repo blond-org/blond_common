@@ -1,12 +1,17 @@
 #General imports
 import numpy as np
+import sys
+import os
+
 
 #Common imports
-import data_common.utilities.Exceptions as exceptions
+from ..utilities import Exceptions as exceptions
 
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None):
+        
+        print(exceptions.InputError)
         
         if data_type is None:
             raise exceptions.InputError("data_type must be specified")

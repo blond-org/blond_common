@@ -225,7 +225,7 @@ class RingOptions(object):
             output_data = np.array(output_data, ndmin=2, dtype=float)
     
             return output_data
-            #END TEST LOOP FOR DATA TYPE OBJECT                    
+        #END TEST LOOP FOR DATA TYPE OBJECT                    
 
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
         # and reshape the data
