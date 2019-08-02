@@ -110,6 +110,20 @@ class RFStationOptions(object):
 
         """
 
+        #START DATA_TYPE TEST LOOP
+        if hasattr(input_data, 'data_type'):
+            data_type = input_data.data_type
+            if data_type[0] != 'RF':
+                raise RuntimeError("input_data is not an RF function')
+                
+            if data_type[1] = 'single':
+                output_data = []
+                for i in range(n_rf):
+                    output_data.append([input_data[i]]*n_turns+1)
+                return np.array(output_data) #shape needs to be checked
+            
+            
+
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
         # and reshape the data
         if isinstance(input_data, str):
