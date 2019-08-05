@@ -114,14 +114,52 @@ class RFStationOptions(object):
         if hasattr(input_data, 'data_type'):
             data_type = input_data.data_type
             if data_type[0] != 'RF':
-                raise RuntimeError("input_data is not an RF function')
+                raise RuntimeError("input_data is not an RF function")
                 
-            if data_type[1] = 'single':
+            if data_type[1] == 'single':
                 output_data = []
                 for i in range(n_rf):
-                    output_data.append([input_data[i]]*n_turns+1)
+                    output_data.append([input_data[i]]*(n_turns+1))
                 return np.array(output_data) #shape needs to be checked
             
+            if len(data_type[2]) == 1:
+                input_data = (input_data, )
+            
+            output_data = []
+            for harm in range(len(data_type[2])):
+                if data_type[1] == 'by_turn':
+                    inputValues = input_data[harm]
+                    if len(inputValues) != n_turns+1:
+                        raise RuntimeError("Input data does not have length " \
+                                           + "n_turns+1")
+                    output_data.append(inputValues)
+                    continue
+                
+                elif data_type[1] == 'by_time':
+                    inputValues = input_data[harm][1]
+                    inputTime = input_data[harm][0]
+                
+                else:
+                    raise RuntimeError("Input data type not recognised" \
+                                       + ", should be by_turn or by_time")
+            
+                try:
+                    interp_time += t_start
+                except TypeError:
+                    pass
+                
+                if self.interpolation == 'linear':
+                    output_data.append(np.interp(interp_time,
+                                                 inputTime,
+                                                 inputValues))
+                elif self.interpolation == 'cubic':
+                    interp_funtion = splrep(inputTime, inputValues,
+                                            s=self.smoothing)
+                    output_data.append(splev(interp_time, interp_funtion))
+
+            output_data = np.array(output_data, ndmin=2, dtype=float)
+            return output_data
+        #END DATA_TYPE TEST LOOP
             
 
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
