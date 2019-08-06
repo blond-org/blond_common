@@ -148,12 +148,15 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
         # Checking left
         # This is a right max, checking for the left counterparts
         for index_left in range(index_max+1):
-            if index_left == 0:
+            if (index_left == 0) and (index_max == 0):
+                # This is the most left max
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
+            elif (index_left == 0) and (index_max != 0):
+                # This indexes set corresponds to the same max
+                continue
             else:
                 left_max_val = max_val[index_max-index_left]
-                left_max_pos = max_pos[index_max-index_left]
 
             right_pos = present_max_pos
             right_val = present_max_val
@@ -271,9 +274,13 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
         # Checking right:
         # This is a left max, checking for the right counterpart
         for index_right in range(len(max_val)-index_max):
-            if index_right == 0:
+            if (index_right == 0) and (index_max == (len(max_val)-1)):
+                # This is the most left max
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
+            elif (index_right == 0) and (index_max != (len(max_val)-1)):
+                # This indexes set corresponds to the same max
+                continue
             else:
                 right_max_val = max_val[index_max+index_right]
                 right_max_pos = max_pos[index_max+index_right]
