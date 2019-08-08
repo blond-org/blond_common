@@ -178,6 +178,8 @@ def minmax_location_discrete(x, f, interp=False):
 
     indexes_max = f_derivative_zeros[
         f_derivative_second[f_derivative_zeros] < 0]
+    if indexes_max[-1] == len(f) - 1:
+        indexes_max = indexes_max[:-1]
     interp_max = 0.5+1/np.pi*np.arctan(
         (f[indexes_max+1]-f[indexes_max]) /
         (x[indexes_max+1]-x[indexes_max]))
