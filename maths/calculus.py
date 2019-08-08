@@ -152,17 +152,12 @@ def minmax_location_cubic(x, y, der=None, tck=None,
                 [np.array(min_val), np.array(max_val)])
 
 
-def minmax_location_discrete(x, f, interp=False):
+def minmax_location_discrete(x, f):
     '''Function to locate the minima and maxima of the f(x)
     numerical function.'''
 
     f_derivative = np.diff(f)
-    x_derivative = x[0:-1] + np.diff(x)/2
-    f_derivative = np.interp(x, x_derivative, f_derivative)
-
     f_derivative_second = np.diff(f_derivative)
-    f_derivative_second = np.interp(x, x_derivative,
-                                    f_derivative_second)
 
     warnings.filterwarnings("ignore")
 
@@ -172,35 +167,14 @@ def minmax_location_discrete(x, f, interp=False):
 
     indexes_min = f_derivative_zeros[
         f_derivative_second[f_derivative_zeros] > 0]
-    interp_min = 0.5-1/np.pi*np.arctan(
-        (f[indexes_min+1]-f[indexes_min]) /
-        (x[indexes_min+1]-x[indexes_min]))
-
     indexes_max = f_derivative_zeros[
         f_derivative_second[f_derivative_zeros] < 0]
-    if indexes_max[-1] == len(f) - 1:
-        indexes_max = indexes_max[:-1]
-    interp_max = 0.5+1/np.pi*np.arctan(
-        (f[indexes_max+1]-f[indexes_max]) /
-        (x[indexes_max+1]-x[indexes_max]))
 
-    if interp:
-        min_x_position = x[indexes_min] + interp_min*(
-            x[indexes_min+1]-x[indexes_min])
-        max_x_position = x[indexes_max] + interp_max*(
-            x[indexes_max+1]-x[indexes_max])
+    min_x_position = x[indexes_min+1]
+    max_x_position = x[indexes_max+1]
 
-        min_values = np.interp(min_x_position, x, f)
-        max_values = np.interp(max_x_position, x, f)
-
-    else:
-        min_x_position = x[
-            indexes_min+np.array(np.round(interp_min), dtype=int)]
-        max_x_position = x[
-            indexes_max+np.array(np.round(interp_max), dtype=int)]
-
-        min_values = f[indexes_min+np.array(np.round(interp_min), dtype=int)]
-        max_values = f[indexes_max+np.array(np.round(interp_max), dtype=int)]
+    min_values = f[indexes_min+1]
+    max_values = f[indexes_max+1]
 
     warnings.filterwarnings("default")
 
