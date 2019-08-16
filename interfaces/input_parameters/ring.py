@@ -364,3 +364,22 @@ class Ring(object):
                                           np.diff(self.energy[0]))
 
         return parameters
+
+
+    def _recalc_delta_E(self):
+        """
+        Function to recalculate delta_E.
+        If interpolation is not done on a turn-by-turn basis the delta_E will
+        not be correct.  This function recalculates it to give the correct 
+        value for each turn.
+        """
+        
+        
+        for section in range(self.n_sections):
+            ENow = self.energy[section]
+            ENext = np.interp(self.cycle_time + self.t_rev, self.cycle_time, 
+                              ENow)
+            
+            for turn in range(len(self.delta_E[section])):
+                self.delta_E[section][turn] = ENext[turn] - ENow[turn]
+
