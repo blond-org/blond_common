@@ -78,7 +78,7 @@ def rf_potential_generation(n_points, t_rev, voltage, harmonic_number,
 
     potential_well = eom_factor_potential*energy_increment/abs(charge) * \
         time_array
-
+        
     for indexRF in range(len(voltage)):
         potential_well += eom_factor_potential * \
             voltage[indexRF]/(harmonic_number[indexRF]*omega_rev) * np.cos(
@@ -86,6 +86,12 @@ def rf_potential_generation(n_points, t_rev, voltage, harmonic_number,
                 phi_offset[indexRF])
 
     return time_array, potential_well
+
+
+def voltge_to_potential(time, voltage, eta_0, charge, energy_increment):
+    
+    eom_factor_potential = np.sign(eta_0)*energy_increment/abs(charge)
+    
 
 
 def rf_potential_generation_cubic(time_array, voltage_array, eta_0, charge,
