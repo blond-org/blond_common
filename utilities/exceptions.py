@@ -10,6 +10,9 @@ class DataDefinitionError(Exception):
 class MismatchedListLengths(Exception):
     pass
 
+class NotIterable(Exception):
+    pass
+
 
 ###############################
 #####POTENTIAL WELL ERRORS#####
