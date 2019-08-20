@@ -19,6 +19,8 @@ import numpy as np
 import scipy.interpolate as interp
 from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic
 
+#BLonD_Common imports
+from ..utilities import exceptions as blExcept
 
 def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
                           phi_offset, time_bounds=None):
@@ -433,6 +435,40 @@ def potential_well_cut_cubic(time_array_full, potential_well_full,
 
     return time_array_list, potential_well_list
 
+
+def sort_potential_wells(time_array_list, potential_well_list, sort_by='time'):
+    
+    if len(time_array_list) != len(potential_well_list):
+        raise blExcept.MismatchedListLengths("time and potential list lengths" \
+                                             + " do not match")
+    
+    if sort_by == 'time':
+        sort_function = _sort_wells_by_time
+  
+    sortedList = sort_function(time_array_list, potential_well_list)
+    return sortedList
+        
+    
+def _sort_wells_by_time(time_array_list, potential_well_list):
+    
+    try:
+        iter(time_array_list[0])
+    except TypeError:
+        raise blExcept.InputError("Single potential well, no sorting possible")
+
+    wellList = [(time_array_list[0], potential_well_list[0])]
+    for pair in zip(time_array_list[1:], potential_well_list[1:]):
+        
+        for i, well in enumerate(wellList):
+            if pair[0][0] < well[0][0]:
+                wellList.insert(i, pair)
+                break
+        
+        if i == len(wellList)-1:
+            wellList.append(pair)
+    
+    return wellList
+        
 
 def trajectory_area_cubic(time_array, potential_array, eta_0, beta_rel,
                           tot_energy, min_potential_well=None):
