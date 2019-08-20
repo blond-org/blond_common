@@ -4,7 +4,7 @@ import sys
 import os
 
 #Common imports
-from ..utilities import Exceptions as exceptions
+from ..utilities import exceptions as blExcept
 
 
 class _function(np.ndarray):
@@ -13,12 +13,12 @@ class _function(np.ndarray):
         
         
         if data_type is None:
-            raise exceptions.InputError("data_type must be specified")
+            raise blExcept.InputError("data_type must be specified")
         
         try:
             obj = np.asarray(input_array).view(cls)
         except ValueError:
-            raise exceptions.InputError("Function components could not be " \
+            raise blExcept.InputError("Function components could not be " \
                                         + "correctly coerced into ndarray, " \
                                         + "check input dimensionality")
         
@@ -97,7 +97,7 @@ class RF_section_function(_function):
             harmonics = (harmonics,)
         
         if len(data_points) != len(harmonics):
-            raise exceptions.InputError("Number of functions does not match " \
+            raise blExcept.InputError("Number of functions does not match " \
                                         + "number of harmonics")
                 
         if interpolation is None or len(data_points) == 1:
@@ -105,7 +105,7 @@ class RF_section_function(_function):
                                     ('RF', data_types[0], harmonics))
         
         if interpolation is not None and data_types[0] != 'by_time':
-            raise exceptions.DataDefinitionError("Interpolation only possible" \
+            raise blExcept.DataDefinitionError("Interpolation only possible" \
                                                  + " if functions are defined" \
                                                  + " by time")
 
@@ -137,11 +137,11 @@ def _check_turn_numbers(data_points, data_types, allow_single=False):
 
     if not allow_single:
         if len(lengths) != len(data_types):
-            raise exceptions.InputError("Functions with single and by_turn " \
+            raise blExcept.InputError("Functions with single and by_turn " \
                                         + "together not allowed")
             
     if not all(length == lengths[0] for length in lengths):
-        raise exceptions.DataDefinitionError("Functions defined by " \
+        raise blExcept.DataDefinitionError("Functions defined by " \
                                             + "turn with unequal " \
                                             + "numbers of turns")
     
@@ -165,13 +165,13 @@ def _check_data_types(data_types, allow_single = False):
     gen = (datType in comparator for datType in data_types)
 
     if not all(gen):
-        raise exceptions.DataDefinitionError("Input programs " \
+        raise blExcept.DataDefinitionError("Input programs " \
                                      + "follow different conventions")
             
-#Raise exceptions if both time and n_turns are not None
+#Raise blExcept if both time and n_turns are not None
 def _check_time_turns(time, n_turns):
     if time is not None and n_turns is not None:
-            raise exceptions.InputError("time and n_turns cannot both be specified")
+            raise blExcept.InputError("time and n_turns cannot both be specified")
 
 #Loop over _check_dims for all *args and return corresponding data_points 
 #and data_types
@@ -207,11 +207,11 @@ def _check_dims(data, time = None, n_turns = None):
         if len(data) == n_turns:
             return data, 'by_turn'
         else:
-            raise exceptions.InputError("Input length does not match n_turns")
+            raise blExcept.InputError("Input length does not match n_turns")
     
     elif time is not None:
         if data.shape[0] == 2:
-            raise exceptions.InputError("Data has been passed with " \
+            raise blExcept.InputError("Data has been passed with " \
                                         + "[time, value] format and time " \
                                         + "defined, only 1 should be given")
         else:
@@ -219,7 +219,7 @@ def _check_dims(data, time = None, n_turns = None):
             if len(data) == len(time):
                 data = np.array([time, data])
             else:
-                raise exceptions.InputError("time and data are of unequal" \
+                raise blExcept.InputError("time and data are of unequal" \
                                             + " length")
 
     #If data has shape (2, n) data[0] is taken as time
@@ -229,4 +229,4 @@ def _check_dims(data, time = None, n_turns = None):
     elif len(data.shape) == 1:
         return data, 'by_turn'
 
-    raise exceptions.InputError("Input data not understood")
+    raise blExcept.InputError("Input data not understood")
