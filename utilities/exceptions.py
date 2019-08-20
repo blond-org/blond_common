@@ -7,9 +7,15 @@ class InputError(Exception):
 class DataDefinitionError(Exception):
     pass
 
+class MismatchedListLengths(Exception):
+    pass
+
 
 ###############################
 #####POTENTIAL WELL ERRORS#####
-############################### 
-class No_Inner_Potential_Well(Exception):
+###############################
+class NoInnerPotentialWell(Exception):
+    pass
+
+class SingleWellOnly(Exception):
     pass
