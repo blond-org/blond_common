@@ -215,7 +215,13 @@ class RFStation(object):
                 or self.section_index > Ring.n_sections - 1:
             raise RuntimeError("ERROR in RFStation: section_index out of" +
                                " allowed range!")
-        self.n_rf = int(n_rf)
+
+        if hasattr(voltage, 'data_type'):
+            if voltage.data_type[2] != phi_rf_d.data_type[2]:
+                raise RuntimeError("voltage and phase harmonics do not match")
+            self.n_rf = len(voltage.data_type[2])
+        else:
+            self.n_rf = int(n_rf)
 
         # Imported from Ring
         self.Particle = Ring.Particle
