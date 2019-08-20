@@ -88,11 +88,6 @@ def rf_potential_generation(n_points, t_rev, voltage, harmonic_number,
     return time_array, potential_well
 
 
-def voltge_to_potential(time, voltage, eta_0, charge, energy_increment):
-    
-    eom_factor_potential = np.sign(eta_0)*energy_increment/abs(charge)
-    
-
 
 def rf_potential_generation_cubic(time_array, voltage_array, eta_0, charge,
                                   t_rev, energy_increment,
