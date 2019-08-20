@@ -26,7 +26,7 @@ if os.path.abspath(this_directory + '../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
 
 import blond_common.datatypes.datatypes as dtypes
-import blond_common.utilities.Exceptions as exceptions
+import blond_common.utilities.exceptions as exceptions
 
 class test_datatypes(unittest.TestCase):
     
