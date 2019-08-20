@@ -444,6 +444,8 @@ def sort_potential_wells(time_array_list, potential_well_list, sort_by='time'):
     
     if sort_by == 'time':
         sort_function = _sort_wells_by_time
+    else:
+        raise blExcept.InputError("Sort type not recognised")
   
     sortedList = sort_function(time_array_list, potential_well_list)
     return sortedList
