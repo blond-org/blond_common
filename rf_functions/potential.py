@@ -147,11 +147,13 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking left
         # This is a right max, checking for the left counterparts
+        most_right_max = False
         for index_left in range(index_max+1):
             if (index_left == 0) and (index_max == 0):
                 # This is the most left max
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
+                most_right_max = True
             elif (index_left == 0) and (index_max != 0):
                 # This indexes set corresponds to the same max
                 continue
@@ -162,7 +164,8 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             right_val = present_max_val
 
             if np.isclose(left_max_val, present_max_val,
-                          rtol=relative_max_val_precision_limit, atol=0):
+                          rtol=relative_max_val_precision_limit, atol=0) \
+                    and not most_right_max:
                 # The left max is identical to the present max, a pot. well
                 # is found
                 left_pos = left_max_pos
@@ -273,11 +276,13 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking right:
         # This is a left max, checking for the right counterpart
+        most_left_max = False
         for index_right in range(len(max_val)-index_max):
             if (index_right == 0) and (index_max == (len(max_val)-1)):
                 # This is the most left max
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
+                most_left_max = True
             elif (index_right == 0) and (index_max != (len(max_val)-1)):
                 # This indexes set corresponds to the same max
                 continue
@@ -289,7 +294,8 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             left_val = present_max_val
 
             if np.isclose(right_max_val, present_max_val,
-                          rtol=relative_max_val_precision_limit, atol=0):
+                          rtol=relative_max_val_precision_limit, atol=0) \
+                    and not most_left_max:
                 # The right max is identical to the present max, a pot.
                 # well is found
                 right_pos = right_max_pos
