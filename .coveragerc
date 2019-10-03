@@ -8,6 +8,7 @@ source =
     maths
     rf_functions
     devtools
+    datatypes
 # a list of file name patterns, the files to include in measurement or reporting.
 # include = 
 
