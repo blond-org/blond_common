@@ -21,8 +21,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize, curve_fit
 import warnings
 
-# Cedar imports
-
+# Analytic distributions import
 from .. interfaces.beam import analytic_distribution
 
 
