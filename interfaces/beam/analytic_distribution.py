@@ -204,7 +204,7 @@ class Gaussian(_DistributionObject):
             self.position = args[1]
             scale = args[2]
         elif len(args) == 2:  # fit Gaussian to time, y_data
-            fitPars = profile_fitting.gaussianFit(args[0], args[1])
+            fitPars = profile.gaussianFit(args[0], args[1])
             self.amplitude, self.position, scale = fitPars
         else:
             raise ValueError("invalid number of arguments")
