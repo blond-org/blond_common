@@ -20,16 +20,18 @@ import numpy as np
 import inspect
 # import scipy.special as special_fun
 
+# # TODO this needs to be cleaned up! This is to run the unittests
+# try:
+#     from ... devtools.BLonD_Rc import rcBLonDparams
+#     from ... fitting import profile_fitting
+# except ImportError:
+#     import sys
+#     sys.path.append('../../../')
+#     from devtools.BLonD_Rc import rcBLonDparams
+# #    from fitting import profile_fitting
 
-# TODO this needs to be cleaned up! This is to run the unittests
-try:
-    from ... devtools.BLonD_Rc import rcBLonDparams
-    from ... fitting import profile_fitting
-except ImportError:
-    import sys
-    sys.path.append('../../../')
-    from devtools.BLonD_Rc import rcBLonDparams
-#    from fitting import profile_fitting
+from ...devtools.BLonD_Rc import rcBLonDparams
+from ...fitting import profile
 
 
 def check_greater_zero(value, func_name):
