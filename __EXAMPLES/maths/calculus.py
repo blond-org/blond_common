@@ -9,7 +9,6 @@
 # Adding folder on TOP of blond_common to PYTHONPATH
 import sys
 import numpy as np
-get_ipython().run_line_magic('matplotlib', 'notebook')
 import matplotlib.pyplot as plt
 sys.path.append('./../../../')
 
@@ -221,32 +220,6 @@ plt.plot(max_pos, max_val, 'ro')
 # In[15]:
 
 
-# Using minmax_location_discrete
-
-from blond_common.maths.calculus import minmax_location_discrete
-
-minmax_pos, minmax_values = minmax_location_discrete(angle_array, sin_array, interp=True)
-
-min_pos = minmax_pos[0]
-max_pos = minmax_pos[1]
-min_val = minmax_values[0]
-max_val = minmax_values[1]
-
-
-# In[16]:
-
-
-plt.figure('Min max discrete -2')
-plt.plot(angle_array, sin_array)
-plt.plot(np.linspace(0, 3*2*np.pi, 1000),
-         np.sin(np.linspace(0, 3*2*np.pi, 1000)), 'k--')
-plt.plot(min_pos, min_val, 'go')
-plt.plot(max_pos, max_val, 'ro')
-
-
-# In[17]:
-
-
 # Using minmax_location_cubic
 
 from blond_common.maths.calculus import minmax_location_cubic
@@ -259,7 +232,7 @@ min_val = minmax_values[0]
 max_val = minmax_values[1]
 
 
-# In[18]:
+# In[16]:
 
 
 plt.figure('Min max cubic')
@@ -269,3 +242,4 @@ plt.plot(np.linspace(0, 3*2*np.pi, 1000),
 plt.plot(min_pos, min_val, 'go')
 plt.plot(max_pos, max_val, 'ro')
 
+plt.show()

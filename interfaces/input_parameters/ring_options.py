@@ -170,6 +170,64 @@ class RingOptions(object):
 
         """
 
+        #TEST LOOP FOR DATA TYPE OBJECT
+        if hasattr(input_data, 'data_type'):
+            data_type = input_data.data_type
+            if data_type[0] != 'momentum':
+                raise RuntimeError("Input data is not a momentum_program")
+            
+            #Needs modifying for single valued multi-section functions
+            if data_type[1] == 'single':
+                if input_to_momentum:
+                    input_data = convert_data(input_data, mass, charge,
+                                              synchronous_data_type,
+                                              bending_radius)
+                return input_data * np.ones((n_sections, n_turns+1))
+
+            if data_type[2] == 'single_section':
+                input_data = (input_data, )
+
+            output_data = []
+            for sect in range(n_sections):
+                if data_type[1] == 'by_turn':
+                    inputValues = input_data[sect]
+                elif data_type[1] == 'by_time':
+                    inputValues = input_data[sect][1]
+                else:
+                    raise RuntimeError("Input data type not recognised, " \
+                                       + "should be by_turn or by_time")
+                
+                if input_to_momentum:
+                    inputValues = convert_data(inputValues, mass, charge, \
+                                                  synchronous_data_type, \
+                                                  bending_radius)
+                
+                if data_type[1] == 'by_turn':
+                    output_data.append(inputValues)
+                    continue
+                
+                inputTime = input_data[sect][0]
+                
+                if interp_time == 't_rev':
+                    output_data.append(self.preprocess(
+                            mass,
+                            circumference,
+                            inputTime, inputValues)[1])
+                else:
+                    try:
+                        iter(interp_time)
+                    except TypeError:
+                        interp_time = np.arange(inputTime[0], inputTime[-1], \
+                                                float(interp_time))
+                
+                    output_data.append(np.interp(interp_time, inputTime, \
+                                                     inputValues))
+                
+            output_data = np.array(output_data, ndmin=2, dtype=float)
+    
+            return output_data
+        #END TEST LOOP FOR DATA TYPE OBJECT                    
+
         # TO BE IMPLEMENTED: if you pass a filename the function reads the file
         # and reshape the data
         if isinstance(input_data, str):
