@@ -24,7 +24,8 @@ import warnings
 # Cedar imports
 
 from .. interfaces.beam import analytic_distribution
-    
+
+
 class FitOptions():
 
     def __init__(self, bunchLengthFactor=1., bunchPositionOffset=0.,
@@ -96,13 +97,12 @@ def FWHM(time, bunch, level=0.5, fitOpt=None, plotOpt=None):
 
     # Adjusting the FWHM with some scaling factor
     if isinstance(fitOpt.bunchLengthFactor, str):
-        #TODO: spyder suggests to compare strings using '==' instead of 'is' 
-        if fitOpt.bunchLengthFactor is 'gaussian':
+        if fitOpt.bunchLengthFactor == 'gaussian':
             bunchLengthFactor = 4. / (2. * np.sqrt(-2 * np.log(level)))
-        elif fitOpt.bunchLengthFactor is 'parabolic_line':
+        elif fitOpt.bunchLengthFactor == 'parabolic_line':
             bunchLengthFactor = 4. / (
                 2*np.sqrt(3+2*1.) * np.sqrt(1-level**(1/1.)))
-        elif fitOpt.bunchLengthFactor is 'parabolic_amplitude':
+        elif fitOpt.bunchLengthFactor == 'parabolic_amplitude':
             bunchLengthFactor = 4. / (
                 2*np.sqrt(3+2*1.5) * np.sqrt(1-level**(1/1.5)))
     else:
@@ -322,14 +322,16 @@ def gaussianFit(time, bunch, fitOpt=None, plotOpt=None):
             [maxProfile-np.min(bunch),
              np.mean(time[bunch == maxProfile]),
              FWHM(time, bunch, level=0.5)[1]])
-    
-    fitDistribtion = analytic_distribution.Gaussian(*fitOpt.fitInitialParameters,
-                                        scale_means='FWHM', store_data=False)
-    
+
+    fitDistribtion = analytic_distribution.Gaussian(
+        *fitOpt.fitInitialParameters,
+        scale_means='FWHM', store_data=False)
+
     fitParameters = _lineDensityFit(time, bunch, fitDistribtion.profile,
                                     fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fitParameters
+
 
 def generalizedGaussianFit(time, bunch, fitOpt=None, plotOpt=None):
     '''
@@ -569,7 +571,7 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
     '''
     Fit the profile with the profileFitFunction
     '''
-    #TODO: since it only returns fit_parameters, need to update all fit functions
+    # TODO: since it only returns fit_parameters, need to update all fit functions
     if fitOpt is None:
         fitOpt = FitOptions()
 
@@ -640,6 +642,7 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
             plt.show()
 
     return fit_parameters
+
 
 def _leastSquareResidualFunction(fitParameters, *fittingArgList):
     '''
