@@ -267,7 +267,7 @@ def binomialParametersFromRatio(time, bunch, levels=[0.8, 0.2],
                   bunchPosition_1+bunchLength_1/2],
                  [level1*np.max(bunch),
                   level1*np.max(bunch)], 'm')
-        plt.plot(time, distribution_functions.binomialAmplitudeN(
+        plt.plot(time, analytic_distribution.binomialAmplitudeN(
             time, *[np.max(bunch),
                     bunchPosition,
                     fullBunchLengthFromRatio,
@@ -337,7 +337,7 @@ def generalizedGaussianFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a generalizedGaussian function
     '''
 
-    profileFitFunction = distribution_functions.generalizedGaussian
+    profileFitFunction = analytic_distribution.generalizedGaussian
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -362,10 +362,10 @@ def generalizedGaussianFit(time, bunch, fitOpt=None, plotOpt=None):
              np.mean(time[bunch == maxProfile]),
              (time[-1]-time[0])/2., 5.])
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def waterbagFit(time, bunch, fitOpt=None, plotOpt=None):
@@ -373,7 +373,7 @@ def waterbagFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a waterbag function
     '''
 
-    profileFitFunction = distribution_functions.waterbag
+    profileFitFunction = analytic_distribution.waterbag
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -390,10 +390,10 @@ def waterbagFit(time, bunch, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def parabolicLineFit(time, bunch, fitOpt=None, plotOpt=None):
@@ -401,7 +401,7 @@ def parabolicLineFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a parabolicLine function
     '''
 
-    profileFitFunction = distribution_functions.parabolicLine
+    profileFitFunction = analytic_distribution.parabolicLine
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -418,10 +418,10 @@ def parabolicLineFit(time, bunch, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def parabolicAmplitudeFit(time, bunch, fitOpt=None, plotOpt=None):
@@ -429,7 +429,7 @@ def parabolicAmplitudeFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a parabolicAmplitude function
     '''
 
-    profileFitFunction = distribution_functions.parabolicAmplitude
+    profileFitFunction = analytic_distribution.parabolicAmplitude
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -446,10 +446,10 @@ def parabolicAmplitudeFit(time, bunch, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def binomialAmplitude2Fit(time, bunch, fitOpt=None, plotOpt=None):
@@ -457,7 +457,7 @@ def binomialAmplitude2Fit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a binomialAmplitude2 function
     '''
 
-    profileFitFunction = distribution_functions.binomialAmplitude2
+    profileFitFunction = analytic_distribution.binomialAmplitude2
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -474,10 +474,10 @@ def binomialAmplitude2Fit(time, bunch, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def binomialAmplitudeNFit(time, bunch, fitOpt=None, plotOpt=None):
@@ -485,7 +485,7 @@ def binomialAmplitudeNFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a binomialAmplitudeN function
     '''
 
-    profileFitFunction = distribution_functions.binomialAmplitudeN
+    profileFitFunction = analytic_distribution.binomialAmplitudeN
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -503,10 +503,10 @@ def binomialAmplitudeNFit(time, bunch, fitOpt=None, plotOpt=None):
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
              1.5])
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def cosineFit(time, bunch, fitOpt=None, plotOpt=None):
@@ -514,7 +514,7 @@ def cosineFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a cosine function
     '''
 
-    profileFitFunction = distribution_functions.cosine
+    profileFitFunction = analytic_distribution.cosine
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -531,10 +531,10 @@ def cosineFit(time, bunch, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def cosineSquaredFit(time, bunch, fitOpt=None, plotOpt=None):
@@ -542,7 +542,7 @@ def cosineSquaredFit(time, bunch, fitOpt=None, plotOpt=None):
     Fit the profile with a cosineSquared function
     '''
 
-    profileFitFunction = distribution_functions.cosineSquared
+    profileFitFunction = analytic_distribution.cosineSquared
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -559,10 +559,10 @@ def cosineSquaredFit(time, bunch, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    bunchPosition, bunchLength, extraParameters = _lineDensityFit(
+    fit_parameters = _lineDensityFit(
         time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return bunchPosition, bunchLength, extraParameters
+    return fit_parameters
 
 
 def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
