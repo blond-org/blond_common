@@ -187,10 +187,10 @@ def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
     position : float
         The position of the peak value, in the units of time_array
     amplitude : float
-        The Full Width at Half Maximum, in the units of time_array
-        NB: if the "level" option is set to any other value than 0.5,
-        the output corresponds to the full width at the specified "level"
-        of the maximum
+        The peak amplitude, in the units of the data_array
+        NB: if the "level" option is set to any other value than 1.0,
+        the output corresponds to the peak, averaged for the points above
+        the specified "level" of the maximum
 
     Example
     -------
