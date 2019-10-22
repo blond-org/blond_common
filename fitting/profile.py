@@ -107,9 +107,8 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
     else:
         bunchLengthFactor = fitOpt.bunchLengthFactor
 
-    bunchLength = bunchLengthFactor * (t2-t1)
-    bunchPosition = (t1+t2)/2 + fitOpt.bunchPositionOffset
-    extraParameters = None
+    fwhm = bunchLengthFactor * (t2-t1)
+    center = (t1+t2)/2 + fitOpt.bunchPositionOffset
 
     if plotOpt is not None:
         plt.figure(plotOpt.figname)
@@ -123,7 +122,7 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
         else:
             plt.show()
 
-    return bunchPosition, bunchLength, extraParameters
+    return center, fwhm
 
 
 def peakValue(time_array, data_array, level=1, fitOpt=None, plotOpt=None):
