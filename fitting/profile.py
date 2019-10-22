@@ -57,9 +57,52 @@ class PlotOptions():
 
 
 def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
-    '''
-    Compute bunch length and bunch position from FWHM of the profile.
-    '''
+    r""" Function to compute the Full-Width at Half Maximum for a given
+    profile. The Maximum corresponds to the numerical maximum of the
+    data_array.
+
+    TODO: add an option to use peakValue to get the Maximum, to have the option
+    to get an averaged value of the maximum (e.g. at >95%)
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+    level : float
+        Optional: The ratio from the maximum for which the width of the profile
+        is returned
+        Default is 0.5, as for Half of the Maximum
+
+    Returns
+    -------
+    center : float
+        The center of the Width at Half Maximum, in the units of time_array
+    fwhm : float
+        The Full Width at Half Maximum, in the units of time_array
+        NB: if the "level" option is set to any other value than 0.5,
+        the output corresponds to the full width at the specified "level"
+        of the maximum
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian distribution and get its FWHM '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import FWHM
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array)
+    >>>
+    >>> center, fwhm = FWHM(time_array, data_array)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
