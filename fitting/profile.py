@@ -56,7 +56,7 @@ class PlotOptions():
         self.legend = legend
 
 
-def FWHM(time, bunch, level=0.5, fitOpt=None, plotOpt=None):
+def FWHM(time_array, bunch, level=0.5, fitOpt=None, plotOpt=None):
     '''
     Compute bunch length and bunch position from FWHM of the profile.
     '''
@@ -68,7 +68,7 @@ def FWHM(time, bunch, level=0.5, fitOpt=None, plotOpt=None):
     profileToFit = bunch-np.mean(bunch[0:fitOpt.nPointsNoise])
 
     # Time resolution
-    timeInterval = time[1] - time[0]
+    timeInterval = time_array[1] - time_array[0]
 
     # Max and xFator times max values (defaults to half max)
     maximumValue = np.max(profileToFit)
@@ -79,19 +79,19 @@ def FWHM(time, bunch, level=0.5, fitOpt=None, plotOpt=None):
     taux1 = taux[0][0]
     taux2 = taux[0][-1]
 
-    # Interpolation of the time where the line density is half the maximun
+    # Interpolation of the time where the line density is half the maximum
     if taux1 == 0:
-        t1 = time[taux1]
+        t1 = time_array[taux1]
         warnings.warn('FWHM is at left boundary of profile!')
     else:
-        t1 = time[taux1] - (profileToFit[taux1]-half_max) \
+        t1 = time_array[taux1] - (profileToFit[taux1]-half_max) \
             / (profileToFit[taux1] - profileToFit[taux1-1]) * timeInterval
 
     if taux2 == (len(profileToFit)-1):
-        t2 = time[taux2]
+        t2 = time_array[taux2]
         warnings.warn('FWHM is at right boundary of profile!')
     else:
-        t2 = time[taux2] + (profileToFit[taux2]-half_max) \
+        t2 = time_array[taux2] + (profileToFit[taux2]-half_max) \
             / (profileToFit[taux2] - profileToFit[taux2+1]) * timeInterval
 
     # Adjusting the FWHM with some scaling factor
@@ -115,7 +115,7 @@ def FWHM(time, bunch, level=0.5, fitOpt=None, plotOpt=None):
         plt.figure(plotOpt.figname)
         if plotOpt.clf:
             plt.clf()
-        plt.plot(time, profileToFit)
+        plt.plot(time_array, profileToFit)
         plt.plot([t1, t2], [half_max, half_max], 'r')
         plt.plot([t1, t2], [half_max, half_max], 'ro', markersize=5)
         if plotOpt.interactive:
@@ -126,7 +126,7 @@ def FWHM(time, bunch, level=0.5, fitOpt=None, plotOpt=None):
     return bunchPosition, bunchLength, extraParameters
 
 
-def peakValue(time, bunch, level=1, fitOpt=None, plotOpt=None):
+def peakValue(time_array, bunch, level=1, fitOpt=None, plotOpt=None):
     '''
     Gives the peak of the profile averaged above the 'level' (default is max).
     '''
@@ -145,8 +145,8 @@ def peakValue(time, bunch, level=1, fitOpt=None, plotOpt=None):
         plt.figure(plotOpt.figname)
         if plotOpt.clf:
             plt.clf()
-        plt.plot(time, bunch-sampledNoise)
-        plt.plot(time[bunch >= (level*np.max(bunch-sampledNoise))],
+        plt.plot(time_array, bunch-sampledNoise)
+        plt.plot(time_array[bunch >= (level*np.max(bunch-sampledNoise))],
                  bunch[bunch >= (level*np.max(bunch-sampledNoise))] -
                  sampledNoise)
         if plotOpt.interactive:
@@ -157,7 +157,7 @@ def peakValue(time, bunch, level=1, fitOpt=None, plotOpt=None):
     return bunchPosition, bunchLength, extraParameters
 
 
-def profileSum(time, bunch, fitOpt=None, plotOpt=None):
+def profileSum(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Compute the sum of the profile.
     '''
@@ -173,8 +173,8 @@ def profileSum(time, bunch, fitOpt=None, plotOpt=None):
         plt.figure(plotOpt.figname)
         if plotOpt.clf:
             plt.clf()
-        plt.plot(time, bunch-np.mean(bunch[0:fitOpt.nPointsNoise]))
-        plt.plot(time[0:fitOpt.nPointsNoise],
+        plt.plot(time_array, bunch-np.mean(bunch[0:fitOpt.nPointsNoise]))
+        plt.plot(time_array[0:fitOpt.nPointsNoise],
                  (bunch-np.mean(bunch[0:fitOpt.nPointsNoise]))[
                      0:fitOpt.nPointsNoise])
         if plotOpt.interactive:
@@ -185,7 +185,7 @@ def profileSum(time, bunch, fitOpt=None, plotOpt=None):
     return bunchPosition, bunchLength, extraParameters
 
 
-def RMS(time, bunch, fitOpt=None):
+def RMS(time_array, bunch, fitOpt=None):
     '''
     Compute the rms bunch length and position from the profile.
     '''
@@ -193,16 +193,16 @@ def RMS(time, bunch, fitOpt=None):
     if fitOpt is None:
         fitOpt = FitOptions()
 
-    deltaX = time[1]-time[0]
+    deltaX = time_array[1]-time_array[0]
 
     # Removing baseline
     profileToFit = bunch-np.mean(bunch[0:fitOpt.nPointsNoise])
 
     normalizedProfileInputY = profileToFit / np.trapz(profileToFit, dx=deltaX)
 
-    bunchPosition = np.trapz(time * normalizedProfileInputY, dx=deltaX)
+    bunchPosition = np.trapz(time_array * normalizedProfileInputY, dx=deltaX)
     bunchLength = fitOpt.bunchLengthFactor * np.sqrt(
-        np.trapz(((time - bunchPosition)**2) * normalizedProfileInputY,
+        np.trapz(((time_array - bunchPosition)**2) * normalizedProfileInputY,
                  dx=deltaX))
     bunchPosition += fitOpt.bunchPositionOffset
     extraParameters = None
@@ -210,7 +210,7 @@ def RMS(time, bunch, fitOpt=None):
     return bunchPosition, bunchLength, extraParameters
 
 
-def binomialParametersFromRatio(time, bunch, levels=[0.8, 0.2],
+def binomialParametersFromRatio(time_array, bunch, levels=[0.8, 0.2],
                                 ratioLookUpTable=None,
                                 fitOpt=None, plotOpt=None):
     '''
@@ -235,9 +235,9 @@ def binomialParametersFromRatio(time, bunch, levels=[0.8, 0.2],
 
     # Finding the width at two different levels
     bunchPosition_1, bunchLength_1 = FWHM(
-        time, bunch, level=level1)[0:2]
+        time_array, bunch, level=level1)[0:2]
     bunchPosition_2, bunchLength_2 = FWHM(
-        time, bunch, level=level2)[0:2]
+        time_array, bunch, level=level2)[0:2]
 
     ratioFW = bunchLength_1/bunchLength_2
 
@@ -258,7 +258,7 @@ def binomialParametersFromRatio(time, bunch, levels=[0.8, 0.2],
         plt.figure(plotOpt.figname)
         if plotOpt.clf:
             plt.clf()
-        plt.plot(time, bunch)
+        plt.plot(time_array, bunch)
         plt.plot([bunchPosition_2-bunchLength_2/2,
                   bunchPosition_2+bunchLength_2/2],
                  [level2*np.max(bunch),
@@ -267,8 +267,8 @@ def binomialParametersFromRatio(time, bunch, levels=[0.8, 0.2],
                   bunchPosition_1+bunchLength_1/2],
                  [level1*np.max(bunch),
                   level1*np.max(bunch)], 'm')
-        plt.plot(time, analytic_distribution.binomialAmplitudeN(
-            time, *[np.max(bunch),
+        plt.plot(time_array, analytic_distribution.binomialAmplitudeN(
+            time_array, *[np.max(bunch),
                     bunchPosition,
                     fullBunchLengthFromRatio,
                     exponentFromRatio]))
@@ -307,7 +307,7 @@ def _binomialParametersFromRatioLookupTable(level1=0.8, level2=0.2,
         ratioFWArray[sortAscendingRatioFWArray], [level1, level2]
 
 
-def gaussianFit(time, bunch, fitOpt=None, plotOpt=None):
+def gaussianFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a gaussian function
     '''
@@ -319,20 +319,20 @@ def gaussianFit(time, bunch, fitOpt=None, plotOpt=None):
         maxProfile = np.max(bunch)
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time, bunch, level=0.5)[1]])
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array, bunch, level=0.5)[1]])
 
     fitDistribtion = analytic_distribution.Gaussian(
         *fitOpt.fitInitialParameters,
         scale_means='FWHM', store_data=False)
 
-    fitParameters = _lineDensityFit(time, bunch, fitDistribtion.profile,
+    fitParameters = _lineDensityFit(time_array, bunch, fitDistribtion.profile,
                                     fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fitParameters
 
 
-def generalizedGaussianFit(time, bunch, fitOpt=None, plotOpt=None):
+def generalizedGaussianFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a generalizedGaussian function
     '''
@@ -347,8 +347,8 @@ def generalizedGaussianFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
@@ -359,16 +359,16 @@ def generalizedGaussianFit(time, bunch, fitOpt=None, plotOpt=None):
         maxProfile = np.max(bunch)
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             (time[-1]-time[0])/2., 5.])
+             np.mean(time_array[bunch == maxProfile]),
+             (time_array[-1]-time_array[0])/2., 5.])
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def waterbagFit(time, bunch, fitOpt=None, plotOpt=None):
+def waterbagFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a waterbag function
     '''
@@ -383,20 +383,20 @@ def waterbagFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_line')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def parabolicLineFit(time, bunch, fitOpt=None, plotOpt=None):
+def parabolicLineFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a parabolicLine function
     '''
@@ -411,20 +411,20 @@ def parabolicLineFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_line')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def parabolicAmplitudeFit(time, bunch, fitOpt=None, plotOpt=None):
+def parabolicAmplitudeFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a parabolicAmplitude function
     '''
@@ -439,20 +439,20 @@ def parabolicAmplitudeFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def binomialAmplitude2Fit(time, bunch, fitOpt=None, plotOpt=None):
+def binomialAmplitude2Fit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a binomialAmplitude2 function
     '''
@@ -467,20 +467,20 @@ def binomialAmplitude2Fit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def binomialAmplitudeNFit(time, bunch, fitOpt=None, plotOpt=None):
+def binomialAmplitudeNFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a binomialAmplitudeN function
     '''
@@ -495,8 +495,8 @@ def binomialAmplitudeNFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
@@ -504,12 +504,12 @@ def binomialAmplitudeNFit(time, bunch, fitOpt=None, plotOpt=None):
              1.5])
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def cosineFit(time, bunch, fitOpt=None, plotOpt=None):
+def cosineFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a cosine function
     '''
@@ -524,20 +524,20 @@ def cosineFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def cosineSquaredFit(time, bunch, fitOpt=None, plotOpt=None):
+def cosineSquaredFit(time_array, bunch, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a cosineSquared function
     '''
@@ -552,20 +552,20 @@ def cosineSquaredFit(time, bunch, fitOpt=None, plotOpt=None):
         fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(bunch),
-             np.mean(time[bunch == maxProfile]),
-             FWHM(time,
+             np.mean(time_array[bunch == maxProfile]),
+             FWHM(time_array,
                   bunch,
                   level=0.5,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = _lineDensityFit(
-        time, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
+        time_array, bunch, profileFitFunction, fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
+def _lineDensityFit(time_array, bunch, profileFitFunction, fitOpt=None,
                     plotOpt=None):
     '''
     Fit the profile with the profileFitFunction
@@ -577,13 +577,13 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
     profileToFit = bunch-np.mean(bunch[0:fitOpt.nPointsNoise])
 
     # Rescaling so that the fit parameters are around 1
-    rescaleFactorX = 1/(time[-1]-time[0])
+    rescaleFactorX = 1/(time_array[-1]-time_array[0])
     rescaleFactorY = 1/np.max(profileToFit)
 
     fitInitialParameters = np.array(fitOpt.fitInitialParameters)
 
     fitInitialParameters[0] *= rescaleFactorY
-    fitInitialParameters[1] -= time[0]
+    fitInitialParameters[1] -= time_array[0]
     fitInitialParameters[1] *= rescaleFactorX
     fitInitialParameters[2] *= rescaleFactorX
 
@@ -592,7 +592,7 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
 
         fit_parameters = curve_fit(
             profileFitFunction,
-            (time-time[0])*rescaleFactorX,
+            (time_array-time_array[0])*rescaleFactorX,
             profileToFit*rescaleFactorY,
             p0=fitInitialParameters)[0]
 
@@ -605,7 +605,7 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
             fitOpt.residualFunction,
             fitInitialParameters,
             args=(profileFitFunction,
-                  (time-time[0])*rescaleFactorX,
+                  (time_array-time_array[0])*rescaleFactorX,
                   profileToFit*rescaleFactorY),
             bounds=fitOpt.bounds,
             method=fitOpt.method,
@@ -617,7 +617,7 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
     # Rescaling back to the original dimensions
     fit_parameters[0] /= rescaleFactorY
     fit_parameters[1] /= rescaleFactorX
-    fit_parameters[1] += time[0]
+    fit_parameters[1] += time_array[0]
     fit_parameters[2] /= rescaleFactorX
 
     if plotOpt is not None:
@@ -625,13 +625,13 @@ def _lineDensityFit(time, bunch, profileFitFunction, fitOpt=None,
         plt.figure(plotOpt.figname)
         if plotOpt.clf:
             plt.clf()
-        plt.plot(time,
+        plt.plot(time_array,
                  profileToFit, label='Data')
-        plt.plot(time,
-                 profileFitFunction(time, *fitOpt.fitInitialParameters),
+        plt.plot(time_array,
+                 profileFitFunction(time_array, *fitOpt.fitInitialParameters),
                  label='Initial guess')
-        plt.plot(time,
-                 profileFitFunction(time, *fit_parameters),
+        plt.plot(time_array,
+                 profileFitFunction(time_array, *fit_parameters),
                  label='Fit')
         if plotOpt.legend:
             plt.legend(loc='best')
@@ -649,10 +649,10 @@ def _leastSquareResidualFunction(fitParameters, *fittingArgList):
     '''
 
     profileFitFunction = fittingArgList[0]
-    time = fittingArgList[1]
+    time_array = fittingArgList[1]
     fittedProfileInputY = fittingArgList[2]
 
     residue = np.sum((fittedProfileInputY -
-                      profileFitFunction(time, *fitParameters))**2)
+                      profileFitFunction(time_array, *fitParameters))**2)
 
     return residue
