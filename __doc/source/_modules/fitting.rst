@@ -6,15 +6,14 @@ Modules
 
 .. toctree::
 
-    fitting.distribution
-    fitting.distribution_functions
+    fitting.profile
 
 Examples
 ---------------
 
-To see some examples on how to fit distribution functions (e.g. bunch line densities)
+To see some examples on how to fit profile functions (e.g. bunch line densities)
 
-`Fitting distribution examples ipynb`_
+`Fitting profile examples ipynb`_
 
-.. _Fitting distribution examples ipynb: distribution.slides.html
+.. _Fitting profile examples ipynb: distribution.slides.html
 
