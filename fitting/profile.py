@@ -256,7 +256,9 @@ def integrated_profile(time_array, data_array, method='sum',
         The input profile
     method : str
         The method used to do the integration, the possible inputs are:
+
         - "sum": uses np.sum
+
         - "trapz": uses np.trapz
 
     Returns
@@ -266,7 +268,8 @@ def integrated_profile(time_array, data_array, method='sum',
 
     Example
     -------
-    >>> ''' We generate a Gaussian distribution and get its peak amplitude '''
+    >>> ''' We generate a Gaussian distribution and get the integrated
+    >>> profile '''
     >>> import numpy as np
     >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
     >>> from blond_common.fitting.profile import integrated_profile
@@ -330,7 +333,7 @@ def RMS(time_array, data_array, fitOpt=None):
 
     Example
     -------
-    >>> ''' We generate a Gaussian distribution and get its peak amplitude '''
+    >>> ''' We generate a Gaussian distribution and get mean and rms '''
     >>> import numpy as np
     >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
     >>> from blond_common.fitting.profile import RMS
@@ -370,26 +373,88 @@ def RMS(time_array, data_array, fitOpt=None):
     return mean, rms
 
 
-def binomialParametersFromRatio(time_array, data_array, levels=[0.8, 0.2],
-                                ratioLookUpTable=None,
-                                fitOpt=None, plotOpt=None):
-    '''
-    *Compute RMS bunch length, bunch position, exponent assuming a binomial
-    line density from Full-Width at different levels.*
-    '''
+def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
+                              ratio_LUT=None,
+                              fitOpt=None, plotOpt=None):
+    r""" Function to evaluate the parameters of a binomial function, as defined
+    in blond_common.interfaces.beam.analytic_distribution.binomial_amplitude,
+    by using the width of the profile at two different levels as input.
+
+    The function returns the parameters of a binomial profile as defined in
+    blond_common.interfaces.beam.analytic_distribution.binomial_amplitude
+
+    TODO: check if rms should be in the return list as well
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+    levels : list or np.array with 2 elements
+        Optional: The levels at which the width of the profile is used
+        to evaluate the parameters of the fitting binomial profile
+        Default is [0.8, 0.2]
+    ratio_LUT : output from _binomial_from_width_LUT_generation
+        Optional: The function uses internally a lookup table obtained from the
+        _binomial_from_width_LUT_generation function to evaluate the binomial
+        parameters. The lookup table can be pre-calculated and passed directly
+        for efficiency purposes, if the function is used several times in a
+        row.
+
+    Returns
+    -------
+    position : float
+        The central position of the profile, assumed to be binomial,
+        in time_array units
+    full_length : float
+        The full bunch length of the profile, assumed to be binomial,
+        in time_array units
+    exponent : float
+        The exponent of the profile, assumed to be binomial
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian distribution and get mean and rms '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import binomial_from_width_ratio
+    >>> from blond_common.fitting.profile import _binomial_from_width_LUT_generation
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
+    >>>
+    >>> position, full_length, exponent = binomial_from_width_ratio(
+    >>>    time_array, data_array)
+    >>>
+    >>> # For a gaussian profile, the exponent of the corresponding binomial
+    >>> # profile is infinity, higher values of exponents are required in the
+    >>> # lookup table to have a better evaluation.
+    >>>
+    >>> new_LUT = _binomial_from_width_LUT_generation(
+    >>>    exponentMin=100, exponentMax=10000)
+    >>>
+    >>> position, full_length, exponent = binomial_from_width_ratio(
+    >>>    time_array, data_array, ratio_LUT=new_LUT)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
 
-    if ratioLookUpTable is None:
+    if ratio_LUT is None:
         level1 = np.max(levels)
         level2 = np.min(levels)
-        ratioLookUpTable = _binomialParametersFromRatioLookupTable(
+        ratio_LUT = _binomial_from_width_LUT_generation(
             level1, level2)
-        exponentArray, ratioFWArray, levels = ratioLookUpTable
+        exponentArray, ratioFWArray, levels = ratio_LUT
     else:
-        ratioLookUpTable = ratioLookUpTable
-        exponentArray, ratioFWArray, levels = ratioLookUpTable
+        exponentArray, ratioFWArray, levels = ratio_LUT
         level1 = np.max(levels)
         level2 = np.min(levels)
 
@@ -401,18 +466,17 @@ def binomialParametersFromRatio(time_array, data_array, levels=[0.8, 0.2],
 
     ratioFW = bunchLength_1/bunchLength_2
 
-    exponentFromRatio = np.interp(ratioFW, ratioFWArray, exponentArray)
+    exponent = np.interp(ratioFW, ratioFWArray, exponentArray)
 
-    fullBunchLengthFromRatio = (
-        bunchLength_2 / np.sqrt(1-level2**(1/exponentFromRatio)) +
-        bunchLength_1 / np.sqrt(1-level1**(1/exponentFromRatio))) / 2
+    full_length = (
+        bunchLength_2 / np.sqrt(1-level2**(1/exponent)) +
+        bunchLength_1 / np.sqrt(1-level1**(1/exponent))) / 2
 
-    bunchLength = fitOpt.bunchLengthFactor*fullBunchLengthFromRatio / \
-        (2.*np.sqrt(3.+2.*exponentFromRatio))
-    bunchPosition = (bunchPosition_1 + bunchPosition_2)/2 + \
+    rms = fitOpt.bunchLengthFactor*full_length / \
+        (2.*np.sqrt(3.+2.*exponent))
+
+    position = (bunchPosition_1 + bunchPosition_2)/2 + \
         fitOpt.bunchPositionOffset
-    returnFitParameters = np.array(
-        [fullBunchLengthFromRatio, exponentFromRatio])
 
     if plotOpt is not None:
         plt.figure(plotOpt.figname)
@@ -429,22 +493,22 @@ def binomialParametersFromRatio(time_array, data_array, levels=[0.8, 0.2],
                   level1*np.max(data_array)], 'm')
         plt.plot(time_array, analytic_distribution.binomialAmplitudeN(
             time_array, *[np.max(data_array),
-                          bunchPosition,
-                          fullBunchLengthFromRatio,
-                          exponentFromRatio]))
+                          position,
+                          full_length,
+                          exponent]))
         if plotOpt.interactive:
             plt.pause(0.00001)
         else:
             plt.show()
 
-    return bunchPosition, bunchLength, returnFitParameters
+    return position, full_length, exponent
 
 
-def _binomialParametersFromRatioLookupTable(level1=0.8, level2=0.2,
-                                            exponentMin=0.5, exponentMax=10,
-                                            exponentDistrib='logspace',
-                                            exponentNPoints=100,
-                                            exponentArray=None):
+def _binomial_from_width_LUT_generation(level1=0.8, level2=0.2,
+                                        exponentMin=0.5, exponentMax=10,
+                                        exponentDistrib='logspace',
+                                        exponentNPoints=100,
+                                        exponentArray=None):
     '''
     *Create the lookup table for the binomialParametersFromRatio function.*
     '''
