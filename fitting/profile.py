@@ -194,7 +194,7 @@ def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
 
     Example
     -------
-    >>> ''' We generate a Gaussian distribution and get its FWHM '''
+    >>> ''' We generate a Gaussian distribution and get its peak amplitude '''
     >>> import numpy as np
     >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
     >>> from blond_common.fitting.profile import FWHM
