@@ -169,8 +169,8 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
 
 
 def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
-    r""" Gives the peak of the profile averaged above the 'level'
-    (default is max).
+    r""" Function to get the peak amplitude of the profile. If a "level"
+    is passed, the function averages the points above the speicifed "level".
 
     Parameters
     ----------
@@ -197,7 +197,7 @@ def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
     >>> ''' We generate a Gaussian distribution and get its peak amplitude '''
     >>> import numpy as np
     >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
-    >>> from blond_common.fitting.profile import FWHM
+    >>> from blond_common.fitting.profile import peak_value
     >>>
     >>> time_array = np.arange(0, 25e-9, 0.1e-9)
     >>>
@@ -242,18 +242,56 @@ def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
     return position, amplitude
 
 
-def profileSum(time_array, data_array, fitOpt=None, plotOpt=None):
-    '''
-    Compute the sum of the profile.
-    '''
+def integrated_profile(time_array, data_array, method='sum',
+                       fitOpt=None, plotOpt=None):
+    r""" Function to compute the integrated bunch profile.
+
+    TODO: add an error message it the "method" input is not correct
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+    method : str
+        The method used to do the integration, the possible inputs are:
+        - "sum": uses np.sum
+        - "trapz": uses np.trapz
+
+    Returns
+    -------
+    integrated_value : float
+        The integrated bunch profile, in the units of time_array*data_array
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian distribution and get its peak amplitude '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import integrated_profile
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
+    >>>
+    >>> integrated_value = integrated_profile(time_array, data_array)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
 
-    bunchPosition = 0
-    bunchLength = 0
-    extraParameters = np.sum(
-        data_array - np.mean(data_array[0:fitOpt.nPointsNoise]))
+    if method == 'sum':
+        integrated_value = np.sum(
+            data_array - np.mean(data_array[0:fitOpt.nPointsNoise]))
+    elif method == 'trapz':
+        integrated_value = np.trapz(
+            data_array - np.mean(data_array[0:fitOpt.nPointsNoise]))
 
     if plotOpt is not None:
         plt.figure(plotOpt.figname)
@@ -270,7 +308,7 @@ def profileSum(time_array, data_array, fitOpt=None, plotOpt=None):
         else:
             plt.show()
 
-    return bunchPosition, bunchLength, extraParameters
+    return integrated_value
 
 
 def RMS(time_array, data_array, fitOpt=None):
