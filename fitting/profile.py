@@ -111,11 +111,11 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
     profileToFit = data_array-np.mean(data_array[0:fitOpt.nPointsNoise])
 
     # Time resolution
-    timeInterval = time_array[1] - time_array[0]
+    time_interval = time_array[1] - time_array[0]
 
     # Max and xFator times max values (defaults to half max)
-    maximumValue = np.max(profileToFit)
-    half_max = level * maximumValue
+    maximum_value = np.max(profileToFit)
+    half_max = level * maximum_value
 
     # First aproximation for the half maximum values
     taux = np.where(profileToFit >= half_max)
@@ -128,14 +128,14 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
         warnings.warn('FWHM is at left boundary of profile!')
     else:
         t1 = time_array[taux1] - (profileToFit[taux1]-half_max) \
-            / (profileToFit[taux1] - profileToFit[taux1-1]) * timeInterval
+            / (profileToFit[taux1] - profileToFit[taux1-1]) * time_interval
 
     if taux2 == (len(profileToFit)-1):
         t2 = time_array[taux2]
         warnings.warn('FWHM is at right boundary of profile!')
     else:
         t2 = time_array[taux2] + (profileToFit[taux2]-half_max) \
-            / (profileToFit[taux2] - profileToFit[taux2+1]) * timeInterval
+            / (profileToFit[taux2] - profileToFit[taux2+1]) * time_interval
 
     # Adjusting the FWHM with some scaling factor
     if isinstance(fitOpt.bunchLengthFactor, str):
@@ -312,28 +312,62 @@ def integrated_profile(time_array, data_array, method='sum',
 
 
 def RMS(time_array, data_array, fitOpt=None):
-    '''
-    Compute the rms bunch length and position from the profile.
-    '''
+    r""" Function to compute the mean and root mean square (RMS) of a profile.
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    mean : float
+        The mean position of the profile, in time_array units
+    rms : float
+        The rms length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian distribution and get its peak amplitude '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import RMS
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
+    >>>
+    >>> mean, rms = RMS(time_array, data_array)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
 
-    deltaX = time_array[1]-time_array[0]
+    time_interval = time_array[1] - time_array[0]
 
     # Removing baseline
-    profileToFit = data_array-np.mean(data_array[0:fitOpt.nPointsNoise])
+    profile = data_array-np.mean(data_array[0:fitOpt.nPointsNoise])
 
-    normalizedProfileInputY = profileToFit / np.trapz(profileToFit, dx=deltaX)
+    normalized_profile = profile / np.trapz(
+        profile, dx=time_interval)
 
-    bunchPosition = np.trapz(time_array * normalizedProfileInputY, dx=deltaX)
-    bunchLength = fitOpt.bunchLengthFactor * np.sqrt(
-        np.trapz(((time_array - bunchPosition)**2) * normalizedProfileInputY,
-                 dx=deltaX))
-    bunchPosition += fitOpt.bunchPositionOffset
-    extraParameters = None
+    mean = np.trapz(time_array * normalized_profile,
+                    dx=time_interval)
 
-    return bunchPosition, bunchLength, extraParameters
+    rms = fitOpt.bunchLengthFactor * np.sqrt(
+        np.trapz(((time_array - mean)**2) * normalized_profile,
+                 dx=time_interval))
+
+    mean += fitOpt.bunchPositionOffset
+
+    return mean, rms
 
 
 def binomialParametersFromRatio(time_array, data_array, levels=[0.8, 0.2],
