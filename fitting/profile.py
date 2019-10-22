@@ -98,7 +98,7 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
     >>> position = 13e-9
     >>> length = 2e-9
     >>>
-    >>> data_array = gaussian(time_array)
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
     >>>
     >>> center, fwhm = FWHM(time_array, data_array)
 
@@ -168,20 +168,61 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
     return center, fwhm
 
 
-def peakValue(time_array, data_array, level=1, fitOpt=None, plotOpt=None):
-    '''
-    Gives the peak of the profile averaged above the 'level' (default is max).
-    '''
+def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
+    r""" Gives the peak of the profile averaged above the 'level'
+    (default is max).
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+    level : float
+        Optional: The ratio of the maximum above which the profile is averaged
+        Default is 1.0 to return the numerical maximum
+
+    Returns
+    -------
+    position : float
+        The position of the peak value, in the units of time_array
+    amplitude : float
+        The Full Width at Half Maximum, in the units of time_array
+        NB: if the "level" option is set to any other value than 0.5,
+        the output corresponds to the full width at the specified "level"
+        of the maximum
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian distribution and get its FWHM '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import FWHM
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
+    >>>
+    >>> peak_position, amplitude = peak_value(time_array, data_array)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
 
     sampledNoise = np.mean(data_array[0:fitOpt.nPointsNoise])
 
-    bunchPosition = 0
-    bunchLength = 0
-    extraParameters = np.mean(
-        data_array[data_array >= (level*np.max(data_array-sampledNoise))] -
+    selected_points = np.where(
+        data_array >= (level*np.max(data_array-sampledNoise)))[0]
+
+    position = np.mean(time_array[selected_points])
+
+    amplitude = np.mean(
+        data_array[selected_points] -
         sampledNoise)
 
     if plotOpt is not None:
@@ -198,7 +239,7 @@ def peakValue(time_array, data_array, level=1, fitOpt=None, plotOpt=None):
         else:
             plt.show()
 
-    return bunchPosition, bunchLength, extraParameters
+    return position, amplitude
 
 
 def profileSum(time_array, data_array, fitOpt=None, plotOpt=None):
