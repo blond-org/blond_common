@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module to fit distribution functions, such as bunch line densities**
+**Module with functions to fit profiles, such as bunch line densities**
 
 :Authors: **Alexandre Lasheen**, **Juan F. Esteban Mueller**,
           **Markus Schwarz**
@@ -343,7 +343,7 @@ def RMS(time_array, data_array, fitOpt=None):
     >>>
     >>> data_array = gaussian(time_array, *[amplitude, position, length])
     >>>
-    >>> mean, rms = RMS(time_array, data_array)
+    >>> mean_position, rms_length = RMS(time_array, data_array)
 
     """
 
