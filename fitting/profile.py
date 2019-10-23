@@ -246,7 +246,7 @@ def integrated_profile(time_array, data_array, method='sum',
                        fitOpt=None, plotOpt=None):
     r""" Function to compute the integrated bunch profile.
 
-    TODO: add an error message it the "method" input is not correct
+    TODO: add an error message if the "method" input is not correct
 
     Parameters
     ----------
@@ -257,7 +257,7 @@ def integrated_profile(time_array, data_array, method='sum',
     method : str
         The method used to do the integration, the possible inputs are:
 
-        - "sum": uses np.sum
+        - "sum": uses np.sum (default)
 
         - "trapz": uses np.trapz
 
@@ -393,7 +393,7 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
         The input profile
     levels : list or np.array with 2 elements
         Optional: The levels at which the width of the profile is used
-        to evaluate the parameters of the fitting binomial profile
+        to evaluate the parameters of the fitting binomial profile.
         Default is [0.8, 0.2]
     ratio_LUT : output from _binomial_from_width_LUT_generation
         Optional: The function uses internally a lookup table obtained from the
@@ -504,31 +504,105 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
     return position, full_length, exponent
 
 
-def _binomial_from_width_LUT_generation(level1=0.8, level2=0.2,
-                                        exponentMin=0.5, exponentMax=10,
-                                        exponentDistrib='logspace',
-                                        exponentNPoints=100,
-                                        exponentArray=None):
-    '''
-    *Create the lookup table for the binomialParametersFromRatio function.*
-    '''
+def _binomial_from_width_LUT_generation(levels=[0.8, 0.2],
+                                        exponent_min=0.5, exponent_max=10.,
+                                        exponent_distrib='logspace',
+                                        exponent_npoints=100,
+                                        exponent_array=None):
+    r""" Function to create the lookup table (LUT) for the
+    binomial_from_width_ratio function.
 
-    if exponentArray is None:
-        if exponentDistrib == 'linspace':
-            exponentArray = np.linspace(exponentMin, exponentMax,
-                                        exponentNPoints)
-        elif exponentDistrib == 'logspace':
-            exponentArray = np.logspace(np.log10(exponentMin),
-                                        np.log10(exponentMax),
-                                        exponentNPoints)
+    TODO: return error if exponent_min<0.5
 
-    ratioFWArray = np.sqrt(
-        (1-level1**(1/exponentArray))/(1-level2**(1/exponentArray)))
+    Parameters
+    ----------
+    levels : list or np.array with 2 elements
+        Optional: The levels at which the width of the profile is used
+        to evaluate the parameters of the fitting binomial profile.
+        Default is [0.8, 0.2]
+    exponent_min : float
+        Optional: The smallest exponent to consider for the binomial profile
+        Default is 0.5 (NB: cannot be smaller than 0.5)
+    exponent_max : float
+        Optional: The largest exponent to consider for the binomial profile
+        Default is 10. (NB: a higher value is necessary for Gaussian profiles)
+    exponent_distrib : str
+        Optional: Define how the exponent array of the LUT is distributed
+        The possible settings are:
 
-    sortAscendingRatioFWArray = np.argsort(ratioFWArray)
+        - logspace: uses np.logspace (default)
 
-    return exponentArray[sortAscendingRatioFWArray], \
-        ratioFWArray[sortAscendingRatioFWArray], [level1, level2]
+        - linspace: uses np.linspace
+
+    exponent_npoints: int
+        Optional: The number of points for the lookup table
+        Default is 100
+    exponent_array: list or np.array
+        Optional: This option replaces and discards all the other optional
+        inputs
+
+    Returns
+    -------
+    exponent_array : np.array
+        The expected binomial profile exponent corresponding to the ratio
+        of the Full-Widths for the specified levels
+    ratio_FW : np.array
+        The ratio of the Full-Widths corresponding to the exponent_array
+        for the specified levels
+    levels : list
+        The levels at which the width of the profile is used
+        to evaluate the parameters of the fitting binomial profile.
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian distribution and get mean and rms '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import binomial_from_width_ratio
+    >>> from blond_common.fitting.profile import _binomial_from_width_LUT_generation
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
+    >>>
+    >>> position, full_length, exponent = binomial_from_width_ratio(
+    >>>    time_array, data_array)
+    >>>
+    >>> # For a gaussian profile, the exponent of the corresponding binomial
+    >>> # profile is infinity, higher values of exponents are required in the
+    >>> # lookup table to have a better evaluation.
+    >>>
+    >>> new_LUT = _binomial_from_width_LUT_generation(
+    >>>    exponentMin=100, exponentMax=10000)
+    >>>
+    >>> position, full_length, exponent = binomial_from_width_ratio(
+    >>>    time_array, data_array, ratio_LUT=new_LUT)
+
+    """
+
+    if exponent_array is None:
+        if exponent_distrib == 'linspace':
+            exponent_array = np.linspace(exponent_min, exponent_max,
+                                         exponent_npoints)
+        elif exponent_distrib == 'logspace':
+            exponent_array = np.logspace(np.log10(exponent_min),
+                                         np.log10(exponent_max),
+                                         exponent_npoints)
+
+    level1 = np.max(levels)
+    level2 = np.min(levels)
+
+    ratio_FW = np.sqrt(
+        (1-level1**(1/exponent_array))/(1-level2**(1/exponent_array)))
+
+    sortAscendingRatioFWArray = np.argsort(ratio_FW)
+
+    return exponent_array[sortAscendingRatioFWArray], \
+        ratio_FW[sortAscendingRatioFWArray], [level1, level2]
 
 
 def gaussianFit(time_array, data_array, fitOpt=None, plotOpt=None):
