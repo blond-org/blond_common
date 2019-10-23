@@ -605,7 +605,8 @@ def _binomial_from_width_LUT_generation(levels=[0.8, 0.2],
         ratio_FW[sortAscendingRatioFWArray], [level1, level2]
 
 
-def gaussianFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def gaussian_fit(time_array, data_array,
+                 fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a gaussian function
     '''
@@ -631,7 +632,8 @@ def gaussianFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fitParameters
 
 
-def generalizedGaussianFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def generalized_gaussian_fit(time_array, data_array,
+                             fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a generalizedGaussian function
     '''
@@ -668,7 +670,8 @@ def generalizedGaussianFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def waterbagFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def waterbag_fit(time_array, data_array,
+                 fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a waterbag function
     '''
@@ -697,7 +700,8 @@ def waterbagFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def parabolicLineFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def parabolic_line_fit(time_array, data_array,
+                       fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a parabolicLine function
     '''
@@ -726,7 +730,7 @@ def parabolicLineFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def parabolicAmplitudeFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def parabolic_amplitude_fit(time_array, data_array, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a parabolicAmplitude function
     '''
@@ -755,7 +759,7 @@ def parabolicAmplitudeFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def binomialAmplitude2Fit(time_array, data_array, fitOpt=None, plotOpt=None):
+def binomial_amplitude2_fit(time_array, data_array, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a binomialAmplitude2 function
     '''
@@ -784,7 +788,7 @@ def binomialAmplitude2Fit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def binomialAmplitudeNFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def binomial_amplitudeN_fit(time_array, data_array, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a binomialAmplitudeN function
     '''
@@ -814,7 +818,7 @@ def binomialAmplitudeNFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def cosineFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def cosine_fit(time_array, data_array, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a cosine function
     '''
@@ -843,7 +847,7 @@ def cosineFit(time_array, data_array, fitOpt=None, plotOpt=None):
     return fit_parameters
 
 
-def cosineSquaredFit(time_array, data_array, fitOpt=None, plotOpt=None):
+def cosine_squared_fit(time_array, data_array, fitOpt=None, plotOpt=None):
     '''
     Fit the profile with a cosineSquared function
     '''
@@ -877,7 +881,7 @@ def _lineDensityFit(time_array, data_array, profileFitFunction, fitOpt=None,
     '''
     Fit the profile with the profileFitFunction
     '''
-    # TODO: since it only returns fit_parameters, need to update all fit functions
+
     if fitOpt is None:
         fitOpt = FitOptions()
 
