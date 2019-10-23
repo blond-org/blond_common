@@ -462,7 +462,7 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
         level1 = np.max(levels)
         level2 = np.min(levels)
         ratio_LUT = binomial_from_width_LUT_generation(
-            level1, level2)
+            [level1, level2])
         exponentArray, ratioFWArray, levels = ratio_LUT
     else:
         exponentArray, ratioFWArray, levels = ratio_LUT
@@ -486,10 +486,8 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
     rms = fitOpt.bunchLengthFactor*full_length / \
         (2.*np.sqrt(3.+2.*exponent))
 
-    position = (bunchPosition_1 + bunchPosition_2)/2 + \
-        fitOpt.bunchPositionOffset
-
-    amplitude = peak_value(time_array, data_array)
+    position, amplitude = peak_value(time_array, data_array)
+    position += fitOpt.bunchPositionOffset
 
     if plotOpt is not None:
         plt.figure(plotOpt.figname)
@@ -505,7 +503,7 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
                  [level1*np.max(data_array),
                   level1*np.max(data_array)], 'm')
         plt.plot(time_array, analytic_distribution.binomialAmplitudeN(
-            time_array, *[np.max(data_array),
+            time_array, *[amplitude,
                           position,
                           full_length,
                           exponent]))
@@ -612,10 +610,10 @@ def binomial_from_width_LUT_generation(levels=[0.8, 0.2],
     ratio_FW = np.sqrt(
         (1-level1**(1/exponent_array))/(1-level2**(1/exponent_array)))
 
-    sortAscendingRatioFWArray = np.argsort(ratio_FW)
+    sorting_ratio_FW = np.argsort(ratio_FW)
 
-    return exponent_array[sortAscendingRatioFWArray], \
-        ratio_FW[sortAscendingRatioFWArray], [level1, level2]
+    return exponent_array[sorting_ratio_FW], \
+        ratio_FW[sorting_ratio_FW], [level1, level2]
 
 
 def gaussian_fit(time_array, data_array,
