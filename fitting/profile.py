@@ -30,6 +30,9 @@ import warnings
 # Analytic distributions import
 from .. interfaces.beam import analytic_distribution
 
+# Residue function import
+from . residue import vertical_least_square
+
 
 class FitOptions():
 
@@ -1281,7 +1284,7 @@ def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
     elif fitOpt.fittingRoutine == 'minimize':
 
         if fitOpt.residualFunction is None:
-            fitOpt.residualFunction = _leastSquareResidualFunction
+            fitOpt.residualFunction = vertical_least_square
 
         fit_parameters = minimize(
             fitOpt.residualFunction,
@@ -1324,18 +1327,3 @@ def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
             plt.show()
 
     return fit_parameters
-
-
-def _leastSquareResidualFunction(fitParameters, *fittingArgList):
-    '''
-    * Function to be used for fitting in the minimize function (least square).*
-    '''
-
-    profile_fit_function = fittingArgList[0]
-    time_array = fittingArgList[1]
-    fittedProfileInputY = fittingArgList[2]
-
-    residue = np.sum((fittedProfileInputY -
-                      profile_fit_function(time_array, *fitParameters))**2)
-
-    return residue
