@@ -10,6 +10,12 @@
 '''
 **Module with functions to fit profiles, such as bunch line densities**
 
+TODO: improve treatment of the baseline
+TODO: improve the implementation of options as dict and **kwargs
+TODO: For all fitting function, add formula and default initial guess for the fit
+TODO: detail options for each function, especially for fitting
+TODO: include the changes from interfaces.beam.analytic_distribution
+
 :Authors: **Alexandre Lasheen**, **Juan F. Esteban Mueller**,
           **Markus Schwarz**
 '''
@@ -404,11 +410,13 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
 
     Returns
     -------
+    amplitude : float
+        The amplitude of the binomial profile, in data_array units
     position : float
         The central position of the profile, assumed to be binomial,
         in time_array units
     full_length : float
-        The full bunch length of the profile, assumed to be binomial,
+        The full length of the profile, assumed to be binomial,
         in time_array units
     exponent : float
         The exponent of the profile, assumed to be binomial
@@ -429,7 +437,7 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
     >>>
     >>> data_array = gaussian(time_array, *[amplitude, position, length])
     >>>
-    >>> position, full_length, exponent = binomial_from_width_ratio(
+    >>> amplitude, position, full_length, exponent = binomial_from_width_ratio(
     >>>    time_array, data_array)
     >>>
     >>> # For a gaussian profile, the exponent of the corresponding binomial
@@ -439,7 +447,7 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
     >>> new_LUT = _binomial_from_width_LUT_generation(
     >>>    exponentMin=100, exponentMax=10000)
     >>>
-    >>> position, full_length, exponent = binomial_from_width_ratio(
+    >>> amplitude, position, full_length, exponent = binomial_from_width_ratio(
     >>>    time_array, data_array, ratio_LUT=new_LUT)
 
     """
@@ -450,7 +458,7 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
     if ratio_LUT is None:
         level1 = np.max(levels)
         level2 = np.min(levels)
-        ratio_LUT = _binomial_from_width_LUT_generation(
+        ratio_LUT = binomial_from_width_LUT_generation(
             level1, level2)
         exponentArray, ratioFWArray, levels = ratio_LUT
     else:
@@ -478,6 +486,8 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
     position = (bunchPosition_1 + bunchPosition_2)/2 + \
         fitOpt.bunchPositionOffset
 
+    amplitude = peak_value(time_array, data_array)
+
     if plotOpt is not None:
         plt.figure(plotOpt.figname)
         if plotOpt.clf:
@@ -501,14 +511,14 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
         else:
             plt.show()
 
-    return position, full_length, exponent
+    return amplitude, position, full_length, exponent
 
 
-def _binomial_from_width_LUT_generation(levels=[0.8, 0.2],
-                                        exponent_min=0.5, exponent_max=10.,
-                                        exponent_distrib='logspace',
-                                        exponent_npoints=100,
-                                        exponent_array=None):
+def binomial_from_width_LUT_generation(levels=[0.8, 0.2],
+                                       exponent_min=0.5, exponent_max=10.,
+                                       exponent_distrib='logspace',
+                                       exponent_npoints=100,
+                                       exponent_array=None):
     r""" Function to create the lookup table (LUT) for the
     binomial_from_width_ratio function.
 
@@ -607,9 +617,48 @@ def _binomial_from_width_LUT_generation(levels=[0.8, 0.2],
 
 def gaussian_fit(time_array, data_array,
                  fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a gaussian function
-    '''
+    r""" Function to fit a given profile with a Gaussian profile.
+
+    The function returns the parameters of a Gaussian profile as defined in
+    blond_common.interfaces.beam.analytic_distribution.Gaussian
+
+    TODO: update with the new analytic_distribution implementation
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    rms_length : float
+        The rms length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian profile and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import gaussian
+    >>> from blond_common.fitting.profile import gaussian_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = gaussian(time_array, *[amplitude, position, length])
+    >>>
+    >>> amplitude, position, rms_length = gaussian_fit(
+    >>>    time_array, data_array)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -625,20 +674,62 @@ def gaussian_fit(time_array, data_array,
         *fitOpt.fitInitialParameters,
         scale_means='FWHM', store_data=False)
 
-    fitParameters = _lineDensityFit(time_array, data_array,
-                                    fitDistribtion.profile,
-                                    fitOpt=fitOpt, plotOpt=plotOpt)
+    fitParameters = arbitrary_profile_fit(time_array, data_array,
+                                          fitDistribtion.profile,
+                                          fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fitParameters
 
 
 def generalized_gaussian_fit(time_array, data_array,
                              fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a generalizedGaussian function
-    '''
+    r""" Function to fit a given profile with a Generalized Gaussian profile.
 
-    profileFitFunction = analytic_distribution.generalizedGaussian
+    The function returns the parameters of a Generalized Gaussian profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.generalizedGaussian
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    rms_length : float
+        The rms length of the profile, in time_array units
+    exponent : float
+        The exponent of the Generalized Gaussian profile
+
+    Example
+    -------
+    >>> ''' We generate a Generalized Gaussian profile and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import generalizedGaussian
+    >>> from blond_common.fitting.profile import generalized_gaussian_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>> exponent = 2.5
+    >>>
+    >>> data_array = generalizedGaussian(
+    >>>    time_array, *[amplitude, position, length, exponent])
+    >>>
+    >>> amplitude, position, rms_length, exponent = generalized_gaussian_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.generalizedGaussian
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -663,8 +754,8 @@ def generalized_gaussian_fit(time_array, data_array,
              np.mean(time_array[data_array == maxProfile]),
              (time_array[-1]-time_array[0])/2., 5.])
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
@@ -672,11 +763,50 @@ def generalized_gaussian_fit(time_array, data_array,
 
 def waterbag_fit(time_array, data_array,
                  fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a waterbag function
-    '''
+    r""" Function to fit a given profile with a Waterbag profile.
 
-    profileFitFunction = analytic_distribution.waterbag
+    The function returns the parameters of a Waterbag profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.waterbag
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Waterbag profile and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import waterbag
+    >>> from blond_common.fitting.profile import waterbag_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = waterbag(
+    >>>    time_array, *[amplitude, position, length, exponent])
+    >>>
+    >>> amplitude, position, full_length = waterbag_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.waterbag
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -693,8 +823,8 @@ def waterbag_fit(time_array, data_array,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
@@ -702,11 +832,51 @@ def waterbag_fit(time_array, data_array,
 
 def parabolic_line_fit(time_array, data_array,
                        fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a parabolicLine function
-    '''
+    r""" Function to fit a given profile with a Parabolic profile
+    (parabolic line density).
 
-    profileFitFunction = analytic_distribution.parabolicLine
+    The function returns the parameters of a Parabolic profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.parabolicLine
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Parabolic profile and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import parabolicLine
+    >>> from blond_common.fitting.profile import parabolic_line_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = parabolicLine(
+    >>>    time_array, *[amplitude, position, length, exponent])
+    >>>
+    >>> amplitude, position, full_length = parabolic_line_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.parabolicLine
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -723,19 +893,59 @@ def parabolic_line_fit(time_array, data_array,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
 def parabolic_amplitude_fit(time_array, data_array, fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a parabolicAmplitude function
-    '''
+    r""" Function to fit a given profile with a Parabolic profile
+    (parabolic amplitude density in phase space).
 
-    profileFitFunction = analytic_distribution.parabolicAmplitude
+    The function returns the parameters of a Parabolic amplitude profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.parabolicAmplitude
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Parabolic amplitude distribution and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import parabolicAmplitude
+    >>> from blond_common.fitting.profile import parabolic_amplitude_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = parabolicAmplitude(
+    >>>    time_array, *[amplitude, position, length, exponent])
+    >>>
+    >>> amplitude, position, full_length = parabolic_amplitude_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.parabolicAmplitude
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -752,19 +962,59 @@ def parabolic_amplitude_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
 def binomial_amplitude2_fit(time_array, data_array, fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a binomialAmplitude2 function
-    '''
+    r""" Function to fit a given profile with a Binomial profile, with exponent
+    2 (binomial density in phase space).
 
-    profileFitFunction = analytic_distribution.binomialAmplitude2
+    The function returns the parameters of a Binomial amplitude profile
+    with exponent 2 as defined in
+    blond_common.interfaces.beam.analytic_distribution.binomialAmplitude2
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Binomial amplitude 2 distribution and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import binomialAmplitude2
+    >>> from blond_common.fitting.profile import binomial_amplitude2_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = binomial_amplitude2(
+    >>>    time_array, *[amplitude, position, length, exponent])
+    >>>
+    >>> amplitude, position, full_length = binomial_amplitude2_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.binomialAmplitude2
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -781,19 +1031,62 @@ def binomial_amplitude2_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
 def binomial_amplitudeN_fit(time_array, data_array, fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a binomialAmplitudeN function
-    '''
+    r""" Function to fit a given profile with a Binomial profile (binomial
+    amplitude in phase space).
 
-    profileFitFunction = analytic_distribution.binomialAmplitudeN
+    The function returns the parameters of a Binomial profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.binomialAmplitudeN
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+    exponent : float
+        The exponent of the Binomial profile
+
+    Example
+    -------
+    >>> ''' We generate a Binomial distribution and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import binomialAmplitudeN
+    >>> from blond_common.fitting.profile import binomial_amplitudeN_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>> exponent = 2.5
+    >>>
+    >>> data_array = binomialAmplitudeN(
+    >>>    time_array, *[amplitude, position, length, exponent])
+    >>>
+    >>> amplitude, position, full_length, exponent = binomial_amplitudeN_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.binomialAmplitudeN
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -811,19 +1104,58 @@ def binomial_amplitudeN_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
              1.5])
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
 def cosine_fit(time_array, data_array, fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a cosine function
-    '''
+    r""" Function to fit a given profile with a Cosine profile.
 
-    profileFitFunction = analytic_distribution.cosine
+    The function returns the parameters of a Cosine profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.cosine
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Cosine profile and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import cosine
+    >>> from blond_common.fitting.profile import cosine_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = cosine(
+    >>>    time_array, *[amplitude, position, length])
+    >>>
+    >>> amplitude, position, full_length = cosine_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.cosine
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -840,19 +1172,58 @@ def cosine_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
 def cosine_squared_fit(time_array, data_array, fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with a cosineSquared function
-    '''
+    r""" Function to fit a given profile with a Cosine Squared profile.
 
-    profileFitFunction = analytic_distribution.cosineSquared
+    The function returns the parameters of a Cosine Squared profile
+    as defined in
+    blond_common.interfaces.beam.analytic_distribution.cosineSquared
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+
+    Returns
+    -------
+    amplitude : float
+        The amplitude of the profile, in data_array units
+    position : float
+        The central position of the profile, in time_array units
+    full_length : float
+        The full length of the profile, in time_array units
+
+    Example
+    -------
+    >>> ''' We generate a Cosine profile and fit it '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import cosineSquared
+    >>> from blond_common.fitting.profile import cosine_squared_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = cosineSquared(
+    >>>    time_array, *[amplitude, position, length])
+    >>>
+    >>> amplitude, position, full_length = cosine_squared_fit(
+    >>>    time_array, data_array)
+
+    """
+
+    profile_fit_function = analytic_distribution.cosineSquared
 
     if fitOpt is None:
         fitOpt = FitOptions()
@@ -869,17 +1240,17 @@ def cosine_squared_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
-    fit_parameters = _lineDensityFit(
-        time_array, data_array, profileFitFunction,
+    fit_parameters = arbitrary_profile_fit(
+        time_array, data_array, profile_fit_function,
         fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
 
-def _lineDensityFit(time_array, data_array, profileFitFunction, fitOpt=None,
-                    plotOpt=None):
+def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
+                          fitOpt=None, plotOpt=None):
     '''
-    Fit the profile with the profileFitFunction
+    Fit the profile with the profile_fit_function
     '''
 
     if fitOpt is None:
@@ -902,7 +1273,7 @@ def _lineDensityFit(time_array, data_array, profileFitFunction, fitOpt=None,
     if fitOpt.fittingRoutine == 'curve_fit':
 
         fit_parameters = curve_fit(
-            profileFitFunction,
+            profile_fit_function,
             (time_array-time_array[0])*rescaleFactorX,
             profileToFit*rescaleFactorY,
             p0=fitInitialParameters)[0]
@@ -915,7 +1286,7 @@ def _lineDensityFit(time_array, data_array, profileFitFunction, fitOpt=None,
         fit_parameters = minimize(
             fitOpt.residualFunction,
             fitInitialParameters,
-            args=(profileFitFunction,
+            args=(profile_fit_function,
                   (time_array-time_array[0])*rescaleFactorX,
                   profileToFit*rescaleFactorY),
             bounds=fitOpt.bounds,
@@ -939,10 +1310,11 @@ def _lineDensityFit(time_array, data_array, profileFitFunction, fitOpt=None,
         plt.plot(time_array,
                  profileToFit, label='Data')
         plt.plot(time_array,
-                 profileFitFunction(time_array, *fitOpt.fitInitialParameters),
+                 profile_fit_function(time_array,
+                                      *fitOpt.fitInitialParameters),
                  label='Initial guess')
         plt.plot(time_array,
-                 profileFitFunction(time_array, *fit_parameters),
+                 profile_fit_function(time_array, *fit_parameters),
                  label='Fit')
         if plotOpt.legend:
             plt.legend(loc='best')
@@ -959,11 +1331,11 @@ def _leastSquareResidualFunction(fitParameters, *fittingArgList):
     * Function to be used for fitting in the minimize function (least square).*
     '''
 
-    profileFitFunction = fittingArgList[0]
+    profile_fit_function = fittingArgList[0]
     time_array = fittingArgList[1]
     fittedProfileInputY = fittingArgList[2]
 
     residue = np.sum((fittedProfileInputY -
-                      profileFitFunction(time_array, *fitParameters))**2)
+                      profile_fit_function(time_array, *fitParameters))**2)
 
     return residue
