@@ -80,8 +80,12 @@ class TestFittingProfile(unittest.TestCase):
     '''
     Testing the RMS function on the three, the absolute precision required
     was set manually for the time being.
+
     The test consists of 6 assertions comparing the mean and rms obtained
     from the RMS function compared to the input for the 3 profiles.
+
+    TODO: the precision is set manually atm and should be reviewed
+
     '''
 
     def test_RMS_gauss(self):
