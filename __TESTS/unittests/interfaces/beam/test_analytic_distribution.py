@@ -26,7 +26,7 @@ this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 if os.path.abspath(this_directory + '../../../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../../../'))
 
-import blond_common.interfaces.beam.analytic_distribution as analytic_distribution
+import blond_common.interfaces.beam.analytic_distribution as distrib
 
 
 class TestDistributionsBaseClass(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestDistributionsBaseClass(unittest.TestCase):
     # Initialization ----------------------------------------------------------
 
     def setUp(self):
-        self.test_object = analytic_distribution._DistributionObject()
+        self.test_object = distrib._DistributionObject()
 
     def assertIsNaN(self, value, msg=None):
         """
@@ -58,7 +58,7 @@ class TestDistributionsBaseClass(unittest.TestCase):
     def test_check_greater_zero(self):
         # Test if ValueError is raised for negative arguments
         with self.assertRaises(ValueError):
-            analytic_distribution.check_greater_zero(-42, '')
+            distrib.check_greater_zero(-42, '')
 
     # test base class ---------------------------------------------------------
     def test_base_class_attribute_amplitude(self):
@@ -110,11 +110,11 @@ class TestDistributionsGaussianClass(unittest.TestCase):
     # Initialization ----------------------------------------------------------
 
     def setUp(self):
-        self.gaussian_object = analytic_distribution.Gaussian(1, 0.0, 1)
+        self.gaussian_object = distrib.Gaussian(1, 0.0, 1)
 
     def test_negative_bunch_length_exception(self):
         with self.assertRaises(ValueError):
-            analytic_distribution.Gaussian(1, 0.0, -42)
+            distrib.Gaussian(1, 0.0, -42)
 
     def test_amplitude(self):
         self.assertEqual(self.gaussian_object.amplitude, 1)
@@ -138,7 +138,7 @@ class TestDistributionsGaussianClass(unittest.TestCase):
         self.assertEqual(self.gaussian_object.profile(0), 1)
 
     def test_store_data_hasProfile(self):
-        test = analytic_distribution.Gaussian(1, 0.0, 1, store_data=True)
+        test = distrib.Gaussian(1, 0.0, 1, store_data=True)
         test.profile(0)
         self.assertTrue(hasattr(test, 'computed_profile'))
 
