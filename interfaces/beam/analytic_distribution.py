@@ -27,7 +27,7 @@ from ...fitting import profile
 
 def check_greater_zero(value, func_name):
     if value <= 0.0:
-        raise ValueError(f"{func_name} needs to be positive")
+        raise ValueError("%s needs to be positive" % (func_name))
 
 
 class _DistributionObject(object):
