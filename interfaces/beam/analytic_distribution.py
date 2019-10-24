@@ -103,51 +103,51 @@ class _DistributionObject(object):
     @property
     def RMS(self):
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     @property
     def FWHM(self):
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     @property
     def fourSigma_RMS(self):
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     @property
     def fourSigma_FWHM(self):
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     @property
     def full_bunch_length(self):
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     def profile(self):
         r""" Computes the profile (e.g. in time)
         """
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     def distribution(self):
         r""" Computes the distribution (e.g. in action)
         """
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     def phase_space(self):
         r""" Computes the longitudinal phase space (in dt,dE)
         """
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
     def spectrum(self):
         r""" Returns the spectrum (Fourier transform of the profile)
         """
         raise RuntimeError(
-            f'{inspect.currentframe().f_code.co_name} not implemented')
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
 
 class Gaussian(_DistributionObject):
