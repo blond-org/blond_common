@@ -23,11 +23,10 @@ import os
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
-# fitting.profile tests imports
-# -----------------------------
-if os.path.abspath(this_directory + '../../../') not in sys.path:
-    sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
-# sys.path.append('./../../../')
+# BLonD_Common imports
+# --------------------
+if os.path.abspath(this_directory + '../../../../') not in sys.path:
+    sys.path.insert(0, os.path.abspath(this_directory + '../../../../'))
 
 from blond_common.fitting.profile import RMS
 
