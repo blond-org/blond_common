@@ -10,11 +10,11 @@
 '''
 **Module with functions to fit profiles, such as bunch line densities**
 
-TODO: improve treatment of the baseline
-TODO: improve the implementation of options as dict and **kwargs
-TODO: For all fitting function, add formula and default initial guess for the fit
-TODO: detail options for each function, especially for fitting
-TODO: include the changes from interfaces.beam.analytic_distribution
+- TODO: improve treatment of the baseline
+- TODO: improve the implementation of options as dict and **kwargs
+- TODO: For all fitting function, add formula and default initial guess for the fit
+- TODO: detail options for each function, especially for fitting
+- TODO: include the changes from interfaces.beam.analytic_distribution
 
 :Authors: **Alexandre Lasheen**, **Juan F. Esteban Mueller**,
           **Markus Schwarz**
