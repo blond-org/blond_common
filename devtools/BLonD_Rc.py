@@ -36,8 +36,8 @@ class BLonDRcParams(MutableMapping, dict):
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError(
-                f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)")
+                "%s is not a valid rc parameter " % (key) +
+                "(see rcParams.keys() for a list of valid parameters)")
 
     def __getitem__(self, key):
 
