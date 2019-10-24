@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module with functions to fit profiles, such as bunch line densities**
+**Module with residue functions used for fitting**
 
 :Authors: **Alexandre Lasheen**, **Markus Schwarz**
 '''

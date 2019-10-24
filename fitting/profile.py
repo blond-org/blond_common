@@ -1250,9 +1250,46 @@ def cosine_squared_fit(time_array, data_array, fitOpt=None, plotOpt=None):
 
 def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
                           fitOpt=None, plotOpt=None):
-    '''
-    Fit the profile with the profile_fit_function
-    '''
+    r""" Function to fit a given profile with a user defined arbitrary profile.
+
+    Parameters
+    ----------
+    time_array : list or np.array
+        The input time
+    data_array : list or np.array
+        The input profile
+    profile_fit_function : function
+        User defined function to fit the input data_array. The function
+        should have the input arguments (time_array, *fit_parameters)
+        and returns a profile_array which will be compared to data_array
+
+    Returns
+    -------
+    fitted_parameters : np.array
+        The fitted parameters, in the same order as defined by the user in
+        his profile_fit_function
+
+    Example
+    -------
+    >>> ''' We generate a Gaussian profile and fit it, in this example we use
+    >>> the same Gaussian function used to generate the input profile '''
+    >>> import numpy as np
+    >>> from blond_common.interfaces.beam.analytic_distribution import Gaussian
+    >>> from blond_common.fitting.profile import arbitrary_profile_fit
+    >>>
+    >>> time_array = np.arange(0, 25e-9, 0.1e-9)
+    >>>
+    >>> amplitude = 1.
+    >>> position = 13e-9
+    >>> length = 2e-9
+    >>>
+    >>> data_array = Gaussian(
+    >>>    time_array, *[amplitude, position, length])
+    >>>
+    >>> amplitude, position, full_length = arbitrary_profile_fit(
+    >>>    time_array, data_array, Gaussian)
+
+    """
 
     if fitOpt is None:
         fitOpt = FitOptions()
