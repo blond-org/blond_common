@@ -559,12 +559,26 @@ def binomialAmplitudeN(time, *fitParameters):
     return lineDensityFunction
 
 
-def _binomialRMS(full_bunch_length, exponent):
+def _binomial_full_to_rms(full_bunch_length, exponent):
     '''
     Returns the RMS bunch length from the full bunch length and exponent
+
+    - TODO: To be included as @property in the Binomial/Parabolic distributions
+
     '''
 
     return full_bunch_length/(2*np.sqrt(3+2*exponent))
+
+
+def _binomial_full_to_fwhm(full_bunch_length, exponent, level=0.5):
+    '''
+    Returns the FWHM from the full bunch length and exponent
+
+    - TODO: To be included as @property in the Binomial/Parabolic distributions
+
+    '''
+
+    return full_bunch_length*np.sqrt(1-level**(1/exponent))
 
 
 def cosine(time, *fitParameters):

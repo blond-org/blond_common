@@ -31,7 +31,7 @@ sys.path.append('./../../../')
 # NB: the parameters for all functions are organized as [amplitude, position, length, exponent]
 
 from blond_common.interfaces.beam.analytic_distribution import gaussian, parabolicAmplitude, binomialAmplitudeN
-from blond_common.interfaces.beam.analytic_distribution import _binomialRMS
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 time_array = np.arange(0, 25e-9, 0.1e-9)
 
@@ -47,7 +47,7 @@ position = 4e-9
 length = 5e-9
 initial_params_parabamp = [amplitude, position, length]
 parabamp_dist = parabolicAmplitude(time_array, *initial_params_parabamp)
-sigma_parabamp = _binomialRMS(length, 1.5)
+sigma_parabamp = _binomial_full_to_rms(length, 1.5)
 
 amplitude = 0.77
 position = 18.3e-9
@@ -55,7 +55,7 @@ length = 3.45e-9
 exponent = 3.4
 initial_params_binom = [amplitude, position, length, exponent]
 binom_dist = binomialAmplitudeN(time_array, *initial_params_binom)
-sigma_binom = _binomialRMS(length, exponent)
+sigma_binom = _binomial_full_to_rms(length, exponent)
 
 
 # In[3]:
@@ -146,13 +146,13 @@ print('Binomial: Initial ->',initial_params_binom, '/ Final ->', binom_params_bi
 # The rms bunch lengths as input and using binomialParametersFromRatio can be compared
 
 from blond_common.fitting.profile import binomial_from_width_ratio
-from blond_common.interfaces.beam.analytic_distribution import _binomialRMS
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 binom_params_parabamp = binomial_from_width_ratio(time_array, parabamp_dist)
 binom_params_binom = binomial_from_width_ratio(time_array, binom_dist)
 
-print('Parab. amp.: Initial ->',sigma_parabamp, '/ Final ->', _binomialRMS(*binom_params_parabamp[-2:]))
-print('Binomial: Initial ->',sigma_binom, '/ Final ->', _binomialRMS(*binom_params_binom[-2:]))
+print('Parab. amp.: Initial ->',sigma_parabamp, '/ Final ->', _binomial_full_to_rms(*binom_params_parabamp[-2:]))
+print('Binomial: Initial ->',sigma_binom, '/ Final ->', _binomial_full_to_rms(*binom_params_binom[-2:]))
 
 
 # In[9]:
@@ -163,13 +163,13 @@ print('Binomial: Initial ->',sigma_binom, '/ Final ->', _binomialRMS(*binom_para
 
 from blond_common.fitting.profile import PlotOptions
 from blond_common.fitting.profile import binomial_from_width_ratio
-from blond_common.interfaces.beam.analytic_distribution import _binomialRMS
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 plotOpt=PlotOptions(figname='BinomRatio-2', clf=False)
 
 binom_params_gauss = binomial_from_width_ratio(time_array, gaussian_dist, plotOpt=plotOpt)
 
-print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomialRMS(*binom_params_gauss[-2:]))
+print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomial_full_to_rms(*binom_params_gauss[-2:]))
 
 
 # In[10]:
@@ -180,7 +180,7 @@ print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomialRMS(*bino
 
 from blond_common.fitting.profile import PlotOptions
 from blond_common.fitting.profile import binomial_from_width_ratio, binomial_from_width_LUT_generation
-from blond_common.interfaces.beam.analytic_distribution import _binomialRMS
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 plotOpt=PlotOptions(figname='BinomRatio-3', clf=False)
 
@@ -191,7 +191,7 @@ binom_params_gauss = binomial_from_width_ratio(
     time_array, gaussian_dist, plotOpt=plotOpt,
     ratio_LUT=new_LUT)
 
-print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomialRMS(*binom_params_gauss[-2:]))
+print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomial_full_to_rms(*binom_params_gauss[-2:]))
 
 
 # ## 3. Distribution fitting routines
