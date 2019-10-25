@@ -97,7 +97,8 @@ class TestFittingProfile(object):
         for test in self.alltests:
             mean_runtine, std_runtime, mean_result, std_result = getattr(
                 self, test)()
-            print(test, mean_runtine, std_runtime, mean_result, std_result)
+            print('%s - Runtime: %.5e +- %.5e - Result: %.5e +- %.5e' %
+                  (test, mean_runtine, std_runtime, mean_result, std_result))
 
     # Tests for RMS -----------------------------------------------------------
     '''
