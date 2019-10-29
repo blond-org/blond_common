@@ -33,14 +33,16 @@ if os.path.abspath(this_directory + '../../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../../'))
 
 from blond_common.interfaces.beam.analytic_distribution import (
-    Gaussian, parabolicAmplitude, parabolicLine, binomialAmplitudeN,
+    Gaussian, generalizedGaussian, waterbag, parabolicAmplitude, parabolicLine,
+    binomialAmplitude2, binomialAmplitudeN, cosine, cosineSquared,
     _binomial_full_to_rms, _binomial_full_to_fwhm, _binomial_integral)
 
 from blond_common.fitting.profile import (FitOptions, PlotOptions,
     RMS, FWHM, peak_value, integrated_profile,
     binomial_from_width_ratio, binomial_from_width_LUT_generation,
-    gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit,
-    arbitrary_profile_fit)
+    gaussian_fit, generalized_gaussian_fit, waterbag_fit, parabolic_line_fit,
+    parabolic_amplitude_fit, binomial_amplitude2_fit, binomial_amplitudeN_fit,
+    cosine_fit, cosine_squared_fit, arbitrary_profile_fit)
 
 from blond_common.devtools.exceptions import InputError
 
@@ -753,6 +755,9 @@ class TestFittingProfile(unittest.TestCase):
     This is a benchmark, the fitted parameters should be as close as possible
     to the input values.
 
+    Tests are also performed changing the initial parameters and applying
+    errors on them with respect to their implementation in the function.
+
     TODO: the precision is set manually atm and should be reviewed
     TODO: change the initial parameters for more test robustness
 
@@ -775,6 +780,203 @@ class TestFittingProfile(unittest.TestCase):
         np.testing.assert_almost_equal(
             fitted_params[2]*1e9, self.length_gauss*1e9, decimal=8)
 
+    def test_gaussian_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from gaussian_fit function
+        on a Gaussian profile, including an error of +20%, -10%, +10% on the
+        initial parameters.
+        '''
+
+        fitOpt = FitOptions()
+        maxProfile = np.max(self.gaussian_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.gaussian_dist)),
+             0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5)[1]])
+
+        fitted_params = gaussian_fit(self.time_array, self.gaussian_dist,
+                                     fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_gauss, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_gauss*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_gauss*1e9, decimal=8)
+
+    def test_generalized_gaussian_fit(self):
+        '''
+        Checking the fittedparameters obtained from generalized_gaussian_fit
+        function on a Generalized Gaussian profile
+        '''
+
+        amplitude = 0.8
+        position = 12.7e-9
+        length = 1.7e-9
+        exponent = 3.0
+        initial_params = [amplitude, position, length, exponent]
+        generalized_gaussian_dist = generalizedGaussian(
+            self.time_array, *initial_params)
+
+        fitted_params = generalized_gaussian_fit(self.time_array,
+                                                 generalized_gaussian_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+        np.testing.assert_almost_equal(
+            fitted_params[3], initial_params[3], decimal=10)
+
+    def test_generalized_gaussian_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from generalized_gaussian_fit
+        function on a Generalized Gaussian profile, including an error of
+        +20%, -10%, +10%, -10% on the initial parameters.
+        '''
+
+        amplitude = 0.8
+        position = 12.7e-9
+        length = 1.7e-9
+        exponent = 3.0
+        initial_params = [amplitude, position, length, exponent]
+        generalized_gaussian_dist = generalizedGaussian(
+            self.time_array, *initial_params)
+
+        fitOpt = FitOptions()
+        maxProfile = np.max(generalized_gaussian_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(generalized_gaussian_dist)),
+             0.9*(np.mean(
+                 self.time_array[generalized_gaussian_dist == maxProfile])),
+             1.1*FWHM(
+                 self.time_array, generalized_gaussian_dist, level=0.5)[1],
+             0.9*2.0])
+
+        fitted_params = generalized_gaussian_fit(self.time_array,
+                                                 generalized_gaussian_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+        np.testing.assert_almost_equal(
+            fitted_params[3], initial_params[3], decimal=10)
+
+    def test_waterbag_fit(self):
+        '''
+        Checking the fittedparameters obtained from waterbag_fit
+        function on a Waterbag profile
+        '''
+
+        amplitude = 6.5
+        position = 6.3e-9
+        length = 5.4e-9
+        initial_params = [amplitude, position, length]
+        waterbag_dist = waterbag(self.time_array, *initial_params)
+
+        fitted_params = waterbag_fit(
+            self.time_array, waterbag_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+    def test_waterbag_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from waterbag_fit
+        function on a Parabolic Amplitude profile, including an error of
+        +20%, -10%, +10% on the initial parameters.
+        '''
+
+        amplitude = 6.5
+        position = 6.3e-9
+        length = 5.4e-9
+        initial_params = [amplitude, position, length]
+        waterbag_dist = waterbag(self.time_array, *initial_params)
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_line')
+        maxProfile = np.max(waterbag_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(waterbag_dist)),
+             0.9*(np.mean(self.time_array[waterbag_dist == maxProfile])),
+             1.1*FWHM(self.time_array, waterbag_dist, level=0.5)[1] *
+             np.sqrt(3+2*1.)/2])
+
+        fitted_params = waterbag_fit(
+            self.time_array, waterbag_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+    def test_parabolic_line_fit(self):
+        '''
+        Checking the fittedparameters obtained from parabolic_line_fit
+        function on a Parabolic Line profile
+        '''
+
+        fitted_params = parabolic_line_fit(
+            self.time_array, self.parabline_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_parabline, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_parabline*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_parabline*1e9, decimal=10)
+
+    def test_parabolic_line_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from parabolic_line_fit
+        function on a Parabolic Line profile, including an error of
+        +20%, -10%, +10% on the initial parameters.
+        '''
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_line')
+        maxProfile = np.max(self.parabline_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.parabline_dist)),
+             0.9*(np.mean(self.time_array[self.parabline_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.parabline_dist, level=0.5)[1] *
+             np.sqrt(3+2*1.)/2])
+
+        fitted_params = parabolic_line_fit(
+            self.time_array, self.parabline_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_parabline, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_parabline*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_parabline*1e9, decimal=10)
+
     def test_parabolic_amplitude_fit(self):
         '''
         Checking the fittedparameters obtained from parabolic_amplitude_fit
@@ -792,6 +994,94 @@ class TestFittingProfile(unittest.TestCase):
 
         np.testing.assert_almost_equal(
             fitted_params[2]*1e9, self.length_parabamp*1e9, decimal=10)
+
+    def test_parabolic_amplitude_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from parabolic_amplitude_fit
+        function on a Parabolic Amplitude profile, including an error of
+        +20%, -10%, +10% on the initial parameters.
+        '''
+
+        fitOpt = FitOptions()
+        maxProfile = np.max(self.parabamp_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.parabamp_dist)),
+             0.9*(np.mean(self.time_array[self.parabamp_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.parabamp_dist, level=0.5)[1] *
+             np.sqrt(3+2*1.5)/2])
+
+        fitted_params = parabolic_amplitude_fit(
+            self.time_array, self.parabamp_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_parabamp, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_parabamp*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_parabamp*1e9, decimal=10)
+
+    def test_binomial_amplitude2_fit(self):
+        '''
+        Checking the fittedparameters obtained from binomial_amplitude2_fit
+        function on a Binomial Amplitude with exponent 2 profile
+        '''
+
+        amplitude = 1.7
+        position = 12.8e-9
+        length = 7.4e-9
+        initial_params = [amplitude, position, length]
+        binomial_amplitude2_dist = binomialAmplitude2(self.time_array,
+                                                      *initial_params)
+
+        fitted_params = binomial_amplitude2_fit(
+            self.time_array, binomial_amplitude2_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+    def test_binomial_amplitude2_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from binomial_amplitude2_fit
+        function on a Binomial Amplitude with exponent 2 profile,
+        including an error of +20%, -10%, +10% on the initial parameters.
+        '''
+
+        amplitude = 1.7
+        position = 12.8e-9
+        length = 7.4e-9
+        initial_params = [amplitude, position, length]
+        binomial_amplitude2_dist = binomialAmplitude2(self.time_array,
+                                                      *initial_params)
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        maxProfile = np.max(binomial_amplitude2_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(binomial_amplitude2_dist)),
+             0.9*(np.mean(self.time_array[
+                 binomial_amplitude2_dist == maxProfile])),
+             1.1*FWHM(
+                 self.time_array, binomial_amplitude2_dist, level=0.5)[1] *
+             np.sqrt(3+2*1.5)/2])
+
+        fitted_params = binomial_amplitude2_fit(
+            self.time_array, binomial_amplitude2_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
 
     def test_binomial_amplitudeN_fit(self):
         '''
@@ -813,6 +1103,124 @@ class TestFittingProfile(unittest.TestCase):
 
         np.testing.assert_almost_equal(
             fitted_params[3], self.exponent_binom, decimal=10)
+
+    def test_cosine_fit(self):
+        '''
+        Checking the fittedparameters obtained from cosine_fit
+        function on a Cosine profile
+        '''
+
+        amplitude = 1.7
+        position = 12.8e-9
+        length = 7.4e-9
+        initial_params = [amplitude, position, length]
+        cosine_dist = cosine(self.time_array, *initial_params)
+
+        fitted_params = cosine_fit(
+            self.time_array, cosine_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+    def test_cosine_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from cosine_fit
+        function on a Cosine profile,
+        including an error of +20%, -10%, +10% on the initial parameters.
+        '''
+
+        amplitude = 1.7
+        position = 12.8e-9
+        length = 7.4e-9
+        initial_params = [amplitude, position, length]
+        cosine_dist = cosine(self.time_array, *initial_params)
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        maxProfile = np.max(cosine_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(cosine_dist)),
+             0.9*(np.mean(self.time_array[
+                 cosine_dist == maxProfile])),
+             1.1*FWHM(
+                 self.time_array, cosine_dist, level=0.5)[1] *
+             np.sqrt(3+2*1.5)/2])
+
+        fitted_params = cosine_fit(
+            self.time_array, cosine_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+    def test_cosine_squared_fit(self):
+        '''
+        Checking the fittedparameters obtained from cosine_squared_fit
+        function on a Cosine Squared profile
+        '''
+
+        amplitude = 0.4
+        position = 13.4e-9
+        length = 4.2e-9
+        initial_params = [amplitude, position, length]
+        cosine_squared_dist = cosineSquared(self.time_array, *initial_params)
+
+        fitted_params = cosine_squared_fit(
+            self.time_array, cosine_squared_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+
+    def test_cosine_squared_fit_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from cosine_squared_fit
+        function on a Cosine Squared profile,
+        including an error of +20%, -10%, +10% on the initial parameters.
+        '''
+
+        amplitude = 8.2
+        position = 7.5e-9
+        length = 3.1e-9
+        initial_params = [amplitude, position, length]
+        cosine_squared_dist = cosineSquared(self.time_array, *initial_params)
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        maxProfile = np.max(cosine_squared_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(cosine_squared_dist)),
+             0.9*(np.mean(self.time_array[
+                 cosine_squared_dist == maxProfile])),
+             1.1*FWHM(
+                 self.time_array, cosine_squared_dist, level=0.5)[1] *
+             np.sqrt(3+2*1.5)/2])
+
+        fitted_params = cosine_squared_fit(
+            self.time_array, cosine_squared_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], initial_params[0], decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
 
     def test_arbitrary_profile_fit(self):
         '''
