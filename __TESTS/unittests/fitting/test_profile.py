@@ -22,6 +22,8 @@ import sys
 import unittest
 import numpy as np
 import os
+# import matplotlib as mpl
+# mpl.use('Agg')
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -31,9 +33,11 @@ if os.path.abspath(this_directory + '../../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../../'))
 
 from blond_common.interfaces.beam.analytic_distribution import (
-    Gaussian, parabolicAmplitude, binomialAmplitudeN, _binomial_full_to_rms,
-    _binomial_full_to_fwhm)
-from blond_common.fitting.profile import RMS, FWHM
+    Gaussian, parabolicAmplitude, parabolicLine, binomialAmplitudeN,
+    _binomial_full_to_rms, _binomial_full_to_fwhm)
+from blond_common.fitting.profile import (FitOptions, PlotOptions,
+    RMS, FWHM, gaussian_fit, parabolic_amplitude_fit,
+    binomial_amplitudeN_fit, arbitrary_profile_fit)
 
 
 class TestFittingProfile(unittest.TestCase):
@@ -46,8 +50,10 @@ class TestFittingProfile(unittest.TestCase):
         Amplitude, and Binomial that will be used to test the fitting functions
         '''
 
+        # Base time array
         self.time_array = np.arange(0, 25e-9, 0.1e-9)
 
+        # Base Gaussian profile
         self.amplitude_gauss = 1.
         self.position_gauss = 13e-9
         self.length_gauss = 2e-9
@@ -58,6 +64,21 @@ class TestFittingProfile(unittest.TestCase):
         self.sigma_gauss = self.length_gauss
         self.fwhm_gauss = Gaussian(*self.initial_params_gauss).FWHM
 
+        # Base parabolic line profile
+        self.amplitude_parabline = 2.5
+        self.position_parabline = 9e-9
+        self.length_parabline = 7e-9
+        self.initial_params_parabline = [self.amplitude_parabline,
+                                         self.position_parabline,
+                                         self.length_parabline]
+        self.parabline_dist = parabolicLine(self.time_array,
+                                            *self.initial_params_parabline)
+        self.sigma_parabline = _binomial_full_to_rms(
+            self.length_parabline, 1.0)
+        self.fwhm_parabline = _binomial_full_to_fwhm(
+            self.length_parabline, 1.0)
+
+        # Base parabolic amplitude profile
         self.amplitude_parabamp = 1.3
         self.position_parabamp = 4e-9
         self.length_parabamp = 5e-9
@@ -69,6 +90,7 @@ class TestFittingProfile(unittest.TestCase):
         self.sigma_parabamp = _binomial_full_to_rms(self.length_parabamp, 1.5)
         self.fwhm_parabamp = _binomial_full_to_fwhm(self.length_parabamp, 1.5)
 
+        # Base binomial profile
         self.amplitude_binom = 0.77
         self.position_binom = 18.3e-9
         self.length_binom = 3.45e-9
@@ -191,6 +213,203 @@ class TestFittingProfile(unittest.TestCase):
 
         np.testing.assert_almost_equal(
             fwhm_binom*1e9, self.fwhm_binom*1e9, decimal=3)
+
+    def test_FWHM_gaussian_factor(self):
+        '''
+        Checking the center,fwhm obtained from FWHM function for the Gaussian
+        profile. The fwhm is rescaled to 4sigma and compared with the actual
+        4sigma of the Gaussian profile.
+        '''
+
+        fitOpt = FitOptions(bunchLengthFactor='gaussian')
+        center_gauss, fwhm_gauss = FWHM(self.time_array, self.gaussian_dist,
+                                        fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            center_gauss*1e9, self.position_gauss*1e9, decimal=8)
+
+        np.testing.assert_almost_equal(
+            fwhm_gauss*1e9, 4*self.sigma_gauss*1e9, decimal=3)
+
+    def test_FWHM_parabline_factor(self):
+        '''
+        Checking the center,fwhm obtained from FWHM function for the Gaussian
+        profile.
+        '''
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_line')
+        center_parabline, fwhm_parabline = FWHM(self.time_array,
+                                                self.parabline_dist,
+                                                fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            center_parabline*1e9, self.position_parabline*1e9, decimal=8)
+
+        np.testing.assert_almost_equal(
+            fwhm_parabline*1e9, 4*self.sigma_parabline*1e9, decimal=3)
+
+    def test_FWHM_parabamp_factor(self):
+        '''
+        Checking the center,fwhm obtained from FWHM function for the Gaussian
+        profile.
+        '''
+
+        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        center_parabamp, fwhm_parabamp = FWHM(self.time_array,
+                                              self.parabamp_dist,
+                                              fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            center_parabamp*1e9, self.position_parabamp*1e9, decimal=8)
+
+        np.testing.assert_almost_equal(
+            fwhm_parabamp*1e9, 4*self.sigma_parabamp*1e9, decimal=3)
+
+    def test_FWHM_warning(self):
+        '''
+        Checking that the warnings when bunch is at the edge of the frame
+        are being raised.
+        '''
+
+        # Generate profile on the edge of the frame
+        amplitude_parabline = 2.5
+        position_parabline = self.time_array[0]
+        length_parabline = 7e-9
+        initial_params_parabline = [amplitude_parabline,
+                                    position_parabline,
+                                    length_parabline]
+        parabline_dist = parabolicLine(self.time_array,
+                                       *initial_params_parabline)
+
+        with self.assertWarns(Warning):
+            FWHM(self.time_array, parabline_dist)
+
+        # Check the other side
+        position_parabline = self.time_array[-1]
+        initial_params_parabline = [amplitude_parabline,
+                                    position_parabline,
+                                    length_parabline]
+        parabline_dist = parabolicLine(self.time_array,
+                                       *initial_params_parabline)
+
+        with self.assertWarns(Warning):
+            FWHM(self.time_array, parabline_dist)
+
+    def test_FWHM_plot(self):
+        '''
+        Cheching that the plots are not returning any error
+        '''
+
+        plotOpt = PlotOptions()
+        FWHM(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(interactive=True)
+        FWHM(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+    # Test fitting ------------------------------------------------------------
+    '''
+    Testing all fitting functions, the absolute precision is presenty set
+    manually.
+
+    This is a benchmark, the fitted parameters should be as close as possible
+    to the input values.
+
+    TODO: the precision is set manually atm and should be reviewed
+    TODO: change the initial parameters for more test robustness
+
+    '''
+
+    def test_gaussian_fit(self):
+        '''
+        Checking the fittedparameters obtained from gaussian_fit function
+        on a Gaussian profile
+        '''
+
+        fitted_params = gaussian_fit(self.time_array, self.gaussian_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_gauss, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_gauss*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_gauss*1e9, decimal=8)
+
+    def test_parabolic_amplitude_fit(self):
+        '''
+        Checking the fittedparameters obtained from parabolic_amplitude_fit
+        function on a Parabolic Amplitude profile
+        '''
+
+        fitted_params = parabolic_amplitude_fit(
+            self.time_array, self.parabamp_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_parabamp, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_parabamp*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_parabamp*1e9, decimal=10)
+
+    def test_binomial_amplitudeN_fit(self):
+        '''
+        Checking the fittedparameters obtained from binomial_amplitudeN_fit
+        function on a Binomial profile
+        '''
+
+        fitted_params = binomial_amplitudeN_fit(
+            self.time_array, self.binom_dist)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_binom, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_binom*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_binom*1e9, decimal=10)
+
+        np.testing.assert_almost_equal(
+            fitted_params[3], self.exponent_binom, decimal=10)
+
+    def test_arbitrary_profile_fit(self):
+        '''
+        Checking the fittedparameters obtained from arbitrary_profile_fit
+        function on a Binomial profile and using binomialAmplitudeN
+        as a "user input" fitting function.
+        '''
+
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        fitOpt.fitInitialParameters = np.array(
+            [np.max(self.binom_dist)-np.min(self.binom_dist),
+             np.mean(self.time_array[
+                 self.binom_dist == np.max(self.binom_dist)]),
+             FWHM(self.time_array,
+                  self.binom_dist,
+                  level=0.5,
+                  fitOpt=fitOptFWHM,
+                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
+             1.5])
+
+        fitted_params = arbitrary_profile_fit(
+            self.time_array, self.binom_dist, binomialAmplitudeN,
+            fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_binom, decimal=9)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_binom*1e9, decimal=20)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_binom*1e9, decimal=10)
+
+        np.testing.assert_almost_equal(
+            fitted_params[3], self.exponent_binom, decimal=10)
 
 
 if __name__ == '__main__':
