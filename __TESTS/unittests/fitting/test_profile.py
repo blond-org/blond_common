@@ -35,10 +35,13 @@ if os.path.abspath(this_directory + '../../../../') not in sys.path:
 from blond_common.interfaces.beam.analytic_distribution import (
     Gaussian, parabolicAmplitude, parabolicLine, binomialAmplitudeN,
     _binomial_full_to_rms, _binomial_full_to_fwhm, _binomial_integral)
+
 from blond_common.fitting.profile import (FitOptions, PlotOptions,
     RMS, FWHM, peak_value, integrated_profile,
+    binomial_from_width_ratio, binomial_from_width_LUT_generation,
     gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit,
     arbitrary_profile_fit)
+
 from blond_common.devtools.exceptions import InputError
 
 
@@ -71,31 +74,37 @@ class TestFittingProfile(unittest.TestCase):
         self.amplitude_parabline = 2.5
         self.position_parabline = 9e-9
         self.length_parabline = 7e-9
+        self.exponent_parabline = 1.0
         self.initial_params_parabline = [self.amplitude_parabline,
                                          self.position_parabline,
                                          self.length_parabline]
         self.parabline_dist = parabolicLine(self.time_array,
                                             *self.initial_params_parabline)
         self.sigma_parabline = _binomial_full_to_rms(
-            self.length_parabline, 1.0)
+            self.length_parabline, self.exponent_parabline)
         self.fwhm_parabline = _binomial_full_to_fwhm(
-            self.length_parabline, 1.0)
+            self.length_parabline, self.exponent_parabline)
         self.integral_parabline = _binomial_integral(
-            self.amplitude_parabline, self.length_parabline, 1.0)
+            self.amplitude_parabline, self.length_parabline,
+            self.exponent_parabline)
 
         # Base parabolic amplitude profile
         self.amplitude_parabamp = 1.3
         self.position_parabamp = 4e-9
         self.length_parabamp = 5e-9
+        self.exponent_parabamp = 1.5
         self.initial_params_parabamp = [self.amplitude_parabamp,
                                         self.position_parabamp,
                                         self.length_parabamp]
         self.parabamp_dist = parabolicAmplitude(self.time_array,
                                                 *self.initial_params_parabamp)
-        self.sigma_parabamp = _binomial_full_to_rms(self.length_parabamp, 1.5)
-        self.fwhm_parabamp = _binomial_full_to_fwhm(self.length_parabamp, 1.5)
+        self.sigma_parabamp = _binomial_full_to_rms(
+            self.length_parabamp, self.exponent_parabamp)
+        self.fwhm_parabamp = _binomial_full_to_fwhm(
+            self.length_parabamp, self.exponent_parabamp)
         self.integral_parabamp = _binomial_integral(
-            self.amplitude_parabamp, self.length_parabamp, 1.5)
+            self.amplitude_parabamp, self.length_parabamp,
+            self.exponent_parabamp)
 
         # Base binomial profile
         self.amplitude_binom = 0.77
@@ -118,7 +127,7 @@ class TestFittingProfile(unittest.TestCase):
     Testing the RMS function on the three profiles, the absolute precision
     required was set manually for the time being.
 
-    The test consists of 6 assertions comparing the mean and rms obtained
+    Each test consists of 2 assertions comparing the mean and rms obtained
     from the RMS function compared to the analytical expectation for the
     3 profiles.
 
@@ -180,7 +189,7 @@ class TestFittingProfile(unittest.TestCase):
     Testing the FWHM function on the three profiles, the absolute precision
     required was set manually for the time being.
 
-    The test consists of 6 assertions comparing the center and fwhm obtained
+    Each test consists of 2 assertions comparing the center and fwhm obtained
     from the FWHM function compared to the the analytical expectation for the
     3 profiles.
 
@@ -341,7 +350,7 @@ class TestFittingProfile(unittest.TestCase):
     Testing the peak_value function on the three profiles, the absolute
     precision required was set manually for the time being.
 
-    The test consists of 6 assertions comparing the position and peak obtained
+    Each test consists of 2 assertions comparing the position and peak obtained
     from the peak_value function compared to the input for the
     3 profiles.
 
@@ -421,7 +430,7 @@ class TestFittingProfile(unittest.TestCase):
     Testing the integrated_profile function on the three profiles, the absolute
     precision required was set manually for the time being.
 
-    The test consists of 3 assertions comparing the integration obtained
+    Each test consists of 1 assertion comparing the integration obtained
     from the integrated_profile function compared to the input for the
     3 profiles.
 
@@ -511,6 +520,230 @@ class TestFittingProfile(unittest.TestCase):
         plotOpt = PlotOptions(clf=False)
         integrated_profile(self.time_array, self.parabamp_dist,
                            plotOpt=plotOpt)
+
+    # Test for binomial_from_width_ratio --------------------------------------
+    '''
+    Testing the binomial_from_width_ratio function on the parabolic and
+    binomial profiles, the absolute precision required was set manually
+    for the time being.
+
+    Each test consists of 4 assertions comparing the full bunch length and
+    exponents obtained from the binomial_from_width_ratio function compared to
+    the input for the 3 profiles.
+
+    NB: for the Binomial profile with large exponent, the rms length is tested
+    instead of the full length.
+
+    TODO: the precision is set manually atm and should be reviewed
+
+    '''
+
+    def test_binomial_from_width_ratio_parabline(self):
+        '''
+        Checking the full bunch length and exponent obtained from
+        binomial_from_width_ratio function for a Parabolic line profile
+        '''
+
+        amplitude, position, full_length, exponent = binomial_from_width_ratio(
+            self.time_array, self.parabline_dist)
+
+        np.testing.assert_almost_equal(
+            amplitude, self.amplitude_parabline, decimal=15)
+
+        np.testing.assert_almost_equal(
+            position, self.position_parabline, decimal=15)
+
+        np.testing.assert_almost_equal(
+            full_length, self.length_parabline, decimal=10)
+
+        np.testing.assert_almost_equal(
+            exponent, self.exponent_parabline, decimal=2)
+
+    def test_binomial_from_width_ratio_parabamp(self):
+        '''
+        Checking the integration obtained from binomial_from_width_ratio
+        function for a Parabolic Amplitude profile
+        '''
+
+        amplitude, position, full_length, exponent = binomial_from_width_ratio(
+            self.time_array, self.parabamp_dist)
+
+        np.testing.assert_almost_equal(
+            amplitude, self.amplitude_parabamp, decimal=15)
+
+        np.testing.assert_almost_equal(
+            position, self.position_parabamp, decimal=15)
+
+        np.testing.assert_almost_equal(
+            full_length, self.length_parabamp, decimal=10)
+
+        np.testing.assert_almost_equal(
+            exponent, self.exponent_parabamp, decimal=2)
+
+    def test_binomial_from_width_ratio_binom(self):
+        '''
+        Checking the integration obtained from binomial_from_width_ratio
+        function for a Binomial profile.
+
+        NB: the full bunch length and exponent are difficult to obtain
+        precisely for an abitrary Binomial profile with large exponent!
+        However it is till sufficient to get a very good estimate of the
+        rms length.
+        '''
+
+        amplitude, position, full_length, exponent = binomial_from_width_ratio(
+            self.time_array, self.binom_dist)
+
+        np.testing.assert_almost_equal(
+            amplitude, self.amplitude_binom, decimal=15)
+
+        np.testing.assert_almost_equal(
+            position, self.position_binom, decimal=15)
+
+        rms_length = _binomial_full_to_rms(full_length, exponent)
+
+        np.testing.assert_almost_equal(
+            rms_length, self.sigma_binom, decimal=10)
+
+    def test_binomial_from_width_ratio_parabline_customLUT(self):
+        '''
+        Checking the full bunch length and exponent obtained from
+        binomial_from_width_ratio function for a Parabolic line profile
+        '''
+        exponent_min = 0.5
+        exponent_max = 2.
+        levels_input = [0.7, 0.3]
+        exponent_npoints = 100
+        ratio_LUT = binomial_from_width_LUT_generation(
+            levels=levels_input,
+            exponent_min=exponent_min, exponent_max=exponent_max,
+            exponent_distrib='linspace',
+            exponent_npoints=exponent_npoints)
+
+        amplitude, position, full_length, exponent = binomial_from_width_ratio(
+            self.time_array, self.parabline_dist, ratio_LUT=ratio_LUT)
+
+        np.testing.assert_almost_equal(
+            amplitude, self.amplitude_parabline, decimal=15)
+
+        np.testing.assert_almost_equal(
+            position, self.position_parabline, decimal=15)
+
+        np.testing.assert_almost_equal(
+            full_length, self.length_parabline, decimal=10)
+
+        np.testing.assert_almost_equal(
+            exponent, self.exponent_parabline, decimal=3)
+
+    def test_binomial_from_width_ratio_misc(self):
+        '''
+        Miscellaneous tests for missing coverage on non critical elements
+        '''
+
+        fitOpt = FitOptions()
+        binomial_from_width_ratio(self.time_array, self.parabamp_dist,
+                                  fitOpt=fitOpt)
+
+    def test_binomial_from_width_ratio_plot(self):
+        '''
+        Checking that the plots are not returning any error
+        '''
+
+        plotOpt = PlotOptions()
+        binomial_from_width_ratio(self.time_array, self.parabamp_dist,
+                                  plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(interactive=False)
+        binomial_from_width_ratio(self.time_array, self.parabamp_dist,
+                                  plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(clf=False)
+        binomial_from_width_ratio(self.time_array, self.parabamp_dist,
+                                  plotOpt=plotOpt)
+
+    def test_binomial_from_width_LUT_generation(self):
+        '''
+        Checking that the lookup table for binomial_from_width_ratio works
+        as designed
+        '''
+
+        exponent_array, ratio_FW, levels = binomial_from_width_LUT_generation(
+            exponent_array=np.array([0.5, 10]))
+
+        np.testing.assert_equal(
+            np.min(levels), 0.2)
+        np.testing.assert_equal(
+            np.max(levels), 0.8)
+        np.testing.assert_equal(
+            exponent_array[-1], 0.5)
+        np.testing.assert_equal(
+            exponent_array[0], 10.)
+        np.testing.assert_equal(
+            ratio_FW[0],
+            np.sqrt(
+                (1-0.8**(1/10.)) /
+                (1-0.2**(1/10.))))
+        np.testing.assert_equal(
+            ratio_FW[-1],
+            np.sqrt(
+                (1-0.8**(1/0.5)) /
+                (1-0.2**(1/0.5))))
+
+        exponent_min = 0.5
+        exponent_max = 10.
+        levels_input = [0.7, 0.3]
+        exponent_npoints = 2
+        exponent_array, ratio_FW, levels = binomial_from_width_LUT_generation(
+            levels=levels_input,
+            exponent_min=exponent_min, exponent_max=exponent_max,
+            exponent_distrib='linspace',
+            exponent_npoints=exponent_npoints)
+
+        np.testing.assert_equal(
+            len(exponent_array), exponent_npoints)
+        np.testing.assert_equal(
+            np.min(levels), np.min(levels_input))
+        np.testing.assert_equal(
+            np.max(levels), np.max(levels_input))
+        np.testing.assert_equal(
+            exponent_array[-1], exponent_min)
+        np.testing.assert_equal(
+            exponent_array[0], exponent_max)
+        np.testing.assert_equal(
+            ratio_FW[0],
+            np.sqrt(
+                (1-np.max(levels_input)**(1/exponent_max)) /
+                (1-np.min(levels_input)**(1/exponent_max))))
+        np.testing.assert_equal(
+            ratio_FW[-1],
+            np.sqrt(
+                (1-np.max(levels_input)**(1/exponent_min)) /
+                (1-np.min(levels_input)**(1/exponent_min))))
+
+    def test_binomial_from_width_LUT_generation_method(self):
+        '''
+        Checking that the input options for binomial_from_width_LUT_generation
+        works as designed
+        '''
+
+        exponent_array = binomial_from_width_LUT_generation(
+            exponent_distrib='linspace')[0]
+
+        np.testing.assert_equal(
+            exponent_array[-1], 0.5)
+        np.testing.assert_equal(
+            exponent_array[0], 10.)
+
+        exponent_array = binomial_from_width_LUT_generation(
+            exponent_distrib='logspace')[0]
+
+        np.testing.assert_equal(
+            exponent_array[-1], 0.5)
+        np.testing.assert_equal(
+            exponent_array[0], 10.)
+
+        with self.assertRaises(InputError):
+            binomial_from_width_LUT_generation(exponent_distrib='jimmy')
 
     # Test fitting ------------------------------------------------------------
     '''

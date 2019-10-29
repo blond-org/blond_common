@@ -617,6 +617,9 @@ def binomial_from_width_LUT_generation(levels=[0.8, 0.2],
             exponent_array = np.logspace(np.log10(exponent_min),
                                          np.log10(exponent_max),
                                          exponent_npoints)
+        else:
+            raise InputError('The input exponent_distrib in ' +
+                             'binomial_from_width_LUT_generation is not valid')
 
     level1 = np.max(levels)
     level2 = np.min(levels)
