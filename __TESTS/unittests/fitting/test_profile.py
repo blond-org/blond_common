@@ -22,8 +22,8 @@ import sys
 import unittest
 import numpy as np
 import os
-# import matplotlib as mpl
-# mpl.use('Agg')
+import matplotlib as mpl
+mpl.use('Agg')
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -34,10 +34,12 @@ if os.path.abspath(this_directory + '../../../../') not in sys.path:
 
 from blond_common.interfaces.beam.analytic_distribution import (
     Gaussian, parabolicAmplitude, parabolicLine, binomialAmplitudeN,
-    _binomial_full_to_rms, _binomial_full_to_fwhm)
+    _binomial_full_to_rms, _binomial_full_to_fwhm, _binomial_integral)
 from blond_common.fitting.profile import (FitOptions, PlotOptions,
-    RMS, FWHM, gaussian_fit, parabolic_amplitude_fit,
-    binomial_amplitudeN_fit, arbitrary_profile_fit)
+    RMS, FWHM, peak_value, integrated_profile,
+    gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit,
+    arbitrary_profile_fit)
+from blond_common.devtools.exceptions import InputError
 
 
 class TestFittingProfile(unittest.TestCase):
@@ -63,6 +65,7 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array)
         self.sigma_gauss = self.length_gauss
         self.fwhm_gauss = Gaussian(*self.initial_params_gauss).FWHM
+        self.integral_gauss = Gaussian(*self.initial_params_gauss).integral
 
         # Base parabolic line profile
         self.amplitude_parabline = 2.5
@@ -77,6 +80,8 @@ class TestFittingProfile(unittest.TestCase):
             self.length_parabline, 1.0)
         self.fwhm_parabline = _binomial_full_to_fwhm(
             self.length_parabline, 1.0)
+        self.integral_parabline = _binomial_integral(
+            self.amplitude_parabline, self.length_parabline, 1.0)
 
         # Base parabolic amplitude profile
         self.amplitude_parabamp = 1.3
@@ -89,6 +94,8 @@ class TestFittingProfile(unittest.TestCase):
                                                 *self.initial_params_parabamp)
         self.sigma_parabamp = _binomial_full_to_rms(self.length_parabamp, 1.5)
         self.fwhm_parabamp = _binomial_full_to_fwhm(self.length_parabamp, 1.5)
+        self.integral_parabamp = _binomial_integral(
+            self.amplitude_parabamp, self.length_parabamp, 1.5)
 
         # Base binomial profile
         self.amplitude_binom = 0.77
@@ -103,6 +110,8 @@ class TestFittingProfile(unittest.TestCase):
                                                  self.exponent_binom)
         self.fwhm_binom = _binomial_full_to_fwhm(self.length_binom,
                                                  self.exponent_binom)
+        self.integral_binom = _binomial_integral(
+            self.amplitude_binom, self.length_binom, self.exponent_binom)
 
     # Tests for RMS -----------------------------------------------------------
     '''
@@ -265,7 +274,17 @@ class TestFittingProfile(unittest.TestCase):
         np.testing.assert_almost_equal(
             fwhm_parabamp*1e9, 4*self.sigma_parabamp*1e9, decimal=3)
 
-    def test_FWHM_warning(self):
+    def test_FWHM_errors(self):
+        '''
+        Checking that the warnings when bunch is at the edge of the frame
+        are being raised.
+        '''
+
+        fitOpt = FitOptions(bunchLengthFactor='billy')
+        with self.assertRaises(InputError):
+            FWHM(self.time_array, self.parabamp_dist, fitOpt=fitOpt)
+
+    def test_FWHM_warnings(self):
         '''
         Checking that the warnings when bunch is at the edge of the frame
         are being raised.
@@ -297,14 +316,155 @@ class TestFittingProfile(unittest.TestCase):
 
     def test_FWHM_plot(self):
         '''
-        Cheching that the plots are not returning any error
+        Checking that the plots are not returning any error
         '''
 
         plotOpt = PlotOptions()
         FWHM(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
 
-        plotOpt = PlotOptions(interactive=True)
+        plotOpt = PlotOptions(interactive=False)
         FWHM(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(clf=False)
+        FWHM(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+    # Tests for peak_value ----------------------------------------------------
+    '''
+    Testing the peak_value function on the three profiles, the absolute
+    precision required was set manually for the time being.
+
+    The test consists of 6 assertions comparing the position and peak obtained
+    from the peak_value function compared to the input for the
+    3 profiles.
+
+    TODO: the precision is set manually atm and should be reviewed
+
+    '''
+
+    def test_peak_value_gauss(self):
+        '''
+        Checking the position,peak obtained from peak_value function for a
+        Gaussian profile
+        '''
+
+        position_gauss, peak_gauss = peak_value(self.time_array,
+                                                self.gaussian_dist)
+
+        np.testing.assert_almost_equal(
+            position_gauss*1e9, self.position_gauss*1e9, decimal=8)
+
+        np.testing.assert_almost_equal(
+            peak_gauss, self.amplitude_gauss, decimal=8)
+
+    def test_peak_value_parabamp(self):
+        '''
+        Checking the position,peak obtained from peak_value function for a
+        Parabolic Amplitude profile
+        '''
+
+        position_parabamp, peak_parabamp = peak_value(self.time_array,
+                                                      self.parabamp_dist)
+
+        np.testing.assert_almost_equal(
+            position_parabamp*1e9, self.position_parabamp*1e9, decimal=8)
+
+        np.testing.assert_almost_equal(
+            peak_parabamp, self.amplitude_parabamp, decimal=8)
+
+    def test_peak_value_binom(self):
+        '''
+        Checking the position,peak obtained from peak_value function for a
+        Binomial profile
+        '''
+
+        position_binom, peak_binom = peak_value(self.time_array,
+                                                self.binom_dist)
+
+        np.testing.assert_almost_equal(
+            position_binom*1e9, self.position_binom*1e9, decimal=8)
+
+        np.testing.assert_almost_equal(
+            peak_binom, self.amplitude_binom, decimal=8)
+
+    def test_peak_value_plot(self):
+        '''
+        Checking that the plots are not returning any error
+        '''
+
+        plotOpt = PlotOptions()
+        peak_value(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(interactive=False)
+        peak_value(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(clf=False)
+        peak_value(self.time_array, self.parabamp_dist, plotOpt=plotOpt)
+
+    # Tests for integrated_profile --------------------------------------------
+    '''
+    Testing the integrated_profile function on the three profiles, the absolute
+    precision required was set manually for the time being.
+
+    The test consists of 3 assertions comparing the integration obtained
+    from the integrated_profile function compared to the input for the
+    3 profiles.
+
+    TODO: the precision is set manually atm and should be reviewed
+
+    '''
+
+    def test_integrated_profile_gauss(self):
+        '''
+        Checking the integration obtained from integrated_profile function
+        for a Gaussian profile
+        '''
+
+        integrated_gauss = integrated_profile(
+            self.time_array, self.gaussian_dist)
+
+        np.testing.assert_almost_equal(
+            integrated_gauss, self.integral_gauss, decimal=15)
+
+    def test_integrated_profile_parabamp(self):
+        '''
+        Checking the integration obtained from integrated_profile function for
+        a Parabolic Amplitude profile
+        '''
+
+        integrated_parabamp = integrated_profile(
+            self.time_array, self.parabamp_dist)
+
+        np.testing.assert_almost_equal(
+            integrated_parabamp, self.integral_parabamp, decimal=12)
+
+    def test_integrated_profile_binom(self):
+        '''
+        Checking the integration obtained from integrated_profile function for
+        a Binomial profile
+        '''
+
+        integrated_binom = integrated_profile(
+            self.time_array, self.binom_dist)
+
+        np.testing.assert_almost_equal(
+            integrated_binom, self.integral_binom, decimal=15)
+
+    def test_integrated_profile_plot(self):
+        '''
+        Checking that the plots are not returning any error
+        '''
+
+        plotOpt = PlotOptions()
+        integrated_profile(self.time_array, self.parabamp_dist,
+                           plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(interactive=False)
+        integrated_profile(self.time_array, self.parabamp_dist,
+                           plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(clf=False)
+        integrated_profile(self.time_array, self.parabamp_dist,
+                           plotOpt=plotOpt)
 
     # Test fitting ------------------------------------------------------------
     '''

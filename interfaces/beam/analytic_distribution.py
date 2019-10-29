@@ -19,6 +19,7 @@ from __future__ import division
 import numpy as np
 import inspect
 # import scipy.special as special_fun
+from scipy.special import gamma
 
 # Other packages import
 from ...devtools.BLonD_Rc import rcBLonDparams
@@ -52,7 +53,10 @@ class _DistributionObject(object):
         Gaussian equivalent $4\sigma$ from FWHM of profile; i.e.
         $4\sigma_{FWHM} = 2/\sqrt(\ln 4) FWHM$
     full_bunch_length : float
-        the length from zero of the profile function to the other
+        the length from the first zero of the profile function to the other
+        zero
+    integral : float
+        the integrated profile/distribution
     store_data : bool
         if False, calls to functions like 'profile' return the value, otherwise
         an attribute is created
@@ -125,6 +129,11 @@ class _DistributionObject(object):
         raise RuntimeError(
             '%s not implemented' % (inspect.currentframe().f_code.co_name))
 
+    @property
+    def integral(self):
+        raise RuntimeError(
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
+
     def profile(self):
         r""" Computes the profile (e.g. in time)
         """
@@ -184,6 +193,8 @@ class Gaussian(_DistributionObject):
         Gaussian equivalent $4\sigma$ from FWHM of profile; i.e.
         $4\sigma_{FWHM} = 2/\sqrt(\ln 4) FWHM$
     full_bunch_length : np.inf
+        infinity for Gaussian bunch
+    integral : np.inf
         infinity for Gaussian bunch
     """
 
@@ -289,6 +300,10 @@ class Gaussian(_DistributionObject):
     @full_bunch_length.setter
     def full_bunch_length(self, value):
         self._full_bunch_length = np.inf
+
+    @property
+    def integral(self):
+        return self.amplitude*self._RMS*np.sqrt(2*np.pi)
 
     def profile(self, x, *args, **kwargs):
         """ Computes the Gaussian profile at x
@@ -579,6 +594,18 @@ def _binomial_full_to_fwhm(full_bunch_length, exponent, level=0.5):
     '''
 
     return full_bunch_length*np.sqrt(1-level**(1/exponent))
+
+
+def _binomial_integral(amplitude, full_bunch_length, exponent):
+    '''
+    Returns the integrated profile
+
+    - TODO: To be included as @property in the Binomial/Parabolic distributions
+
+    '''
+
+    return amplitude*full_bunch_length*np.sqrt(np.pi)*gamma(1.+exponent)/(
+        2.*gamma(1.5+exponent))
 
 
 def cosine(time, *fitParameters):

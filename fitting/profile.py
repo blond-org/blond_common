@@ -33,6 +33,9 @@ from .. interfaces.beam import analytic_distribution
 # Residue function import
 from . residue import vertical_least_square
 
+# Devtools imports
+from .. devtools.exceptions import InputError
+
 
 class FitOptions():
 
@@ -156,6 +159,9 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
         elif fitOpt.bunchLengthFactor == 'parabolic_amplitude':
             bunchLengthFactor = 4. / (
                 2*np.sqrt(3+2*1.5) * np.sqrt(1-level**(1/1.5)))
+        else:
+            raise InputError('The bunch length factor in FWHM is not ' +
+                             'recognized !')
     else:
         bunchLengthFactor = fitOpt.bunchLengthFactor
 
@@ -256,6 +262,7 @@ def integrated_profile(time_array, data_array, method='sum',
     r""" Function to compute the integrated bunch profile.
 
     TODO: add an error message if the "method" input is not correct
+    TODO: use the blond_common.maths package for integration functions
 
     Parameters
     ----------
@@ -298,11 +305,14 @@ def integrated_profile(time_array, data_array, method='sum',
     if fitOpt is None:
         fitOpt = FitOptions()
 
+    # Time resolution
+    time_interval = time_array[1] - time_array[0]
+
     if method == 'sum':
-        integrated_value = np.sum(
+        integrated_value = time_interval * np.sum(
             data_array - np.mean(data_array[0:fitOpt.nPointsNoise]))
     elif method == 'trapz':
-        integrated_value = np.trapz(
+        integrated_value = time_interval * np.trapz(
             data_array - np.mean(data_array[0:fitOpt.nPointsNoise]))
 
     if plotOpt is not None:
@@ -362,6 +372,7 @@ def RMS(time_array, data_array, fitOpt=None):
     if fitOpt is None:
         fitOpt = FitOptions()
 
+    # Time resolution
     time_interval = time_array[1] - time_array[0]
 
     # Removing baseline
