@@ -1123,7 +1123,7 @@ class TestFittingProfile(unittest.TestCase):
             fitted_params[0], initial_params[0], decimal=9)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
 
         np.testing.assert_almost_equal(
             fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
@@ -1158,7 +1158,7 @@ class TestFittingProfile(unittest.TestCase):
             fitted_params[0], initial_params[0], decimal=9)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
 
         np.testing.assert_almost_equal(
             fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
@@ -1217,7 +1217,7 @@ class TestFittingProfile(unittest.TestCase):
             fitted_params[0], initial_params[0], decimal=9)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
 
         np.testing.assert_almost_equal(
             fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
