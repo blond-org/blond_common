@@ -314,6 +314,9 @@ def integrated_profile(time_array, data_array, method='sum',
     elif method == 'trapz':
         integrated_value = time_interval * np.trapz(
             data_array - np.mean(data_array[0:fitOpt.nPointsNoise]))
+    else:
+        raise InputError('The method passed to the integrated_profile ' +
+                         'function is not valid.')
 
     if plotOpt is not None:
         plt.figure(plotOpt.figname)

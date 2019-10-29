@@ -167,6 +167,14 @@ class TestFittingProfile(unittest.TestCase):
         np.testing.assert_almost_equal(
             rms_binom*1e9, self.sigma_binom*1e9, decimal=6)
 
+    def test_RMS_misc(self):
+        '''
+        Miscellaneous tests for missing coverage on non critical elements
+        '''
+
+        fitOpt = FitOptions()
+        RMS(self.time_array, self.parabamp_dist, fitOpt=fitOpt)
+
     # Tests for FWHM ----------------------------------------------------------
     '''
     Testing the FWHM function on the three profiles, the absolute precision
@@ -386,6 +394,14 @@ class TestFittingProfile(unittest.TestCase):
         np.testing.assert_almost_equal(
             peak_binom, self.amplitude_binom, decimal=8)
 
+    def test_peak_value_misc(self):
+        '''
+        Miscellaneous tests for missing coverage on non critical elements
+        '''
+
+        fitOpt = FitOptions()
+        peak_value(self.time_array, self.parabamp_dist, fitOpt=fitOpt)
+
     def test_peak_value_plot(self):
         '''
         Checking that the plots are not returning any error
@@ -448,6 +464,36 @@ class TestFittingProfile(unittest.TestCase):
 
         np.testing.assert_almost_equal(
             integrated_binom, self.integral_binom, decimal=15)
+
+    def test_integrated_profile_method(self):
+        '''
+        Checking the integration obtained from integrated_profile function for
+        a Binomial profile with all the methods (sum, trapz, ...)
+        '''
+
+        integrated_binom = integrated_profile(
+            self.time_array, self.binom_dist)
+
+        np.testing.assert_almost_equal(
+            integrated_binom, self.integral_binom, decimal=15)
+
+        integrated_binom = integrated_profile(
+            self.time_array, self.binom_dist, method='trapz')
+
+        np.testing.assert_almost_equal(
+            integrated_binom, self.integral_binom, decimal=15)
+
+        with self.assertRaises(InputError):
+            integrated_binom = integrated_profile(
+                self.time_array, self.binom_dist, method='joe')
+
+    def test_integrated_profile_misc(self):
+        '''
+        Miscellaneous tests for missing coverage on non critical elements
+        '''
+
+        fitOpt = FitOptions()
+        integrated_profile(self.time_array, self.parabamp_dist, fitOpt=fitOpt)
 
     def test_integrated_profile_plot(self):
         '''
