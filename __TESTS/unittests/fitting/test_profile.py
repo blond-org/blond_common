@@ -47,6 +47,24 @@ from blond_common.fitting.profile import (FitOptions, PlotOptions,
 from blond_common.devtools.exceptions import InputError
 
 
+# Defining the precision of the tests
+precision_rms_pos = 8
+precision_rms_len = 4
+precision_fwhm_pos = 20
+precision_fwhm_len = 3
+precision_peak_pos = 14
+precision_peak_amp = 9
+precision_integral = 12
+precision_binom_amp = 20
+precision_binom_pos = 20
+precision_binom_len = 11
+precision_binom_exp = 2
+precision_fit_amp = 9
+precision_fit_pos = 11
+precision_fit_len = 8
+precision_fit_exp = 12
+
+
 class TestFittingProfile(unittest.TestCase):
 
     # Initialization ----------------------------------------------------------
@@ -146,10 +164,10 @@ class TestFittingProfile(unittest.TestCase):
         mean_gauss, rms_gauss = RMS(self.time_array, self.gaussian_dist)
 
         np.testing.assert_almost_equal(
-            mean_gauss*1e9, self.position_gauss*1e9, decimal=8)
+            mean_gauss*1e9, self.position_gauss*1e9, decimal=precision_rms_pos)
 
         np.testing.assert_almost_equal(
-            rms_gauss*1e9, self.length_gauss*1e9, decimal=7)
+            rms_gauss*1e9, self.length_gauss*1e9, decimal=precision_rms_len)
 
     def test_RMS_parabamp(self):
         '''
@@ -160,10 +178,12 @@ class TestFittingProfile(unittest.TestCase):
         mean_parabamp, rms_parabamp = RMS(self.time_array, self.parabamp_dist)
 
         np.testing.assert_almost_equal(
-            mean_parabamp*1e9, self.position_parabamp*1e9, decimal=8)
+            mean_parabamp*1e9, self.position_parabamp*1e9,
+            decimal=precision_rms_pos)
 
         np.testing.assert_almost_equal(
-            rms_parabamp*1e9, self.sigma_parabamp*1e9, decimal=4)
+            rms_parabamp*1e9, self.sigma_parabamp*1e9,
+            decimal=precision_rms_len)
 
     def test_RMS_binom(self):
         '''
@@ -173,10 +193,10 @@ class TestFittingProfile(unittest.TestCase):
         mean_binom, rms_binom = RMS(self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
-            mean_binom*1e9, self.position_binom*1e9, decimal=8)
+            mean_binom*1e9, self.position_binom*1e9, decimal=precision_rms_pos)
 
         np.testing.assert_almost_equal(
-            rms_binom*1e9, self.sigma_binom*1e9, decimal=6)
+            rms_binom*1e9, self.sigma_binom*1e9, decimal=precision_rms_len)
 
     def test_RMS_misc(self):
         '''
@@ -208,10 +228,11 @@ class TestFittingProfile(unittest.TestCase):
         center_gauss, fwhm_gauss = FWHM(self.time_array, self.gaussian_dist)
 
         np.testing.assert_almost_equal(
-            center_gauss*1e9, self.position_gauss*1e9, decimal=8)
+            center_gauss*1e9, self.position_gauss*1e9,
+            decimal=precision_fwhm_pos)
 
         np.testing.assert_almost_equal(
-            fwhm_gauss*1e9, self.fwhm_gauss*1e9, decimal=3)
+            fwhm_gauss*1e9, self.fwhm_gauss*1e9, decimal=precision_fwhm_len)
 
     def test_FWHM_parabamp(self):
         '''
@@ -223,10 +244,12 @@ class TestFittingProfile(unittest.TestCase):
                                               self.parabamp_dist)
 
         np.testing.assert_almost_equal(
-            center_parabamp*1e9, self.position_parabamp*1e9, decimal=8)
+            center_parabamp*1e9, self.position_parabamp*1e9,
+            decimal=precision_fwhm_pos)
 
         np.testing.assert_almost_equal(
-            fwhm_parabamp*1e9, self.fwhm_parabamp*1e9, decimal=3)
+            fwhm_parabamp*1e9, self.fwhm_parabamp*1e9,
+            decimal=precision_fwhm_len)
 
     def test_FWHM_binom(self):
         '''
@@ -237,10 +260,11 @@ class TestFittingProfile(unittest.TestCase):
         center_binom, fwhm_binom = FWHM(self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
-            center_binom*1e9, self.position_binom*1e9, decimal=8)
+            center_binom*1e9, self.position_binom*1e9,
+            decimal=precision_fwhm_pos)
 
         np.testing.assert_almost_equal(
-            fwhm_binom*1e9, self.fwhm_binom*1e9, decimal=3)
+            fwhm_binom*1e9, self.fwhm_binom*1e9, decimal=precision_fwhm_len)
 
     def test_FWHM_gaussian_factor(self):
         '''
@@ -254,10 +278,12 @@ class TestFittingProfile(unittest.TestCase):
                                         fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            center_gauss*1e9, self.position_gauss*1e9, decimal=8)
+            center_gauss*1e9, self.position_gauss*1e9,
+            decimal=precision_fwhm_pos)
 
         np.testing.assert_almost_equal(
-            fwhm_gauss*1e9, 4*self.sigma_gauss*1e9, decimal=3)
+            fwhm_gauss*1e9, 4*self.sigma_gauss*1e9,
+            decimal=precision_fwhm_len)
 
     def test_FWHM_parabline_factor(self):
         '''
@@ -271,10 +297,12 @@ class TestFittingProfile(unittest.TestCase):
                                                 fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            center_parabline*1e9, self.position_parabline*1e9, decimal=8)
+            center_parabline*1e9, self.position_parabline*1e9,
+            decimal=precision_fwhm_pos)
 
         np.testing.assert_almost_equal(
-            fwhm_parabline*1e9, 4*self.sigma_parabline*1e9, decimal=3)
+            fwhm_parabline*1e9, 4*self.sigma_parabline*1e9,
+            decimal=precision_fwhm_len)
 
     def test_FWHM_parabamp_factor(self):
         '''
@@ -288,10 +316,12 @@ class TestFittingProfile(unittest.TestCase):
                                               fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            center_parabamp*1e9, self.position_parabamp*1e9, decimal=8)
+            center_parabamp*1e9, self.position_parabamp*1e9,
+            decimal=precision_fwhm_pos)
 
         np.testing.assert_almost_equal(
-            fwhm_parabamp*1e9, 4*self.sigma_parabamp*1e9, decimal=3)
+            fwhm_parabamp*1e9, 4*self.sigma_parabamp*1e9,
+            decimal=precision_fwhm_len)
 
     def test_FWHM_errors(self):
         '''
@@ -370,10 +400,12 @@ class TestFittingProfile(unittest.TestCase):
                                                 self.gaussian_dist)
 
         np.testing.assert_almost_equal(
-            position_gauss*1e9, self.position_gauss*1e9, decimal=8)
+            position_gauss*1e9, self.position_gauss*1e9,
+            decimal=precision_peak_pos)
 
         np.testing.assert_almost_equal(
-            peak_gauss, self.amplitude_gauss, decimal=8)
+            peak_gauss, self.amplitude_gauss,
+            decimal=precision_peak_amp)
 
     def test_peak_value_parabamp(self):
         '''
@@ -385,10 +417,12 @@ class TestFittingProfile(unittest.TestCase):
                                                       self.parabamp_dist)
 
         np.testing.assert_almost_equal(
-            position_parabamp*1e9, self.position_parabamp*1e9, decimal=8)
+            position_parabamp*1e9, self.position_parabamp*1e9,
+            decimal=precision_peak_pos)
 
         np.testing.assert_almost_equal(
-            peak_parabamp, self.amplitude_parabamp, decimal=8)
+            peak_parabamp, self.amplitude_parabamp,
+            decimal=precision_peak_amp)
 
     def test_peak_value_binom(self):
         '''
@@ -400,10 +434,12 @@ class TestFittingProfile(unittest.TestCase):
                                                 self.binom_dist)
 
         np.testing.assert_almost_equal(
-            position_binom*1e9, self.position_binom*1e9, decimal=8)
+            position_binom*1e9, self.position_binom*1e9,
+            decimal=precision_peak_pos)
 
         np.testing.assert_almost_equal(
-            peak_binom, self.amplitude_binom, decimal=8)
+            peak_binom, self.amplitude_binom,
+            decimal=precision_peak_amp)
 
     def test_peak_value_misc(self):
         '''
@@ -450,7 +486,7 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.gaussian_dist)
 
         np.testing.assert_almost_equal(
-            integrated_gauss, self.integral_gauss, decimal=15)
+            integrated_gauss, self.integral_gauss, decimal=precision_integral)
 
     def test_integrated_profile_parabamp(self):
         '''
@@ -462,7 +498,8 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.parabamp_dist)
 
         np.testing.assert_almost_equal(
-            integrated_parabamp, self.integral_parabamp, decimal=12)
+            integrated_parabamp, self.integral_parabamp,
+            decimal=precision_integral)
 
     def test_integrated_profile_binom(self):
         '''
@@ -474,7 +511,7 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
-            integrated_binom, self.integral_binom, decimal=15)
+            integrated_binom, self.integral_binom, decimal=precision_integral)
 
     def test_integrated_profile_method(self):
         '''
@@ -486,13 +523,15 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
-            integrated_binom, self.integral_binom, decimal=15)
+            integrated_binom, self.integral_binom,
+            decimal=precision_integral)
 
         integrated_binom = integrated_profile(
             self.time_array, self.binom_dist, method='trapz')
 
         np.testing.assert_almost_equal(
-            integrated_binom, self.integral_binom, decimal=15)
+            integrated_binom, self.integral_binom,
+            decimal=precision_integral)
 
         with self.assertRaises(InputError):
             integrated_binom = integrated_profile(
@@ -550,16 +589,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.parabline_dist)
 
         np.testing.assert_almost_equal(
-            amplitude, self.amplitude_parabline, decimal=15)
+            amplitude, self.amplitude_parabline, decimal=precision_binom_amp)
 
         np.testing.assert_almost_equal(
-            position, self.position_parabline, decimal=15)
+            position, self.position_parabline, decimal=precision_binom_pos)
 
         np.testing.assert_almost_equal(
-            full_length, self.length_parabline, decimal=10)
+            full_length, self.length_parabline, decimal=precision_binom_len)
 
         np.testing.assert_almost_equal(
-            exponent, self.exponent_parabline, decimal=2)
+            exponent, self.exponent_parabline, decimal=precision_binom_exp)
 
     def test_binomial_from_width_ratio_parabamp(self):
         '''
@@ -571,16 +610,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.parabamp_dist)
 
         np.testing.assert_almost_equal(
-            amplitude, self.amplitude_parabamp, decimal=15)
+            amplitude, self.amplitude_parabamp, decimal=precision_binom_amp)
 
         np.testing.assert_almost_equal(
-            position, self.position_parabamp, decimal=15)
+            position, self.position_parabamp, decimal=precision_binom_pos)
 
         np.testing.assert_almost_equal(
-            full_length, self.length_parabamp, decimal=10)
+            full_length, self.length_parabamp, decimal=precision_binom_len)
 
         np.testing.assert_almost_equal(
-            exponent, self.exponent_parabamp, decimal=2)
+            exponent, self.exponent_parabamp, decimal=precision_binom_exp)
 
     def test_binomial_from_width_ratio_binom(self):
         '''
@@ -597,15 +636,15 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
-            amplitude, self.amplitude_binom, decimal=15)
+            amplitude, self.amplitude_binom, decimal=precision_binom_amp)
 
         np.testing.assert_almost_equal(
-            position, self.position_binom, decimal=15)
+            position, self.position_binom, decimal=precision_binom_pos)
 
         rms_length = _binomial_full_to_rms(full_length, exponent)
 
         np.testing.assert_almost_equal(
-            rms_length, self.sigma_binom, decimal=10)
+            rms_length, self.sigma_binom, decimal=precision_binom_len)
 
     def test_binomial_from_width_ratio_parabline_customLUT(self):
         '''
@@ -626,16 +665,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.parabline_dist, ratio_LUT=ratio_LUT)
 
         np.testing.assert_almost_equal(
-            amplitude, self.amplitude_parabline, decimal=15)
+            amplitude, self.amplitude_parabline, decimal=precision_binom_amp)
 
         np.testing.assert_almost_equal(
-            position, self.position_parabline, decimal=15)
+            position, self.position_parabline, decimal=precision_binom_pos)
 
         np.testing.assert_almost_equal(
-            full_length, self.length_parabline, decimal=10)
+            full_length, self.length_parabline, decimal=precision_binom_len)
 
         np.testing.assert_almost_equal(
-            exponent, self.exponent_parabline, decimal=3)
+            exponent, self.exponent_parabline, decimal=precision_binom_exp)
 
     def test_binomial_from_width_ratio_misc(self):
         '''
@@ -759,7 +798,6 @@ class TestFittingProfile(unittest.TestCase):
     errors on them with respect to their implementation in the function.
 
     TODO: the precision is set manually atm and should be reviewed
-    TODO: change the initial parameters for more test robustness
 
     '''
 
@@ -772,13 +810,16 @@ class TestFittingProfile(unittest.TestCase):
         fitted_params = gaussian_fit(self.time_array, self.gaussian_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_gauss, decimal=9)
+            fitted_params[0], self.amplitude_gauss,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_gauss*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_gauss*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_gauss*1e9, decimal=8)
+            fitted_params[2]*1e9, self.length_gauss*1e9,
+            decimal=precision_fit_len)
 
     def test_gaussian_fit_initial_params(self):
         '''
@@ -788,23 +829,28 @@ class TestFittingProfile(unittest.TestCase):
         '''
 
         fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
         maxProfile = np.max(self.gaussian_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(self.gaussian_dist)),
              0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
-             1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5)[1]])
+             1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1]/4])
 
         fitted_params = gaussian_fit(self.time_array, self.gaussian_dist,
                                      fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_gauss, decimal=9)
+            fitted_params[0], self.amplitude_gauss,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_gauss*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_gauss*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_gauss*1e9, decimal=8)
+            fitted_params[2]*1e9, self.length_gauss*1e9,
+            decimal=precision_fit_len)
 
     def test_generalized_gaussian_fit(self):
         '''
@@ -824,16 +870,20 @@ class TestFittingProfile(unittest.TestCase):
                                                  generalized_gaussian_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=20)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
         np.testing.assert_almost_equal(
-            fitted_params[3], initial_params[3], decimal=10)
+            fitted_params[3], initial_params[3],
+            decimal=precision_fit_exp)
 
     def test_generalized_gaussian_fit_initial_params(self):
         '''
@@ -851,29 +901,36 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, *initial_params)
 
         fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
         maxProfile = np.max(generalized_gaussian_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(generalized_gaussian_dist)),
              0.9*(np.mean(
                  self.time_array[generalized_gaussian_dist == maxProfile])),
              1.1*FWHM(
-                 self.time_array, generalized_gaussian_dist, level=0.5)[1],
+                 self.time_array, generalized_gaussian_dist, level=0.5,
+                 fitOpt=fitOptFWHM)[1]/4,
              0.9*2.0])
 
         fitted_params = generalized_gaussian_fit(self.time_array,
-                                                 generalized_gaussian_dist)
+                                                 generalized_gaussian_dist,
+                                                 fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=20)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
         np.testing.assert_almost_equal(
-            fitted_params[3], initial_params[3], decimal=10)
+            fitted_params[3], initial_params[3],
+            decimal=precision_fit_exp)
 
     def test_waterbag_fit(self):
         '''
@@ -891,13 +948,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, waterbag_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_waterbag_fit_initial_params(self):
         '''
@@ -912,25 +972,29 @@ class TestFittingProfile(unittest.TestCase):
         initial_params = [amplitude, position, length]
         waterbag_dist = waterbag(self.time_array, *initial_params)
 
-        fitOpt = FitOptions(bunchLengthFactor='parabolic_line')
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_line')
         maxProfile = np.max(waterbag_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(waterbag_dist)),
              0.9*(np.mean(self.time_array[waterbag_dist == maxProfile])),
-             1.1*FWHM(self.time_array, waterbag_dist, level=0.5)[1] *
-             np.sqrt(3+2*1.)/2])
+             1.1*FWHM(self.time_array, waterbag_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.)/2])
 
         fitted_params = waterbag_fit(
-            self.time_array, waterbag_dist)
+            self.time_array, waterbag_dist, fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_parabolic_line_fit(self):
         '''
@@ -942,13 +1006,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.parabline_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_parabline, decimal=9)
+            fitted_params[0], self.amplitude_parabline,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_parabline*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_parabline*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_parabline*1e9, decimal=10)
+            fitted_params[2]*1e9, self.length_parabline*1e9,
+            decimal=precision_fit_len)
 
     def test_parabolic_line_fit_initial_params(self):
         '''
@@ -957,25 +1024,29 @@ class TestFittingProfile(unittest.TestCase):
         +20%, -10%, +10% on the initial parameters.
         '''
 
-        fitOpt = FitOptions(bunchLengthFactor='parabolic_line')
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_line')
         maxProfile = np.max(self.parabline_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(self.parabline_dist)),
              0.9*(np.mean(self.time_array[self.parabline_dist == maxProfile])),
-             1.1*FWHM(self.time_array, self.parabline_dist, level=0.5)[1] *
-             np.sqrt(3+2*1.)/2])
+             1.1*FWHM(self.time_array, self.parabline_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.)/2])
 
         fitted_params = parabolic_line_fit(
-            self.time_array, self.parabline_dist)
+            self.time_array, self.parabline_dist, fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_parabline, decimal=9)
+            fitted_params[0], self.amplitude_parabline,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_parabline*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_parabline*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_parabline*1e9, decimal=10)
+            fitted_params[2]*1e9, self.length_parabline*1e9,
+            decimal=precision_fit_len)
 
     def test_parabolic_amplitude_fit(self):
         '''
@@ -987,13 +1058,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.parabamp_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_parabamp, decimal=9)
+            fitted_params[0], self.amplitude_parabamp,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_parabamp*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_parabamp*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_parabamp*1e9, decimal=10)
+            fitted_params[2]*1e9, self.length_parabamp*1e9,
+            decimal=precision_fit_len)
 
     def test_parabolic_amplitude_fit_initial_params(self):
         '''
@@ -1004,23 +1078,27 @@ class TestFittingProfile(unittest.TestCase):
 
         fitOpt = FitOptions()
         maxProfile = np.max(self.parabamp_dist)
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(self.parabamp_dist)),
              0.9*(np.mean(self.time_array[self.parabamp_dist == maxProfile])),
-             1.1*FWHM(self.time_array, self.parabamp_dist, level=0.5)[1] *
-             np.sqrt(3+2*1.5)/2])
+             1.1*FWHM(self.time_array, self.parabamp_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = parabolic_amplitude_fit(
-            self.time_array, self.parabamp_dist)
+            self.time_array, self.parabamp_dist, fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_parabamp, decimal=9)
+            fitted_params[0], self.amplitude_parabamp,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_parabamp*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_parabamp*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_parabamp*1e9, decimal=10)
+            fitted_params[2]*1e9, self.length_parabamp*1e9,
+            decimal=precision_fit_len)
 
     def test_binomial_amplitude2_fit(self):
         '''
@@ -1039,13 +1117,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, binomial_amplitude2_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_binomial_amplitude2_fit_initial_params(self):
         '''
@@ -1061,27 +1142,31 @@ class TestFittingProfile(unittest.TestCase):
         binomial_amplitude2_dist = binomialAmplitude2(self.time_array,
                                                       *initial_params)
 
-        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         maxProfile = np.max(binomial_amplitude2_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(binomial_amplitude2_dist)),
              0.9*(np.mean(self.time_array[
                  binomial_amplitude2_dist == maxProfile])),
              1.1*FWHM(
-                 self.time_array, binomial_amplitude2_dist, level=0.5)[1] *
-             np.sqrt(3+2*1.5)/2])
+                 self.time_array, binomial_amplitude2_dist, level=0.5,
+                 fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = binomial_amplitude2_fit(
-            self.time_array, binomial_amplitude2_dist)
+            self.time_array, binomial_amplitude2_dist, fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=15)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_binomial_amplitudeN_fit(self):
         '''
@@ -1093,16 +1178,52 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_binom, decimal=9)
+            fitted_params[0], self.amplitude_binom,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_binom*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_binom*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_binom*1e9, decimal=10)
+            fitted_params[2]*1e9, self.length_binom*1e9,
+            decimal=precision_fit_len)
 
         np.testing.assert_almost_equal(
-            fitted_params[3], self.exponent_binom, decimal=10)
+            fitted_params[3], self.exponent_binom,
+            decimal=precision_fit_exp)
+
+    def test_binomial_amplitudeN_initial_params(self):
+        '''
+        Checking the fittedparameters obtained from binomial_amplitudeN_fit
+        function on a Parabolic Amplitude profile, including an error of
+        +20%, -10%, +10%, -10% on the initial parameters.
+        '''
+
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        maxProfile = np.max(self.binom_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.binom_dist)),
+             0.9*(np.mean(self.time_array[self.binom_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.binom_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2,
+             0.9*1.5])
+
+        fitted_params = binomial_amplitudeN_fit(
+            self.time_array, self.binom_dist, fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_binom,
+            decimal=precision_fit_amp)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_binom*1e9,
+            decimal=precision_fit_pos)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_binom*1e9,
+            decimal=precision_fit_len)
 
     def test_cosine_fit(self):
         '''
@@ -1120,13 +1241,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, cosine_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_cosine_fit_initial_params(self):
         '''
@@ -1141,27 +1265,31 @@ class TestFittingProfile(unittest.TestCase):
         initial_params = [amplitude, position, length]
         cosine_dist = cosine(self.time_array, *initial_params)
 
-        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         maxProfile = np.max(cosine_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(cosine_dist)),
              0.9*(np.mean(self.time_array[
                  cosine_dist == maxProfile])),
              1.1*FWHM(
-                 self.time_array, cosine_dist, level=0.5)[1] *
-             np.sqrt(3+2*1.5)/2])
+                 self.time_array, cosine_dist, level=0.5,
+                 fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = cosine_fit(
-            self.time_array, cosine_dist)
+            self.time_array, cosine_dist, fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_cosine_squared_fit(self):
         '''
@@ -1179,13 +1307,16 @@ class TestFittingProfile(unittest.TestCase):
             self.time_array, cosine_squared_dist)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
     def test_cosine_squared_fit_initial_params(self):
         '''
@@ -1200,29 +1331,33 @@ class TestFittingProfile(unittest.TestCase):
         initial_params = [amplitude, position, length]
         cosine_squared_dist = cosineSquared(self.time_array, *initial_params)
 
-        fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
         maxProfile = np.max(cosine_squared_dist)
         fitOpt.fitInitialParameters = np.array(
             [1.2*(maxProfile-np.min(cosine_squared_dist)),
              0.9*(np.mean(self.time_array[
                  cosine_squared_dist == maxProfile])),
              1.1*FWHM(
-                 self.time_array, cosine_squared_dist, level=0.5)[1] *
-             np.sqrt(3+2*1.5)/2])
+                 self.time_array, cosine_squared_dist, level=0.5,
+                 fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = cosine_squared_fit(
-            self.time_array, cosine_squared_dist)
+            self.time_array, cosine_squared_dist, fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], initial_params[0], decimal=9)
+            fitted_params[0], initial_params[0],
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, initial_params[1]*1e9, decimal=14)
+            fitted_params[1]*1e9, initial_params[1]*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, initial_params[2]*1e9, decimal=10)
+            fitted_params[2]*1e9, initial_params[2]*1e9,
+            decimal=precision_fit_len)
 
-    def test_arbitrary_profile_fit(self):
+    def test_arbitrary_profile_fit_curve_fit(self):
         '''
         Checking the fittedparameters obtained from arbitrary_profile_fit
         function on a Binomial profile and using binomialAmplitudeN
@@ -1247,16 +1382,128 @@ class TestFittingProfile(unittest.TestCase):
             fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
-            fitted_params[0], self.amplitude_binom, decimal=9)
+            fitted_params[0], self.amplitude_binom,
+            decimal=precision_fit_amp)
 
         np.testing.assert_almost_equal(
-            fitted_params[1]*1e9, self.position_binom*1e9, decimal=20)
+            fitted_params[1]*1e9, self.position_binom*1e9,
+            decimal=precision_fit_pos)
 
         np.testing.assert_almost_equal(
-            fitted_params[2]*1e9, self.length_binom*1e9, decimal=10)
+            fitted_params[2]*1e9, self.length_binom*1e9,
+            decimal=precision_fit_len)
 
         np.testing.assert_almost_equal(
-            fitted_params[3], self.exponent_binom, decimal=10)
+            fitted_params[3], self.exponent_binom,
+            decimal=precision_fit_exp)
+
+    def test_arbitrary_profile_fit_minimize(self):
+        '''
+        Checking the fittedparameters obtained from arbitrary_profile_fit
+        function on a Binomial profile and using binomialAmplitudeN
+        as a "user input" fitting function.
+        '''
+
+        fitOpt = FitOptions(fittingRoutine='minimize')
+        fitOptFWHM = FitOptions(bunchLengthFactor='parabolic_amplitude')
+        fitOpt.fitInitialParameters = np.array(
+            [np.max(self.binom_dist)-np.min(self.binom_dist),
+             np.mean(self.time_array[
+                 self.binom_dist == np.max(self.binom_dist)]),
+             FWHM(self.time_array,
+                  self.binom_dist,
+                  level=0.5,
+                  fitOpt=fitOptFWHM,
+                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
+             1.5])
+
+        fitted_params = arbitrary_profile_fit(
+            self.time_array, self.binom_dist, binomialAmplitudeN,
+            fitOpt=fitOpt)
+
+        np.testing.assert_almost_equal(
+            fitted_params[0], self.amplitude_binom,
+            decimal=precision_fit_amp)
+
+        np.testing.assert_almost_equal(
+            fitted_params[1]*1e9, self.position_binom*1e9,
+            decimal=precision_fit_pos)
+
+        np.testing.assert_almost_equal(
+            fitted_params[2]*1e9, self.length_binom*1e9,
+            decimal=precision_fit_len)
+
+        np.testing.assert_almost_equal(
+            fitted_params[3], self.exponent_binom,
+            decimal=precision_fit_exp)
+
+    def test_arbitrary_profile_fit_options(self):
+        '''
+        Checking that invalid options in FitOptions raise the right errors.
+        '''
+
+        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
+        maxProfile = np.max(self.gaussian_dist)
+
+        fitOpt = FitOptions(fittingRoutine='jane')
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.gaussian_dist)),
+             0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1]/4])
+
+        with self.assertRaises(InputError):
+            arbitrary_profile_fit(
+                self.time_array, self.gaussian_dist,
+                Gaussian(*fitOpt.fitInitialParameters).profile,
+                fitOpt=fitOpt)
+
+        fitOpt = FitOptions(fittingRoutine='minimize', residualFunction='judy')
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.gaussian_dist)),
+             0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1]/4])
+
+        with self.assertRaises(InputError):
+            arbitrary_profile_fit(
+                self.time_array, self.gaussian_dist,
+                Gaussian(*fitOpt.fitInitialParameters).profile,
+                fitOpt=fitOpt)
+
+    def test_arbitrary_profile_fit_plot(self):
+        '''
+        Checking that the plots are not returning any error
+        '''
+
+        fitOpt = FitOptions()
+        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
+        maxProfile = np.max(self.gaussian_dist)
+        fitOpt.fitInitialParameters = np.array(
+            [1.2*(maxProfile-np.min(self.gaussian_dist)),
+             0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
+             1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
+                      fitOpt=fitOptFWHM)[1]/4])
+
+        plotOpt = PlotOptions()
+        arbitrary_profile_fit(self.time_array, self.gaussian_dist,
+                              Gaussian(*fitOpt.fitInitialParameters).profile,
+                              fitOpt=fitOpt, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(legend=True)
+        arbitrary_profile_fit(self.time_array, self.gaussian_dist,
+                              Gaussian(*fitOpt.fitInitialParameters).profile,
+                              fitOpt=fitOpt, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(interactive=False)
+        arbitrary_profile_fit(self.time_array, self.gaussian_dist,
+                              Gaussian(*fitOpt.fitInitialParameters).profile,
+                              fitOpt=fitOpt, plotOpt=plotOpt)
+
+        plotOpt = PlotOptions(clf=False)
+        arbitrary_profile_fit(self.time_array, self.gaussian_dist,
+                              Gaussian(*fitOpt.fitInitialParameters).profile,
+                              fitOpt=fitOpt, plotOpt=plotOpt)
 
 
 if __name__ == '__main__':

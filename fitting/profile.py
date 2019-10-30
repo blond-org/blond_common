@@ -683,10 +683,12 @@ def gaussian_fit(time_array, data_array,
 
     if fitOpt.fitInitialParameters is None:
         maxProfile = np.max(data_array)
+        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(data_array),
              np.mean(time_array[data_array == maxProfile]),
-             FWHM(time_array, data_array, level=0.5)[1]])
+             FWHM(time_array, data_array, level=0.5,
+                  fitOpt=fitOptFWHM)[1]/4.])
 
     fitDistribtion = analytic_distribution.Gaussian(
         *fitOpt.fitInitialParameters,
@@ -764,13 +766,6 @@ def generalized_gaussian_fit(time_array, data_array,
                   fitOpt=fitOptFWHM,
                   plotOpt=None)[1]/4.,  # 1 sigma !!
              2.])
-
-    if fitOpt.fitInitialParameters is None:
-        maxProfile = np.max(data_array)
-        fitOpt.fitInitialParameters = np.array(
-            [maxProfile-np.min(data_array),
-             np.mean(time_array[data_array == maxProfile]),
-             (time_array[-1]-time_array[0])/2., 5.])
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
@@ -1337,6 +1332,9 @@ def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
 
         if fitOpt.residualFunction is None:
             fitOpt.residualFunction = vertical_least_square
+        else:
+            raise InputError('The residualFunction in the FitOptions is not ' +
+                             'valid.')
 
         fit_parameters = minimize(
             fitOpt.residualFunction,
@@ -1347,6 +1345,11 @@ def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
             bounds=fitOpt.bounds,
             method=fitOpt.method,
             options=fitOpt.options)['x']
+
+    else:
+
+        raise InputError('The fittingRoutine in the FitOptions is not ' +
+                         'valid.')
 
     # Abs on fit parameters
     fit_parameters = np.abs(fit_parameters)
