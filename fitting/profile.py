@@ -261,7 +261,6 @@ def integrated_profile(time_array, data_array, method='sum',
                        fitOpt=None, plotOpt=None):
     r""" Function to compute the integrated bunch profile.
 
-    TODO: add an error message if the "method" input is not correct
     TODO: use the blond_common.maths package for integration functions
 
     Parameters
