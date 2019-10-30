@@ -60,7 +60,7 @@ before_script:
   # - python setup.py compile install
   # - export PYTHONPATH=../:$PYTHONPATH
 script:
-  - coverage run -m pytest -v unittests/*/test*.py
+  - coverage run -m pytest -v __TESTS/unittests/*/test*.py __TESTS/unittests/*/*/test*.py
 after_success:
 - coveralls
 

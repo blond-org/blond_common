@@ -4,7 +4,7 @@ import sys
 import os
 
 #Common imports
-from ..utilities import Exceptions as exceptions
+from ..devtools import exceptions
 
 
 class _function(np.ndarray):

@@ -9,7 +9,6 @@
 # Adding folder on TOP of blond_common to PYTHONPATH
 import sys
 import numpy as np
-get_ipython().run_line_magic('matplotlib', 'notebook')
 import matplotlib.pyplot as plt
 sys.path.append('./../../../')
 
@@ -31,8 +30,8 @@ sys.path.append('./../../../')
 # Here we generate some distributions to test the fitting routines
 # NB: the parameters for all functions are organized as [amplitude, position, length, exponent]
 
-from blond_common.fitting.distribution_functions import gaussian, parabolicAmplitude, binomialAmplitudeN
-from blond_common.fitting.distribution_functions import _binomialRMS
+from blond_common.interfaces.beam.analytic_distribution import gaussian, parabolicAmplitude, binomialAmplitudeN
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 time_array = np.arange(0, 25e-9, 0.1e-9)
 
@@ -48,7 +47,7 @@ position = 4e-9
 length = 5e-9
 initial_params_parabamp = [amplitude, position, length]
 parabamp_dist = parabolicAmplitude(time_array, *initial_params_parabamp)
-sigma_parabamp = _binomialRMS(length, 1.5)
+sigma_parabamp = _binomial_full_to_rms(length, 1.5)
 
 amplitude = 0.77
 position = 18.3e-9
@@ -56,7 +55,7 @@ length = 3.45e-9
 exponent = 3.4
 initial_params_binom = [amplitude, position, length, exponent]
 binom_dist = binomialAmplitudeN(time_array, *initial_params_binom)
-sigma_binom = _binomialRMS(length, exponent)
+sigma_binom = _binomial_full_to_rms(length, exponent)
 
 
 # In[3]:
@@ -78,7 +77,7 @@ plt.legend(loc='best')
 
 # The RMS parameters can be obtained directly from the line density using the RMS function
 
-from blond_common.fitting.distribution import RMS
+from blond_common.fitting.profile import RMS
 
 rms_gauss = RMS(time_array, gaussian_dist)
 rms_parabamp = RMS(time_array, parabamp_dist)
@@ -96,7 +95,7 @@ print('Binomial: Input ->',[initial_params_binom[1], sigma_binom], '/ Output ->'
 
 # The FWHM can be obtained, note that the level can be manually set
 
-from blond_common.fitting.distribution import FWHM, PlotOptions
+from blond_common.fitting.profile import FWHM, PlotOptions
 
 plotOpt=PlotOptions(figname='FWHM', clf=False)
 
@@ -112,7 +111,7 @@ fwXm_binom = FWHM(time_array, binom_dist, level=0.2, plotOpt=plotOpt)
 # The bunchLengthFactor option can be used to rescale the FWHM to another value
 # e.g. : to 4sigma assuming Gaussian, or parabolic_line, or parabolic_amplitude
 
-from blond_common.fitting.distribution import FWHM, FitOptions
+from blond_common.fitting.profile import FWHM, FitOptions
 
 fitOpt = FitOptions(bunchLengthFactor='gaussian')
 fwhm_gauss = FWHM(time_array, gaussian_dist, fitOpt=fitOpt)
@@ -130,15 +129,15 @@ print('Parab. amp.: Input ->',[initial_params_parabamp[1], sigma_parabamp*4], '/
 # The width at 2 different levels can give all needed information on the binomial parameters
 # The binomialParametersFromRatio function can be used directly
 
-from blond_common.fitting.distribution import binomialParametersFromRatio, PlotOptions
+from blond_common.fitting.profile import binomial_from_width_ratio, PlotOptions
 
 plotOpt=PlotOptions(figname='BinomRatio', clf=False)
 
-binom_params_parabamp = binomialParametersFromRatio(time_array, parabamp_dist, plotOpt=plotOpt)
-binom_params_binom = binomialParametersFromRatio(time_array, binom_dist, plotOpt=plotOpt)
+binom_params_parabamp = binomial_from_width_ratio(time_array, parabamp_dist, plotOpt=plotOpt)
+binom_params_binom = binomial_from_width_ratio(time_array, binom_dist, plotOpt=plotOpt)
 
-print('Parab. amp.: Initial ->',initial_params_parabamp, '/ Final ->', binom_params_parabamp[-1])
-print('Binomial: Initial ->',initial_params_binom, '/ Final ->', binom_params_binom[-1])
+print('Parab. amp.: Initial ->',initial_params_parabamp, '/ Final ->', binom_params_parabamp[-2:])
+print('Binomial: Initial ->',initial_params_binom, '/ Final ->', binom_params_binom[-2:])
 
 
 # In[8]:
@@ -146,14 +145,14 @@ print('Binomial: Initial ->',initial_params_binom, '/ Final ->', binom_params_bi
 
 # The rms bunch lengths as input and using binomialParametersFromRatio can be compared
 
-from blond_common.fitting.distribution import binomialParametersFromRatio
-from blond_common.fitting.distribution_functions import _binomialRMS
+from blond_common.fitting.profile import binomial_from_width_ratio
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
-binom_params_parabamp = binomialParametersFromRatio(time_array, parabamp_dist)
-binom_params_binom = binomialParametersFromRatio(time_array, binom_dist)
+binom_params_parabamp = binomial_from_width_ratio(time_array, parabamp_dist)
+binom_params_binom = binomial_from_width_ratio(time_array, binom_dist)
 
-print('Parab. amp.: Initial ->',sigma_parabamp, '/ Final ->', _binomialRMS(*binom_params_parabamp[-1]))
-print('Binomial: Initial ->',sigma_binom, '/ Final ->', _binomialRMS(*binom_params_binom[-1]))
+print('Parab. amp.: Initial ->',sigma_parabamp, '/ Final ->', _binomial_full_to_rms(*binom_params_parabamp[-2:]))
+print('Binomial: Initial ->',sigma_binom, '/ Final ->', _binomial_full_to_rms(*binom_params_binom[-2:]))
 
 
 # In[9]:
@@ -162,14 +161,15 @@ print('Binomial: Initial ->',sigma_binom, '/ Final ->', _binomialRMS(*binom_para
 # For the Gaussian case, the exponent goes to infinity so a fair
 # approximation consists of extending the look-up table for the binomial parameters
 
-from blond_common.fitting.distribution import PlotOptions
-from blond_common.fitting.distribution import binomialParametersFromRatio, _binomialParametersFromRatioLookupTable
+from blond_common.fitting.profile import PlotOptions
+from blond_common.fitting.profile import binomial_from_width_ratio
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 plotOpt=PlotOptions(figname='BinomRatio-2', clf=False)
 
-binom_params_gauss = binomialParametersFromRatio(time_array, gaussian_dist, plotOpt=plotOpt)
+binom_params_gauss = binomial_from_width_ratio(time_array, gaussian_dist, plotOpt=plotOpt)
 
-print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', binom_params_gauss[-1])
+print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomial_full_to_rms(*binom_params_gauss[-2:]))
 
 
 # In[10]:
@@ -178,19 +178,20 @@ print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', binom_params_gauss
 # For the Gaussian case, the exponent goes to infinity so a fair
 # approximation consists of extending the look-up table for the binomial parameters
 
-from blond_common.fitting.distribution import PlotOptions
-from blond_common.fitting.distribution import binomialParametersFromRatio, _binomialParametersFromRatioLookupTable
+from blond_common.fitting.profile import PlotOptions
+from blond_common.fitting.profile import binomial_from_width_ratio, binomial_from_width_LUT_generation
+from blond_common.interfaces.beam.analytic_distribution import _binomial_full_to_rms
 
 plotOpt=PlotOptions(figname='BinomRatio-3', clf=False)
 
-newLookupTable = _binomialParametersFromRatioLookupTable(
-    exponentMin=100, exponentMax=10000)
+new_LUT = binomial_from_width_LUT_generation(
+    exponent_min=100., exponent_max=10000.)
 
-binom_params_gauss = binomialParametersFromRatio(
+binom_params_gauss = binomial_from_width_ratio(
     time_array, gaussian_dist, plotOpt=plotOpt,
-    ratioLookUpTable=newLookupTable)
+    ratio_LUT=new_LUT)
 
-print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', binom_params_gauss[-1])
+print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', _binomial_full_to_rms(*binom_params_gauss[-2:]))
 
 
 # ## 3. Distribution fitting routines
@@ -198,16 +199,13 @@ print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', binom_params_gauss
 # In[11]:
 
 
-from blond_common.fitting.distribution import gaussianFit, parabolicAmplitudeFit, binomialAmplitudeNFit, PlotOptions
+from blond_common.fitting.profile import gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit, PlotOptions
 
-bunch_position_gauss, bunch_length_gauss, fitparams_gauss = gaussianFit(
-    time_array, gaussian_dist)
+fitparams_gauss = gaussian_fit(time_array, gaussian_dist)
 
-bunch_position_parabamp, bunch_length_parabamp, fitparams_parabamp = parabolicAmplitudeFit(
-    time_array, parabamp_dist)
+fitparams_parabamp = parabolic_amplitude_fit(time_array, parabamp_dist)
 
-bunch_position_binom, bunch_length_binom, fitparams_binom = binomialAmplitudeNFit(
-    time_array, binom_dist)
+fitparams_binom = binomial_amplitudeN_fit(time_array, binom_dist)
 
 print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', fitparams_gauss)
 print('Parab. amp.: Initial ->',initial_params_parabamp, '/ Final ->', fitparams_parabamp)
@@ -219,8 +217,7 @@ print('Binomial: Initial ->',initial_params_binom, '/ Final ->', fitparams_binom
 
 plotOpt=PlotOptions(figname='Fit-1', clf=False)
 
-bunch_position_binom, bunch_length_binom, fitparams_binom = binomialAmplitudeNFit(
-    time_array, binom_dist, plotOpt=plotOpt)
+fitparams_binom = binomial_amplitudeN_fit(time_array, binom_dist, plotOpt=plotOpt)
 
 
 # In[13]:
@@ -229,11 +226,11 @@ bunch_position_binom, bunch_length_binom, fitparams_binom = binomialAmplitudeNFi
 # Using a fit function that does not necessarily correspond to the input
 # (e.g. parabolicAmplitudeFit on a binomial distribution with more tails)
 
-from blond_common.fitting.distribution import gaussianFit, parabolicAmplitudeFit, binomialAmplitudeNFit, PlotOptions
+from blond_common.fitting.profile import gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit, PlotOptions
 
 plotOpt=PlotOptions(figname='Fit-2', clf=False)
 
-parabolicAmplitudeFit(time_array, binom_dist, plotOpt=plotOpt)
+parabolic_amplitude_fit(time_array, binom_dist, plotOpt=plotOpt)
 
 
 # In[14]:
@@ -243,19 +240,16 @@ parabolicAmplitudeFit(time_array, binom_dist, plotOpt=plotOpt)
 # NB: a new FitOptions should be created to reset initial conditions,
 # but the same FitOptions can be used to share the same initial conditions
 
-from blond_common.fitting.distribution import gaussianFit, parabolicAmplitudeFit, binomialAmplitudeNFit, FitOptions
+from blond_common.fitting.profile import gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit, FitOptions
 
 fitOpt = FitOptions(fittingRoutine='minimize')
-bunch_position_gauss, bunch_length_gauss, fitparams_gauss = gaussianFit(
-    time_array, gaussian_dist, fitOpt=fitOpt)
+fitparams_gauss = gaussian_fit(time_array, gaussian_dist, fitOpt=fitOpt)
 
 fitOpt = FitOptions(fittingRoutine='minimize')
-bunch_position_parabamp, bunch_length_parabamp, fitparams_parabamp = parabolicAmplitudeFit(
-    time_array, parabamp_dist, fitOpt=fitOpt)
+fitparams_parabamp = parabolic_amplitude_fit(time_array, parabamp_dist, fitOpt=fitOpt)
 
 fitOpt = FitOptions(fittingRoutine='minimize')
-bunch_position_binom, bunch_length_binom, fitparams_binom = binomialAmplitudeNFit(
-    time_array, binom_dist, fitOpt=fitOpt)
+fitparams_binom = binomial_amplitudeN_fit(time_array, binom_dist, fitOpt=fitOpt)
 
 print('Gauss: Initial ->',initial_params_gauss, '/ Final ->', fitparams_gauss)
 print('Parab. amp.: Initial ->',initial_params_parabamp, '/ Final ->', fitparams_parabamp)
@@ -269,14 +263,13 @@ print('Binomial: Initial ->',initial_params_binom, '/ Final ->', fitparams_binom
 # NB: a new FitOptions should be created to reset initial conditions,
 # but the same FitOptions can be used to share the same initial conditions
 
-from blond_common.fitting.distribution import gaussianFit, parabolicAmplitudeFit, binomialAmplitudeNFit, FitOptions
+from blond_common.fitting.profile import gaussian_fit, parabolic_amplitude_fit, binomial_amplitudeN_fit, FitOptions
 
 fitOpt = FitOptions(fittingRoutine='minimize',
                     method=None, # method='Nelder-Mead' or method='Powell' or method=None
                     options={'disp':True})
 
-bunch_position_binom, bunch_length_binom, fitparams_binom = binomialAmplitudeNFit(
-    time_array, binom_dist, fitOpt=fitOpt)
+fitparams_binom = binomial_amplitudeN_fit(time_array, binom_dist, fitOpt=fitOpt)
 
 print('Binomial: Initial ->',initial_params_binom, '/ Final ->', fitparams_binom)
 

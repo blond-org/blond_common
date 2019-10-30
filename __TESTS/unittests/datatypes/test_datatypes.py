@@ -19,14 +19,15 @@ import unittest
 import numpy as np
 import os
 
-#BLonD_Common imports
-#----------------
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
-if os.path.abspath(this_directory + '../../../') not in sys.path:
-    sys.path.insert(0, os.path.abspath(this_directory + '../../../'))
+
+# BLonD_Common imports
+# --------------------
+if os.path.abspath(this_directory + '../../../../') not in sys.path:
+    sys.path.insert(0, os.path.abspath(this_directory + '../../../../'))
 
 import blond_common.datatypes.datatypes as dtypes
-import blond_common.utilities.Exceptions as exceptions
+from blond_common.devtools import exceptions
 
 class test_datatypes(unittest.TestCase):
     
