@@ -1261,7 +1261,7 @@ def cosine_squared_fit(time_array, data_array, fitOpt=None, plotOpt=None):
 
 
 def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
-                          fitOpt=None, plotOpt=None):
+                          fitOpt, plotOpt=None):
     r""" Function to fit a given profile with a user defined arbitrary profile.
 
     Parameters
@@ -1302,9 +1302,6 @@ def arbitrary_profile_fit(time_array, data_array, profile_fit_function,
     >>>    time_array, data_array, Gaussian)
 
     """
-
-    if fitOpt is None:
-        fitOpt = FitOptions()
 
     profileToFit = data_array-np.mean(data_array[0:fitOpt.nPointsNoise])
 

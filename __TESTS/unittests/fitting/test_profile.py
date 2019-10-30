@@ -1490,7 +1490,7 @@ class TestFittingProfile(unittest.TestCase):
                               Gaussian(*fitOpt.fitInitialParameters).profile,
                               fitOpt=fitOpt, plotOpt=plotOpt)
 
-        plotOpt = PlotOptions(legend=True)
+        plotOpt = PlotOptions(legend=False)
         arbitrary_profile_fit(self.time_array, self.gaussian_dist,
                               Gaussian(*fitOpt.fitInitialParameters).profile,
                               fitOpt=fitOpt, plotOpt=plotOpt)
