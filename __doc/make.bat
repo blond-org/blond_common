@@ -26,6 +26,7 @@ if errorlevel 9009 (
 )
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+COPY %SOURCEDIR%\_modules\*.slides.html %BUILDDIR%\html\_modules\
 goto end
 
 :help
