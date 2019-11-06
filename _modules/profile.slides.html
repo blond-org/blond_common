@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 
-<title>distribution slides</title>
+<title>profile slides</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13292,8 +13292,8 @@ with $\sigma=\frac{\tau_l}{2\sqrt{3+2\mu}}$ ("Parabolic amplitude" is $\mu=3/2$)
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Here we generate some distributions to test the fitting routines</span>
 <span class="c1"># NB: the parameters for all functions are organized as [amplitude, position, length, exponent]</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution_functions</span> <span class="k">import</span> <span class="n">gaussian</span><span class="p">,</span> <span class="n">parabolicAmplitude</span><span class="p">,</span> <span class="n">binomialAmplitudeN</span>
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution_functions</span> <span class="k">import</span> <span class="n">_binomialRMS</span>
+<span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span><span class="p">,</span> <span class="n">parabolicAmplitude</span><span class="p">,</span> <span class="n">binomialAmplitudeN</span>
+<span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">_binomial_full_to_rms</span>
 
 <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
 
@@ -13309,7 +13309,7 @@ with $\sigma=\frac{\tau_l}{2\sqrt{3+2\mu}}$ ("Parabolic amplitude" is $\mu=3/2$)
 <span class="n">length</span> <span class="o">=</span> <span class="mf">5e-9</span>
 <span class="n">initial_params_parabamp</span> <span class="o">=</span> <span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">]</span>
 <span class="n">parabamp_dist</span> <span class="o">=</span> <span class="n">parabolicAmplitude</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_params_parabamp</span><span class="p">)</span>
-<span class="n">sigma_parabamp</span> <span class="o">=</span> <span class="n">_binomialRMS</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+<span class="n">sigma_parabamp</span> <span class="o">=</span> <span class="n">_binomial_full_to_rms</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
 
 <span class="n">amplitude</span> <span class="o">=</span> <span class="mf">0.77</span>
 <span class="n">position</span> <span class="o">=</span> <span class="mf">18.3e-9</span>
@@ -13317,7 +13317,7 @@ with $\sigma=\frac{\tau_l}{2\sqrt{3+2\mu}}$ ("Parabolic amplitude" is $\mu=3/2$)
 <span class="n">exponent</span> <span class="o">=</span> <span class="mf">3.4</span>
 <span class="n">initial_params_binom</span> <span class="o">=</span> <span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">]</span>
 <span class="n">binom_dist</span> <span class="o">=</span> <span class="n">binomialAmplitudeN</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_params_binom</span><span class="p">)</span>
-<span class="n">sigma_binom</span> <span class="o">=</span> <span class="n">_binomialRMS</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">)</span>
+<span class="n">sigma_binom</span> <span class="o">=</span> <span class="n">_binomial_full_to_rms</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13355,10 +13355,10 @@ with $\sigma=\frac{\tau_l}{2\sqrt{3+2\mu}}$ ("Parabolic amplitude" is $\mu=3/2$)
 
 
 
-<div id="6ececc6a-51f1-48c3-bdd3-ca62821935a2"></div>
+<div id="efcb5832-ded3-4db4-ac08-74fe3be2ca89"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#6ececc6a-51f1-48c3-bdd3-ca62821935a2');
+var element = $('#efcb5832-ded3-4db4-ac08-74fe3be2ca89');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -13369,7 +13369,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -13586,7 +13586,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -13643,7 +13643,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -14012,7 +14012,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -14154,7 +14154,7 @@ if (IPython.notebook.kernel != null) {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.legend.Legend at 0x17a85ea6be0&gt;</pre>
+<pre>&lt;matplotlib.legend.Legend at 0x1d9e8e050b8&gt;</pre>
 </div>
 
 </div>
@@ -14177,7 +14177,7 @@ if (IPython.notebook.kernel != null) {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># The RMS parameters can be obtained directly from the line density using the RMS function</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">RMS</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">RMS</span>
 
 <span class="n">rms_gauss</span> <span class="o">=</span> <span class="n">RMS</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">)</span>
 <span class="n">rms_parabamp</span> <span class="o">=</span> <span class="n">RMS</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">)</span>
@@ -14227,7 +14227,7 @@ Binomial: Input -&gt; [1.83e-08, 5.510310373124482e-10] / Output -&gt; (1.83e-08
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># The FWHM can be obtained, note that the level can be manually set</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">FWHM</span><span class="p">,</span> <span class="n">PlotOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">FWHM</span><span class="p">,</span> <span class="n">PlotOptions</span>
 
 <span class="n">plotOpt</span><span class="o">=</span><span class="n">PlotOptions</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="s1">&#39;FWHM&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -14252,10 +14252,10 @@ Binomial: Input -&gt; [1.83e-08, 5.510310373124482e-10] / Output -&gt; (1.83e-08
 
 
 
-<div id="76476c1d-1298-4a19-be7f-4ff74565ef73"></div>
+<div id="ad1466f5-3734-4ecd-a34e-6f8e15581a4c"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#76476c1d-1298-4a19-be7f-4ff74565ef73');
+var element = $('#ad1466f5-3734-4ecd-a34e-6f8e15581a4c');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -14266,7 +14266,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -14483,7 +14483,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -14540,7 +14540,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -14909,7 +14909,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -15056,7 +15056,7 @@ if (IPython.notebook.kernel != null) {
 <span class="c1"># The bunchLengthFactor option can be used to rescale the FWHM to another value</span>
 <span class="c1"># e.g. : to 4sigma assuming Gaussian, or parabolic_line, or parabolic_amplitude</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">FWHM</span><span class="p">,</span> <span class="n">FitOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">FWHM</span><span class="p">,</span> <span class="n">FitOptions</span>
 
 <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
 <span class="n">fwhm_gauss</span> <span class="o">=</span> <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
@@ -15100,15 +15100,15 @@ Parab. amp.: Input -&gt; [4e-09, 4.082482904638631e-09] / Output -&gt; (4e-09, 4
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># The width at 2 different levels can give all needed information on the binomial parameters</span>
 <span class="c1"># The binomialParametersFromRatio function can be used directly</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">binomialParametersFromRatio</span><span class="p">,</span> <span class="n">PlotOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_from_width_ratio</span><span class="p">,</span> <span class="n">PlotOptions</span>
 
 <span class="n">plotOpt</span><span class="o">=</span><span class="n">PlotOptions</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="s1">&#39;BinomRatio&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="n">binom_params_parabamp</span> <span class="o">=</span> <span class="n">binomialParametersFromRatio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
-<span class="n">binom_params_binom</span> <span class="o">=</span> <span class="n">binomialParametersFromRatio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+<span class="n">binom_params_parabamp</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+<span class="n">binom_params_binom</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parab. amp.: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_parabamp</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">binom_params_parabamp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Binomial: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_binom</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">binom_params_binom</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parab. amp.: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_parabamp</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">binom_params_parabamp</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Binomial: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_binom</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">binom_params_binom</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
 </pre></div>
 
     </div>
@@ -15127,10 +15127,10 @@ Parab. amp.: Input -&gt; [4e-09, 4.082482904638631e-09] / Output -&gt; (4e-09, 4
 
 
 
-<div id="618140fe-800d-487f-a7a1-67375217e403"></div>
+<div id="2a7208f4-ac6f-4d9c-b097-967dd14de79e"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#618140fe-800d-487f-a7a1-67375217e403');
+var element = $('#2a7208f4-ac6f-4d9c-b097-967dd14de79e');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -15141,7 +15141,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -15358,7 +15358,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -15415,7 +15415,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -15784,7 +15784,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -15924,8 +15924,8 @@ if (IPython.notebook.kernel != null) {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Parab. amp.: Initial -&gt; [1.3, 4e-09, 5e-09] / Final -&gt; [5.01097830e-09 1.51037419e+00]
-Binomial: Initial -&gt; [0.77, 1.83e-08, 3.45e-09, 3.4] / Final -&gt; [3.54646361e-09 3.62795039e+00]
+<pre>Parab. amp.: Initial -&gt; [1.3, 4e-09, 5e-09] / Final -&gt; (5.010978299362349e-09, 1.5103741855765727)
+Binomial: Initial -&gt; [0.77, 1.83e-08, 3.45e-09, 3.4] / Final -&gt; (3.5464636136136414e-09, 3.6279503875079864)
 </pre>
 </div>
 </div>
@@ -15941,14 +15941,14 @@ Binomial: Initial -&gt; [0.77, 1.83e-08, 3.45e-09, 3.4] / Final -&gt; [3.5464636
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># The rms bunch lengths as input and using binomialParametersFromRatio can be compared</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">binomialParametersFromRatio</span>
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution_functions</span> <span class="k">import</span> <span class="n">_binomialRMS</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_from_width_ratio</span>
+<span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">_binomial_full_to_rms</span>
 
-<span class="n">binom_params_parabamp</span> <span class="o">=</span> <span class="n">binomialParametersFromRatio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">)</span>
-<span class="n">binom_params_binom</span> <span class="o">=</span> <span class="n">binomialParametersFromRatio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">)</span>
+<span class="n">binom_params_parabamp</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">)</span>
+<span class="n">binom_params_binom</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parab. amp.: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">sigma_parabamp</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">_binomialRMS</span><span class="p">(</span><span class="o">*</span><span class="n">binom_params_parabamp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Binomial: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">sigma_binom</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">_binomialRMS</span><span class="p">(</span><span class="o">*</span><span class="n">binom_params_binom</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parab. amp.: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">sigma_parabamp</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">_binomial_full_to_rms</span><span class="p">(</span><span class="o">*</span><span class="n">binom_params_parabamp</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Binomial: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">sigma_binom</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">_binomial_full_to_rms</span><span class="p">(</span><span class="o">*</span><span class="n">binom_params_binom</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]))</span>
 </pre></div>
 
     </div>
@@ -15983,14 +15983,15 @@ Binomial: Initial -&gt; 5.510310373124482e-10 / Final -&gt; 5.537052068779546e-1
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># For the Gaussian case, the exponent goes to infinity so a fair</span>
 <span class="c1"># approximation consists of extending the look-up table for the binomial parameters</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">PlotOptions</span>
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">binomialParametersFromRatio</span><span class="p">,</span> <span class="n">_binomialParametersFromRatioLookupTable</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">PlotOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_from_width_ratio</span>
+<span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">_binomial_full_to_rms</span>
 
 <span class="n">plotOpt</span><span class="o">=</span><span class="n">PlotOptions</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="s1">&#39;BinomRatio-2&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="n">binom_params_gauss</span> <span class="o">=</span> <span class="n">binomialParametersFromRatio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+<span class="n">binom_params_gauss</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gauss: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_gauss</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">binom_params_gauss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gauss: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_gauss</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">_binomial_full_to_rms</span><span class="p">(</span><span class="o">*</span><span class="n">binom_params_gauss</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]))</span>
 </pre></div>
 
     </div>
@@ -16009,10 +16010,10 @@ Binomial: Initial -&gt; 5.510310373124482e-10 / Final -&gt; 5.537052068779546e-1
 
 
 
-<div id="70292bfe-d18b-4ed0-8a98-1962ad141c09"></div>
+<div id="a168491f-f4c7-41a5-a68c-503b156f5c7f"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#70292bfe-d18b-4ed0-8a98-1962ad141c09');
+var element = $('#a168491f-f4c7-41a5-a68c-503b156f5c7f');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -16023,7 +16024,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -16240,7 +16241,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -16297,7 +16298,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -16666,7 +16667,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -16806,7 +16807,7 @@ if (IPython.notebook.kernel != null) {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Gauss: Initial -&gt; [1.0, 1.3e-08, 2e-09] / Final -&gt; [1.82983432e-08 1.00000000e+01]
+<pre>Gauss: Initial -&gt; [1.0, 1.3e-08, 2e-09] / Final -&gt; 1.9077341504103193e-09
 </pre>
 </div>
 </div>
@@ -16823,19 +16824,20 @@ if (IPython.notebook.kernel != null) {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># For the Gaussian case, the exponent goes to infinity so a fair</span>
 <span class="c1"># approximation consists of extending the look-up table for the binomial parameters</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">PlotOptions</span>
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">binomialParametersFromRatio</span><span class="p">,</span> <span class="n">_binomialParametersFromRatioLookupTable</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">PlotOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_from_width_ratio</span><span class="p">,</span> <span class="n">binomial_from_width_LUT_generation</span>
+<span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">_binomial_full_to_rms</span>
 
 <span class="n">plotOpt</span><span class="o">=</span><span class="n">PlotOptions</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="s1">&#39;BinomRatio-3&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="n">newLookupTable</span> <span class="o">=</span> <span class="n">_binomialParametersFromRatioLookupTable</span><span class="p">(</span>
-    <span class="n">exponentMin</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">exponentMax</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">new_LUT</span> <span class="o">=</span> <span class="n">binomial_from_width_LUT_generation</span><span class="p">(</span>
+    <span class="n">exponent_min</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span> <span class="n">exponent_max</span><span class="o">=</span><span class="mf">10000.</span><span class="p">)</span>
 
-<span class="n">binom_params_gauss</span> <span class="o">=</span> <span class="n">binomialParametersFromRatio</span><span class="p">(</span>
+<span class="n">binom_params_gauss</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span>
     <span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">,</span>
-    <span class="n">ratioLookUpTable</span><span class="o">=</span><span class="n">newLookupTable</span><span class="p">)</span>
+    <span class="n">ratio_LUT</span><span class="o">=</span><span class="n">new_LUT</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gauss: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_gauss</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">binom_params_gauss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gauss: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_gauss</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">_binomial_full_to_rms</span><span class="p">(</span><span class="o">*</span><span class="n">binom_params_gauss</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]))</span>
 </pre></div>
 
     </div>
@@ -16854,10 +16856,10 @@ if (IPython.notebook.kernel != null) {
 
 
 
-<div id="42d9d13e-a37c-4166-a39e-47362d994c7b"></div>
+<div id="c8a61518-b952-4096-ba8b-ef18ee4683ab"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#42d9d13e-a37c-4166-a39e-47362d994c7b');
+var element = $('#c8a61518-b952-4096-ba8b-ef18ee4683ab');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -16868,7 +16870,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -17085,7 +17087,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -17142,7 +17144,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -17511,7 +17513,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -17651,7 +17653,7 @@ if (IPython.notebook.kernel != null) {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Gauss: Initial -&gt; [1.0, 1.3e-08, 2e-09] / Final -&gt; [5.65623932e-07 1.00000000e+04]
+<pre>Gauss: Initial -&gt; [1.0, 1.3e-08, 2e-09] / Final -&gt; 1.999632624012422e-09
 </pre>
 </div>
 </div>
@@ -17672,16 +17674,13 @@ if (IPython.notebook.kernel != null) {
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">gaussianFit</span><span class="p">,</span> <span class="n">parabolicAmplitudeFit</span><span class="p">,</span> <span class="n">binomialAmplitudeNFit</span><span class="p">,</span> <span class="n">PlotOptions</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">gaussian_fit</span><span class="p">,</span> <span class="n">parabolic_amplitude_fit</span><span class="p">,</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">,</span> <span class="n">PlotOptions</span>
 
-<span class="n">bunch_position_gauss</span><span class="p">,</span> <span class="n">bunch_length_gauss</span><span class="p">,</span> <span class="n">fitparams_gauss</span> <span class="o">=</span> <span class="n">gaussianFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">)</span>
+<span class="n">fitparams_gauss</span> <span class="o">=</span> <span class="n">gaussian_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">)</span>
 
-<span class="n">bunch_position_parabamp</span><span class="p">,</span> <span class="n">bunch_length_parabamp</span><span class="p">,</span> <span class="n">fitparams_parabamp</span> <span class="o">=</span> <span class="n">parabolicAmplitudeFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">)</span>
+<span class="n">fitparams_parabamp</span> <span class="o">=</span> <span class="n">parabolic_amplitude_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">)</span>
 
-<span class="n">bunch_position_binom</span><span class="p">,</span> <span class="n">bunch_length_binom</span><span class="p">,</span> <span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomialAmplitudeNFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">)</span>
+<span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gauss: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_gauss</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">fitparams_gauss</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parab. amp.: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_parabamp</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">fitparams_parabamp</span><span class="p">)</span>
@@ -17720,8 +17719,7 @@ Binomial: Initial -&gt; [0.77, 1.83e-08, 3.45e-09, 3.4] / Final -&gt; [7.70e-01 
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotOpt</span><span class="o">=</span><span class="n">PlotOptions</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="s1">&#39;Fit-1&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="n">bunch_position_binom</span><span class="p">,</span> <span class="n">bunch_length_binom</span><span class="p">,</span> <span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomialAmplitudeNFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+<span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -17740,10 +17738,10 @@ Binomial: Initial -&gt; [0.77, 1.83e-08, 3.45e-09, 3.4] / Final -&gt; [7.70e-01 
 
 
 
-<div id="446a2daf-81ca-40a2-960a-4e7215fc9bed"></div>
+<div id="dbc65bb1-b265-4b13-9e8c-c49805e2a999"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#446a2daf-81ca-40a2-960a-4e7215fc9bed');
+var element = $('#dbc65bb1-b265-4b13-9e8c-c49805e2a999');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -17754,7 +17752,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -17971,7 +17969,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -18028,7 +18026,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -18397,7 +18395,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -18543,11 +18541,11 @@ if (IPython.notebook.kernel != null) {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Using a fit function that does not necessarily correspond to the input</span>
 <span class="c1"># (e.g. parabolicAmplitudeFit on a binomial distribution with more tails)</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">gaussianFit</span><span class="p">,</span> <span class="n">parabolicAmplitudeFit</span><span class="p">,</span> <span class="n">binomialAmplitudeNFit</span><span class="p">,</span> <span class="n">PlotOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">gaussian_fit</span><span class="p">,</span> <span class="n">parabolic_amplitude_fit</span><span class="p">,</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">,</span> <span class="n">PlotOptions</span>
 
 <span class="n">plotOpt</span><span class="o">=</span><span class="n">PlotOptions</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="s1">&#39;Fit-2&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="n">parabolicAmplitudeFit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+<span class="n">parabolic_amplitude_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -18566,10 +18564,10 @@ if (IPython.notebook.kernel != null) {
 
 
 
-<div id="4e02d535-7821-4d83-aca7-7841e4532445"></div>
+<div id="a7d510e0-a078-4fdf-bfc9-1c4a878bd6b2"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#4e02d535-7821-4d83-aca7-7841e4532445');
+var element = $('#a7d510e0-a078-4fdf-bfc9-1c4a878bd6b2');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -18580,7 +18578,7 @@ mpl.get_websocket_type = function() {
     } else if (typeof(MozWebSocket) !== 'undefined') {
         return MozWebSocket;
     } else {
-        alert('Your browser does not have WebSocket support.' +
+        alert('Your browser does not have WebSocket support. ' +
               'Please try Chrome, Safari or Firefox ≥ 6. ' +
               'Firefox 4 and 5 are also supported but you ' +
               'have to enable WebSockets in about:config.');
@@ -18797,7 +18795,7 @@ mpl.figure.prototype._init_canvas = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -18854,7 +18852,7 @@ mpl.figure.prototype._init_toolbar = function() {
         var fmt = mpl.extensions[ind];
         var option = $(
             '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
+        fmt_picker.append(option);
     }
 
     // Add hover states to the ui-buttons
@@ -19223,7 +19221,7 @@ mpl.figure.prototype.updated_canvas_event = function() {
 mpl.figure.prototype._init_toolbar = function() {
     var fig = this;
 
-    var nav_element = $('<div/>')
+    var nav_element = $('<div/>');
     nav_element.attr('style', 'width: 100%');
     this.root.append(nav_element);
 
@@ -19365,9 +19363,7 @@ if (IPython.notebook.kernel != null) {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(1.830000000363129e-08,
- 2.582679506794624e-09,
- array([7.46521800e-01, 1.83000000e-08, 2.58267951e-09]))</pre>
+<pre>array([7.46521800e-01, 1.83000000e-08, 2.58267951e-09])</pre>
 </div>
 
 </div>
@@ -19385,19 +19381,16 @@ if (IPython.notebook.kernel != null) {
 <span class="c1"># NB: a new FitOptions should be created to reset initial conditions,</span>
 <span class="c1"># but the same FitOptions can be used to share the same initial conditions</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">gaussianFit</span><span class="p">,</span> <span class="n">parabolicAmplitudeFit</span><span class="p">,</span> <span class="n">binomialAmplitudeNFit</span><span class="p">,</span> <span class="n">FitOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">gaussian_fit</span><span class="p">,</span> <span class="n">parabolic_amplitude_fit</span><span class="p">,</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">,</span> <span class="n">FitOptions</span>
 
 <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">fittingRoutine</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">)</span>
-<span class="n">bunch_position_gauss</span><span class="p">,</span> <span class="n">bunch_length_gauss</span><span class="p">,</span> <span class="n">fitparams_gauss</span> <span class="o">=</span> <span class="n">gaussianFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
+<span class="n">fitparams_gauss</span> <span class="o">=</span> <span class="n">gaussian_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">gaussian_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
 
 <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">fittingRoutine</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">)</span>
-<span class="n">bunch_position_parabamp</span><span class="p">,</span> <span class="n">bunch_length_parabamp</span><span class="p">,</span> <span class="n">fitparams_parabamp</span> <span class="o">=</span> <span class="n">parabolicAmplitudeFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
+<span class="n">fitparams_parabamp</span> <span class="o">=</span> <span class="n">parabolic_amplitude_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">parabamp_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
 
 <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">fittingRoutine</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">)</span>
-<span class="n">bunch_position_binom</span><span class="p">,</span> <span class="n">bunch_length_binom</span><span class="p">,</span> <span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomialAmplitudeNFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
+<span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gauss: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_gauss</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">fitparams_gauss</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parab. amp.: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_parabamp</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">fitparams_parabamp</span><span class="p">)</span>
@@ -19438,14 +19431,13 @@ Binomial: Initial -&gt; [0.77, 1.83e-08, 3.45e-09, 3.4] / Final -&gt; [7.70e-01 
 <span class="c1"># NB: a new FitOptions should be created to reset initial conditions,</span>
 <span class="c1"># but the same FitOptions can be used to share the same initial conditions</span>
 
-<span class="kn">from</span> <span class="nn">blond_common.fitting.distribution</span> <span class="k">import</span> <span class="n">gaussianFit</span><span class="p">,</span> <span class="n">parabolicAmplitudeFit</span><span class="p">,</span> <span class="n">binomialAmplitudeNFit</span><span class="p">,</span> <span class="n">FitOptions</span>
+<span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">gaussian_fit</span><span class="p">,</span> <span class="n">parabolic_amplitude_fit</span><span class="p">,</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">,</span> <span class="n">FitOptions</span>
 
 <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">fittingRoutine</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">,</span>
                     <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1"># method=&#39;Nelder-Mead&#39; or method=&#39;Powell&#39; or method=None</span>
                     <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;disp&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
 
-<span class="n">bunch_position_binom</span><span class="p">,</span> <span class="n">bunch_length_binom</span><span class="p">,</span> <span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomialAmplitudeNFit</span><span class="p">(</span>
-    <span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
+<span class="n">fitparams_binom</span> <span class="o">=</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">binom_dist</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Binomial: Initial -&gt;&#39;</span><span class="p">,</span><span class="n">initial_params_binom</span><span class="p">,</span> <span class="s1">&#39;/ Final -&gt;&#39;</span><span class="p">,</span> <span class="n">fitparams_binom</span><span class="p">)</span>
 </pre></div>

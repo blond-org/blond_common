@@ -91,8 +91,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../fitting.html">fitting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../fitting.html#modules">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution.html">fitting.distribution module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.profile.html">fitting.profile module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../fitting.html#examples">Examples</a></li>
@@ -301,6 +300,8 @@
     <span class="n">potwell_min_locs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">potwell_min_vals</span> <span class="o">=</span> <span class="p">[]</span>
 
+    <span class="n">time_resolution</span> <span class="o">=</span> <span class="n">time_array_full</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">time_array_full</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
     <span class="n">tck</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span> <span class="n">potential_well_full</span><span class="p">)</span>
 
     <span class="n">min_max_results</span> <span class="o">=</span> <span class="n">minmax_location_cubic</span><span class="p">(</span><span class="n">time_array_full</span><span class="p">,</span>
@@ -324,246 +325,265 @@
         <span class="n">inner_sep_max_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
         <span class="c1"># Checking left</span>
-        <span class="k">if</span> <span class="n">index_max</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># This is the most left max</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># This is a right max, checking for the left counterparts</span>
-            <span class="k">for</span> <span class="n">index_left</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">index_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># This is a right max, checking for the left counterparts</span>
+        <span class="n">most_right_max</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">index_left</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">index_left</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">index_max</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="c1"># This is the most left max</span>
+                <span class="n">left_max_val</span> <span class="o">=</span> <span class="n">potential_well_full</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">left_max_pos</span> <span class="o">=</span> <span class="n">time_array_full</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">most_right_max</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">index_left</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">index_max</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="c1"># This indexes set corresponds to the same max</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">left_max_val</span> <span class="o">=</span> <span class="n">max_val</span><span class="p">[</span><span class="n">index_max</span><span class="o">-</span><span class="n">index_left</span><span class="p">]</span>
-                <span class="n">left_max_pos</span> <span class="o">=</span> <span class="n">max_pos</span><span class="p">[</span><span class="n">index_max</span><span class="o">-</span><span class="n">index_left</span><span class="p">]</span>
 
-                <span class="n">right_pos</span> <span class="o">=</span> <span class="n">present_max_pos</span>
-                <span class="n">right_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+            <span class="n">right_pos</span> <span class="o">=</span> <span class="n">present_max_pos</span>
+            <span class="n">right_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
 
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">left_max_val</span><span class="p">,</span> <span class="n">present_max_val</span><span class="p">,</span>
-                              <span class="n">rtol</span><span class="o">=</span><span class="n">relative_max_val_precision_limit</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-                    <span class="c1"># The left max is identical to the present max, a pot. well</span>
-                    <span class="c1"># is found</span>
-                    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">left_max_pos</span>
-                    <span class="n">left_val</span> <span class="o">=</span> <span class="n">left_max_val</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">left_max_val</span><span class="p">,</span> <span class="n">present_max_val</span><span class="p">,</span>
+                          <span class="n">rtol</span><span class="o">=</span><span class="n">relative_max_val_precision_limit</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">most_right_max</span><span class="p">:</span>
+                <span class="c1"># The left max is identical to the present max, a pot. well</span>
+                <span class="c1"># is found</span>
+                <span class="n">left_pos</span> <span class="o">=</span> <span class="n">left_max_pos</span>
+                <span class="n">left_val</span> <span class="o">=</span> <span class="n">left_max_val</span>
 
-                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
-                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
-                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+                <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                    <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                    <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
 
-                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">):</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">):</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
 
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">))</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+L1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
-                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_left</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=L1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
-
-                    <span class="c1"># Breaking the loop</span>
-                    <span class="k">break</span>
-
-                <span class="k">elif</span> <span class="n">left_max_val</span> <span class="o">&lt;</span> <span class="n">present_max_val</span><span class="p">:</span>
-                    <span class="c1"># The left max is smaller than the present max, this</span>
-                    <span class="c1"># means that there is an inner separatrix</span>
-
-                    <span class="n">inner_sep_max_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span>
-                        <span class="n">inner_sep_max_left</span><span class="p">,</span> <span class="n">left_max_val</span><span class="p">])</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">))</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;L2 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+L1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
                               <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
-                        <span class="nb">print</span> <span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_left</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=L1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
 
-                <span class="k">elif</span> <span class="n">left_max_val</span> <span class="o">&gt;</span> <span class="n">present_max_val</span><span class="p">:</span>
-                    <span class="c1"># The left max is higher than the present max, finding</span>
-                    <span class="c1"># the intersection and breaking the loop</span>
+                <span class="c1"># Breaking the loop</span>
+                <span class="k">break</span>
 
-                    <span class="n">indexes_find_root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">left_max_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                 <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">present_max_pos</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">left_max_val</span> <span class="o">&lt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                <span class="c1"># The left max is smaller than the present max, this</span>
+                <span class="c1"># means that there is an inner separatrix</span>
 
-                    <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">indexes_find_root</span><span class="p">],</span>
-                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">present_max_val</span><span class="p">)[</span><span class="n">indexes_find_root</span><span class="p">],</span>
-                        <span class="n">tck</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">inner_sep_max_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span>
+                    <span class="n">inner_sep_max_left</span><span class="p">,</span> <span class="n">left_max_val</span><span class="p">])</span>
 
-                    <span class="n">potential_well_roots</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">,</span>
-                                                         <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;L2 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                          <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">)</span>
 
-                    <span class="c1"># Breaking if root finding fails (bucket too small or</span>
-                    <span class="c1"># precision param too fine)</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FL&#39;</span><span class="p">)</span>
-                        <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">left_max_val</span> <span class="o">&gt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                <span class="c1"># The left max is higher than the present max, finding</span>
+                <span class="c1"># the intersection and breaking the loop</span>
 
-                    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span>
-                    <span class="n">left_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+                <span class="n">indexes_find_root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">left_max_pos</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">time_resolution</span><span class="p">))</span> <span class="o">*</span>
+                    <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">present_max_pos</span><span class="p">))</span>
 
-                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
-                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
-                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+                <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                    <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">present_max_val</span><span class="p">)[</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                    <span class="n">tck</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">):</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                <span class="n">potential_well_roots</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">,</span>
+                                                     <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
 
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">))</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+L3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
-                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_left</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=L3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
-
-                    <span class="c1"># Beaking the loop</span>
+                <span class="c1"># Breaking if root finding fails (bucket too small or</span>
+                <span class="c1"># precision param too fine)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: could not intersect potential well &#39;</span> <span class="o">+</span>
+                          <span class="s1">&#39;on the left! &#39;</span> <span class="o">+</span>
+                          <span class="s1">&#39;Try lowering relative_max_val_precision_limit&#39;</span><span class="p">)</span>
                     <span class="k">break</span>
 
+                <span class="n">left_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span>
+                <span class="n">left_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+
+                <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                    <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                    <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">):</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_left</span><span class="p">))</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+L3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+                        <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_left</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=L3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - ILEFT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_left</span><span class="p">))</span>
+
+                <span class="c1"># Beaking the loop</span>
+                <span class="k">break</span>
+
         <span class="c1"># Checking right:</span>
-        <span class="k">if</span> <span class="n">index_max</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># This is the most right max</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># This is a left max, checking for the right counterpart</span>
-            <span class="k">for</span> <span class="n">index_right</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="n">index_max</span><span class="p">):</span>
+        <span class="c1"># This is a left max, checking for the right counterpart</span>
+        <span class="n">most_left_max</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">index_right</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="n">index_max</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">index_right</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">index_max</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+                <span class="c1"># This is the most left max</span>
+                <span class="n">right_max_val</span> <span class="o">=</span> <span class="n">potential_well_full</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">right_max_pos</span> <span class="o">=</span> <span class="n">time_array_full</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">most_left_max</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">index_right</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">index_max</span> <span class="o">!=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">max_val</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+                <span class="c1"># This indexes set corresponds to the same max</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">right_max_val</span> <span class="o">=</span> <span class="n">max_val</span><span class="p">[</span><span class="n">index_max</span><span class="o">+</span><span class="n">index_right</span><span class="p">]</span>
                 <span class="n">right_max_pos</span> <span class="o">=</span> <span class="n">max_pos</span><span class="p">[</span><span class="n">index_max</span><span class="o">+</span><span class="n">index_right</span><span class="p">]</span>
 
-                <span class="n">left_pos</span> <span class="o">=</span> <span class="n">present_max_pos</span>
-                <span class="n">left_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+            <span class="n">left_pos</span> <span class="o">=</span> <span class="n">present_max_pos</span>
+            <span class="n">left_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
 
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">right_max_val</span><span class="p">,</span> <span class="n">present_max_val</span><span class="p">,</span>
-                              <span class="n">rtol</span><span class="o">=</span><span class="n">relative_max_val_precision_limit</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-                    <span class="c1"># The right max is identical to the present max, a pot.</span>
-                    <span class="c1"># well is found</span>
-                    <span class="n">right_pos</span> <span class="o">=</span> <span class="n">right_max_pos</span>
-                    <span class="n">right_val</span> <span class="o">=</span> <span class="n">right_max_val</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">right_max_val</span><span class="p">,</span> <span class="n">present_max_val</span><span class="p">,</span>
+                          <span class="n">rtol</span><span class="o">=</span><span class="n">relative_max_val_precision_limit</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">most_left_max</span><span class="p">:</span>
+                <span class="c1"># The right max is identical to the present max, a pot.</span>
+                <span class="c1"># well is found</span>
+                <span class="n">right_pos</span> <span class="o">=</span> <span class="n">right_max_pos</span>
+                <span class="n">right_val</span> <span class="o">=</span> <span class="n">right_max_val</span>
 
-                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
-                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
-                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+                <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                    <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                    <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
 
-                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">):</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">):</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
 
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">))</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+R1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
-                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_right</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=R1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
-
-                    <span class="c1"># Breaking the loop</span>
-                    <span class="k">break</span>
-
-                <span class="k">elif</span> <span class="n">right_max_val</span> <span class="o">&lt;</span> <span class="n">present_max_val</span><span class="p">:</span>
-                    <span class="c1"># The right max is smaller than the present max, this</span>
-                    <span class="c1"># means that there is an inner separatrix</span>
-
-                    <span class="n">inner_sep_max_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span>
-                        <span class="n">inner_sep_max_right</span><span class="p">,</span> <span class="n">right_max_val</span><span class="p">])</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">))</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;R2 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+R1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
                               <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span> <span class="n">inner_sep_max_right</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=R1 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
 
-                <span class="k">elif</span> <span class="n">right_max_val</span> <span class="o">&gt;</span> <span class="n">present_max_val</span><span class="p">:</span>
-                    <span class="c1"># The right max is higher than the present max, finding</span>
-                    <span class="c1"># the intersection and breaking the loop</span>
+                <span class="c1"># Breaking the loop</span>
+                <span class="k">break</span>
 
-                    <span class="n">indexes_find_root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">present_max_pos</span><span class="p">)</span> <span class="o">*</span>
-                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">right_max_pos</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">right_max_val</span> <span class="o">&lt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                <span class="c1"># The right max is smaller than the present max, this</span>
+                <span class="c1"># means that there is an inner separatrix</span>
 
-                    <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">indexes_find_root</span><span class="p">],</span>
-                        <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">present_max_val</span><span class="p">)[</span><span class="n">indexes_find_root</span><span class="p">],</span>
-                        <span class="n">tck</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-                    <span class="n">potential_well_roots</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">,</span>
-                                                         <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
+                <span class="n">inner_sep_max_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span>
+                    <span class="n">inner_sep_max_right</span><span class="p">,</span> <span class="n">right_max_val</span><span class="p">])</span>
 
-                    <span class="c1"># Breaking if root finding fails (bucket too small or</span>
-                    <span class="c1"># precision param too fine)</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FR&#39;</span><span class="p">)</span>
-                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;R2 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                          <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">)</span>
 
-                    <span class="n">right_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span>
-                    <span class="n">right_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+            <span class="k">elif</span> <span class="n">right_max_val</span> <span class="o">&gt;</span> <span class="n">present_max_val</span><span class="p">:</span>
+                <span class="c1"># The right max is higher than the present max, finding</span>
+                <span class="c1"># the intersection and breaking the loop</span>
 
-                    <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
-                        <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
-                        <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+                <span class="n">indexes_find_root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">present_max_pos</span><span class="p">)</span> <span class="o">*</span>
+                    <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">right_max_pos</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">time_resolution</span><span class="p">)))</span>
 
-                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">):</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
-                                                  <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                <span class="n">tck_adjusted</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">tck</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                    <span class="p">(</span><span class="n">tck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">present_max_val</span><span class="p">)[</span><span class="n">indexes_find_root</span><span class="p">],</span>
+                    <span class="n">tck</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">))</span>
-                            <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                            <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">potential_well_roots</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">sproot</span><span class="p">(</span><span class="n">tck_adjusted</span><span class="p">,</span>
+                                                     <span class="n">mest</span><span class="o">=</span><span class="n">mest</span><span class="p">)</span>
 
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+R3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
-                            <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span>
-                                  <span class="n">inner_sep_max_right</span><span class="p">)</span>
+                <span class="c1"># Breaking if root finding fails (bucket too small or</span>
+                <span class="c1"># precision param too fine)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: could not intersect potential well &#39;</span> <span class="o">+</span>
+                          <span class="s1">&#39;on the right! &#39;</span> <span class="o">+</span>
+                          <span class="s1">&#39;Try lowering relative_max_val_precision_limit&#39;</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+                <span class="n">right_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">potential_well_roots</span><span class="p">)</span>
+                <span class="n">right_val</span> <span class="o">=</span> <span class="n">present_max_val</span>
+
+                <span class="k">if</span> <span class="p">[</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">potwell_max_locs</span><span class="p">:</span>
+                    <span class="n">potwell_max_locs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">])</span>
+                    <span class="n">potwell_max_vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_val</span><span class="p">,</span> <span class="n">right_val</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">):</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_pos</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">min_val</span><span class="p">[(</span><span class="n">min_pos</span> <span class="o">&gt;</span> <span class="n">left_pos</span><span class="p">)</span> <span class="o">*</span>
+                                              <span class="p">(</span><span class="n">min_pos</span> <span class="o">&lt;</span> <span class="n">right_pos</span><span class="p">)]))</span>
 
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=R3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
-                                  <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+                        <span class="n">potwell_inner_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">inner_sep_max_right</span><span class="p">))</span>
+                        <span class="n">potwell_min_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="n">potwell_min_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
-                    <span class="c1"># Beaking the loop</span>
-                    <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;+R3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+                        <span class="nb">print</span><span class="p">([</span><span class="n">left_pos</span><span class="p">,</span> <span class="n">right_pos</span><span class="p">],</span>
+                              <span class="n">inner_sep_max_right</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=R3 - IMAX &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index_max</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; - IRIGHT &#39;</span> <span class="o">+</span>
+                              <span class="nb">str</span><span class="p">(</span><span class="n">index_right</span><span class="p">))</span>
+
+                <span class="c1"># Beaking the loop</span>
+                <span class="k">break</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">potwell_max_locs</span><span class="p">,</span> <span class="n">potwell_max_vals</span><span class="p">,</span>
             <span class="n">potwell_inner_max</span><span class="p">,</span> <span class="n">potwell_min_locs</span><span class="p">,</span>

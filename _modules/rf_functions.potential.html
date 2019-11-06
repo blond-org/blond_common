@@ -92,8 +92,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fitting.html">fitting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="fitting.html#modules">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="fitting.distribution.html">fitting.distribution module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fitting.profile.html">fitting.profile module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="fitting.html#examples">Examples</a></li>
@@ -186,52 +185,49 @@
 <span id="rf-functions-potential-module"></span><h1>rf_functions.potential module<a class="headerlink" href="#module-blond_common.rf_functions.potential" title="Permalink to this headline">¶</a></h1>
 <p><strong>Module containing base functions to compute like rf voltage, rf potential,
 separatrices, acceptance, emittance, synchrotron frequency</strong></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Authors:</th><td class="field-body"><strong>Simon Albright</strong>, <strong>Alexandre Lasheen</strong></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Authors</dt>
+<dd class="field-odd"><p><strong>Simon Albright</strong>, <strong>Alexandre Lasheen</strong></p>
+</dd>
+</dl>
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.area_vs_hamiltonian_cubic">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">area_vs_hamiltonian_cubic</code><span class="sig-paren">(</span><em>time_array</em>, <em>potential_array</em>, <em>eta_0</em>, <em>beta_rel</em>, <em>tot_energy</em>, <em>min_potential_well=None</em>, <em>inner_max_potential_well=None</em>, <em>n_points_reinterp=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#area_vs_hamiltonian_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.area_vs_hamiltonian_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">area_vs_hamiltonian_cubic</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">potential_array</em>, <em class="sig-param">eta_0</em>, <em class="sig-param">beta_rel</em>, <em class="sig-param">tot_energy</em>, <em class="sig-param">min_potential_well=None</em>, <em class="sig-param">inner_max_potential_well=None</em>, <em class="sig-param">n_points_reinterp=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#area_vs_hamiltonian_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.area_vs_hamiltonian_cubic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.find_potential_wells_cubic">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">find_potential_wells_cubic</code><span class="sig-paren">(</span><em>time_array_full</em>, <em>potential_well_full</em>, <em>relative_max_val_precision_limit=1e-06</em>, <em>mest=10</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#find_potential_wells_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.find_potential_wells_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">find_potential_wells_cubic</code><span class="sig-paren">(</span><em class="sig-param">time_array_full</em>, <em class="sig-param">potential_well_full</em>, <em class="sig-param">relative_max_val_precision_limit=1e-06</em>, <em class="sig-param">mest=10</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#find_potential_wells_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.find_potential_wells_cubic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.potential_well_cut_cubic">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">potential_well_cut_cubic</code><span class="sig-paren">(</span><em>time_array_full</em>, <em>potential_well_full</em>, <em>potwell_max_locs</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#potential_well_cut_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.potential_well_cut_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">potential_well_cut_cubic</code><span class="sig-paren">(</span><em class="sig-param">time_array_full</em>, <em class="sig-param">potential_well_full</em>, <em class="sig-param">potwell_max_locs</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#potential_well_cut_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.potential_well_cut_cubic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.rf_potential_generation">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">rf_potential_generation</code><span class="sig-paren">(</span><em>n_points</em>, <em>t_rev</em>, <em>voltage</em>, <em>harmonic_number</em>, <em>phi_offset</em>, <em>eta_0</em>, <em>charge</em>, <em>energy_increment</em>, <em>time_bounds=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#rf_potential_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.rf_potential_generation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">rf_potential_generation</code><span class="sig-paren">(</span><em class="sig-param">n_points</em>, <em class="sig-param">t_rev</em>, <em class="sig-param">voltage</em>, <em class="sig-param">harmonic_number</em>, <em class="sig-param">phi_offset</em>, <em class="sig-param">eta_0</em>, <em class="sig-param">charge</em>, <em class="sig-param">energy_increment</em>, <em class="sig-param">time_bounds=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#rf_potential_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.rf_potential_generation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.rf_potential_generation_cubic">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">rf_potential_generation_cubic</code><span class="sig-paren">(</span><em>time_array</em>, <em>voltage_array</em>, <em>eta_0</em>, <em>charge</em>, <em>t_rev</em>, <em>energy_increment</em>, <em>interpolated_voltage_minus_increment=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#rf_potential_generation_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.rf_potential_generation_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">rf_potential_generation_cubic</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">voltage_array</em>, <em class="sig-param">eta_0</em>, <em class="sig-param">charge</em>, <em class="sig-param">t_rev</em>, <em class="sig-param">energy_increment</em>, <em class="sig-param">interpolated_voltage_minus_increment=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#rf_potential_generation_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.rf_potential_generation_cubic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.rf_voltage_generation">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">rf_voltage_generation</code><span class="sig-paren">(</span><em>n_points</em>, <em>t_rev</em>, <em>voltage</em>, <em>harmonic_number</em>, <em>phi_offset</em>, <em>time_bounds=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#rf_voltage_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.rf_voltage_generation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">rf_voltage_generation</code><span class="sig-paren">(</span><em class="sig-param">n_points</em>, <em class="sig-param">t_rev</em>, <em class="sig-param">voltage</em>, <em class="sig-param">harmonic_number</em>, <em class="sig-param">phi_offset</em>, <em class="sig-param">time_bounds=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#rf_voltage_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.rf_voltage_generation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.synchrotron_frequency_cubic">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">synchrotron_frequency_cubic</code><span class="sig-paren">(</span><em>time_array</em>, <em>potential_array</em>, <em>eta_0</em>, <em>beta_rel</em>, <em>tot_energy</em>, <em>min_potential_well=None</em>, <em>inner_max_potential_well=None</em>, <em>n_points_reinterp=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#synchrotron_frequency_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.synchrotron_frequency_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">synchrotron_frequency_cubic</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">potential_array</em>, <em class="sig-param">eta_0</em>, <em class="sig-param">beta_rel</em>, <em class="sig-param">tot_energy</em>, <em class="sig-param">min_potential_well=None</em>, <em class="sig-param">inner_max_potential_well=None</em>, <em class="sig-param">n_points_reinterp=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#synchrotron_frequency_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.synchrotron_frequency_cubic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="blond_common.rf_functions.potential.trajectory_area_cubic">
-<code class="descclassname">blond_common.rf_functions.potential.</code><code class="descname">trajectory_area_cubic</code><span class="sig-paren">(</span><em>time_array</em>, <em>potential_array</em>, <em>eta_0</em>, <em>beta_rel</em>, <em>tot_energy</em>, <em>min_potential_well=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#trajectory_area_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.trajectory_area_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.rf_functions.potential.</code><code class="sig-name descname">trajectory_area_cubic</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">potential_array</em>, <em class="sig-param">eta_0</em>, <em class="sig-param">beta_rel</em>, <em class="sig-param">tot_energy</em>, <em class="sig-param">min_potential_well=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/rf_functions/potential.html#trajectory_area_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.rf_functions.potential.trajectory_area_cubic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

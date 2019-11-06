@@ -25,4 +25,4 @@ With multiple RF harmonics:
 
 `RF func examples MRF ipynb`_
 
-.. _RF func examples MRF ipynb: rf_functions_singleRF.slides.html
+.. _RF func examples MRF ipynb: rf_functions_multiRF.slides.html

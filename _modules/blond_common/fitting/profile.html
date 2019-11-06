@@ -1,0 +1,1601 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>blond_common.fitting.profile &mdash; BLonD Common  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> BLonD Common
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../interfaces.html">interfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../interfaces.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../interfaces.input_parameters.html">interfaces.input_parameters package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../fitting.html">fitting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../fitting.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.profile.html">fitting.profile module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../maths.html">maths package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../maths.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../maths.calculus.html">maths.calculus module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../maths.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../rf_functions.html">rf_functions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../rf_functions.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../rf_functions.potential.html">rf_functions.potential module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../rf_functions.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BLonD Common</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>blond_common.fitting.profile</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for blond_common.fitting.profile</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf8</span>
+<span class="c1"># Copyright 2014-2019 CERN. This software is distributed under the</span>
+<span class="c1"># terms of the GNU General Public Licence version 3 (GPL Version 3),</span>
+<span class="c1"># copied verbatim in the file LICENCE.md.</span>
+<span class="c1"># In applying this licence, CERN does not waive the privileges and immunities</span>
+<span class="c1"># granted to it by virtue of its status as an Intergovernmental Organization or</span>
+<span class="c1"># submit itself to any jurisdiction.</span>
+<span class="c1"># Project website: http://blond.web.cern.ch/</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">**Module with functions to fit profiles, such as bunch line densities**</span>
+
+<span class="sd">- TODO: improve treatment of the baseline</span>
+<span class="sd">- TODO: improve the implementation of options as dict and **kwargs</span>
+<span class="sd">- TODO: For all fitting function, add formula and default initial guess for the fit</span>
+<span class="sd">- TODO: detail options for each function, especially for fitting</span>
+<span class="sd">- TODO: include the changes from interfaces.beam.analytic_distribution</span>
+
+<span class="sd">:Authors: **Alexandre Lasheen**, **Juan F. Esteban Mueller**,</span>
+<span class="sd">          **Markus Schwarz**</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># General imports</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">curve_fit</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># Analytic distributions import</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="n">interfaces</span><span class="o">.</span><span class="n">beam</span> <span class="kn">import</span> <span class="nn">analytic_distribution</span>
+
+<span class="c1"># Residue function import</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="n">residue</span> <span class="kn">import</span> <span class="nn">vertical_least_square</span>
+
+<span class="c1"># Devtools imports</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="n">devtools</span><span class="o">.</span><span class="n">exceptions</span> <span class="kn">import</span> <span class="nn">InputError</span>
+
+
+<div class="viewcode-block" id="FitOptions"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.FitOptions">[docs]</a><span class="k">class</span> <span class="nc">FitOptions</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bunchLengthFactor</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">bunchPositionOffset</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                 <span class="n">nPointsNoise</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fitInitialParameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fittingRoutine</span><span class="o">=</span><span class="s1">&#39;curve_fit&#39;</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Powell&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">residualFunction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">extraOptions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="n">bunchLengthFactor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bunchPositionOffset</span> <span class="o">=</span> <span class="n">bunchPositionOffset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nPointsNoise</span> <span class="o">=</span> <span class="n">nPointsNoise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">fitInitialParameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fittingRoutine</span> <span class="o">=</span> <span class="n">fittingRoutine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residualFunction</span> <span class="o">=</span> <span class="n">residualFunction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extraOptions</span> <span class="o">=</span> <span class="n">extraOptions</span></div>
+
+
+<div class="viewcode-block" id="PlotOptions"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.PlotOptions">[docs]</a><span class="k">class</span> <span class="nc">PlotOptions</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figname</span><span class="o">=</span><span class="s1">&#39;Bunch profile&#39;</span><span class="p">,</span> <span class="n">clf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">figname</span> <span class="o">=</span> <span class="n">figname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clf</span> <span class="o">=</span> <span class="n">clf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interactive</span> <span class="o">=</span> <span class="n">interactive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legend</span> <span class="o">=</span> <span class="n">legend</span></div>
+
+
+<div class="viewcode-block" id="FWHM"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.FWHM">[docs]</a><span class="k">def</span> <span class="nf">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to compute the Full-Width at Half Maximum for a given</span>
+<span class="sd">    profile. The Maximum corresponds to the numerical maximum of the</span>
+<span class="sd">    data_array.</span>
+
+<span class="sd">    TODO: add an option to use peakValue to get the Maximum, to have the option</span>
+<span class="sd">    to get an averaged value of the maximum (e.g. at &gt;95%)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+<span class="sd">    level : float</span>
+<span class="sd">        Optional: The ratio from the maximum for which the width of the profile</span>
+<span class="sd">        is returned</span>
+<span class="sd">        Default is 0.5, as for Half of the Maximum</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    center : float</span>
+<span class="sd">        The center of the Width at Half Maximum, in the units of time_array</span>
+<span class="sd">    fwhm : float</span>
+<span class="sd">        The Full Width at Half Maximum, in the units of time_array</span>
+<span class="sd">        NB: if the &quot;level&quot; option is set to any other value than 0.5,</span>
+<span class="sd">        the output corresponds to the full width at the specified &quot;level&quot;</span>
+<span class="sd">        of the maximum</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian distribution and get its FWHM &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import FWHM</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; center, fwhm = FWHM(time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="c1"># Removing baseline</span>
+    <span class="n">profileToFit</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="c1"># Time resolution</span>
+    <span class="n">time_interval</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Max and xFator times max values (defaults to half max)</span>
+    <span class="n">maximum_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">)</span>
+    <span class="n">half_max</span> <span class="o">=</span> <span class="n">level</span> <span class="o">*</span> <span class="n">maximum_value</span>
+
+    <span class="c1"># First aproximation for the half maximum values</span>
+    <span class="n">taux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">profileToFit</span> <span class="o">&gt;=</span> <span class="n">half_max</span><span class="p">)</span>
+    <span class="n">taux1</span> <span class="o">=</span> <span class="n">taux</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">taux2</span> <span class="o">=</span> <span class="n">taux</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Interpolation of the time where the line density is half the maximum</span>
+    <span class="k">if</span> <span class="n">taux1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;FWHM is at left boundary of profile!&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span><span class="o">-</span><span class="n">half_max</span><span class="p">)</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux1</span><span class="p">]</span> <span class="o">-</span> <span class="n">profileToFit</span><span class="p">[</span><span class="n">taux1</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">time_interval</span>
+
+    <span class="k">if</span> <span class="n">taux2</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;FWHM is at right boundary of profile!&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span><span class="o">-</span><span class="n">half_max</span><span class="p">)</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">profileToFit</span><span class="p">[</span><span class="n">taux2</span><span class="p">]</span> <span class="o">-</span> <span class="n">profileToFit</span><span class="p">[</span><span class="n">taux2</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">time_interval</span>
+
+    <span class="c1"># Adjusting the FWHM with some scaling factor</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">==</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">:</span>
+            <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">==</span> <span class="s1">&#39;parabolic_line&#39;</span><span class="p">:</span>
+            <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">1.</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">==</span> <span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">:</span>
+            <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">1.5</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s1">&#39;The bunch length factor in FWHM is not &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;recognized !&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bunchLengthFactor</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span>
+
+    <span class="n">fwhm</span> <span class="o">=</span> <span class="n">bunchLengthFactor</span> <span class="o">*</span> <span class="p">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="n">t1</span><span class="o">+</span><span class="n">t2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">profileToFit</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">],</span> <span class="p">[</span><span class="n">half_max</span><span class="p">,</span> <span class="n">half_max</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">],</span> <span class="p">[</span><span class="n">half_max</span><span class="p">,</span> <span class="n">half_max</span><span class="p">],</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">center</span><span class="p">,</span> <span class="n">fwhm</span></div>
+
+
+<div class="viewcode-block" id="peak_value"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.peak_value">[docs]</a><span class="k">def</span> <span class="nf">peak_value</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to get the peak amplitude of the profile. If a &quot;level&quot;</span>
+<span class="sd">    is passed, the function averages the points above the speicifed &quot;level&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+<span class="sd">    level : float</span>
+<span class="sd">        Optional: The ratio of the maximum above which the profile is averaged</span>
+<span class="sd">        Default is 1.0 to return the numerical maximum</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The position of the peak value, in the units of time_array</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The peak amplitude, in the units of the data_array</span>
+<span class="sd">        NB: if the &quot;level&quot; option is set to any other value than 1.0,</span>
+<span class="sd">        the output corresponds to the peak, averaged for the points above</span>
+<span class="sd">        the specified &quot;level&quot; of the maximum</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian distribution and get its peak amplitude &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import peak_value</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; peak_position, amplitude = peak_value(time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="n">sampledNoise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="n">selected_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">data_array</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">selected_points</span><span class="p">])</span>
+
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+        <span class="n">data_array</span><span class="p">[</span><span class="n">selected_points</span><span class="p">]</span> <span class="o">-</span>
+        <span class="n">sampledNoise</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">))],</span>
+            <span class="n">data_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">level</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="o">-</span><span class="n">sampledNoise</span><span class="p">))]</span> <span class="o">-</span>
+            <span class="n">sampledNoise</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">position</span><span class="p">,</span> <span class="n">amplitude</span></div>
+
+
+<div class="viewcode-block" id="integrated_profile"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.integrated_profile">[docs]</a><span class="k">def</span> <span class="nf">integrated_profile</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;sum&#39;</span><span class="p">,</span>
+                       <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to compute the integrated bunch profile.</span>
+
+<span class="sd">    TODO: use the blond_common.maths package for integration functions</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+<span class="sd">    method : str</span>
+<span class="sd">        The method used to do the integration, the possible inputs are:</span>
+
+<span class="sd">        - &quot;sum&quot;: uses np.sum (default)</span>
+
+<span class="sd">        - &quot;trapz&quot;: uses np.trapz</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    integrated_value : float</span>
+<span class="sd">        The integrated bunch profile, in the units of time_array*data_array</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian distribution and get the integrated</span>
+<span class="sd">    &gt;&gt;&gt; profile &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import integrated_profile</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; integrated_value = integrated_profile(time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="c1"># Time resolution</span>
+    <span class="n">time_interval</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;sum&#39;</span><span class="p">:</span>
+        <span class="n">integrated_value</span> <span class="o">=</span> <span class="n">time_interval</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">data_array</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;trapz&#39;</span><span class="p">:</span>
+        <span class="n">integrated_value</span> <span class="o">=</span> <span class="n">time_interval</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
+            <span class="n">data_array</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s1">&#39;The method passed to the integrated_profile &#39;</span> <span class="o">+</span>
+                         <span class="s1">&#39;function is not valid.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">],</span>
+            <span class="p">(</span><span class="n">data_array</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">]))[</span>
+                <span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">integrated_value</span></div>
+
+
+<div class="viewcode-block" id="RMS"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.RMS">[docs]</a><span class="k">def</span> <span class="nf">RMS</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to compute the mean and root mean square (RMS) of a profile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mean : float</span>
+<span class="sd">        The mean position of the profile, in time_array units</span>
+<span class="sd">    rms : float</span>
+<span class="sd">        The rms length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian distribution and get mean and rms &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import RMS</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; mean_position, rms_length = RMS(time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="c1"># Time resolution</span>
+    <span class="n">time_interval</span> <span class="o">=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Removing baseline</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="n">normalized_profile</span> <span class="o">=</span> <span class="n">profile</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span>
+        <span class="n">profile</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">time_interval</span><span class="p">)</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">time_array</span> <span class="o">*</span> <span class="n">normalized_profile</span><span class="p">,</span>
+                    <span class="n">dx</span><span class="o">=</span><span class="n">time_interval</span><span class="p">)</span>
+
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(((</span><span class="n">time_array</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">normalized_profile</span><span class="p">,</span>
+                 <span class="n">dx</span><span class="o">=</span><span class="n">time_interval</span><span class="p">))</span>
+
+    <span class="n">mean</span> <span class="o">+=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">rms</span></div>
+
+
+<div class="viewcode-block" id="binomial_from_width_ratio"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.binomial_from_width_ratio">[docs]</a><span class="k">def</span> <span class="nf">binomial_from_width_ratio</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+                              <span class="n">ratio_LUT</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to evaluate the parameters of a binomial function, as defined</span>
+<span class="sd">    in blond_common.interfaces.beam.analytic_distribution.binomial_amplitude,</span>
+<span class="sd">    by using the width of the profile at two different levels as input.</span>
+
+<span class="sd">    The function returns the parameters of a binomial profile as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.binomial_amplitude</span>
+
+<span class="sd">    TODO: check if rms should be in the return list as well</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+<span class="sd">    levels : list or np.array with 2 elements</span>
+<span class="sd">        Optional: The levels at which the width of the profile is used</span>
+<span class="sd">        to evaluate the parameters of the fitting binomial profile.</span>
+<span class="sd">        Default is [0.8, 0.2]</span>
+<span class="sd">    ratio_LUT : output from _binomial_from_width_LUT_generation</span>
+<span class="sd">        Optional: The function uses internally a lookup table obtained from the</span>
+<span class="sd">        _binomial_from_width_LUT_generation function to evaluate the binomial</span>
+<span class="sd">        parameters. The lookup table can be pre-calculated and passed directly</span>
+<span class="sd">        for efficiency purposes, if the function is used several times in a</span>
+<span class="sd">        row.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the binomial profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, assumed to be binomial,</span>
+<span class="sd">        in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, assumed to be binomial,</span>
+<span class="sd">        in time_array units</span>
+<span class="sd">    exponent : float</span>
+<span class="sd">        The exponent of the profile, assumed to be binomial</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian distribution and get mean and rms &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import binomial_from_width_ratio</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import _binomial_from_width_LUT_generation</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length, exponent = binomial_from_width_ratio(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # For a gaussian profile, the exponent of the corresponding binomial</span>
+<span class="sd">    &gt;&gt;&gt; # profile is infinity, higher values of exponents are required in the</span>
+<span class="sd">    &gt;&gt;&gt; # lookup table to have a better evaluation.</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; new_LUT = _binomial_from_width_LUT_generation(</span>
+<span class="sd">    &gt;&gt;&gt;    exponentMin=100, exponentMax=10000)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length, exponent = binomial_from_width_ratio(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array, ratio_LUT=new_LUT)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">ratio_LUT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">level1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">level2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">ratio_LUT</span> <span class="o">=</span> <span class="n">binomial_from_width_LUT_generation</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">level1</span><span class="p">,</span> <span class="n">level2</span><span class="p">])</span>
+        <span class="n">exponentArray</span><span class="p">,</span> <span class="n">ratioFWArray</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">ratio_LUT</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">exponentArray</span><span class="p">,</span> <span class="n">ratioFWArray</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">ratio_LUT</span>
+        <span class="n">level1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+        <span class="n">level2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+
+    <span class="c1"># Finding the width at two different levels</span>
+    <span class="n">bunchPosition_1</span><span class="p">,</span> <span class="n">bunchLength_1</span> <span class="o">=</span> <span class="n">FWHM</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level1</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">bunchPosition_2</span><span class="p">,</span> <span class="n">bunchLength_2</span> <span class="o">=</span> <span class="n">FWHM</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level2</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">ratioFW</span> <span class="o">=</span> <span class="n">bunchLength_1</span><span class="o">/</span><span class="n">bunchLength_2</span>
+
+    <span class="n">exponent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">ratioFW</span><span class="p">,</span> <span class="n">ratioFWArray</span><span class="p">,</span> <span class="n">exponentArray</span><span class="p">)</span>
+
+    <span class="n">full_length</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">bunchLength_2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level2</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponent</span><span class="p">))</span> <span class="o">+</span>
+        <span class="n">bunchLength_1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level1</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponent</span><span class="p">)))</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchLengthFactor</span><span class="o">*</span><span class="n">full_length</span> <span class="o">/</span> \
+        <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="o">+</span><span class="mf">2.</span><span class="o">*</span><span class="n">exponent</span><span class="p">))</span>
+
+    <span class="n">position</span><span class="p">,</span> <span class="n">amplitude</span> <span class="o">=</span> <span class="n">peak_value</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+    <span class="n">position</span> <span class="o">+=</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">bunchPositionOffset</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">bunchPosition_2</span><span class="o">-</span><span class="n">bunchLength_2</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">bunchPosition_2</span><span class="o">+</span><span class="n">bunchLength_2</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span>
+                 <span class="p">[</span><span class="n">level2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+                  <span class="n">level2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">bunchPosition_1</span><span class="o">-</span><span class="n">bunchLength_1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">bunchPosition_1</span><span class="o">+</span><span class="n">bunchLength_1</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span>
+                 <span class="p">[</span><span class="n">level1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+                  <span class="n">level1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)],</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">binomialAmplitudeN</span><span class="p">(</span>
+            <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span>
+                          <span class="n">position</span><span class="p">,</span>
+                          <span class="n">full_length</span><span class="p">,</span>
+                          <span class="n">exponent</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span><span class="p">,</span> <span class="n">exponent</span></div>
+
+
+<div class="viewcode-block" id="binomial_from_width_LUT_generation"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.binomial_from_width_LUT_generation">[docs]</a><span class="k">def</span> <span class="nf">binomial_from_width_LUT_generation</span><span class="p">(</span><span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+                                       <span class="n">exponent_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">exponent_max</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+                                       <span class="n">exponent_distrib</span><span class="o">=</span><span class="s1">&#39;logspace&#39;</span><span class="p">,</span>
+                                       <span class="n">exponent_npoints</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                                       <span class="n">exponent_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to create the lookup table (LUT) for the</span>
+<span class="sd">    binomial_from_width_ratio function.</span>
+
+<span class="sd">    TODO: return error if exponent_min&lt;0.5</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    levels : list or np.array with 2 elements</span>
+<span class="sd">        Optional: The levels at which the width of the profile is used</span>
+<span class="sd">        to evaluate the parameters of the fitting binomial profile.</span>
+<span class="sd">        Default is [0.8, 0.2]</span>
+<span class="sd">    exponent_min : float</span>
+<span class="sd">        Optional: The smallest exponent to consider for the binomial profile</span>
+<span class="sd">        Default is 0.5 (NB: cannot be smaller than 0.5)</span>
+<span class="sd">    exponent_max : float</span>
+<span class="sd">        Optional: The largest exponent to consider for the binomial profile</span>
+<span class="sd">        Default is 10. (NB: a higher value is necessary for Gaussian profiles)</span>
+<span class="sd">    exponent_distrib : str</span>
+<span class="sd">        Optional: Define how the exponent array of the LUT is distributed</span>
+<span class="sd">        The possible settings are:</span>
+
+<span class="sd">        - logspace: uses np.logspace (default)</span>
+
+<span class="sd">        - linspace: uses np.linspace</span>
+
+<span class="sd">    exponent_npoints: int</span>
+<span class="sd">        Optional: The number of points for the lookup table</span>
+<span class="sd">        Default is 100</span>
+<span class="sd">    exponent_array: list or np.array</span>
+<span class="sd">        Optional: This option replaces and discards all the other optional</span>
+<span class="sd">        inputs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    exponent_array : np.array</span>
+<span class="sd">        The expected binomial profile exponent corresponding to the ratio</span>
+<span class="sd">        of the Full-Widths for the specified levels</span>
+<span class="sd">    ratio_FW : np.array</span>
+<span class="sd">        The ratio of the Full-Widths corresponding to the exponent_array</span>
+<span class="sd">        for the specified levels</span>
+<span class="sd">    levels : list</span>
+<span class="sd">        The levels at which the width of the profile is used</span>
+<span class="sd">        to evaluate the parameters of the fitting binomial profile.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian distribution and get mean and rms &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import binomial_from_width_ratio</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import _binomial_from_width_LUT_generation</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; position, full_length, exponent = binomial_from_width_ratio(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # For a gaussian profile, the exponent of the corresponding binomial</span>
+<span class="sd">    &gt;&gt;&gt; # profile is infinity, higher values of exponents are required in the</span>
+<span class="sd">    &gt;&gt;&gt; # lookup table to have a better evaluation.</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; new_LUT = _binomial_from_width_LUT_generation(</span>
+<span class="sd">    &gt;&gt;&gt;    exponentMin=100, exponentMax=10000)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; position, full_length, exponent = binomial_from_width_ratio(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array, ratio_LUT=new_LUT)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">exponent_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exponent_distrib</span> <span class="o">==</span> <span class="s1">&#39;linspace&#39;</span><span class="p">:</span>
+            <span class="n">exponent_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">exponent_min</span><span class="p">,</span> <span class="n">exponent_max</span><span class="p">,</span>
+                                         <span class="n">exponent_npoints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">exponent_distrib</span> <span class="o">==</span> <span class="s1">&#39;logspace&#39;</span><span class="p">:</span>
+            <span class="n">exponent_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">exponent_min</span><span class="p">),</span>
+                                         <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">exponent_max</span><span class="p">),</span>
+                                         <span class="n">exponent_npoints</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s1">&#39;The input exponent_distrib in &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;binomial_from_width_LUT_generation is not valid&#39;</span><span class="p">)</span>
+
+    <span class="n">level1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+    <span class="n">level2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span>
+
+    <span class="n">ratio_FW</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level1</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponent_array</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">level2</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">exponent_array</span><span class="p">)))</span>
+
+    <span class="n">sorting_ratio_FW</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">ratio_FW</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">exponent_array</span><span class="p">[</span><span class="n">sorting_ratio_FW</span><span class="p">],</span> \
+        <span class="n">ratio_FW</span><span class="p">[</span><span class="n">sorting_ratio_FW</span><span class="p">],</span> <span class="p">[</span><span class="n">level1</span><span class="p">,</span> <span class="n">level2</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="gaussian_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.gaussian_fit">[docs]</a><span class="k">def</span> <span class="nf">gaussian_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span>
+                 <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Gaussian profile.</span>
+
+<span class="sd">    The function returns the parameters of a Gaussian profile as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.Gaussian</span>
+
+<span class="sd">    TODO: update with the new analytic_distribution implementation</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    rms_length : float</span>
+<span class="sd">        The rms length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian profile and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import gaussian_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = gaussian(time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, rms_length = gaussian_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">4.</span><span class="p">])</span>
+
+    <span class="n">fitDistribtion</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span><span class="p">,</span>
+        <span class="n">scale_means</span><span class="o">=</span><span class="s1">&#39;FWHM&#39;</span><span class="p">,</span> <span class="n">store_data</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">fitParameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span>
+                                          <span class="n">fitDistribtion</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+                                          <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fitParameters</span></div>
+
+
+<div class="viewcode-block" id="generalized_gaussian_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.generalized_gaussian_fit">[docs]</a><span class="k">def</span> <span class="nf">generalized_gaussian_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span>
+                             <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Generalized Gaussian profile.</span>
+
+<span class="sd">    The function returns the parameters of a Generalized Gaussian profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.generalizedGaussian</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    rms_length : float</span>
+<span class="sd">        The rms length of the profile, in time_array units</span>
+<span class="sd">    exponent : float</span>
+<span class="sd">        The exponent of the Generalized Gaussian profile</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Generalized Gaussian profile and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import generalizedGaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import generalized_gaussian_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt; exponent = 2.5</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = generalizedGaussian(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length, exponent])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, rms_length, exponent = generalized_gaussian_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">generalizedGaussian</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span>  <span class="c1"># 1 sigma !!</span>
+             <span class="mf">2.</span><span class="p">])</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="waterbag_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.waterbag_fit">[docs]</a><span class="k">def</span> <span class="nf">waterbag_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span>
+                 <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Waterbag profile.</span>
+
+<span class="sd">    The function returns the parameters of a Waterbag profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.waterbag</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Waterbag profile and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import waterbag</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import waterbag_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = waterbag(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length, exponent])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = waterbag_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">waterbag</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_line&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="parabolic_line_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.parabolic_line_fit">[docs]</a><span class="k">def</span> <span class="nf">parabolic_line_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span>
+                       <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Parabolic profile</span>
+<span class="sd">    (parabolic line density).</span>
+
+<span class="sd">    The function returns the parameters of a Parabolic profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.parabolicLine</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Parabolic profile and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import parabolicLine</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import parabolic_line_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = parabolicLine(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length, exponent])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = parabolic_line_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">parabolicLine</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_line&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="parabolic_amplitude_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.parabolic_amplitude_fit">[docs]</a><span class="k">def</span> <span class="nf">parabolic_amplitude_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Parabolic profile</span>
+<span class="sd">    (parabolic amplitude density in phase space).</span>
+
+<span class="sd">    The function returns the parameters of a Parabolic amplitude profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.parabolicAmplitude</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Parabolic amplitude distribution and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import parabolicAmplitude</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import parabolic_amplitude_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = parabolicAmplitude(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length, exponent])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = parabolic_amplitude_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">parabolicAmplitude</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="binomial_amplitude2_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.binomial_amplitude2_fit">[docs]</a><span class="k">def</span> <span class="nf">binomial_amplitude2_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Binomial profile, with exponent</span>
+<span class="sd">    2 (binomial density in phase space).</span>
+
+<span class="sd">    The function returns the parameters of a Binomial amplitude profile</span>
+<span class="sd">    with exponent 2 as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.binomialAmplitude2</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Binomial amplitude 2 distribution and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import binomialAmplitude2</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import binomial_amplitude2_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = binomial_amplitude2(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length, exponent])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = binomial_amplitude2_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">binomialAmplitude2</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="binomial_amplitudeN_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.binomial_amplitudeN_fit">[docs]</a><span class="k">def</span> <span class="nf">binomial_amplitudeN_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Binomial profile (binomial</span>
+<span class="sd">    amplitude in phase space).</span>
+
+<span class="sd">    The function returns the parameters of a Binomial profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.binomialAmplitudeN</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+<span class="sd">    exponent : float</span>
+<span class="sd">        The exponent of the Binomial profile</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Binomial distribution and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import binomialAmplitudeN</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import binomial_amplitudeN_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt; exponent = 2.5</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = binomialAmplitudeN(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length, exponent])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length, exponent = binomial_amplitudeN_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">binomialAmplitudeN</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Full bunch length!!</span>
+             <span class="mf">1.5</span><span class="p">])</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="cosine_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.cosine_fit">[docs]</a><span class="k">def</span> <span class="nf">cosine_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Cosine profile.</span>
+
+<span class="sd">    The function returns the parameters of a Cosine profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.cosine</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Cosine profile and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import cosine</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import cosine_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = cosine(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = cosine_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">cosine</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="cosine_squared_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.cosine_squared_fit">[docs]</a><span class="k">def</span> <span class="nf">cosine_squared_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">fitOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a Cosine Squared profile.</span>
+
+<span class="sd">    The function returns the parameters of a Cosine Squared profile</span>
+<span class="sd">    as defined in</span>
+<span class="sd">    blond_common.interfaces.beam.analytic_distribution.cosineSquared</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The amplitude of the profile, in data_array units</span>
+<span class="sd">    position : float</span>
+<span class="sd">        The central position of the profile, in time_array units</span>
+<span class="sd">    full_length : float</span>
+<span class="sd">        The full length of the profile, in time_array units</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Cosine profile and fit it &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import cosineSquared</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import cosine_squared_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = cosineSquared(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = cosine_squared_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profile_fit_function</span> <span class="o">=</span> <span class="n">analytic_distribution</span><span class="o">.</span><span class="n">cosineSquared</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fitOpt</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxProfile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data_array</span><span class="p">)</span>
+        <span class="n">fitOptFWHM</span> <span class="o">=</span> <span class="n">FitOptions</span><span class="p">(</span><span class="n">bunchLengthFactor</span><span class="o">=</span><span class="s1">&#39;parabolic_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">maxProfile</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">data_array</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="n">data_array</span> <span class="o">==</span> <span class="n">maxProfile</span><span class="p">]),</span>
+             <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                  <span class="n">data_array</span><span class="p">,</span>
+                  <span class="n">level</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOptFWHM</span><span class="p">,</span>
+                  <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mf">1.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># Full bunch length!!</span>
+
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+        <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+        <span class="n">fitOpt</span><span class="o">=</span><span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="n">plotOpt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+
+
+<div class="viewcode-block" id="arbitrary_profile_fit"><a class="viewcode-back" href="../../fitting.profile.html#blond_common.fitting.profile.arbitrary_profile_fit">[docs]</a><span class="k">def</span> <span class="nf">arbitrary_profile_fit</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">profile_fit_function</span><span class="p">,</span>
+                          <span class="n">fitOpt</span><span class="p">,</span> <span class="n">plotOpt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Function to fit a given profile with a user defined arbitrary profile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_array : list or np.array</span>
+<span class="sd">        The input time</span>
+<span class="sd">    data_array : list or np.array</span>
+<span class="sd">        The input profile</span>
+<span class="sd">    profile_fit_function : function</span>
+<span class="sd">        User defined function to fit the input data_array. The function</span>
+<span class="sd">        should have the input arguments (time_array, *fit_parameters)</span>
+<span class="sd">        and returns a profile_array which will be compared to data_array</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fitted_parameters : np.array</span>
+<span class="sd">        The fitted parameters, in the same order as defined by the user in</span>
+<span class="sd">        his profile_fit_function</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39; We generate a Gaussian profile and fit it, in this example we use</span>
+<span class="sd">    &gt;&gt;&gt; the same Gaussian function used to generate the input profile &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.interfaces.beam.analytic_distribution import Gaussian</span>
+<span class="sd">    &gt;&gt;&gt; from blond_common.fitting.profile import arbitrary_profile_fit</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; time_array = np.arange(0, 25e-9, 0.1e-9)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude = 1.</span>
+<span class="sd">    &gt;&gt;&gt; position = 13e-9</span>
+<span class="sd">    &gt;&gt;&gt; length = 2e-9</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; data_array = Gaussian(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, *[amplitude, position, length])</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; amplitude, position, full_length = arbitrary_profile_fit(</span>
+<span class="sd">    &gt;&gt;&gt;    time_array, data_array, Gaussian)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">profileToFit</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_array</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">nPointsNoise</span><span class="p">])</span>
+
+    <span class="c1"># Rescaling so that the fit parameters are around 1</span>
+    <span class="n">rescaleFactorX</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">rescaleFactorY</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">profileToFit</span><span class="p">)</span>
+
+    <span class="n">fitInitialParameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span><span class="p">)</span>
+
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rescaleFactorY</span>
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rescaleFactorX</span>
+    <span class="n">fitInitialParameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="n">rescaleFactorX</span>
+
+    <span class="c1"># Fitting</span>
+    <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fittingRoutine</span> <span class="o">==</span> <span class="s1">&#39;curve_fit&#39;</span><span class="p">:</span>
+
+        <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+            <span class="n">profile_fit_function</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">time_array</span><span class="o">-</span><span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">rescaleFactorX</span><span class="p">,</span>
+            <span class="n">profileToFit</span><span class="o">*</span><span class="n">rescaleFactorY</span><span class="p">,</span>
+            <span class="n">p0</span><span class="o">=</span><span class="n">fitInitialParameters</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">fittingRoutine</span> <span class="o">==</span> <span class="s1">&#39;minimize&#39;</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">fitOpt</span><span class="o">.</span><span class="n">residualFunction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fitOpt</span><span class="o">.</span><span class="n">residualFunction</span> <span class="o">=</span> <span class="n">vertical_least_square</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s1">&#39;The residualFunction in the FitOptions is not &#39;</span> <span class="o">+</span>
+                             <span class="s1">&#39;valid.&#39;</span><span class="p">)</span>
+
+        <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+            <span class="n">fitOpt</span><span class="o">.</span><span class="n">residualFunction</span><span class="p">,</span>
+            <span class="n">fitInitialParameters</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">profile_fit_function</span><span class="p">,</span>
+                  <span class="p">(</span><span class="n">time_array</span><span class="o">-</span><span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">rescaleFactorX</span><span class="p">,</span>
+                  <span class="n">profileToFit</span><span class="o">*</span><span class="n">rescaleFactorY</span><span class="p">),</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">options</span><span class="p">)[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s1">&#39;The fittingRoutine in the FitOptions is not &#39;</span> <span class="o">+</span>
+                         <span class="s1">&#39;valid.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Abs on fit parameters</span>
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fit_parameters</span><span class="p">)</span>
+
+    <span class="c1"># Rescaling back to the original dimensions</span>
+    <span class="n">fit_parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">rescaleFactorY</span>
+    <span class="n">fit_parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">rescaleFactorX</span>
+    <span class="n">fit_parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fit_parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/=</span> <span class="n">rescaleFactorX</span>
+
+    <span class="k">if</span> <span class="n">plotOpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">plotOpt</span><span class="o">.</span><span class="n">figname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">clf</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                 <span class="n">profileToFit</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                 <span class="n">profile_fit_function</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                                      <span class="o">*</span><span class="n">fitOpt</span><span class="o">.</span><span class="n">fitInitialParameters</span><span class="p">),</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Initial guess&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span>
+                 <span class="n">profile_fit_function</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="n">fit_parameters</span><span class="p">),</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fit&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">legend</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plotOpt</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.00001</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fit_parameters</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BLonD-admin
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

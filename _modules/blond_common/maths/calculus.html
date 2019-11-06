@@ -91,8 +91,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../fitting.html">fitting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../fitting.html#modules">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution.html">fitting.distribution module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../fitting.profile.html">fitting.profile module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../fitting.html#examples">Examples</a></li>
@@ -332,17 +331,12 @@
                 <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">min_val</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">max_val</span><span class="p">)])</span></div>
 
 
-<div class="viewcode-block" id="minmax_location_discrete"><a class="viewcode-back" href="../../maths.calculus.html#blond_common.maths.calculus.minmax_location_discrete">[docs]</a><span class="k">def</span> <span class="nf">minmax_location_discrete</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="minmax_location_discrete"><a class="viewcode-back" href="../../maths.calculus.html#blond_common.maths.calculus.minmax_location_discrete">[docs]</a><span class="k">def</span> <span class="nf">minmax_location_discrete</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Function to locate the minima and maxima of the f(x)</span>
 <span class="sd">    numerical function.&#39;&#39;&#39;</span>
 
     <span class="n">f_derivative</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">x_derivative</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
-    <span class="n">f_derivative</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_derivative</span><span class="p">,</span> <span class="n">f_derivative</span><span class="p">)</span>
-
     <span class="n">f_derivative_second</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f_derivative</span><span class="p">)</span>
-    <span class="n">f_derivative_second</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x_derivative</span><span class="p">,</span>
-                                    <span class="n">f_derivative_second</span><span class="p">)</span>
 
     <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
 
@@ -352,33 +346,14 @@
 
     <span class="n">indexes_min</span> <span class="o">=</span> <span class="n">f_derivative_zeros</span><span class="p">[</span>
         <span class="n">f_derivative_second</span><span class="p">[</span><span class="n">f_derivative_zeros</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">interp_min</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">indexes_min</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">f</span><span class="p">[</span><span class="n">indexes_min</span><span class="p">])</span> <span class="o">/</span>
-        <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">indexes_min</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">indexes_min</span><span class="p">]))</span>
-
     <span class="n">indexes_max</span> <span class="o">=</span> <span class="n">f_derivative_zeros</span><span class="p">[</span>
         <span class="n">f_derivative_second</span><span class="p">[</span><span class="n">f_derivative_zeros</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">interp_max</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">indexes_max</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">f</span><span class="p">[</span><span class="n">indexes_max</span><span class="p">])</span> <span class="o">/</span>
-        <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">indexes_max</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">indexes_max</span><span class="p">]))</span>
 
-    <span class="k">if</span> <span class="n">interp</span><span class="p">:</span>
-        <span class="n">min_x_position</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">indexes_min</span><span class="p">]</span> <span class="o">+</span> <span class="n">interp_min</span><span class="o">*</span><span class="p">(</span>
-            <span class="n">x</span><span class="p">[</span><span class="n">indexes_min</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">indexes_min</span><span class="p">])</span>
-        <span class="n">max_x_position</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">indexes_max</span><span class="p">]</span> <span class="o">+</span> <span class="n">interp_max</span><span class="o">*</span><span class="p">(</span>
-            <span class="n">x</span><span class="p">[</span><span class="n">indexes_max</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">indexes_max</span><span class="p">])</span>
+    <span class="n">min_x_position</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">indexes_min</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">max_x_position</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">indexes_max</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="n">min_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">min_x_position</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-        <span class="n">max_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">max_x_position</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">min_x_position</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span>
-            <span class="n">indexes_min</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">interp_min</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
-        <span class="n">max_x_position</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span>
-            <span class="n">indexes_max</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">interp_max</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
-
-        <span class="n">min_values</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">indexes_min</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">interp_min</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
-        <span class="n">max_values</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">indexes_max</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">interp_max</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
+    <span class="n">min_values</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">indexes_min</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">max_values</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">indexes_max</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
 

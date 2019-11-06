@@ -93,8 +93,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fitting.html">fitting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="fitting.html#modules">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="fitting.distribution.html">fitting.distribution module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fitting.profile.html">fitting.profile module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="fitting.html#examples">Examples</a></li>
@@ -187,24 +186,21 @@
 <span id="maths-calculus-module"></span><h1>maths.calculus module<a class="headerlink" href="#module-blond_common.maths.calculus" title="Permalink to this headline">¶</a></h1>
 <p><strong>Module to perform numeral calculus: integrals, derivatives, find 0, minima,
 maxima</strong></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Authors:</th><td class="field-body"><strong>Alexandre Lasheen</strong></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Authors</dt>
+<dd class="field-odd"><p><strong>Alexandre Lasheen</strong></p>
+</dd>
+</dl>
 <dl class="function">
 <dt id="blond_common.maths.calculus.deriv_cubic">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">deriv_cubic</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>tck=None</em>, <em>s=0</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#deriv_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.deriv_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">deriv_cubic</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">tck=None</em>, <em class="sig-param">s=0</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#deriv_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.deriv_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function returning the derivative of a given function y, using cubic spline
 interpolation</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.deriv_diff">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">deriv_diff</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#deriv_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.deriv_diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">deriv_diff</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#deriv_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.deriv_diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function returning the derivative of a given function y, using diff
 Since the returned array is 1 element shorter, a new_x array is also
 returned</p>
@@ -212,39 +208,39 @@ returned</p>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.deriv_gradient">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">deriv_gradient</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#deriv_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.deriv_gradient" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">deriv_gradient</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#deriv_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.deriv_gradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function returning the derivative of a given function y, using gradient</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.find_zeros_cubic">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">find_zeros_cubic</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>tck=None</em>, <em>s=0</em>, <em>rettck=False</em>, <em>mest=10</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#find_zeros_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.find_zeros_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">find_zeros_cubic</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">tck=None</em>, <em class="sig-param">s=0</em>, <em class="sig-param">rettck=False</em>, <em class="sig-param">mest=10</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#find_zeros_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.find_zeros_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to find the location of all zero crossings of a numerical function</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.integ_cubic">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">integ_cubic</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>constant=0.0</em>, <em>s=0</em>, <em>tck=None</em>, <em>tck_ader=None</em>, <em>rettck=False</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#integ_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.integ_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">integ_cubic</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">constant=0.0</em>, <em class="sig-param">s=0</em>, <em class="sig-param">tck=None</em>, <em class="sig-param">tck_ader=None</em>, <em class="sig-param">rettck=False</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#integ_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.integ_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function returning the primitive of a given function y, using cubic spline
 interpolation</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.integ_trapz">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">integ_trapz</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>constant=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#integ_trapz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.integ_trapz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">integ_trapz</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">constant=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#integ_trapz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.integ_trapz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function returning the primitive of a given function y, using cumtrapz</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.minmax_location_cubic">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">minmax_location_cubic</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>der=None</em>, <em>tck=None</em>, <em>tck_der=None</em>, <em>s=0</em>, <em>rettck=False</em>, <em>mest=10</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#minmax_location_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.minmax_location_cubic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">minmax_location_cubic</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">der=None</em>, <em class="sig-param">tck=None</em>, <em class="sig-param">tck_der=None</em>, <em class="sig-param">s=0</em>, <em class="sig-param">rettck=False</em>, <em class="sig-param">mest=10</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#minmax_location_cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.minmax_location_cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function returning the minima, maxima of a given function y,
 as well as their location in x</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="blond_common.maths.calculus.minmax_location_discrete">
-<code class="descclassname">blond_common.maths.calculus.</code><code class="descname">minmax_location_discrete</code><span class="sig-paren">(</span><em>x</em>, <em>f</em>, <em>interp=False</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#minmax_location_discrete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.minmax_location_discrete" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">blond_common.maths.calculus.</code><code class="sig-name descname">minmax_location_discrete</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">f</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/maths/calculus.html#minmax_location_discrete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.maths.calculus.minmax_location_discrete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to locate the minima and maxima of the f(x)
 numerical function.</p>
 </dd></dl>

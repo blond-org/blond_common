@@ -1,0 +1,1025 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fitting.profile module &mdash; BLonD Common  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="maths package" href="maths.html" />
+    <link rel="prev" title="fitting package" href="fitting.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BLonD Common
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interfaces.html">interfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="interfaces.input_parameters.html">interfaces.input_parameters package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="interfaces.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="fitting.html">fitting package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="fitting.html#modules">Modules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">fitting.profile module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fitting.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="maths.html">maths package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="maths.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="maths.calculus.html">maths.calculus module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="maths.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rf_functions.html">rf_functions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rf_functions.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rf_functions.potential.html">rf_functions.potential module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rf_functions.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BLonD Common</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="fitting.html">fitting package</a> &raquo;</li>
+        
+      <li>fitting.profile module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_modules/fitting.profile.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-blond_common.fitting.profile">
+<span id="fitting-profile-module"></span><h1>fitting.profile module<a class="headerlink" href="#module-blond_common.fitting.profile" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module with functions to fit profiles, such as bunch line densities</strong></p>
+<ul class="simple">
+<li><p>TODO: improve treatment of the baseline</p></li>
+<li><p>TODO: improve the implementation of options as dict and <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs</p></li>
+<li><p>TODO: For all fitting function, add formula and default initial guess for the fit</p></li>
+<li><p>TODO: detail options for each function, especially for fitting</p></li>
+<li><p>TODO: include the changes from interfaces.beam.analytic_distribution</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Authors</dt>
+<dd class="field-odd"><p><strong>Alexandre Lasheen</strong>, <strong>Juan F. Esteban Mueller</strong>,
+<strong>Markus Schwarz</strong></p>
+</dd>
+</dl>
+<dl class="function">
+<dt id="blond_common.fitting.profile.FWHM">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">FWHM</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">level=0.5</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#FWHM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.FWHM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the Full-Width at Half Maximum for a given
+profile. The Maximum corresponds to the numerical maximum of the
+data_array.</p>
+<p>TODO: add an option to use peakValue to get the Maximum, to have the option
+to get an averaged value of the maximum (e.g. at &gt;95%)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+<li><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Optional: The ratio from the maximum for which the width of the profile
+is returned
+Default is 0.5, as for Half of the Maximum</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>center</strong> (<em>float</em>) – The center of the Width at Half Maximum, in the units of time_array</p></li>
+<li><p><strong>fwhm</strong> (<em>float</em>) – The Full Width at Half Maximum, in the units of time_array
+NB: if the “level” option is set to any other value than 0.5,
+the output corresponds to the full width at the specified “level”
+of the maximum</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian distribution and get its FWHM &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">FWHM</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">center</span><span class="p">,</span> <span class="n">fwhm</span> <span class="o">=</span> <span class="n">FWHM</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="blond_common.fitting.profile.FitOptions">
+<em class="property">class </em><code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">FitOptions</code><span class="sig-paren">(</span><em class="sig-param">bunchLengthFactor=1.0</em>, <em class="sig-param">bunchPositionOffset=0.0</em>, <em class="sig-param">nPointsNoise=3</em>, <em class="sig-param">fitInitialParameters=None</em>, <em class="sig-param">bounds=None</em>, <em class="sig-param">fittingRoutine='curve_fit'</em>, <em class="sig-param">method='Powell'</em>, <em class="sig-param">options=None</em>, <em class="sig-param">residualFunction=None</em>, <em class="sig-param">extraOptions=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#FitOptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.FitOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="blond_common.fitting.profile.PlotOptions">
+<em class="property">class </em><code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">PlotOptions</code><span class="sig-paren">(</span><em class="sig-param">figname='Bunch profile'</em>, <em class="sig-param">clf=True</em>, <em class="sig-param">interactive=True</em>, <em class="sig-param">legend=True</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#PlotOptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.PlotOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.RMS">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">RMS</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#RMS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.RMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the mean and root mean square (RMS) of a profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mean</strong> (<em>float</em>) – The mean position of the profile, in time_array units</p></li>
+<li><p><strong>rms</strong> (<em>float</em>) – The rms length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian distribution and get mean and rms &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">RMS</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_position</span><span class="p">,</span> <span class="n">rms_length</span> <span class="o">=</span> <span class="n">RMS</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.arbitrary_profile_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">arbitrary_profile_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">profile_fit_function</em>, <em class="sig-param">fitOpt</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#arbitrary_profile_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.arbitrary_profile_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a user defined arbitrary profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+<li><p><strong>profile_fit_function</strong> (<em>function</em>) – User defined function to fit the input data_array. The function
+should have the input arguments (time_array, <a href="#id3"><span class="problematic" id="id4">*</span></a>fit_parameters)
+and returns a profile_array which will be compared to data_array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fitted_parameters</strong> – The fitted parameters, in the same order as defined by the user in
+his profile_fit_function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian profile and fit it, in this example we use</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">the same Gaussian function used to generate the input profile &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">Gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">arbitrary_profile_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">arbitrary_profile_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.binomial_amplitude2_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">binomial_amplitude2_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#binomial_amplitude2_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.binomial_amplitude2_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Binomial profile, with exponent
+2 (binomial density in phase space).</p>
+<p>The function returns the parameters of a Binomial amplitude profile
+with exponent 2 as defined in
+blond_common.interfaces.beam.analytic_distribution.binomialAmplitude2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Binomial amplitude 2 distribution and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">binomialAmplitude2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_amplitude2_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">binomial_amplitude2</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">binomial_amplitude2_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.binomial_amplitudeN_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">binomial_amplitudeN_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#binomial_amplitudeN_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.binomial_amplitudeN_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Binomial profile (binomial
+amplitude in phase space).</p>
+<p>The function returns the parameters of a Binomial profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.binomialAmplitudeN</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+<li><p><strong>exponent</strong> (<em>float</em>) – The exponent of the Binomial profile</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Binomial distribution and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">binomialAmplitudeN</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_amplitudeN_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exponent</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">binomialAmplitudeN</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span><span class="p">,</span> <span class="n">exponent</span> <span class="o">=</span> <span class="n">binomial_amplitudeN_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.binomial_from_width_LUT_generation">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">binomial_from_width_LUT_generation</code><span class="sig-paren">(</span><em class="sig-param">levels=[0.8, 0.2], exponent_min=0.5, exponent_max=10.0, exponent_distrib='logspace', exponent_npoints=100, exponent_array=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#binomial_from_width_LUT_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.binomial_from_width_LUT_generation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to create the lookup table (LUT) for the
+binomial_from_width_ratio function.</p>
+<p>TODO: return error if exponent_min&lt;0.5</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>levels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array with 2 elements</em>) – Optional: The levels at which the width of the profile is used
+to evaluate the parameters of the fitting binomial profile.
+Default is [0.8, 0.2]</p></li>
+<li><p><strong>exponent_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Optional: The smallest exponent to consider for the binomial profile
+Default is 0.5 (NB: cannot be smaller than 0.5)</p></li>
+<li><p><strong>exponent_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Optional: The largest exponent to consider for the binomial profile
+Default is 10. (NB: a higher value is necessary for Gaussian profiles)</p></li>
+<li><p><strong>exponent_distrib</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – <p>Optional: Define how the exponent array of the LUT is distributed
+The possible settings are:</p>
+<ul>
+<li><p>logspace: uses np.logspace (default)</p></li>
+<li><p>linspace: uses np.linspace</p></li>
+</ul>
+</p></li>
+<li><p><strong>exponent_npoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Optional: The number of points for the lookup table
+Default is 100</p></li>
+<li><p><strong>exponent_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – Optional: This option replaces and discards all the other optional
+inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>exponent_array</strong> (<em>np.array</em>) – The expected binomial profile exponent corresponding to the ratio
+of the Full-Widths for the specified levels</p></li>
+<li><p><strong>ratio_FW</strong> (<em>np.array</em>) – The ratio of the Full-Widths corresponding to the exponent_array
+for the specified levels</p></li>
+<li><p><strong>levels</strong> (<em>list</em>) – The levels at which the width of the profile is used
+to evaluate the parameters of the fitting binomial profile.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian distribution and get mean and rms &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_from_width_ratio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">_binomial_from_width_LUT_generation</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span><span class="p">,</span> <span class="n">full_length</span><span class="p">,</span> <span class="n">exponent</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For a gaussian profile, the exponent of the corresponding binomial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># profile is infinity, higher values of exponents are required in the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># lookup table to have a better evaluation.</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_LUT</span> <span class="o">=</span> <span class="n">_binomial_from_width_LUT_generation</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">exponentMin</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">exponentMax</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span><span class="p">,</span> <span class="n">full_length</span><span class="p">,</span> <span class="n">exponent</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">ratio_LUT</span><span class="o">=</span><span class="n">new_LUT</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.binomial_from_width_ratio">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">binomial_from_width_ratio</code><span class="sig-paren">(</span><em class="sig-param">time_array, data_array, levels=[0.8, 0.2], ratio_LUT=None, fitOpt=None, plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#binomial_from_width_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.binomial_from_width_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to evaluate the parameters of a binomial function, as defined
+in blond_common.interfaces.beam.analytic_distribution.binomial_amplitude,
+by using the width of the profile at two different levels as input.</p>
+<p>The function returns the parameters of a binomial profile as defined in
+blond_common.interfaces.beam.analytic_distribution.binomial_amplitude</p>
+<p>TODO: check if rms should be in the return list as well</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+<li><p><strong>levels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array with 2 elements</em>) – Optional: The levels at which the width of the profile is used
+to evaluate the parameters of the fitting binomial profile.
+Default is [0.8, 0.2]</p></li>
+<li><p><strong>ratio_LUT</strong> (<em>output from _binomial_from_width_LUT_generation</em>) – Optional: The function uses internally a lookup table obtained from the
+_binomial_from_width_LUT_generation function to evaluate the binomial
+parameters. The lookup table can be pre-calculated and passed directly
+for efficiency purposes, if the function is used several times in a
+row.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the binomial profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, assumed to be binomial,
+in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, assumed to be binomial,
+in time_array units</p></li>
+<li><p><strong>exponent</strong> (<em>float</em>) – The exponent of the profile, assumed to be binomial</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian distribution and get mean and rms &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">binomial_from_width_ratio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">_binomial_from_width_LUT_generation</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span><span class="p">,</span> <span class="n">exponent</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For a gaussian profile, the exponent of the corresponding binomial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># profile is infinity, higher values of exponents are required in the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># lookup table to have a better evaluation.</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_LUT</span> <span class="o">=</span> <span class="n">_binomial_from_width_LUT_generation</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">exponentMin</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">exponentMax</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span><span class="p">,</span> <span class="n">exponent</span> <span class="o">=</span> <span class="n">binomial_from_width_ratio</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">ratio_LUT</span><span class="o">=</span><span class="n">new_LUT</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.cosine_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">cosine_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#cosine_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.cosine_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Cosine profile.</p>
+<p>The function returns the parameters of a Cosine profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.cosine</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Cosine profile and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">cosine</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">cosine_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">cosine</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">cosine_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.cosine_squared_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">cosine_squared_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#cosine_squared_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.cosine_squared_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Cosine Squared profile.</p>
+<p>The function returns the parameters of a Cosine Squared profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.cosineSquared</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Cosine profile and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">cosineSquared</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">cosine_squared_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">cosineSquared</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">cosine_squared_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.gaussian_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">gaussian_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#gaussian_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.gaussian_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Gaussian profile.</p>
+<p>The function returns the parameters of a Gaussian profile as defined in
+blond_common.interfaces.beam.analytic_distribution.Gaussian</p>
+<p>TODO: update with the new analytic_distribution implementation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>rms_length</strong> (<em>float</em>) – The rms length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian profile and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">gaussian_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">rms_length</span> <span class="o">=</span> <span class="n">gaussian_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.generalized_gaussian_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">generalized_gaussian_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#generalized_gaussian_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.generalized_gaussian_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Generalized Gaussian profile.</p>
+<p>The function returns the parameters of a Generalized Gaussian profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.generalizedGaussian</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>rms_length</strong> (<em>float</em>) – The rms length of the profile, in time_array units</p></li>
+<li><p><strong>exponent</strong> (<em>float</em>) – The exponent of the Generalized Gaussian profile</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Generalized Gaussian profile and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">generalizedGaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">generalized_gaussian_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exponent</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">generalizedGaussian</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">rms_length</span><span class="p">,</span> <span class="n">exponent</span> <span class="o">=</span> <span class="n">generalized_gaussian_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.integrated_profile">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">integrated_profile</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">method='sum'</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#integrated_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.integrated_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to compute the integrated bunch profile.</p>
+<p>TODO: use the blond_common.maths package for integration functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – <p>The method used to do the integration, the possible inputs are:</p>
+<ul>
+<li><p>”sum”: uses np.sum (default)</p></li>
+<li><p>”trapz”: uses np.trapz</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>integrated_value</strong> – The integrated bunch profile, in the units of time_array*data_array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian distribution and get the integrated</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sd">profile &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">integrated_profile</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">integrated_value</span> <span class="o">=</span> <span class="n">integrated_profile</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.parabolic_amplitude_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">parabolic_amplitude_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#parabolic_amplitude_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.parabolic_amplitude_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Parabolic profile
+(parabolic amplitude density in phase space).</p>
+<p>The function returns the parameters of a Parabolic amplitude profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.parabolicAmplitude</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Parabolic amplitude distribution and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">parabolicAmplitude</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">parabolic_amplitude_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">parabolicAmplitude</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">parabolic_amplitude_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.parabolic_line_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">parabolic_line_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#parabolic_line_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.parabolic_line_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Parabolic profile
+(parabolic line density).</p>
+<p>The function returns the parameters of a Parabolic profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.parabolicLine</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Parabolic profile and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">parabolicLine</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">parabolic_line_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">parabolicLine</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">parabolic_line_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.peak_value">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">peak_value</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">level=1.0</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#peak_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.peak_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get the peak amplitude of the profile. If a “level”
+is passed, the function averages the points above the speicifed “level”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+<li><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Optional: The ratio of the maximum above which the profile is averaged
+Default is 1.0 to return the numerical maximum</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>position</strong> (<em>float</em>) – The position of the peak value, in the units of time_array</p></li>
+<li><p><strong>amplitude</strong> (<em>float</em>) – The peak amplitude, in the units of the data_array
+NB: if the “level” option is set to any other value than 1.0,
+the output corresponds to the peak, averaged for the points above
+the specified “level” of the maximum</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Gaussian distribution and get its peak amplitude &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">gaussian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">peak_value</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">gaussian</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">peak_position</span><span class="p">,</span> <span class="n">amplitude</span> <span class="o">=</span> <span class="n">peak_value</span><span class="p">(</span><span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="blond_common.fitting.profile.waterbag_fit">
+<code class="sig-prename descclassname">blond_common.fitting.profile.</code><code class="sig-name descname">waterbag_fit</code><span class="sig-paren">(</span><em class="sig-param">time_array</em>, <em class="sig-param">data_array</em>, <em class="sig-param">fitOpt=None</em>, <em class="sig-param">plotOpt=None</em><span class="sig-paren">)</span><a class="reference internal" href="blond_common/fitting/profile.html#waterbag_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blond_common.fitting.profile.waterbag_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to fit a given profile with a Waterbag profile.</p>
+<p>The function returns the parameters of a Waterbag profile
+as defined in
+blond_common.interfaces.beam.analytic_distribution.waterbag</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input time</p></li>
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>np.array</em>) – The input profile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>amplitude</strong> (<em>float</em>) – The amplitude of the profile, in data_array units</p></li>
+<li><p><strong>position</strong> (<em>float</em>) – The central position of the profile, in time_array units</p></li>
+<li><p><strong>full_length</strong> (<em>float</em>) – The full length of the profile, in time_array units</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sd">&#39;&#39;&#39; We generate a Waterbag profile and fit it &#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.interfaces.beam.analytic_distribution</span> <span class="k">import</span> <span class="n">waterbag</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">blond_common.fitting.profile</span> <span class="k">import</span> <span class="n">waterbag_fit</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">,</span> <span class="mf">0.1e-9</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="mf">13e-9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mf">2e-9</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_array</span> <span class="o">=</span> <span class="n">waterbag</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">exponent</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">amplitude</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">full_length</span> <span class="o">=</span> <span class="n">waterbag_fit</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time_array</span><span class="p">,</span> <span class="n">data_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="maths.html" class="btn btn-neutral float-right" title="maths package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="fitting.html" class="btn btn-neutral float-left" title="fitting package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BLonD-admin
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

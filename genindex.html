@@ -92,8 +92,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="_modules/fitting.html">fitting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="_modules/fitting.html#modules">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="_modules/fitting.distribution.html">fitting.distribution module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="_modules/fitting.distribution_functions.html">fitting.distribution_functions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_modules/fitting.profile.html">fitting.profile module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="_modules/fitting.html#examples">Examples</a></li>
@@ -216,6 +215,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.arbitrary_profile_fit">arbitrary_profile_fit() (in module blond_common.fitting.profile)</a>
+</li>
       <li><a href="_modules/rf_functions.potential.html#blond_common.rf_functions.potential.area_vs_hamiltonian_cubic">area_vs_hamiltonian_cubic() (in module blond_common.rf_functions.potential)</a>
 </li>
   </ul></td>
@@ -232,21 +233,17 @@
         <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring.Ring.beta">(blond_common.interfaces.input_parameters.ring.Ring attribute)</a>
 </li>
       </ul></li>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.binomialAmplitude2">binomialAmplitude2() (in module blond_common.fitting.distribution_functions)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.binomial_amplitude2_fit">binomial_amplitude2_fit() (in module blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.binomialAmplitude2Fit">binomialAmplitude2Fit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.binomial_amplitudeN_fit">binomial_amplitudeN_fit() (in module blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.binomialAmplitudeN">binomialAmplitudeN() (in module blond_common.fitting.distribution_functions)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.binomial_from_width_LUT_generation">binomial_from_width_LUT_generation() (in module blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.binomialAmplitudeNFit">binomialAmplitudeNFit() (in module blond_common.fitting.distribution)</a>
-</li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.binomialParametersFromRatio">binomialParametersFromRatio() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.binomial_from_width_ratio">binomial_from_width_ratio() (in module blond_common.fitting.profile)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_modules/fitting.distribution.html#module-blond_common.fitting.distribution">blond_common.fitting.distribution (module)</a>
-</li>
-      <li><a href="_modules/fitting.distribution_functions.html#module-blond_common.fitting.distribution_functions">blond_common.fitting.distribution_functions (module)</a>
+      <li><a href="_modules/fitting.profile.html#module-blond_common.fitting.profile">blond_common.fitting.profile (module)</a>
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#module-blond_common.interfaces.input_parameters.rf_parameters">blond_common.interfaces.input_parameters.rf_parameters (module)</a>
 </li>
@@ -274,17 +271,13 @@
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters_options.combine_rf_functions">combine_rf_functions() (in module blond_common.interfaces.input_parameters.rf_parameters_options)</a>
 </li>
-      <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring_options.convert_data">convert_data() (in module blond_common.interfaces.input_parameters.ring_options)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.cosine">cosine() (in module blond_common.fitting.distribution_functions)</a>
+      <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring_options.convert_data">convert_data() (in module blond_common.interfaces.input_parameters.ring_options)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.cosineFit">cosineFit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.cosine_fit">cosine_fit() (in module blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.cosineSquared">cosineSquared() (in module blond_common.fitting.distribution_functions)</a>
-</li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.cosineSquaredFit">cosineSquaredFit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.cosine_squared_fit">cosine_squared_fit() (in module blond_common.fitting.profile)</a>
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.RFStation.counter">counter (blond_common.interfaces.input_parameters.rf_parameters.RFStation attribute)</a>
 </li>
@@ -364,9 +357,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_modules/maths.calculus.html#blond_common.maths.calculus.find_zeros_cubic">find_zeros_cubic() (in module blond_common.maths.calculus)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.FitOptions">FitOptions (class in blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.FitOptions">FitOptions (class in blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.FWHM">FWHM() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.FWHM">FWHM() (in module blond_common.fitting.profile)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -380,15 +373,11 @@
         <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring.Ring.gamma">(blond_common.interfaces.input_parameters.ring.Ring attribute)</a>
 </li>
       </ul></li>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.gaussian">gaussian() (in module blond_common.fitting.distribution_functions)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.gaussianFit">gaussianFit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.gaussian_fit">gaussian_fit() (in module blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.generalizedGaussian">generalizedGaussian() (in module blond_common.fitting.distribution_functions)</a>
-</li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.generalizedGaussianFit">generalizedGaussianFit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.generalized_gaussian_fit">generalized_gaussian_fit() (in module blond_common.fitting.profile)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -409,6 +398,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_modules/maths.calculus.html#blond_common.maths.calculus.integ_trapz">integ_trapz() (in module blond_common.maths.calculus)</a>
+</li>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.integrated_profile">integrated_profile() (in module blond_common.fitting.profile)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -478,19 +469,15 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.parabolicAmplitude">parabolicAmplitude() (in module blond_common.fitting.distribution_functions)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.parabolic_amplitude_fit">parabolic_amplitude_fit() (in module blond_common.fitting.profile)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.parabolicAmplitudeFit">parabolicAmplitudeFit() (in module blond_common.fitting.distribution)</a>
-</li>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.parabolicLine">parabolicLine() (in module blond_common.fitting.distribution_functions)</a>
-</li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.parabolicLineFit">parabolicLineFit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.parabolic_line_fit">parabolic_line_fit() (in module blond_common.fitting.profile)</a>
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring.Ring.parameters_at_time">parameters_at_time() (blond_common.interfaces.input_parameters.ring.Ring method)</a>
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.RFStation.Particle">Particle (blond_common.interfaces.input_parameters.rf_parameters.RFStation attribute)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.peakValue">peakValue() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.peak_value">peak_value() (in module blond_common.fitting.profile)</a>
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.RFStation.phi_modulation">phi_modulation (blond_common.interfaces.input_parameters.rf_parameters.RFStation attribute)</a>
 </li>
@@ -504,13 +491,11 @@
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.rf_parameters.RFStation.phi_s">phi_s (blond_common.interfaces.input_parameters.rf_parameters.RFStation attribute)</a>
 </li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.PlotOptions">PlotOptions (class in blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.PlotOptions">PlotOptions (class in blond_common.fitting.profile)</a>
 </li>
       <li><a href="_modules/rf_functions.potential.html#blond_common.rf_functions.potential.potential_well_cut_cubic">potential_well_cut_cubic() (in module blond_common.rf_functions.potential)</a>
 </li>
       <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring_options.RingOptions.preprocess">preprocess() (blond_common.interfaces.input_parameters.ring_options.RingOptions method)</a>
-</li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.profileSum">profileSum() (in module blond_common.fitting.distribution)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -564,7 +549,7 @@
         <li><a href="_modules/interfaces.input_parameters.html#blond_common.interfaces.input_parameters.ring_options.RingOptions">(class in blond_common.interfaces.input_parameters.ring_options)</a>
 </li>
       </ul></li>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.RMS">RMS() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.RMS">RMS() (in module blond_common.fitting.profile)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -614,11 +599,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_modules/fitting.distribution_functions.html#blond_common.fitting.distribution_functions.waterbag">waterbag() (in module blond_common.fitting.distribution_functions)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_modules/fitting.distribution.html#blond_common.fitting.distribution.waterbagFit">waterbagFit() (in module blond_common.fitting.distribution)</a>
+      <li><a href="_modules/fitting.profile.html#blond_common.fitting.profile.waterbag_fit">waterbag_fit() (in module blond_common.fitting.profile)</a>
 </li>
   </ul></td>
 </tr></table>

@@ -1,7 +1,7 @@
-fitting.distribution module
+fitting.profile module
 ========================================================
 
-.. automodule:: blond_common.fitting.distribution
+.. automodule:: blond_common.fitting.profile
     :members:
     :undoc-members:
     :show-inheritance:
