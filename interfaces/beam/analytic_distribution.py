@@ -18,7 +18,6 @@ the distribution.py module**
 from __future__ import division
 import numpy as np
 import inspect
-# import scipy.special as special_fun
 from scipy.special import gamma
 
 # Other packages import
@@ -41,8 +40,8 @@ class _DistributionObject(object):
     ----------
     amplitude : float
         amplitude of the profile
-    position : float
-        position of the profile (usually the position of the maximum)
+    center : float
+        center of the profile (usually the center of the maximum)
     RMS : float
         RMS of the distribution
     FWHM : float
@@ -57,17 +56,12 @@ class _DistributionObject(object):
         zero
     integral : float
         the integrated profile/distribution
-    store_data : bool
-        if False, calls to functions like 'profile' return the value, otherwise
-        an attribute is created
 
     Methods
     ----------
     profile(t, *args)
         Computes the profile at 't'. If no extra args are passed, it computes
-        the profile using the object attributes (amplitdue, etc.). The
-        store_data keyword if the profile is returned or stored as a class
-        attribute.
+        the profile using the object attributes (amplitdue, etc.). 
     distribution(J)
         Computes the distribution function for action J or Hamiltonian H
     phase_space()
@@ -76,33 +70,9 @@ class _DistributionObject(object):
         Computes the spectrum at frequency 'f'
     '''
 
-    def __init__(self, store_data=None, **kwargs):
+    def __init__(self, **kwargs):
         self.amplitude = None
-        self.position = None
-
-        if store_data is None:
-            self.store_data = rcBLonDparams['distribution.store_data']
-        else:
-            self.store_data = store_data
-
-    @property
-    def store_data(self):
-        return self._store_data
-
-    @store_data.setter
-    def store_data(self, value):
-        self._store_data = value
-        if not value:
-            self._return_function = self._return_value
-        else:
-            self._return_function = self._store_value
-
-    def _return_value(self, arg):
-        return arg
-
-    def _store_value(self, value):
-        setattr(self, 'computed_'+inspect.currentframe().f_back.f_code.co_name,
-                value)
+        self.center = None
 
     @property
     def RMS(self):
@@ -166,12 +136,9 @@ class Gaussian(_DistributionObject):
 
     Parameters
     ----------
-    args :
-        If args has the three parameters amplitude, position, scale a
-        distribution object is created. If passed as
-        amplitude, position, scale, time the profile is computed at time
-        with these parameters. If passed as time, y_data a Gaussian fit
-        to these data is performed.
+    parameters : list or ndarray
+        [amplitude, center, scale]. If time_array is passed, a profile is returned
+        to be completed
     scale_means: str
         controlls how 'scale' is interpreted. Valid options are 'RMS',
         'FWHM', 'fourSigma_RMS', 'fourSigma_FWHM' (and 'full_bunch_length'
@@ -181,8 +148,8 @@ class Gaussian(_DistributionObject):
     ----------
     amplitude : float
         maximum $A$ of the Gaussian profile
-    position : float
-        position $t_0$ of the the maximum
+    center : float
+        center $t_0$ of the the maximum
     RMS : float
         RMS of the distribution
     FWHM : float
@@ -194,31 +161,61 @@ class Gaussian(_DistributionObject):
         $4\sigma_{FWHM} = 2/\sqrt(\ln 4) FWHM$
     full_bunch_length : np.inf
         infinity for Gaussian bunch
-    integral : np.inf
+    integral : float
         infinity for Gaussian bunch
     """
 
-    def __init__(self, *args, scale_means=None,
-                 store_data=None, **kwargs):
+    def __new__(cls, parameters, time_array=None, data_array=None, **kwargs):
 
-        _DistributionObject.__init__(self, store_data=store_data)
+        if parameters is not None and len(parameters) != 3:
+            raise ValueError(f'got {len(parameters)} parameters, but need 3')
+        
+        if time_array is not None:
+            if type(time_array) not in [list, np.ndarray]:
+                raise TypeError(f"time_array needs to be 'list' or 'np.array',"
+                                +" not {type(time_array)}")
+        
+        if data_array is not None:
+            if type(data_array) not in [list, np.ndarray]:
+                raise TypeError(f"data_array needs to be 'list' or 'np.array',"
+                                +" not {type(data_array)}")
 
-#        self.amplitude = amplitude  # other call signature
-#        self.position = position  # other call signature
+        if time_array is None and data_array is None\
+            or time_array is not None and data_array is not None:
+            return super(Gaussian, cls).__new__(cls)
+        elif parameters is not None and data_array is None:
 
-        if len(args) == 3:  # amplitude, position, scale
-            self.amplitude = args[0]
-            self.position = args[1]
-            scale = args[2]
-        elif len(args) == 4:  # amplitude, position, scale; profile computed below
-            self.amplitude = args[0]
-            self.position = args[1]
-            scale = args[2]
-        elif len(args) == 2:  # fit Gaussian to time, y_data
-            fitPars = profile.gaussianFit(args[0], args[1])
-            self.amplitude, self.position, scale = fitPars
+            time_array = np.array(time_array)
+            
+            if 'scale_means' not in kwargs:
+                scale_means = rcBLonDparams['distribution.scale_means']
+            else:
+                scale_means = kwargs['scale_means']
+            
+            # convert scale parameter to RMS
+            parameters[2] = Gaussian._computeBunchlengths(parameters[2],
+                                                          scale_means)[0]
+            
+            return cls._profile(*parameters, time_array)
         else:
-            raise ValueError("invalid number of arguments")
+            raise RuntimeError("ups, didn't see that coming...")
+
+    def __init__(self, parameters, time_array=None, data_array=None,
+                 scale_means=None, **kwargs):
+
+        _DistributionObject.__init__(self)
+
+        if time_array is None and data_array is None:
+            self.amplitude = parameters[0]
+            self.center = parameters[1]
+            scale = parameters[2]
+        elif parameters is None: # fit Gaussian to time and data arrays
+            fitPars = profile.gaussian_fit(time_array, data_array)
+            self.amplitude, self.center, scale = fitPars
+        else:
+            fitPars = profile.gaussian_fit(time_array, data_array,
+                  fitOpt=profile.FitOptions(fitInitialParameters=parameters))
+            self.amplitude, self.center, scale = fitPars
 
         if scale_means is None:
             scale_means = rcBLonDparams['distribution.scale_means']
@@ -235,25 +232,20 @@ class Gaussian(_DistributionObject):
             raise ValueError("'full_bunch_length' argument no possible for"
                              + " Gaussian")
 
-        if len(args) == 4:
-            # store_data needs to be True, since __init__ needs to return None
-            # TODO: maybe raise a warning, since this overwrites 'store_data'
-            self.profile(args[3], store_data=True)
-
-    def _computeBunchlenghtsFromRMS(self, RMS):
+    def _computeBunchlenghtsFromRMS(RMS):
         FWHM = 2*np.sqrt(np.log(4)) * RMS
         # return order is RMS, FWHM, fourSigma_RMS, fourSigma_FWHM, full_bunch_length
         return RMS, FWHM, 4*RMS, 2/np.sqrt(np.log(4)) * FWHM, np.inf
 
-    def _computeBunchlengths(self, value, scale_means):
+    def _computeBunchlengths(value, scale_means):
         if scale_means == 'RMS':
-            bls = self._computeBunchlenghtsFromRMS(value)
+            bls = Gaussian._computeBunchlenghtsFromRMS(value)
         elif scale_means == 'FWHM':
-            bls = self._computeBunchlenghtsFromRMS(value / (2*np.sqrt(np.log(4))))
+            bls = Gaussian._computeBunchlenghtsFromRMS(value / (2*np.sqrt(np.log(4))))
         elif scale_means == 'fourSigma_RMS':
-            bls = self._computeBunchlenghtsFromRMS(value/4)
+            bls = Gaussian._computeBunchlenghtsFromRMS(value/4)
         elif scale_means == 'fourSigma_FWHM':
-            bls = self._computeBunchlenghtsFromRMS(value/4)
+            bls = Gaussian._computeBunchlenghtsFromRMS(value/4)
         return bls
 
     @property
@@ -264,7 +256,7 @@ class Gaussian(_DistributionObject):
     def RMS(self, value):
         check_greater_zero(value, inspect.currentframe().f_code.co_name)
         self._RMS, self._FWHM, self._fourSigma_RMS, self._fourSigma_FWHM,\
-            self._full_bunch_length = self._computeBunchlenghtsFromRMS(value)
+            self._full_bunch_length = Gaussian._computeBunchlenghtsFromRMS(value)
 
     @property
     def FWHM(self):
@@ -308,50 +300,225 @@ class Gaussian(_DistributionObject):
     def profile(self, x, *args, **kwargs):
         """ Computes the Gaussian profile at x
         """
-
-        if 'store_data' in kwargs:
-            self.store_data = kwargs['store_data']
+        # profile needs to have this format to work with scipy fitfunctions
 
         if len(args) == 0:
-            return self._return_function(
-                    self._profile(x, self.amplitude, self.position, self.RMS))
+            return Gaussian._profile(self.amplitude, self.center, self.RMS, x)
         else:
             amplitude = args[0]
-            position = args[1]
+            center = args[1]
 
             if 'scale_means' not in kwargs:
                 scale_means = rcBLonDparams['distribution.scale_means']
             else:
                 scale_means = kwargs['scale_means']
+            
+            RMS = Gaussian._computeBunchlengths(args[2], scale_means)[0]  # first return value is RMS
 
-            RMS = self._computeBunchlengths(args[2], scale_means)[0]  # first return value is RMS
+            return Gaussian._profile(amplitude, center, RMS, x)
 
-            return self._return_function(
-                    self._profile(x, amplitude, position, RMS))
-
-    def _profile(self, x, amplitude, position, RMS):
-        return amplitude * np.exp(-0.5*(x-position)**2/RMS**2)
+    def _profile(amplitude, center, RMS, x):
+        return amplitude * np.exp(-0.5*(x-center)**2/RMS**2)
 
     def spectrum(self, f, **kwargs):
         """ Computes the Gaussian spectrum at frequency f
         """
         #TODO implement different factors of Fouriertransform
 
-        if 'store_data' in kwargs:
-            self.store_data = kwargs['store_data']
-
         return_value = np.sqrt(2*np.pi)*self.amplitude * self.RMS\
             * np.exp(-0.5*(2*np.pi*f*self.RMS)**2)
 
-        if self.position != 0.0:  # assures real spectrum for symmetric profile
-            return_value = return_value * np.exp(-2j*np.pi*self.position * f)
+        if self.center != 0.0:  # assures real spectrum for symmetric profile
+            return_value = return_value * np.exp(-2j*np.pi*self.center * f)
 
-        return self._return_function(return_value)
+        return return_value
+
+
+class BinomialAmplitudeN(_DistributionObject):
+
+    r""" Binominal amplitude function
+    .. math::
+        profile(t) = xxx \,
+
+    Parameters
+    ----------
+    args :
+        If args has the four parameters amplitude, center, scale, mu a
+        distribution object is created. If passed as
+        amplitude, center, scale, mu, time the profile is computed at time
+        with these parameters. If passed as time, y_data a BinomialAmplitudeN fit
+        to these data is performed.
+    scale_means: str
+        controlls how 'scale' is interpreted. Valid options are 'RMS',
+        'FWHM', 'fourSigma_RMS', 'fourSigma_FWHM', 'full_bunch_length'.
+
+    Attributes
+    ----------
+    amplitude : float
+        maximum $A$ of the Gaussian profile
+    center : float
+        center $t_0$ of the the maximum
+    RMS : float
+        RMS of the distribution
+    FWHM : float
+        FWHM of the distribution
+    fourSigma_RMS : float
+        $4\times$ RMS
+    fourSigma_FWHM : float
+        Gaussian equivalent $4\sigma$ from FWHM of profile; i.e.
+        $4\sigma_{FWHM} = 2/\sqrt(\ln 4) FWHM$
+    full_bunch_length : float
+        the length from the first zero of the profile function to the other
+        zero
+    integral : float
+        tbc
+    """
+
+#    def __init__(self, amplitude, center, scale, mu, scale_means=None):
+    def __init__(self, *args, scale_means=None):
+        
+        if len(args) == 4 or len(args) == 5:  # amplitude, center, scale, mu
+            self.amplitude = args[0]
+            self.center = args[1]
+            scale = args[2]
+            self.mu = args[3]
+        elif len(args) == 2:  # fit Gaussian to time, y_data
+            fitPars = profile.binomial_amplitudeN_fit(args[0], args[1])
+            self.amplitude, self.center, scale, self.mu = fitPars
+        else:
+            raise ValueError("invalid number of arguments")
+        
+        if scale_means is None:
+            scale_means = rcBLonDparams['distribution.scale_means']
+
+        if scale_means == 'RMS':
+            self.RMS = scale
+        elif scale_means == 'FWHM':
+            self.FWHM = scale
+        elif scale_means == 'fourSigma_RMS':
+            self.fourSigma_RMS = scale
+        elif scale_means == 'fourSigma_FWHM':
+            self.fourSigma_FWHM = scale
+        elif scale_means == 'full_bunch_length':
+            self.full_bunch_length = scale
+
+    def _computeBunchlenghtsFromRMS(self, RMS):
+        full_bunch_length = np.sqrt(16+8*self.mu)*RMS
+        FWHM = full_bunch_length / np.sqrt(1-1/2**(1/(self.mu+0.5)))
+        # return order is RMS, FWHM, fourSigma_RMS, fourSigma_FWHM, full_bunch_length
+        return RMS, FWHM, 4*RMS, 2/np.sqrt(np.log(4)) * FWHM, full_bunch_length
+
+    def _computeBunchlengths(self, value, scale_means):
+        if scale_means == 'RMS':
+            bls = self._computeBunchlenghtsFromRMS(value)
+        elif scale_means == 'FWHM':
+            bls = self._computeBunchlenghtsFromRMS(value 
+               / np.sqrt(16+8*self.mu) / np.sqrt(1-1/2**(1/(self.mu+0.5))))
+        elif scale_means == 'fourSigma_RMS':
+            bls = self._computeBunchlenghtsFromRMS(value/4)
+        elif scale_means == 'fourSigma_FWHM':
+            bls = self._computeBunchlenghtsFromRMS(value
+               / np.sqrt(16+8*self.mu) / np.sqrt(1-1/2**(1/(self.mu+0.5)))*0.5*np.sqrt(np.log(4)))
+        elif scale_means == 'full_bunch_length':
+            bls = self._computeBunchlenghtsFromRMS(value/np.sqrt(16+8*self.mu))
+        return bls
+
+    @property
+    def RMS(self):
+        return self._RMS
+
+    @RMS.setter
+    def RMS(self, value):
+        check_greater_zero(value, inspect.currentframe().f_code.co_name)
+        self._RMS, self._FWHM, self._fourSigma_RMS, self._fourSigma_FWHM,\
+            self._full_bunch_length = self._computeBunchlenghtsFromRMS(value)
+
+    @property
+    def FWHM(self):
+        return self._FWHM
+
+    @FWHM.setter
+    def FWHM(self, value):
+        check_greater_zero(value, inspect.currentframe().f_code.co_name)
+        self.RMS = value / np.sqrt(16+8*self.mu)\
+            / np.sqrt(1-1/2**(1/(self.mu+0.5)))  # updates all other parameters
+
+    @property
+    def fourSigma_RMS(self):
+        return self._fourSigma_RMS
+
+    @fourSigma_RMS.setter
+    def fourSigma_RMS(self, value):
+        check_greater_zero(value, inspect.currentframe().f_code.co_name)
+        self.RMS = value / 4  # updates all other parameters
+
+
+    @property
+    def fourSigma_FWHM(self):
+        return self._fourSigma_FWHM
+
+    @fourSigma_FWHM.setter
+    def fourSigma_FWHM(self, value):
+        check_greater_zero(value, inspect.currentframe().f_code.co_name)
+         # updates all other parameters
+        self.RMS =  value / np.sqrt(16+8*self.mu)\
+            / np.sqrt(1-1/2**(1/(self.mu+0.5))) * 0.5*np.sqrt(np.log(4))
+
+    @property
+    def full_bunch_length(self):
+        return self._full_bunch_length
+
+    @full_bunch_length.setter
+    def full_bunch_length(self, value):
+        check_greater_zero(value, inspect.currentframe().f_code.co_name)
+        self.RMS = value / np.sqrt(16+8*self.mu)
+
+    @property
+    def integral(self):
+        return self.amplitude * 0.5*np.sqrt(np.pi) * gamma(self.mu+1.5)\
+            * self.full_bunch_length / gamma(self.mu+2) 
+
+    def profile(self, x, *args, **kwargs):
+        """ Computes the Binominal amplitude N profile at x
+        """
+        
+        if len(args) == 0:
+            return self._profile(x, self.amplitude, self.center, self.RMS)
+        else:
+            amplitude = args[0]
+            center = args[1]
+            mu = args[3]
+
+            if 'scale_means' not in kwargs:
+                scale_means = rcBLonDparams['distribution.scale_means']
+            else:
+                scale_means = kwargs['scale_means']
+            
+            full_bunch_length\
+                = self._computeBunchlengths(args[2], scale_means)[-1]  # last return value is fbl
+
+            return self._profile(x, amplitude, center, full_bunch_length, mu)
+
+
+    def _profile(self, x, amplitude, center, full_bunch_length, mu):
+         try:
+             return_value = np.zeros(len(x))
+             
+             indexes = np.abs(x-center) <= full_bunch_length/2
+             return_value[indexes] = amplitude\
+                 * (1- (2*(x[indexes]-center)/full_bunch_length)**2)**(mu+0.5)            
+         except TypeError:
+             if np.abs(x-center) <= full_bunch_length/2:
+                 return_value = amplitude\
+                     * (1- (2*(x-center)/full_bunch_length)**2)**(mu+0.5)
+             else:
+                 return_value = 0.0
+         return return_value
 
 
 # class BinomialAmplitudeN(_DistributionObject):
 #     
-#     def __init__(self, amplitude, position, scale, mu, scale_means=None, **kwargs):
+#     def __init__(self, amplitude, center, scale, mu, scale_means=None, **kwargs):
 #         r"""
 #         amplitude, center, scale, others
 #         scale_means='RMS', 'FWHM', ...
@@ -359,7 +526,7 @@ class Gaussian(_DistributionObject):
 #         _DistributionObject.__init__(self)
 #                 
 #         self.amplitude = amplitude
-#         self.position = position
+#         self.center = center
 #         self.mu = mu
 #         
 #         if scale_means is None:
@@ -427,13 +594,13 @@ class Gaussian(_DistributionObject):
 #         try:
 #             return_value = np.zeros(len(x))
 #             
-#             indexes = np.abs(x-self.position) <= self.full_bunch_length/2
+#             indexes = np.abs(x-self.center) <= self.full_bunch_length/2
 #             return_value[indexes] = self.amplitude\
-#                 * (1- (2*(x[indexes]-self.position)/self.full_bunch_length)**2)**(self.mu+0.5)            
+#                 * (1- (2*(x[indexes]-self.center)/self.full_bunch_length)**2)**(self.mu+0.5)            
 #         except:
-#             if np.abs(x-self.position) <= self.full_bunch_length/2:
+#             if np.abs(x-self.center) <= self.full_bunch_length/2:
 #                 return_value = self.amplitude\
-#                     * (1- (2*(x-self.position)/self.full_bunch_length)**2)**(self.mu+0.5)
+#                     * (1- (2*(x-self.center)/self.full_bunch_length)**2)**(self.mu+0.5)
 #             else:
 #                 return_value = 0.0
 #         return return_value
@@ -446,25 +613,25 @@ class Gaussian(_DistributionObject):
 #             * special_fun.gamma(self.mu+1.5) / (2*special_fun.gamma(self.mu+2))\
 #             * special_fun.hyp0f1(self.mu+2, -(0.5*np.pi*self.full_bunch_length*f)**2)
 #         
-#         if self.position != 0.0:
-#             return_value = return_value * np.exp(-2j*np.pi*self.position * f)
+#         if self.center != 0.0:
+#             return_value = return_value * np.exp(-2j*np.pi*self.center * f)
 #         
 #         return return_value
 
 
-def gaussian(time, *fitParameters):
-    '''
-    Gaussian line density
-    '''
-
-    amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
-    sigma = abs(fitParameters[2])
-
-    lineDensityFunction = amplitude * np.exp(
-        -(time-bunchPosition)**2/(2*sigma**2))
-
-    return lineDensityFunction
+#def gaussian(time, *fitParameters):
+#    '''
+#    Gaussian line density
+#    '''
+#
+#    amplitude = fitParameters[0]
+#    bunchcenter = fitParameters[1]
+#    sigma = abs(fitParameters[2])
+#
+#    lineDensityFunction = amplitude * np.exp(
+#        -(time-bunchcenter)**2/(2*sigma**2))
+#
+#    return lineDensityFunction
 
 
 def generalizedGaussian(time, *fitParameters):
@@ -473,12 +640,12 @@ def generalizedGaussian(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     alpha = abs(fitParameters[2])
     exponent = abs(fitParameters[3])
 
     lineDensityFunction = amplitude * np.exp(
-        -(np.abs(time - bunchPosition)/(2*alpha))**exponent)
+        -(np.abs(time - bunchcenter)/(2*alpha))**exponent)
 
     return lineDensityFunction
 
@@ -489,13 +656,13 @@ def waterbag(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * (1-(
-            (time[np.abs(time-bunchPosition) < bunchLength/2]-bunchPosition) /
+            (time[np.abs(time-bunchcenter) < bunchLength/2]-bunchcenter) /
             (bunchLength/2))**2)**0.5
 
     return lineDensityFunction
@@ -507,13 +674,13 @@ def parabolicLine(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * (1-(
-            (time[np.abs(time-bunchPosition) < bunchLength/2]-bunchPosition) /
+            (time[np.abs(time-bunchcenter) < bunchLength/2]-bunchcenter) /
             (bunchLength/2))**2)
 
     return lineDensityFunction
@@ -525,13 +692,13 @@ def parabolicAmplitude(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * (1-(
-            (time[np.abs(time-bunchPosition) < bunchLength/2]-bunchPosition) /
+            (time[np.abs(time-bunchcenter) < bunchLength/2]-bunchcenter) /
             (bunchLength/2))**2)**1.5
 
     return lineDensityFunction
@@ -543,13 +710,13 @@ def binomialAmplitude2(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * (1-(
-            (time[np.abs(time-bunchPosition) < bunchLength/2]-bunchPosition) /
+            (time[np.abs(time-bunchcenter) < bunchLength/2]-bunchcenter) /
             (bunchLength/2))**2)**2.
 
     return lineDensityFunction
@@ -561,14 +728,14 @@ def binomialAmplitudeN(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
     exponent = abs(fitParameters[3])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * (1-(
-            (time[np.abs(time-bunchPosition) < bunchLength/2]-bunchPosition) /
+            (time[np.abs(time-bunchcenter) < bunchLength/2]-bunchcenter) /
             (bunchLength/2))**2)**exponent
 
     return lineDensityFunction
@@ -614,14 +781,14 @@ def cosine(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * np.cos(
-            np.pi*(time[np.abs(time-bunchPosition) < bunchLength/2] -
-                   bunchPosition) / bunchLength)
+            np.pi*(time[np.abs(time-bunchcenter) < bunchLength/2] -
+                   bunchcenter) / bunchLength)
 
     return lineDensityFunction
 
@@ -632,13 +799,13 @@ def cosineSquared(time, *fitParameters):
     '''
 
     amplitude = fitParameters[0]
-    bunchPosition = fitParameters[1]
+    bunchcenter = fitParameters[1]
     bunchLength = abs(fitParameters[2])
 
     lineDensityFunction = np.zeros(len(time))
-    lineDensityFunction[np.abs(time-bunchPosition) < bunchLength/2] = \
+    lineDensityFunction[np.abs(time-bunchcenter) < bunchLength/2] = \
         amplitude * np.cos(
-            np.pi*(time[np.abs(time-bunchPosition) < bunchLength/2] -
-                   bunchPosition) / bunchLength)**2.
+            np.pi*(time[np.abs(time-bunchcenter) < bunchLength/2] -
+                   bunchcenter) / bunchLength)**2.
 
     return lineDensityFunction
