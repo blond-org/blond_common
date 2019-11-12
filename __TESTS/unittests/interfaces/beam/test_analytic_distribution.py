@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 """
-Unit-test for distribution.py
+Unit-test for analytic_distribution.py
 :Authors: **Markus Schwarz**
 """
 
@@ -65,9 +65,9 @@ class TestDistributionsBaseClass(unittest.TestCase):
         # Test if base class has amplitude
         self.assertHasAttribute(self.test_object, 'amplitude')
 
-    def test_base_class_attribute_position(self):
+    def test_base_class_attribute_center(self):
         # Test if base class has amplitude
-        self.assertHasAttribute(self.test_object, 'position')
+        self.assertHasAttribute(self.test_object, 'center')
 
     def test_base_class_attribute_RMS(self):
         # Test if base class RMS returns RuntimeError
@@ -99,7 +99,17 @@ class TestDistributionsBaseClass(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.test_object.profile()
 
-    def test_base_class_attribute_spectrum(self):
+    def test_base_class_spectrum(self):
+        # Test if base class.spectrum() throws RuntimeError
+        with self.assertRaises(RuntimeError):
+            self.test_object.spectrum()
+
+    def test_base_class_parameters(self):
+        # Test if base class.spectrum() throws RuntimeError
+        with self.assertRaises(RuntimeError):
+            self.test_object.get_parameters()
+
+    def test_base_class_attribute_integral(self):
         # Test if base class.spectrum() throws RuntimeError
         with self.assertRaises(RuntimeError):
             self.test_object.profile()
@@ -110,39 +120,69 @@ class TestDistributionsGaussianClass(unittest.TestCase):
     # Initialization ----------------------------------------------------------
 
     def setUp(self):
-        self.gaussian_object = analytic_distribution.Gaussian(1, 0.0, 1)
+        self.gaussian_object = analytic_distribution.Gaussian([1, 0.0, 1])
 
     def test_negative_bunch_length_exception(self):
         with self.assertRaises(ValueError):
-            analytic_distribution.Gaussian(1, 0.0, -42)
+            analytic_distribution.Gaussian([1, 0.0, -42])
 
     def test_amplitude(self):
-        self.assertEqual(self.gaussian_object.amplitude, 1)
+        self.assertAlmostEqual(self.gaussian_object.amplitude, 1)
 
-    def test_position(self):
-        self.assertEqual(self.gaussian_object.position, 0.0)
+    def test_center(self):
+        self.assertAlmostEqual(self.gaussian_object.center, 0.0)
 
     def test_RMS(self):
-        self.assertEqual(self.gaussian_object.RMS, 1)
+        self.assertAlmostEqual(self.gaussian_object.RMS, 1)
 
     def test_FWHM(self):
-        self.assertEqual(self.gaussian_object.FWHM, 2*np.sqrt(np.log(4))*1)
+        self.assertAlmostEqual(self.gaussian_object.FWHM, 2*np.sqrt(np.log(4))*1)
 
     def test_RMS_update(self):
         # test if RMS updates correctly when FWHM is changed
         new_FWHM = 42
         self.gaussian_object.FWHM = new_FWHM
-        self.assertEqual(self.gaussian_object.RMS, 17.8357578060484)
-
+        self.assertAlmostEqual(self.gaussian_object.RMS, 17.8357578060484)
+        
     def test_profile_amplitude(self):
-        self.assertEqual(self.gaussian_object.profile(0), 1)
+        self.assertAlmostEqual(self.gaussian_object.profile(0), 1)
+    
+    def test_get_parameters(self):
+        np.testing.assert_almost_equal(self.gaussian_object.get_parameters(),
+                                       np.array([1, 0.0, 1]))
+    
+    def test_integral(self):
+        self.assertAlmostEqual(self.gaussian_object.integral,
+                               2.5066282746310002)
+    
+    def test_call_signature1(self):
+        time_array = np.linspace(-4, 4, num=10)
+        profile = analytic_distribution.Gaussian([1, 0.0, 1], time_array)
+        
+        self.assertTrue(type(profile), np.ndarray)
+        
+        np.testing.assert_almost_equal(profile,
+           np.array([3.35462628e-04, 7.91095973e-03, 8.46579886e-02,
+                     4.11112291e-01, 9.05955191e-01, 9.05955191e-01,
+                     4.11112291e-01, 8.46579886e-02, 7.91095973e-03,
+                     3.35462628e-04]))
 
-    def test_store_data_hasProfile(self):
-        test = analytic_distribution.Gaussian(1, 0.0, 1, store_data=True)
-        test.profile(0)
-        self.assertTrue(hasattr(test, 'computed_profile'))
+    def test_initial_fit(self):
+        x_data = np.linspace(-4,4,num=50)
+        profile = analytic_distribution.Gaussian([2,0.1,1], time_array=x_data)
+        
+        np.random.seed(1789*1989)
+        y_data = profile + np.random.normal(0,0.05, size=profile.size)
+        
+        fitted_gauss = analytic_distribution.Gaussian(None, x_data, y_data)
+        
+        self.assertTrue(type(fitted_gauss.get_parameters()), np.ndarray)
+        
+        np.testing.assert_almost_equal(fitted_gauss.get_parameters(),
+           np.array([1.9742753502240824, 0.0832928729810476,
+                     0.9837783914364183]))
 
-
+    
 if __name__ == '__main__':
 
     unittest.main()

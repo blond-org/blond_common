@@ -687,8 +687,7 @@ def gaussian_fit(time_array, data_array,
             [maxProfile-np.min(data_array),
              np.mean(time_array[data_array == maxProfile]),
              FWHM(time_array, data_array, level=0.5,
-                  fitOpt=fitOptFWHM)[1]/4.])
-    #TODO: this factor 1/4 seems wrong...
+                  fitOpt=fitOptFWHM)[1]])
 
     fitDistribtion = analytic_distribution.Gaussian(
         fitOpt.fitInitialParameters, scale_means='FWHM')

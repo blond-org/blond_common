@@ -10,19 +10,26 @@ from matplotlib import pyplot as plt
 
 from blond_common.interfaces.beam.analytic_distribution import Gaussian
 
-objGauss = Gaussian(1,0,3, store_data=False)
-
+input_parameters = [2,0.1,1]
 time = np.linspace(-4,4,num=50)
+gauss_profile = Gaussian(input_parameters, time_array=time)
 
-objGauss = Gaussian(1,0,1, time, store_data=True)
+# add some noise to the profile
+np.random.seed(1789*1989)
+y_data = gauss_profile + np.random.normal(0,0.05, 
+                                          size=gauss_profile.size)
 
-y_data = objGauss.computed_profile + np.random.normal(0,0.01,
-                                          size=objGauss.computed_profile.size)
+# create new Gaussian object and perform a Gaussian fit by passing x and y data
+fitGauss = Gaussian(None, time, y_data)
 
-fitGauss = Gaussian(time, y_data)
-tmp = objGauss.profile(4)
+print(f"input paramters: {input_parameters}")
+print(f"paramters of fitted profile: {np.round(fitGauss.get_parameters(),3)}")
+# should be [1.974 0.083 0.984]
 
 plt.figure('fitted profile', clear=True)
 plt.grid()
-plt.plot(time, y_data)
-plt.plot(time, fitGauss.profile(time), '--')
+plt.plot(time, gauss_profile, label='analytic')
+plt.plot(time, fitGauss.profile(time), '--', label='gaussian fit')
+plt.plot(time, y_data, '.', label='nosy data')
+plt.legend()
+plt.tight_layout()

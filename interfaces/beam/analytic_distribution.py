@@ -55,7 +55,7 @@ class _DistributionObject(object):
         the length from the first zero of the profile function to the other
         zero
     integral : float
-        the integrated profile/distribution
+        the analytic integral based on the parameters
 
     Methods
     ----------
@@ -68,6 +68,8 @@ class _DistributionObject(object):
         Computes the 2d phase_space in (dt, dE) coordinates
     spectrum(f)
         Computes the spectrum at frequency 'f'
+    parameters()
+        Returns all parameters describing the profile (e.g. amplitude, center)
     '''
 
     def __init__(self, **kwargs):
@@ -127,22 +129,35 @@ class _DistributionObject(object):
         """
         raise RuntimeError(
             '%s not implemented' % (inspect.currentframe().f_code.co_name))
-
+        
+    def get_parameters(self):
+        r""" Returns all parameters describing the profile
+        """
+        raise RuntimeError(
+            '%s not implemented' % (inspect.currentframe().f_code.co_name))
+        
 
 class Gaussian(_DistributionObject):
     r""" Gaussian profile function
     .. math::
-        profile(t) = A\,\exp(-(t-t_0)^2/2\sigma^2) \,
-
+        profile(t) = A\,\exp(-(t-t_0)^2/2\sigma^2) \,,
+    
     Parameters
     ----------
     parameters : list or ndarray
-        [amplitude, center, scale]. If time_array is passed, a profile is returned
-        to be completed
-    scale_means: str
-        controlls how 'scale' is interpreted. Valid options are 'RMS',
-        'FWHM', 'fourSigma_RMS', 'fourSigma_FWHM' (and 'full_bunch_length'
-        for other distributions)
+        [amplitude, center, scale]. How `scale` is interpreted depends on 
+        `scale_means`.
+    time_array : ndarray, optional
+        Returns Gaussian profile evaluated at `time_array`. No `Gaussian` 
+        object is created.
+    data_array : ndarray, optional
+        Create a `Gaussian` with parameters obtained by fitting to
+        (`time_array`, `data_array`). If `parameters` are passed, they are
+        used as initial guesses for the fitting method.
+    scale_means: str, optional
+        Controlls how `scale` is interpreted. Valid options are 'RMS',
+        'FWHM', 'fourSigma_RMS', 'fourSigma_FWHM' ('full_bunch_length'
+        is not valid for `Gaussian`)
 
     Attributes
     ----------
@@ -162,7 +177,7 @@ class Gaussian(_DistributionObject):
     full_bunch_length : np.inf
         infinity for Gaussian bunch
     integral : float
-        infinity for Gaussian bunch
+        $\sqrt{2\pi} A \sigma$, analytic integral of profile
     """
 
     def __new__(cls, parameters, time_array=None, data_array=None, **kwargs):
@@ -219,7 +234,7 @@ class Gaussian(_DistributionObject):
 
         if scale_means is None:
             scale_means = rcBLonDparams['distribution.scale_means']
-
+        
         if scale_means == 'RMS':
             self.RMS = scale
         elif scale_means == 'FWHM':
@@ -229,12 +244,31 @@ class Gaussian(_DistributionObject):
         elif scale_means == 'fourSigma_FWHM':
             self.fourSigma_FWHM = scale
         elif scale_means == 'full_bunch_length':
-            raise ValueError("'full_bunch_length' argument no possible for"
-                             + " Gaussian")
+            raise ValueError("'full_bunch_length' argument no possible for "
+                             + "Gaussian profile")
+
+    def get_parameters(self, scale_means=None):
+        if scale_means is None:
+            scale_means = rcBLonDparams['distribution.scale_means']  
+        
+        if scale_means == 'RMS':
+            scale = self.RMS
+        elif scale_means == 'FWHM':
+            scale = self.FWHM
+        elif scale_means == 'fourSigma_RMS':
+            scale = self.fourSigma_RMS
+        elif scale_means == 'fourSigma_FWHM':
+            scale = self.fourSigma_FWHM
+        elif scale_means == 'full_bunch_length':
+            raise ValueError("'full_bunch_length' argument no possible for "
+                             + "Gaussian profile")
+
+        return np.array([self.amplitude, self.center, scale])
 
     def _computeBunchlenghtsFromRMS(RMS):
         FWHM = 2*np.sqrt(np.log(4)) * RMS
-        # return order is RMS, FWHM, fourSigma_RMS, fourSigma_FWHM, full_bunch_length
+        # return order is:
+        # RMS, FWHM, fourSigma_RMS, fourSigma_FWHM, full_bunch_length
         return RMS, FWHM, 4*RMS, 2/np.sqrt(np.log(4)) * FWHM, np.inf
 
     def _computeBunchlengths(value, scale_means):
@@ -401,6 +435,23 @@ class BinomialAmplitudeN(_DistributionObject):
             self.fourSigma_FWHM = scale
         elif scale_means == 'full_bunch_length':
             self.full_bunch_length = scale
+
+    def get_parameters(self, scale_means=None):
+        if scale_means is None:
+            scale_means = rcBLonDparams['distribution.scale_means']  
+        
+        if scale_means == 'RMS':
+            scale = self.RMS
+        elif scale_means == 'FWHM':
+            scale = self.FWHM
+        elif scale_means == 'fourSigma_RMS':
+            scale = self.fourSigma_RMS
+        elif scale_means == 'fourSigma_FWHM':
+            scale = self.fourSigma_FWHM
+        elif scale_means == 'full_bunch_length':
+            scale = self.full_bunch_length
+
+        return np.array([self.amplitude, self.center, scale, self.mu])
 
     def _computeBunchlenghtsFromRMS(self, RMS):
         full_bunch_length = np.sqrt(16+8*self.mu)*RMS
