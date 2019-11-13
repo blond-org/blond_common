@@ -639,8 +639,6 @@ def gaussian_fit(time_array, data_array,
     The function returns the parameters of a Gaussian profile as defined in
     blond_common.interfaces.beam.analytic_distribution.Gaussian
 
-    TODO: update with the new analytic_distribution implementation
-
     Parameters
     ----------
     time_array : list or np.array
@@ -682,21 +680,22 @@ def gaussian_fit(time_array, data_array,
 
     if fitOpt.fitInitialParameters is None:
         maxProfile = np.max(data_array)
-        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
+#        fitOptFWHM = FitOptions(bunchLengthFactor='gaussian')
         fitOpt.fitInitialParameters = np.array(
             [maxProfile-np.min(data_array),
              np.mean(time_array[data_array == maxProfile]),
-             FWHM(time_array, data_array, level=0.5,
-                  fitOpt=fitOptFWHM)[1]])
+             FWHM(time_array, data_array, level=0.5)[1]])
+        scale_means = 'FWHM'
+        #TODO need to pass 'scale_means' to analytic_distribution; also in other fit methods
 
-    fitDistribtion = analytic_distribution.Gaussian(
-        fitOpt.fitInitialParameters, scale_means='FWHM')
+    fit_distribtion = analytic_distribution.Gaussian(
+            fitOpt.fitInitialParameters, scale_means='FWHM')
 
-    fitParameters = arbitrary_profile_fit(time_array, data_array,
-                                          fitDistribtion.profile,
-                                          fitOpt=fitOpt, plotOpt=plotOpt)
+    fit_parameters = arbitrary_profile_fit(time_array, data_array,
+                                           fit_distribtion.profile,
+                                           fitOpt=fitOpt, plotOpt=plotOpt)
 
-    return fitParameters
+    return fit_parameters
 
 
 def generalized_gaussian_fit(time_array, data_array,
@@ -1097,8 +1096,6 @@ def binomial_amplitudeN_fit(time_array, data_array, fitOpt=None, plotOpt=None):
 
     """
 
-    profile_fit_function = analytic_distribution.binomialAmplitudeN
-
     if fitOpt is None:
         fitOpt = FitOptions()
 
@@ -1115,9 +1112,12 @@ def binomial_amplitudeN_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
              1.5])
 
-    fit_parameters = arbitrary_profile_fit(
-        time_array, data_array, profile_fit_function,
-        fitOpt=fitOpt, plotOpt=plotOpt)
+    fit_distribtion = analytic_distribution.BinomialAmplitudeN(
+        fitOpt.fitInitialParameters, scale_means='full_bunch_length')
+
+    fit_parameters = arbitrary_profile_fit(time_array, data_array,
+                                           fit_distribtion.profile,
+                                           fitOpt=fitOpt, plotOpt=plotOpt)
 
     return fit_parameters
 
