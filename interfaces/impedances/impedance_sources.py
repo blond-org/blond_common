@@ -14,7 +14,7 @@ The module consists of a parent class called _ImpedanceObject and several child
 classes, as for example InputTable, Resonators and TravelingWaveCavity.**
 
 :Authors: **Danilo Quartullo**, **Alexandre Lasheen**,
-**Juan F. Esteban Mueller**
+**Juan F. Esteban Mueller**, **Simon Albright**
 '''
 
 from __future__ import division, print_function
@@ -22,6 +22,7 @@ from builtins import range, object
 import numpy as np
 from scipy.constants import c, physical_constants
 from ...devtools import exceptions
+from ...devtools import assertions
 # import ctypes
 # from ..setup_cpp import libblond
 # from .. import libblond
@@ -151,6 +152,9 @@ class _InputTable(_ImpedanceObject):
 
     def _wake_input(self, time, wake):
         
+        assertions.check_array_lengths(time, wake, 
+                         msg='input time and wake do not have the same length', 
+                         exception = exceptions.InputError)
         # Time array of the wake in s
         self.time_array_loaded = np.array(time)
         # Wake array in :math:`\Omega / s
@@ -158,6 +162,9 @@ class _InputTable(_ImpedanceObject):
     
     def _imped_input(self, frequency, real, imag):
 
+        assertions.check_array_lengths(frequency, real, imag, 
+                         msg='input frequency, real and imag do not have '\
+                         'the same length', exception = exceptions.InputError)
         # Frequency array of the impedance in Hz
         self.frequency_array_loaded = np.array(frequency)
         # Real part of impedance in :math:`\Omega`
