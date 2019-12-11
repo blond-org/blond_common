@@ -139,15 +139,15 @@ class _InputTable(_ImpedanceObject):
             self.imped_calc = self._imped_calc
             self._imped_input(input_1, input_2, input_3)
         elif self.__class__.__name__ == 'WakefieldTable':
-            self.wake_calc == self._wake_calc
+            self.wake_calc = self._wake_calc
             self._wake_input(input_1, input_2)
         else:
             if input_3 is None:
-                self._wake_input(input_1, input_2)
                 self.wake_calc = self._wake_calc
+                self._wake_input(input_1, input_2)
             else:
-                self._imped_input(input_1, input_2, input_3)
                 self.imped_calc = self._imped_calc
+                self._imped_input(input_1, input_2, input_3)
 
 
     def _wake_input(self, time, wake):
@@ -159,6 +159,8 @@ class _InputTable(_ImpedanceObject):
         self.time_array_loaded = np.array(time)
         # Wake array in :math:`\Omega / s
         self.wake_array_loaded = np.array(wake)
+        
+        self.wake_calc(time)
     
     def _imped_input(self, frequency, real, imag):
 
@@ -181,6 +183,7 @@ class _InputTable(_ImpedanceObject):
             self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
             self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
         
+        self.imped_calc(frequency)
 
 
     def _wake_calc(self, new_time_array):
