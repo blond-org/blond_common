@@ -48,7 +48,7 @@ class _ImpedanceObject(object):
         # Impedance array in :math:`\Omega`
         self.impedance = 0
 
-    def wake_calc(self, *args):
+    def wake_calc(self, *args, **kwargs):
         """
         Method required to compute the wake function. Returns an error if
         called from an object which does not implement this method.
@@ -59,7 +59,7 @@ class _ImpedanceObject(object):
             '. This object is probably meant to be used in the' +
             ' frequency domain')
 
-    def imped_calc(self, *args):
+    def imped_calc(self, *args, **kwargs):
         """
         Method required to compute the impedance. Returns an error if called
         from an object which does not implement this method.
@@ -134,33 +134,44 @@ class _InputTable(_ImpedanceObject):
         
         if self.__class__.__name__ == 'ImpedanceTable':
             self.imped_calc = self._imped_calc
+            self._imped_input(input_1, input_2, input_3)
         elif self.__class__.__name__ == 'WakefieldTable':
             self.wake_calc == self._wake_calc
+            self._wake_input(input_1, input_2)
         else:
-            self.imped_calc = self._imped_calc
-            self.wake_calc = self._wake_calc
+            if input_3 is None:
+                self._wake_input(input_1, input_2)
+                self.wake_calc = self._wake_calc
+            else:
+                self._imped_input(input_1, input_2, input_3)
+                self.imped_calc = self._imped_calc
 
-        if input_3 is None:
-            # Time array of the wake in s
-            self.time_array = input_1
-            # Wake array in :math:`\Omega / s`
-            self.wake_array = input_2
-        else:
-            # Frequency array of the impedance in Hz
-            self.frequency_array_loaded = input_1
-            # Real part of impedance in :math:`\Omega`
-            self.Re_Z_array_loaded = input_2
-            # Imaginary part of impedance in :math:`\Omega`
-            self.Im_Z_array_loaded = input_3
-            # Impedance array in :math:`\Omega`
-            self.impedance_loaded = (self.Re_Z_array_loaded + 1j *
-                                     self.Im_Z_array_loaded)
 
-            if self.frequency_array_loaded[0] != 0:
-                self.frequency_array_loaded = np.hstack(
-                    (0, self.frequency_array_loaded))
-                self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
-                self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
+    def _wake_input(self, time, wake):
+        
+        # Time array of the wake in s
+        self.time_array = time
+        # Wake array in :math:`\Omega / s
+        self.wake_array = wake
+    
+    def _imped_input(self, frequency, real, imag):
+        # Frequency array of the impedance in Hz
+        self.frequency_array_loaded = frequency
+        # Real part of impedance in :math:`\Omega`
+        self.Re_Z_array_loaded = real
+        # Imaginary part of impedance in :math:`\Omega`
+        self.Im_Z_array_loaded = imag
+        # Impedance array in :math:`\Omega`
+        self.impedance_loaded = (self.Re_Z_array_loaded + 1j *
+                                 self.Im_Z_array_loaded)
+
+        if self.frequency_array_loaded[0] != 0:
+            self.frequency_array_loaded = np.hstack(
+                (0, self.frequency_array_loaded))
+            self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
+            self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
+        
+
 
     def _wake_calc(self, new_time_array):
         r"""
