@@ -150,11 +150,14 @@ class _InputTable(_ImpedanceObject):
     def _wake_input(self, time, wake):
         
         # Time array of the wake in s
-        self.time_array = time
+        self.time_array_loaded = time
         # Wake array in :math:`\Omega / s
-        self.wake_array = wake
+        self.wake_array_loaded = wake
     
     def _imped_input(self, frequency, real, imag):
+        frequency = np.array(frequency)
+        real = np.array(real)
+        imag = np.array(imag)
         # Frequency array of the impedance in Hz
         self.frequency_array_loaded = frequency
         # Real part of impedance in :math:`\Omega`
