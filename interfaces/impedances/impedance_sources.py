@@ -46,6 +46,8 @@ class _ImpedanceObject(object):
         self.frequency_array = 0
 
         # Impedance array in :math:`\Omega`
+        self.Re_Z_array = 0
+        self.Im_Z_array = 0
         self.impedance = 0
 
     def wake_calc(self, *args, **kwargs):
@@ -193,7 +195,7 @@ class _InputTable(_ImpedanceObject):
 
         self.time_array = new_time_array
         self.wake = np.interp(self.time_array, self.time_array_loaded,
-                              self.wake_array, right=0)
+                              self.wake_array_loaded, right=0)
 
     def _imped_calc(self, new_frequency_array):
         r"""
