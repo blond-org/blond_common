@@ -152,7 +152,7 @@ class _InputTable(_ImpedanceObject):
 
     def _wake_input(self, time, wake):
         
-        assertions.check_array_lengths(time, wake, 
+        assertions.equal_array_lengths(time, wake, 
                          msg='input time and wake do not have the same length', 
                          exception = exceptions.InputError)
         # Time array of the wake in s
@@ -164,7 +164,7 @@ class _InputTable(_ImpedanceObject):
     
     def _imped_input(self, frequency, real, imag):
 
-        assertions.check_array_lengths(frequency, real, imag, 
+        assertions.equal_array_lengths(frequency, real, imag, 
                          msg='input frequency, real and imag do not have '\
                          'the same length', exception = exceptions.InputError)
         # Frequency array of the impedance in Hz
@@ -251,20 +251,14 @@ class ImpedanceTable(_InputTable):
         except TypeError:
             raise TypeError("Frequency must be iterable")
         
-        if real is None and imag is None:
-            raise exceptions.InputDataError("At least one of real and" \
-                                            " imag must be defined")
+        assertions.not_none(real, imag, msg = "At least one of real and" \
+                            " imag must be defined", 
+                            exception = exceptions.InputDataError)
         
         if real is None:
             real = np.zeros(len(frequency))
         if imag is None:
             imag = np.zeros(len(frequency))
-        
-        fLen = len(frequency)
-        if len(real) != fLen:
-            raise RuntimeError("Real impedance length incorrect")
-        if len(imag) != fLen:
-            raise RuntimeError("Imag impedance length incorrect")
         
         super().__init__(frequency, real, imag)
 

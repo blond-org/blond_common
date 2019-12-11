@@ -12,8 +12,12 @@ Assertions for input checking
 :Authors: **Simon Albright**
 """
 
-def check_array_lengths(*arrays, msg, exception):
+def equal_array_lengths(*args, msg, exception):
     
-    if len(set(len(a) for a in arrays)) > 1:
+    if len(set(len(a) for a in args)) > 1:
         raise exception(msg)
+
+def not_none(*args, msg, exception):
     
+    if all(v is None for v in args):
+        raise exception(msg)
