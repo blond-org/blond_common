@@ -375,12 +375,9 @@ class Resonators(_ImpedanceObject):
     @frequency_R.setter
     def frequency_R(self, frequency_R):
 
-        try:
-            nIn = len(frequency_R)
-        except TypeError:
-            frequency_R = np.array(frequency_R)
-            nIn = len(frequency_R)
-
+        frequency_R = np.array([frequency_R]).flatten()
+        nIn = len(frequency_R)
+        
         if nIn != self.n_resonators:
             raise exceptions.InputError(f"Number of resonant frequencies "\
                                         +f"({nIn}) does not match number of "\
@@ -396,12 +393,9 @@ class Resonators(_ImpedanceObject):
 
     @omega_R.setter
     def omega_R(self, omega_R):
-        
-        try:
-            nIn = len(omega_R)
-        except TypeError:
-            omega_R = np.array(omega_R)
-            nIn = len(omega_R)
+
+        omega_R = np.array([omega_R]).flatten()
+        nIn = len(omega_R)
 
         if nIn != self.n_resonators:
             raise exceptions.InputError(f"Number of resonant frequencies "\
@@ -428,7 +422,7 @@ class Resonators(_ImpedanceObject):
             Output wake in :math:`\Omega / s`
         """
 
-        self.time_array = time_array
+        self.time_array = np.array(time_array)
         self.wake = np.zeros(self.time_array.shape)
 
         for i in range(0, self.n_resonators):
@@ -458,7 +452,7 @@ class Resonators(_ImpedanceObject):
             Output impedance in :math:`\Omega + j \Omega`
         """
 
-        self.frequency_array = frequency_array
+        self.frequency_array = np.array(frequency_array)
         self.impedance = np.zeros(len(self.frequency_array), complex)
 
         for i in range(0, self.n_resonators):
