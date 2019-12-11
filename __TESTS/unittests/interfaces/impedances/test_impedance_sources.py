@@ -97,11 +97,11 @@ class TestImpedanceSources(unittest.TestCase):
 
         imp = impSource._InputTable([1, 2, 3], [4, 5, 6], [7, 8, 9])
         
-        self.assertEqual(imp.frequency_array_loaded.tolist(), [0, 1, 2, 3], 
+        self.assertEqual(imp.frequency_array_loaded.tolist(), [1, 2, 3], 
                          "Expected frequency array to to be [0, 1, 2, 3]")
-        self.assertEqual(imp.Re_Z_array_loaded.tolist(), [0, 4, 5, 6], 
+        self.assertEqual(imp.Re_Z_array_loaded.tolist(), [4, 5, 6], 
                          "Expected real impedance array to be [0, 4, 5, 6]")
-        self.assertEqual(imp.Im_Z_array_loaded.tolist(), [0, 7, 8, 9], 
+        self.assertEqual(imp.Im_Z_array_loaded.tolist(), [7, 8, 9], 
                          "Expected imag impedance array to be [0, 7, 8, 9]")
 
         self.assertEqual(imp.time_array, 0, "Expected time array to be 0")
@@ -123,6 +123,10 @@ class TestImpedanceSources(unittest.TestCase):
     
     def test_impedance_table(self):
 
+        self._input_except_test(impSource.ImpedanceTable, 
+                                exceptions.InputDataError, 
+                                'Excpected InputDataError exception', [1, 2])
+        
         imp = impSource.ImpedanceTable(range(10), range(10), 
                                        np.arange(0, -10, -1))
 
@@ -157,8 +161,30 @@ class TestImpedanceSources(unittest.TestCase):
         imp.wake_calc([1, 2, 3])
         self.assertEqual(imp.time_array.tolist(), [1, 2, 3])
         self.assertEqual(imp.wake.tolist(), [1, 2, 3])
+    
+    
+    def test_resonators(self):
+        
+        self._input_except_test(impSource.Resonators, exceptions.InputError, 
+                                'expected InputError exception', 1, 1, [1, 2])
+        
+        imp = impSource.Resonators([1, 2], [1, 2], [1, 2])
+        
+        imp.imped_calc([1, 2, 3])
+        self.assertNotEqual(imp.impedance[0], 0, 
+                            msg='First element should be non-zero')
+        imp.imped_calc([0, 1, 2, 3])
+        self.assertEqual(imp.impedance[0], 0, 
+                            msg='First element should be zero')
+        imp.omega_R = (2, 3)
+        imp.wake_calc([1, 2, 3])
+        
+        self.assertEqual(imp.omega_R.tolist(), [2,3], 
+                         msg='omega_R not at correct value')
+        
+        
 
     
 if __name__ == '__main__':
-
+    
     unittest.main()
