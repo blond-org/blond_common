@@ -203,7 +203,7 @@ class _InputTable(_ImpedanceObject):
             Output interpolated wake in :math:`\Omega / s`
         """
 
-        self.time_array = new_time_array
+        self.time_array = np.array(new_time_array)
         self.wake = np.interp(self.time_array, self.time_array_loaded,
                               self.wake_array_loaded, right=0)
 
@@ -235,7 +235,7 @@ class _InputTable(_ImpedanceObject):
                          self.Re_Z_array_loaded, right=0)
         Im_Z = np.interp(new_frequency_array, self.frequency_array_loaded,
                          self.Im_Z_array_loaded, right=0)
-        self.frequency_array = new_frequency_array
+        self.frequency_array = np.array(new_frequency_array)
         self.Re_Z_array = Re_Z
         self.Im_Z_array = Im_Z
         self.impedance = Re_Z + 1j * Im_Z
