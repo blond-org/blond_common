@@ -455,12 +455,16 @@ class Resonators(_ImpedanceObject):
         self.frequency_array = np.array(frequency_array)
         self.impedance = np.zeros(len(self.frequency_array), complex)
 
+        init=0
+        if self.frequency_array[0] == 0:
+            init=1
+
         for i in range(0, self.n_resonators):
 
-            self.impedance[1:] += self.R_S[i] / (
+            self.impedance[init:] += self.R_S[i] / (
                 1 + 1j * self.Q[i] * (
-                    self.frequency_array[1:] / self.frequency_R[i] -
-                    self.frequency_R[i] / self.frequency_array[1:]))
+                    self.frequency_array[init:] / self.frequency_R[i] -
+                    self.frequency_R[i] / self.frequency_array[init:]))
 
 #     def _imped_calc_cpp(self, frequency_array):
 #         r"""
