@@ -344,6 +344,9 @@ class Resonators(_ImpedanceObject):
         # Shunt impepdance in :math:`\Omega`
         self.R_S = np.array([R_S], dtype=float).flatten()
 
+        # Number of resonant modes
+        self.n_resonators = len(self.R_S)
+
         # Resonant frequency in Hz
         self.frequency_R = np.array([frequency_R], dtype=float).flatten()
 
@@ -354,9 +357,6 @@ class Resonators(_ImpedanceObject):
                                        msg = 'R_S, frequency_R and Q must'\
                                        ' all have the same length', 
                                        exception = exceptions.InputError)
-
-        # Number of resonant modes
-        self.n_resonators = len(self.R_S)
 
 #         if method == 'c++':
 #             self.imped_calc = self._imped_calc_cpp
@@ -374,6 +374,18 @@ class Resonators(_ImpedanceObject):
 
     @frequency_R.setter
     def frequency_R(self, frequency_R):
+
+        try:
+            nIn = len(frequency_R)
+        except TypeError:
+            frequency_R = np.array(frequency_R)
+            nIn = len(frequency_R)
+
+        if nIn != self.n_resonators:
+            raise exceptions.InputError(f"Number of resonant frequencies "\
+                                        +f"({nIn}) does not match number of "\
+                                        +f"resonators ({self.n_resonators})")
+
         self.__frequency_R = frequency_R
         self.__omega_R = 2 * np.pi * frequency_R
 
@@ -384,6 +396,18 @@ class Resonators(_ImpedanceObject):
 
     @omega_R.setter
     def omega_R(self, omega_R):
+        
+        try:
+            nIn = len(omega_R)
+        except TypeError:
+            omega_R = np.array(omega_R)
+            nIn = len(omega_R)
+
+        if nIn != self.n_resonators:
+            raise exceptions.InputError(f"Number of resonant frequencies "\
+                                        +f"({nIn}) does not match number of "\
+                                        +f"resonators ({self.n_resonators})")
+        
         self.__frequency_R = omega_R / 2 / np.pi
         self.__omega_R = omega_R
 
