@@ -53,7 +53,7 @@ class _ImpedanceObject(object):
         Method required to compute the wake function. Returns an error if
         called from an object which does not implement this method.
         """
-        #WrongCalcError
+        
         raise exceptions.WrongCalcError(
             'wake_calc() method not implemented in this class' +
             '. This object is probably meant to be used in the' +
@@ -64,7 +64,7 @@ class _ImpedanceObject(object):
         Method required to compute the impedance. Returns an error if called
         from an object which does not implement this method.
         """
-        #WrongCalcError
+        
         raise exceptions.WrongCalcError(
             'imped_calc() method not implemented in this class' +
             '. This object is probably meant to be used in the' +
@@ -130,7 +130,15 @@ class _InputTable(_ImpedanceObject):
 
     def __init__(self, input_1, input_2, input_3=None):
 
-        _ImpedanceObject.__init__(self)
+        super().__init__()
+        
+        if self.__class__.__name__ == 'ImpedanceTable':
+            self.imped_calc = self._imped_calc
+        elif self.__class__.__name__ == 'WakefieldTable':
+            self.wake_calc == self._wake_calc
+        else:
+            self.imped_calc = self._imped_calc
+            self.wake_calc = self._wake_calc
 
         if input_3 is None:
             # Time array of the wake in s
@@ -154,7 +162,7 @@ class _InputTable(_ImpedanceObject):
                 self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
                 self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
 
-    def wake_calc(self, new_time_array):
+    def _wake_calc(self, new_time_array):
         r"""
         The wake from the table is interpolated using the new time array.
 
@@ -175,7 +183,7 @@ class _InputTable(_ImpedanceObject):
         self.wake = np.interp(self.new_time_array, self.time_array,
                               self.wake_array, right=0)
 
-    def imped_calc(self, new_frequency_array):
+    def _imped_calc(self, new_frequency_array):
         r"""
         The impedance from the table is interpolated using the new frequency
         array.
@@ -197,6 +205,8 @@ class _InputTable(_ImpedanceObject):
             Output interpolated impedance array in :math:`\Omega + j \Omega`
         """
 
+        
+
         Re_Z = np.interp(new_frequency_array, self.frequency_array_loaded,
                          self.Re_Z_array_loaded, right=0)
         Im_Z = np.interp(new_frequency_array, self.frequency_array_loaded,
@@ -208,11 +218,43 @@ class _InputTable(_ImpedanceObject):
 
 
 
-def ImpedanceTable(_InputTable):
+class ImpedanceTable(_InputTable):
     
     def __init__(self, frequency, real = None, imag = None):
         
-        super().init(frequency, real, imag)
+        try:
+            iter(frequency)
+        except TypeError:
+            raise TypeError("Frequency must be iterable")
+        
+        if real is None and imag is None:
+            raise exceptions.InputDataError("At least one of real and" \
+                                            " imag must be defined")
+        
+        if real is None:
+            real = np.zeros(len(frequency))
+        if imag is None:
+            imag = np.zeros(len(frequency))
+        
+        fLen = len(frequency)
+        if len(real) != fLen:
+            raise RuntimeError("Real impedance length incorrect")
+        if len(imag) != fLen:
+            raise RuntimeError("Imag impedance length incorrect")
+        
+        super().__init__(frequency, real, imag)
+
+
+
+class WakefieldTable(_InputTable):
+    
+    def __init__(self, time, wake):
+        
+        if len(time) != len(wake):
+            raise exceptions.InputDataError("time and wake should"\
+                                            " have the same length")
+        
+        super().__init__(time, wake)
 
 
 
