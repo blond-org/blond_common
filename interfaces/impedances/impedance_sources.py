@@ -21,6 +21,7 @@ from __future__ import division, print_function
 from builtins import range, object
 import numpy as np
 from scipy.constants import c, physical_constants
+from ...devtools.devtools import exceptions
 # import ctypes
 # from ..setup_cpp import libblond
 # from .. import libblond
@@ -53,7 +54,7 @@ class _ImpedanceObject(object):
         called from an object which does not implement this method.
         """
         #WrongCalcError
-        raise RuntimeError(
+        raise exceptions.WrongCalcError(
             'wake_calc() method not implemented in this class' +
             '. This object is probably meant to be used in the' +
             ' frequency domain')
@@ -64,7 +65,7 @@ class _ImpedanceObject(object):
         from an object which does not implement this method.
         """
         #WrongCalcError
-        raise RuntimeError(
+        raise exceptions.WrongCalcError(
             'imped_calc() method not implemented in this class' +
             '. This object is probably meant to be used in the' +
             ' time domain')
