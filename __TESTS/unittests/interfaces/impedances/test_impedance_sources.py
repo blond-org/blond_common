@@ -156,7 +156,7 @@ class TestImpedanceSources(unittest.TestCase):
         
         imp.wake_calc([1, 2, 3])
         self.assertEqual(imp.time_array.tolist(), [1, 2, 3])
-        self.assertEqual(imp.wake_array.tolist(), [1, 2, 3])
+        self.assertEqual(imp.wake.tolist(), [1, 2, 3])
 
     
 if __name__ == '__main__':
