@@ -21,7 +21,7 @@ from __future__ import division, print_function
 from builtins import range, object
 import numpy as np
 from scipy.constants import c, physical_constants
-from ...devtools.devtools import exceptions
+from ...devtools import exceptions
 # import ctypes
 # from ..setup_cpp import libblond
 # from .. import libblond
@@ -71,7 +71,7 @@ class _ImpedanceObject(object):
             ' time domain')
 
 
-class InputTable(_ImpedanceObject):
+class _InputTable(_ImpedanceObject):
     r"""
     Intensity effects from impedance and wake tables.
     If the constructor takes just two arguments, then a wake table is passed;
@@ -205,6 +205,15 @@ class InputTable(_ImpedanceObject):
         self.Re_Z_array = Re_Z
         self.Im_Z_array = Im_Z
         self.impedance = Re_Z + 1j * Im_Z
+
+
+
+def ImpedanceTable(_InputTable):
+    
+    def __init__(self, frequency, real = None, imag = None):
+        
+        super().init(frequency, real, imag)
+
 
 
 class Resonators(_ImpedanceObject):
