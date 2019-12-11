@@ -150,20 +150,18 @@ class _InputTable(_ImpedanceObject):
     def _wake_input(self, time, wake):
         
         # Time array of the wake in s
-        self.time_array_loaded = time
+        self.time_array_loaded = np.array(time)
         # Wake array in :math:`\Omega / s
-        self.wake_array_loaded = wake
+        self.wake_array_loaded = np.array(wake)
     
     def _imped_input(self, frequency, real, imag):
-        frequency = np.array(frequency)
-        real = np.array(real)
-        imag = np.array(imag)
+
         # Frequency array of the impedance in Hz
-        self.frequency_array_loaded = frequency
+        self.frequency_array_loaded = np.array(frequency)
         # Real part of impedance in :math:`\Omega`
-        self.Re_Z_array_loaded = real
+        self.Re_Z_array_loaded = np.array(real)
         # Imaginary part of impedance in :math:`\Omega`
-        self.Im_Z_array_loaded = imag
+        self.Im_Z_array_loaded = np.array(imag)
         # Impedance array in :math:`\Omega`
         self.impedance_loaded = (self.Re_Z_array_loaded + 1j *
                                  self.Im_Z_array_loaded)
@@ -193,8 +191,8 @@ class _InputTable(_ImpedanceObject):
             Output interpolated wake in :math:`\Omega / s`
         """
 
-        self.new_time_array = new_time_array
-        self.wake = np.interp(self.new_time_array, self.time_array,
+        self.time_array = new_time_array
+        self.wake = np.interp(self.time_array, self.time_array_loaded,
                               self.wake_array, right=0)
 
     def _imped_calc(self, new_frequency_array):
