@@ -177,11 +177,11 @@ class _InputTable(_ImpedanceObject):
         self.impedance_loaded = (self.Re_Z_array_loaded + 1j *
                                  self.Im_Z_array_loaded)
 
-        if self.frequency_array_loaded[0] != 0:
-            self.frequency_array_loaded = np.hstack(
-                (0, self.frequency_array_loaded))
-            self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
-            self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
+#        if self.frequency_array_loaded[0] != 0:
+#            self.frequency_array_loaded = np.hstack(
+#                (0, self.frequency_array_loaded))
+#            self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
+#            self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
         
         self.imped_calc(frequency)
 
@@ -339,7 +339,7 @@ class Resonators(_ImpedanceObject):
 
     def __init__(self, R_S, frequency_R, Q, method='python'):
 
-        _ImpedanceObject.__init__(self)
+        super().__init__()
 
         # Shunt impepdance in :math:`\Omega`
         self.R_S = np.array([R_S], dtype=float).flatten()
@@ -349,6 +349,11 @@ class Resonators(_ImpedanceObject):
 
         # Quality factor
         self.Q = np.array([Q], dtype=float).flatten()
+
+        assertions.equal_array_lengths(self.R_S, self.frequency_R, self.Q, 
+                                       msg = 'R_S, frequency_R and Q must'\
+                                       ' all have the same length', 
+                                       exception = exceptions.InputError)
 
         # Number of resonant modes
         self.n_resonators = len(self.R_S)
