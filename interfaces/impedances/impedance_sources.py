@@ -204,7 +204,7 @@ class _InputTable(_ImpedanceObject):
         """
 
         self.time_array = np.array(new_time_array)
-        self.wake = np.interp(self.time_array, self.time_array_loaded,
+        self.wake_array = np.interp(self.time_array, self.time_array_loaded,
                               self.wake_array_loaded, right=0)
 
     def _imped_calc(self, new_frequency_array):
