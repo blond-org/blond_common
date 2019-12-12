@@ -182,7 +182,37 @@ class TestImpedanceSources(unittest.TestCase):
         self.assertEqual(imp.omega_R.tolist(), [2,3], 
                          msg='omega_R not at correct value')
         
+    
+    def test_traveling_wave(self):
         
+        self._input_except_test(impSource.TravelingWaveCavity, 
+                                exceptions.InputError, 
+                                'expected InputError exception', 1, 1, [1, 2])
+        
+        imp = impSource.TravelingWaveCavity([1, 2], [1, 2], [1, 2])
+
+        imp.wake_calc([1, 2, 3])
+        imp.imped_calc([1, 2, 3])
+    
+    
+    def test_resistive_wall(self):
+        
+        self._input_except_test(impSource.ResistiveWall, 
+                                exceptions.InputError, 
+                                'expected InputError exception', 1, 1, 1, 1)
+        
+        self._input_except_test(impSource.ResistiveWall, 
+                                exceptions.InputError, 
+                                'expected InputError exception', 1, 1)
+
+        imp = impSource.ResistiveWall(1, 1, 1)
+        imp = impSource.ResistiveWall(1, 1, None, 1)
+        
+        imp.imped_calc([1, 2, 3])
+        
+        self._input_except_test(imp.wake_calc, exceptions.WrongCalcError,
+                                'excepted WrongCalcError exception', [1, 2, 3])
+
 
     
 if __name__ == '__main__':
