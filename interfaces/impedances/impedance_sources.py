@@ -557,7 +557,7 @@ class TravelingWaveCavity(_ImpedanceObject):
 
     def __init__(self, R_S, frequency_R, a_factor):
 
-        _ImpedanceObject.__init__(self)
+        super().__init__()
 
         # Shunt impepdance in :math:`\Omega`
         self.R_S = np.array([R_S], dtype=float).flatten()
@@ -567,6 +567,12 @@ class TravelingWaveCavity(_ImpedanceObject):
 
         # Damping time a in s
         self.a_factor = np.array([a_factor], dtype=float).flatten()
+
+        assertions.equal_array_lengths(self.R_S, self.frequency_R,
+                                       self.a_factor, 
+                                       msg='R_s, frequeny_R, and a_factor'\
+                                       + ' should all have the same length',
+                                       exception = exceptions.InputError)
 
         # Number of resonant modes
         self.n_twc = len(self.R_S)
@@ -588,7 +594,7 @@ class TravelingWaveCavity(_ImpedanceObject):
             Output wake in :math:`\Omega / s`
         """
 
-        self.time_array = time_array
+        self.time_array = np.array(time_array)
         self.wake = np.zeros(self.time_array.shape)
 
         for i in range(0, self.n_twc):
@@ -617,7 +623,7 @@ class TravelingWaveCavity(_ImpedanceObject):
             Output impedance in :math:`\Omega + j \Omega`
         """
 
-        self.frequency_array = frequency_array
+        self.frequency_array = np.array(frequency_array)
         self.impedance = np.zeros(len(self.frequency_array), complex)
 
         for i in range(0, self.n_twc):
@@ -710,6 +716,11 @@ class ResistiveWall(_ImpedanceObject):
         # Beam pipe length in m
         self.pipe_length = float(pipe_length)
 
+        assertions.single_none(resistivity, conductivity, 
+                               exception=exceptions.InputError,
+                               msg='Exactly one of resistivity and '\
+                               + 'conductivity should be assigned a value')
+
         # Beam pipe conductivity in :math:`s / m`
         if resistivity is not None:
             self.conductivity = 1/resistivity
@@ -759,7 +770,7 @@ class ResistiveWall(_ImpedanceObject):
             Output impedance in :math:`\Omega + j \Omega`
         """
 
-        self.frequency_array = frequency_array
+        self.frequency_array = np.array(frequency_array)
 
         self.impedance = (
             self.Z0 * c * self.pipe_length /
