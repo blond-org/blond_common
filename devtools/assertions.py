@@ -21,3 +21,15 @@ def not_none(*args, msg, exception):
     
     if all(v is None for v in args):
         raise exception(msg)
+        
+
+def single_none(*args, msg, exception):
+    
+    nNone = 0
+    for a in args:
+        if a is None:
+            nNone += 1
+    
+    if nNone != 1:
+        raise exception(msg)
+        
