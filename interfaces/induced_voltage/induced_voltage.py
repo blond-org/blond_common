@@ -18,7 +18,7 @@ import numpy as np
 
 #BLonD_Common imports
 if __name__ != '__main__':
-    from . import impedance_sources as impSource
+    from ..impedances import impedance_sources as impSource
 else:
     import blond_common.interfaces.impedances.impedance_sources as impSource
 
@@ -36,23 +36,36 @@ class InducedVoltage:
 
     def sum_impedance_sources(self):
         
+        self._induced_calcs = []
+        
         if len(self.impedances_loaded) > 0:
             self.total_impedance = np.zeros(len(self.interp_frequency_array), \
                                             dtype='complex')
             for imp in self.impedances_loaded:
                 imp.imped_calc(self.interp_frequency_array)
                 self.total_impedance += imp.impedance
-                
+            self._induced_calcs.append(self._calc_induced_freq)
+            
         if len(self.wakes_loaded) > 0:
             self.total_wake = np.zeros(len(self.interp_time_array))
             for wake in self.wakes_loaded:
                 wake.wake_calc(self.interp_time_array)
                 self.total_wake += wake.wake
+            self._induced_calcs.append(self._calc_induced_time)    
+
+
+    def calc_induced(self):
+        
+        VInduced = 0
+        for calc in self._induced_calcs:
+            VInduced += calc()
 
 
     def _calc_induced_time(self):
-        
-        calc_induced_time(self.profile, se)
+        return calc_induced_time(self.profile, self.total_wake)
+    
+    def _calc_induced_freq(self):
+        return calc_induced_freq(self.spectrum, self.total_impedance)
 
                 
 def calc_induced_freq(self, spectrum, impedance):
