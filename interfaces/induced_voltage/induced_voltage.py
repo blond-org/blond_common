@@ -54,6 +54,22 @@ class InducedVoltage:
             self._induced_calcs.append(self._calc_induced_time)    
 
 
+    def calc_induced_by_source(self):
+
+        imped_induced = []
+        
+        for i in self.impedances_loaded:
+            i.wake_calc(self.interp_time_array)
+            imped_induced.append(calc_induced_freq(self.spectrum, i.imped))
+        
+        
+        wake_induced = []
+        
+        for w in self.wakes_loaded:
+            w.wake_calc(self.interp_time_array)
+            wake_induced.append(calc_induced_time(self.profile, w.wake))
+
+
     def calc_induced(self):
         
         VInduced = 0
@@ -70,7 +86,7 @@ class InducedVoltage:
                 
 def calc_induced_freq(self, spectrum, impedance):
     
-    return spectrum*impedance
+    return np.ifft(spectrum*impedance)
 
 def calc_induced_time(self, profile, wake):
     
