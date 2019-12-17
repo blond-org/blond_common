@@ -20,8 +20,9 @@ import numpy as np
 # from numpy.fft import rfft, rfftfreq
 from scipy import ndimage
 import ctypes
-from ..toolbox import filters_and_fitting as ffroutines
-from ..utils import bmath as bm
+#from ..toolbox import filters_and_fitting as ffroutines
+#from ..utils import bmath as bm
+import numpy.fft as fft
 
 class CutOptions(object):
     r"""
@@ -290,7 +291,38 @@ class OtherSlicesOptions(object):
         self.direct_slicing = direct_slicing
 
 
-class Profile(object):
+class Profile:
+    
+    def __init__(self, time_array, profile_array):
+        
+        self.time_array_loaded = time_array
+        self.profile_array_loaded = profile_array
+        
+        self.bin_size = time_array[1] - time_array[0]
+        
+        #Duplicating initially, will be replaced by any smoothing functions
+        self.time_array = self.time_array_loaded.copy()
+        self.profile_array = self.profile_array_loaded.copy()
+        
+    
+    def beam_spectrum_freq_generation(self, n_sampling_fft = None):
+        """
+        Frequency array of the beam spectrum
+        """
+        if n_sampling_fft is None:
+            n_sampling_fft = len(self.profile_array)
+        self.beam_spectrum_freq = fft.rfftfreq(n_sampling_fft, self.bin_size)
+
+    def beam_spectrum_generation(self, n_sampling_fft = None):
+        """
+        Beam spectrum calculation
+        """
+
+        self.beam_spectrum = fft.rfft(self.profile_array, n_sampling_fft)
+
+
+#deprecated
+class _Profile(object):
     """
     Contains the beam profile and related quantities including beam spectrum,
     profile derivative.
