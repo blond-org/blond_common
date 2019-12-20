@@ -101,8 +101,6 @@ class _DistributionObject(object):
             
             if scale_means is None:
                 scale_means = rcBLonDparams['distribution.scale_means']
-            else:
-                scale_means = kwargs['scale_means']
             
             # convert scale parameter to RMS
             parameters[2] = cls._computeBunchlengths(parameters,
@@ -605,20 +603,14 @@ class BinomialAmplitudeN(_DistributionObject):
 
     def _profile(x, amplitude, center, RMS, mu):
         full_bunch_length = RMS * np.sqrt(16+8*mu)
-
-        try:
-            return_value = np.zeros(len(x))
-            
-            indexes = np.abs(x-center) <= full_bunch_length/2
-            return_value[indexes] = amplitude\
-                * (1- (2*(x[indexes]-center)/full_bunch_length)**2)**(mu+0.5)            
-        except TypeError:
-            if np.abs(x-center) <= full_bunch_length/2:
-                return_value = amplitude\
-                    * (1- (2*(x-center)/full_bunch_length)**2)**(mu+0.5)
-            else:
-                return_value = 0.0
-        return return_value
+        
+        _tmp = 1 - (2*(x-center)/full_bunch_length)**2
+        
+        indexes = _tmp > 0.0
+        profile = np.zeros_like(x)
+        profile[indexes] = amplitude * _tmp[indexes]**(mu+0.5)
+        
+        return profile
 
     def spectrum(self, f):
         """ Returns the Binomial amplitude spectrum at frequency f

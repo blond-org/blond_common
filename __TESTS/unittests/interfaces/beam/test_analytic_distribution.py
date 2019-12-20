@@ -265,8 +265,10 @@ class TestDistributionsBinominalAmplitudeNClass(unittest.TestCase):
         
         self.assertTrue(type(fitted_object.get_parameters()), np.ndarray)
         
-        np.testing.assert_almost_equal(fitted_object.get_parameters(),
-           np.array([0.95593063, -4.22207792, 0.96342365, 0.96601695]))
+        np.testing.assert_almost_equal(
+                fitted_object.get_parameters(),
+                np.array([0.9559234, -4.2220788, 0.9634272, 0.9659967]))
+#                np.array([0.95593063, -4.22207792, 0.96342365, 0.96601695]))
     
 
 if __name__ == '__main__':
