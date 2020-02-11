@@ -14,6 +14,8 @@ Base class for constructing buckets and dealing with single particle dynamics
 
 #General imports
 import numpy as np
+import matplotlib.pyplot as plt
+import time
 
 #BLonD_Common imports
 if __name__ == "__main__":
@@ -23,10 +25,10 @@ if __name__ == "__main__":
     import blond_common.devtools.assertions as assrt
 else:
     from ..rf_functions import potential as pot
+    from ..maths import interpolation as interp
     from ..devtools import exceptions as excpt
     from ..deftools import assertions as assrt
 
-#import scipy.interpolate as interp
 class Bucket:
     
     def __init__(self, time, well, beta, energy, eta):
@@ -47,45 +49,78 @@ class Bucket:
         
         self.time = self.time_loaded.copy()
         self.well = self.well_loaded.copy()
+        
+        self.calc_separatrix()
+        self.basic_parameters()
     
 
-    def smooth_well_cubic(self, nPoints, reinterp=False):
+    def smooth_well_cubic(self, nPoints = None, reinterp=False):
     
-        self.time = np.linspace(self.time_loaded[0], self.time_loaded[-1], 
-                                nPoints)
+        if reinterp or not hasattr(self, '_well_cubic_func'):
+            self._well_cubic_func = interp.prep_interp_cubic(self.time_loaded, 
+                                                             self.well_loaded)
 
-        if reinterp or not hasattr(self, 'well_cubic_func'):
-            self.well_cubic_func = interp.prep_interp_cubic(self.time_loaded, 
-                                                            self.well_loaded)
+        if nPoints is not None:
+            self.time = np.linspace(self.time_loaded[0], self.time_loaded[-1], 
+                                    nPoints)
+            self.well = self._well_cubic_func(self.time)
 
-        self.well = self.well_cubic_func(self.time)
 
-    
     def calc_separatrix(self):
         
-        pot.potential_to_hamiltonian(self.time_loaded, self.well_loaded,
-                                     self.beta, self.energy, self.eta)
+        hamil = pot.potential_to_hamiltonian(self.time, self.well,
+                                             self.beta, self.energy, 
+                                             self.eta)
+
+        self.upper_energy_bound = np.sqrt(hamil)
         
+        sepTime = self.time.tolist() + self.time[::-1].tolist()
+        sepEnergy = self.upper_energy_bound.tolist() \
+                    + (-self.upper_energy_bound[::-1]).tolist()
+        
+        self.separatrix = np.array([sepTime, sepEnergy])
+    
+    
+    def basic_parameters(self):
+        
+        self.half_height = np.max(self.separatrix[1])
+        self.area = 2*np.trapz(self.upper_energy_bound, self.time)
+        self.length = self.time[-1] - self.time[0]
+        self.center = np.mean(self.time)
+        
+    ################################################
+    ####Functions for calculating bunch outlines####
+    ################################################
+    
+    def outline_from_length(self, target_length):
+        
+        if target_length > self.length:
+            raise excpt.BunchSizeError("target_length longer than bucket")
+        
+        else:
+            raise RuntimeError("Function not yet implemented")
+    
+    
+    def outline_from_dE(self, target_height):
+        
+        if target_height > self.half_height:
+            raise excpt.BunchSizeError("target_height higher than bucket")
+
+        else:
+            raise RuntimeError("Function not yet implemented")
+    
 
 if __name__ == '__main__':
 
-    inTime = np.linspace(0, 10, 100)
+    inTime = np.linspace(0, 2*np.pi, 100)
     inWell = np.cos(inTime)
-#    plt.plot(inTime, inWell)
-#    plt.show()
-    
-#    interp.CubicSpline(inTime, inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
-    plt.plot(buck.time, buck.well, '.')
-    buck.smooth_well_cubic(50)
-    plt.plot(buck.time, buck.well, '.')
-    buck.smooth_well_cubic(30)
-    plt.plot(buck.time, buck.well, '.')
+    buck.smooth_well_cubic(1000)
+    buck.calc_separatrix()
+    
+    plt.plot(buck.separatrix[0], buck.separatrix[1])
     plt.show()
-    
-    
-    
     
     
     

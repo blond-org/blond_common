@@ -46,6 +46,14 @@ class ParticleAdditionError(BLonD_Exception):
     pass
 
 
+# =================
+# Bucket Exceptions
+# =================
+
+class BunchSizeError(BLonD_Exception):
+    pass
+
+
 # ==================================
 # Distribution Generation Exceptions
 # ==================================
