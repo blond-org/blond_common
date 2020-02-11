@@ -109,7 +109,7 @@ class InducedVoltage:
             self.VInduced += calc(normalisation)
 
 
-    def _calc_induced_time(self):
+    def _calc_induced_time(self, normalisation):
         return calc_induced_time(self.beam_profile, self.total_wake)
     
     def _calc_induced_freq(self, normalisation):
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     
 #%%    
 
-    induced = InducedVoltage([reson1])
+    induced = InducedVoltage([], [reson1])
     induced.profile = profile
     induced.sum_impedance_sources()
 
