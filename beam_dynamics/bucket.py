@@ -186,14 +186,9 @@ class Bucket:
 
         potential = target_height**2*self.eta/(2*self.beta**2*self.energy)
         
-        print(potential)
-        
         interpTime = self._interp_time_from_potential(potential, 1000)
         interpWell = self._well_cubic_func(interpTime)
         interpWell[interpWell>interpWell[0]] = interpWell[0]
-        plt.plot(self.time, self.well, '.')
-        plt.plot(interpTime, interpWell)
-        plt.show()
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
                                                              interpWell, 
