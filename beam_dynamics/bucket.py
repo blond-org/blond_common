@@ -15,7 +15,7 @@ Base class for constructing buckets and dealing with single particle dynamics
 #General imports
 import numpy as np
 import matplotlib.pyplot as plt
-#import time
+import scipy.optimize as opt
 
 #BLonD_Common imports
 if __name__ == "__main__":
@@ -92,32 +92,69 @@ class Bucket:
     ####Functions for calculating bunch outlines####
     ################################################
     
-    def outline_from_length(self, target_length):
+    
+    def _outline_minim_func(self, energy, *args):
+        
+        if len(args) == 2:
+            leftPts, rightPts = args
+        elif len(args) == 3:
+            leftPts, rightPts, nPts = args
+            
+            
+    def _interp_time_from_potential(self, potential, nPts = 0):
+        
+        if potential > np.max(self.well):
+            raise excpt.InputError("Target potential above maximum potential")
+        
+        if potential < 0:
+            raise excpt.InputError("Target potential must be positive")
+        
+        pts = np.where(self.well <= potential)[0]
+        leftPt = pts[0]
+        rightPt = pts[-1]
+
+        lTime = np.interp(potential, self.well[leftPt-2:leftPt+2][::-1], 
+                          self.time[leftPt-2:leftPt+2][::-1])
+        rTime = np.interp(potential, self.well[rightPt-2:rightPt+2],
+                          self.time[rightPt-2:rightPt+2])
+
+        if nPts == 0:
+            return lTime, rTime
+        else:
+            return np.linspace(lTime, rTime, nPts)
+        
+    
+    def outline_from_length(self, target_length, nPts=1000):
         
         if target_length > self.length:
             raise excpt.BunchSizeError("target_length longer than bucket")
         
-        else:
-#            raise RuntimeError("Function not yet implemented")
-            for w in self.well:
-                useTime = self.time[self.well <= w]
-                if useTime[-1] - useTime[0] < target_length:
-                    break
-            pts = np.where(self.well <= w)[0]
-            leftPt = pts[0]
-            rightPt = pts[-1]
-            plt.plot(self.time, self.well, '.')
-            plt.plot(useTime, self.well[self.well<=w])
-            plt.axvline(np.pi-target_length/2)
-            plt.axvline(np.pi+target_length/2)
-            plt.plot(self.time[leftPt], self.well[leftPt], '.',
-                     color='red')
-            plt.plot(self.time[rightPt], self.well[rightPt], '.', 
-                     color='red')
-            plt.show()                
-                
+        def len_func(potential):
 
+            try:
+                lTime, rTime = self._interp_time_from_potential(potential)
+            except excpt.InputError:
+                return self.time[-1] - self.time[0]
+            
+            return np.abs(target_length - (rTime - lTime))
+
+        result = opt.minimize(len_func, np.max(self.well)/2, 
+                              method='Nelder-Mead')
+        
+        interpTime = self._interp_time_from_potential(result['x'][0], nPts)
+        interpWell = self._well_cubic_func(interpTime)
+
+        energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
+                                                             interpWell, 
+                                                             self.beta, 
+                                                             self.energy,
+                                                             self.eta))
+        
+        outlineTime = interpTime.tolist() + interpTime[::-1].tolist()
+        outlineEnergy = energyContour.tolist() \
+                        + (-energyContour[::-1]).tolist()
     
+        return np.array([outlineTime, outlineEnergy])
     
     def outline_from_dE(self, target_height):
         
@@ -130,17 +167,18 @@ class Bucket:
 
 if __name__ == '__main__':
 
-    inTime = np.linspace(0.5, 2*np.pi, 100)
+    inTime = np.linspace(0, 2*np.pi, 100)
     inWell = np.cos(inTime)
     inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
-    buck.smooth_well_cubic(30)
+    buck.smooth_well_cubic(20)
     buck.calc_separatrix()
-    buck.outline_from_length(4)
+    bunch = buck.outline_from_length(1)
     
-#    plt.plot(buck.separatrix[0], buck.separatrix[1])
-#    plt.show()
+    plt.plot(buck.separatrix[0], buck.separatrix[1])
+    plt.plot(bunch[0], bunch[1])
+    plt.show()
     
     
     
