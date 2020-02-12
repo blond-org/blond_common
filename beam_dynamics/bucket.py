@@ -15,7 +15,7 @@ Base class for constructing buckets and dealing with single particle dynamics
 #General imports
 import numpy as np
 import matplotlib.pyplot as plt
-import time
+#import time
 
 #BLonD_Common imports
 if __name__ == "__main__":
@@ -98,7 +98,25 @@ class Bucket:
             raise excpt.BunchSizeError("target_length longer than bucket")
         
         else:
-            raise RuntimeError("Function not yet implemented")
+#            raise RuntimeError("Function not yet implemented")
+            for w in self.well:
+                useTime = self.time[self.well <= w]
+                if useTime[-1] - useTime[0] < target_length:
+                    break
+            pts = np.where(self.well <= w)[0]
+            leftPt = pts[0]
+            rightPt = pts[-1]
+            plt.plot(self.time, self.well, '.')
+            plt.plot(useTime, self.well[self.well<=w])
+            plt.axvline(np.pi-target_length/2)
+            plt.axvline(np.pi+target_length/2)
+            plt.plot(self.time[leftPt], self.well[leftPt], '.',
+                     color='red')
+            plt.plot(self.time[rightPt], self.well[rightPt], '.', 
+                     color='red')
+            plt.show()                
+                
+
     
     
     def outline_from_dE(self, target_height):
@@ -112,15 +130,17 @@ class Bucket:
 
 if __name__ == '__main__':
 
-    inTime = np.linspace(0, 2*np.pi, 100)
+    inTime = np.linspace(0.5, 2*np.pi, 100)
     inWell = np.cos(inTime)
+    inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
-    buck.smooth_well_cubic(1000)
+    buck.smooth_well_cubic(30)
     buck.calc_separatrix()
+    buck.outline_from_length(4)
     
-    plt.plot(buck.separatrix[0], buck.separatrix[1])
-    plt.show()
+#    plt.plot(buck.separatrix[0], buck.separatrix[1])
+#    plt.show()
     
     
     
