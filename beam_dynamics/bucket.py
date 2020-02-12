@@ -55,16 +55,16 @@ class Bucket:
         self.basic_parameters()
     
 
-    def smooth_well_cubic(self, nPoints = None, reinterp=False):
+    def smooth_well(self, nPoints = None, reinterp=False):
     
-        if reinterp or not hasattr(self, '_well_cubic_func'):
-            self._well_cubic_func = interp.prep_interp_cubic(self.time_loaded, 
+        if reinterp or not hasattr(self, '_well_smooth_func'):
+            self._well_smooth_func = interp.prep_interp_cubic(self.time_loaded, 
                                                              self.well_loaded)
 
         if nPoints is not None:
             self.time = np.linspace(self.time_loaded[0], self.time_loaded[-1], 
                                     nPoints)
-            self.well = self._well_cubic_func(self.time)
+            self.well = self._well_smooth_func(self.time)
 
 
     def calc_separatrix(self):
@@ -119,26 +119,6 @@ class Bucket:
         rTime = np.interp(potential, self.well[rightPt-2:rightPt+2],
                           self.time[rightPt-2:rightPt+2])
 
-#        print(lTime, rTime)
-
-#        plt.plot(self.well[leftPt-2:leftPt+2][::-1], 
-#                          self.time[leftPt-2:leftPt+2][::-1])
-#        plt.axvline(potential)
-#        plt.axhline(lTime)
-#        plt.show()
-        
-#        plt.plot(self.well[rightPt-2:rightPt+2],
-#                          self.time[rightPt-2:rightPt+2])
-#        plt.axvline(potential)
-#        plt.axhline(rTime)
-#        plt.show()
-
-#        plt.plot(self.time, self.well)
-#        plt.axvline(lTime)
-#        plt.axvline(rTime)
-#        plt.axhline(potential)
-#        plt.show()
-
         if nPts == 0:
             return lTime, rTime
         else:
@@ -147,7 +127,7 @@ class Bucket:
     
     def outline_from_length(self, target_length, nPts=1000):
         
-        self.smooth_well_cubic()
+        self.smooth_well()
         
         if target_length > self.length:
             raise excpt.BunchSizeError("target_length longer than bucket")
@@ -164,7 +144,7 @@ class Bucket:
         result = opt.minimize(len_func, np.max(self.well)/2, 
                               method='Nelder-Mead')
         interpTime = self._interp_time_from_potential(result['x'][0], nPts)
-        interpWell = self._well_cubic_func(interpTime)
+        interpWell = self._well_smooth_func(interpTime)
         interpWell[interpWell>interpWell[0]] = interpWell[0]
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
@@ -182,7 +162,7 @@ class Bucket:
 
     def outline_from_dE(self, target_height):
         
-        self.smooth_well_cubic()
+        self.smooth_well()
         
         if target_height > self.half_height:
             raise excpt.BunchSizeError("target_height higher than bucket")
@@ -190,7 +170,7 @@ class Bucket:
         potential = target_height**2*self.eta/(2*self.beta**2*self.energy)
         
         interpTime = self._interp_time_from_potential(potential, 1000)
-        interpWell = self._well_cubic_func(interpTime)
+        interpWell = self._well_smooth_func(interpTime)
         interpWell[interpWell>interpWell[0]] = interpWell[0]
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
@@ -209,7 +189,7 @@ class Bucket:
     
     def outline_from_emittace(self, target_emittance, nPts = 1000):
 
-        self.smooth_well_cubic()
+        self.smooth_well()
 
         if target_emittance > self.area:
             raise excpt.BunchSizeError("target_emittance exceeds bucket area")
@@ -222,7 +202,7 @@ class Bucket:
             except excpt.InputError:
                 return self.area
             
-            interpWell = self._well_cubic_func(interpTime)
+            interpWell = self._well_smooth_func(interpTime)
             interpWell[interpWell>interpWell[0]] = interpWell[0]
             
             energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
@@ -239,7 +219,7 @@ class Bucket:
                               method='Nelder-Mead', args=(nPts,))
         
         interpTime = self._interp_time_from_potential(result['x'][0], nPts)
-        interpWell = self._well_cubic_func(interpTime)
+        interpWell = self._well_smooth_func(interpTime)
         interpWell[interpWell>interpWell[0]] = interpWell[0]
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
@@ -264,7 +244,7 @@ if __name__ == '__main__':
     inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
-    buck.smooth_well_cubic(50)
+    buck.smooth_well(1000)
     buck.calc_separatrix()
     targetEmit = 30
     bunch = buck.outline_from_emittace(targetEmit)
