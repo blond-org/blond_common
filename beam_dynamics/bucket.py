@@ -113,24 +113,26 @@ class Bucket:
         pts = np.where(self.well <= potential)[0]
         leftPt = pts[0]
         rightPt = pts[-1]
-
+        
         lTime = np.interp(potential, self.well[leftPt-2:leftPt+2][::-1], 
                           self.time[leftPt-2:leftPt+2][::-1])
         rTime = np.interp(potential, self.well[rightPt-2:rightPt+2],
                           self.time[rightPt-2:rightPt+2])
+
+#        print(lTime, rTime)
 
 #        plt.plot(self.well[leftPt-2:leftPt+2][::-1], 
 #                          self.time[leftPt-2:leftPt+2][::-1])
 #        plt.axvline(potential)
 #        plt.axhline(lTime)
 #        plt.show()
-#        
+        
 #        plt.plot(self.well[rightPt-2:rightPt+2],
 #                          self.time[rightPt-2:rightPt+2])
 #        plt.axvline(potential)
 #        plt.axhline(rTime)
 #        plt.show()
-#
+
 #        plt.plot(self.time, self.well)
 #        plt.axvline(lTime)
 #        plt.axvline(rTime)
@@ -145,19 +147,19 @@ class Bucket:
     
     def outline_from_length(self, target_length, nPts=1000):
         
+        self.smooth_well_cubic()
+        
         if target_length > self.length:
             raise excpt.BunchSizeError("target_length longer than bucket")
         
         def len_func(potential):
 
             try:
-                lTime, rTime = self._interp_time_from_potential(potential)
+                lTime, rTime = self._interp_time_from_potential(potential[0])
             except excpt.InputError:
                 return self.time[-1] - self.time[0]
-            
-            return np.abs(target_length - (rTime - lTime))
 
-        self._interp_time_from_potential(1)
+            return np.abs(target_length - (rTime - lTime))
 
         result = opt.minimize(len_func, np.max(self.well)/2, 
                               method='Nelder-Mead')
@@ -178,8 +180,9 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])
 
 
-    
     def outline_from_dE(self, target_height):
+        
+        self.smooth_well_cubic()
         
         if target_height > self.half_height:
             raise excpt.BunchSizeError("target_height higher than bucket")
@@ -200,8 +203,58 @@ class Bucket:
         outlineEnergy = energyContour.tolist() \
                         + (-energyContour[::-1]).tolist()
     
+        
         return np.array([outlineTime, outlineEnergy])
     
+    
+    def outline_from_emittace(self, target_emittance, nPts = 1000):
+
+        self.smooth_well_cubic()
+
+        if target_emittance > self.area:
+            raise excpt.BunchSizeError("target_emittance exceeds bucket area")
+        
+        def emit_func(potential, *args):
+
+            nPts = args[0]
+            try:
+                interpTime = self._interp_time_from_potential(potential[0], nPts)
+            except excpt.InputError:
+                return self.area
+            
+            interpWell = self._well_cubic_func(interpTime)
+            interpWell[interpWell>interpWell[0]] = interpWell[0]
+            
+            energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
+                                                             interpWell, 
+                                                             self.beta, 
+                                                             self.energy,
+                                                             self.eta))
+
+            emittance = 2*np.trapz(energyContour, interpTime)
+            
+            return np.abs(target_emittance - emittance)
+    
+        result = opt.minimize(emit_func, np.max(self.well)/2, 
+                              method='Nelder-Mead', args=(nPts,))
+        
+        interpTime = self._interp_time_from_potential(result['x'][0], nPts)
+        interpWell = self._well_cubic_func(interpTime)
+        interpWell[interpWell>interpWell[0]] = interpWell[0]
+        
+        energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
+                                                             interpWell, 
+                                                             self.beta, 
+                                                             self.energy,
+                                                             self.eta))
+
+        outlineTime = interpTime.tolist() + interpTime[::-1].tolist()
+        outlineEnergy = energyContour.tolist() \
+                        + (-energyContour[::-1]).tolist()
+    
+        return np.array([outlineTime, outlineEnergy])    
+
+
 
 if __name__ == '__main__':
 
@@ -213,12 +266,14 @@ if __name__ == '__main__':
     buck = Bucket(inTime, inWell, 3, 4, 5)
     buck.smooth_well_cubic(50)
     buck.calc_separatrix()
-#    targetLength = 3
+    targetEmit = 30
+    bunch = buck.outline_from_emittace(targetEmit)
+#    targetLength = 5
 #    bunch = buck.outline_from_length(targetLength)
-    targetHeight = 3
-    bunch = buck.outline_from_dE(targetHeight)
+#    targetHeight = 3
+#    bunch = buck.outline_from_dE(targetHeight)
     plt.plot(buck.separatrix[0], buck.separatrix[1])
-    plt.axhline(targetHeight)
+#    plt.axhline(targetHeight)
 #    plt.axvline(np.pi - targetLength/2)
 #    plt.axvline(np.pi + targetLength/2)
     plt.plot(bunch[0], bunch[1])

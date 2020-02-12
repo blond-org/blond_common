@@ -50,7 +50,7 @@ class ParticleAdditionError(BLonD_Exception):
 # Bucket Exceptions
 # =================
 
-class BunchSizeError(BLonD_Exception):
+class BunchSizeError(BLonD_Exception, ValueError):
     pass
 
 
