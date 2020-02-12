@@ -16,6 +16,7 @@ Base class for constructing buckets and dealing with single particle dynamics
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
+import sys
 
 #BLonD_Common imports
 if __name__ == "__main__":
@@ -118,6 +119,24 @@ class Bucket:
         rTime = np.interp(potential, self.well[rightPt-2:rightPt+2],
                           self.time[rightPt-2:rightPt+2])
 
+#        plt.plot(self.well[leftPt-2:leftPt+2][::-1], 
+#                          self.time[leftPt-2:leftPt+2][::-1])
+#        plt.axvline(potential)
+#        plt.axhline(lTime)
+#        plt.show()
+#        
+#        plt.plot(self.well[rightPt-2:rightPt+2],
+#                          self.time[rightPt-2:rightPt+2])
+#        plt.axvline(potential)
+#        plt.axhline(rTime)
+#        plt.show()
+#
+#        plt.plot(self.time, self.well)
+#        plt.axvline(lTime)
+#        plt.axvline(rTime)
+#        plt.axhline(potential)
+#        plt.show()
+
         if nPts == 0:
             return lTime, rTime
         else:
@@ -138,12 +157,44 @@ class Bucket:
             
             return np.abs(target_length - (rTime - lTime))
 
+        self._interp_time_from_potential(1)
+
         result = opt.minimize(len_func, np.max(self.well)/2, 
                               method='Nelder-Mead')
-        
         interpTime = self._interp_time_from_potential(result['x'][0], nPts)
         interpWell = self._well_cubic_func(interpTime)
+        interpWell[interpWell>interpWell[0]] = interpWell[0]
+        
+        energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
+                                                             interpWell, 
+                                                             self.beta, 
+                                                             self.energy,
+                                                             self.eta))
 
+        outlineTime = interpTime.tolist() + interpTime[::-1].tolist()
+        outlineEnergy = energyContour.tolist() \
+                        + (-energyContour[::-1]).tolist()
+    
+        return np.array([outlineTime, outlineEnergy])
+
+
+    
+    def outline_from_dE(self, target_height):
+        
+        if target_height > self.half_height:
+            raise excpt.BunchSizeError("target_height higher than bucket")
+
+        potential = target_height**2*self.eta/(2*self.beta**2*self.energy)
+        
+        print(potential)
+        
+        interpTime = self._interp_time_from_potential(potential, 1000)
+        interpWell = self._well_cubic_func(interpTime)
+        interpWell[interpWell>interpWell[0]] = interpWell[0]
+        plt.plot(self.time, self.well, '.')
+        plt.plot(interpTime, interpWell)
+        plt.show()
+        
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
                                                              interpWell, 
                                                              self.beta, 
@@ -156,27 +207,25 @@ class Bucket:
     
         return np.array([outlineTime, outlineEnergy])
     
-    def outline_from_dE(self, target_height):
-        
-        if target_height > self.half_height:
-            raise excpt.BunchSizeError("target_height higher than bucket")
-
-        else:
-            raise RuntimeError("Function not yet implemented")
-    
 
 if __name__ == '__main__':
 
     inTime = np.linspace(0, 2*np.pi, 100)
     inWell = np.cos(inTime)
+    inWell += np.cos(inTime*2)
     inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
-    buck.smooth_well_cubic(20)
+    buck.smooth_well_cubic(50)
     buck.calc_separatrix()
-    bunch = buck.outline_from_length(1)
-    
+#    targetLength = 3
+#    bunch = buck.outline_from_length(targetLength)
+    targetHeight = 3
+    bunch = buck.outline_from_dE(targetHeight)
     plt.plot(buck.separatrix[0], buck.separatrix[1])
+    plt.axhline(targetHeight)
+#    plt.axvline(np.pi - targetLength/2)
+#    plt.axvline(np.pi + targetLength/2)
     plt.plot(bunch[0], bunch[1])
     plt.show()
     
