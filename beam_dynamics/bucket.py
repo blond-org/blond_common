@@ -28,7 +28,8 @@ else:
     from ..rf_functions import potential as pot
     from ..maths import interpolation as interp
     from ..devtools import exceptions as excpt
-    from ..deftools import assertions as assrt
+    from ..devtools import assertions as assrt
+
 
 class Bucket:
     
@@ -88,20 +89,14 @@ class Bucket:
         self.area = 2*np.trapz(self.upper_energy_bound, self.time)
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
-        
+
+
+
     ################################################
     ####Functions for calculating bunch outlines####
     ################################################
     
     
-    def _outline_minim_func(self, energy, *args):
-        
-        if len(args) == 2:
-            leftPts, rightPts = args
-        elif len(args) == 3:
-            leftPts, rightPts, nPts = args
-            
-            
     def _interp_time_from_potential(self, potential, nPts = 0):
         
         if potential > np.max(self.well):
@@ -113,11 +108,16 @@ class Bucket:
         pts = np.where(self.well <= potential)[0]
         leftPt = pts[0]
         rightPt = pts[-1]
-        
+
+        if leftPt < 2:
+            leftPt -= leftPt-2
+        if rightPt > len(self.well)-3:
+            rightPt += len(self.well) - rightPt - 3
+
         lTime = np.interp(potential, self.well[leftPt-2:leftPt+2][::-1], 
                           self.time[leftPt-2:leftPt+2][::-1])
-        rTime = np.interp(potential, self.well[rightPt-2:rightPt+2],
-                          self.time[rightPt-2:rightPt+2])
+        rTime = np.interp(potential, self.well[rightPt-2:rightPt+3],
+                          self.time[rightPt-2:rightPt+3])
 
         if nPts == 0:
             return lTime, rTime
@@ -187,7 +187,7 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])
     
     
-    def outline_from_emittace(self, target_emittance, nPts = 1000):
+    def outline_from_emittance(self, target_emittance, nPts = 1000):
 
         self.smooth_well()
 
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     buck.smooth_well(1000)
     buck.calc_separatrix()
     targetEmit = 30
-    bunch = buck.outline_from_emittace(targetEmit)
+    bunch = buck.outline_from_emittance(targetEmit)
 #    targetLength = 5
 #    bunch = buck.outline_from_length(targetLength)
 #    targetHeight = 3
