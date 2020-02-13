@@ -24,7 +24,7 @@ import numpy.fft as fft
 from ...devtools import assertions as assrt
 from ...devtools import exceptions as excpt
 
-class CutOptions(object):
+class CutOptions:
     r"""
     This class groups all the parameters necessary to slice the phase space
     distribution according to the time axis, apart from the array collecting
@@ -191,7 +191,7 @@ class CutOptions(object):
             self.edges, self.bin_centers, self.bin_size
 
 
-class FitOptions(object):
+class FitOptions:
     """
     This class defines the method to be used turn after turn to obtain the
     position and length of the bunch profile.
@@ -223,7 +223,7 @@ class FitOptions(object):
         self.fitExtraOptions = fitExtraOptions
 
 
-class FilterOptions(object):
+class FilterOptions:
 
     """
     This class defines the filter to be used turn after turn to smooth
@@ -257,7 +257,7 @@ class FilterOptions(object):
         self.filterExtraOptions = filterExtraOptions
 
 
-class OtherSlicesOptions(object):
+class OtherSlicesOptions:
 
     """
     This class groups all the remaining options for the Profile class.
