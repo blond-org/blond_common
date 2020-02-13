@@ -16,7 +16,6 @@ Base class for computing induced voltage
 import numpy as np
 import matplotlib.pyplot as plt
 import numpy.fft as fft
-from scipy.special import erfc
 import scipy.constants as cont
 
 
@@ -79,14 +78,6 @@ class InducedVoltage:
     def calc_induced_by_source(self, spectrum = None, profile = None, 
                                normalisation = 1):
 
-#        if len(self.impedances_loaded) != 0 and spectrum is None:
-#            raise exceptions.InputError("If there are impedances a spectrum" \
-#                                        + " must be provided")
-#
-#        if len(self.wakes_loaded) != 0 and profile is None:
-#            raise exceptions.InputError("If there are wakes a profile" \
-#                                        + " must be provided")
-        
         self.imped_induced = []
         
         for i in self.impedances_loaded:
@@ -123,12 +114,17 @@ class InducedVoltage:
     
     @profile.setter
     def profile(self, value):
+        
         if type(value) is prof.Profile:
             self.beam_profile = value.profile_array
             self.beam_spectrum = value.beam_spectrum
             self.interp_frequency_array = value.beam_spectrum_freq
             self.interp_time_array = value.time_array
             self._profile = value
+
+        elif hasattr(iter, value):
+            if len(value) == 2:
+                self.profile = prof.Profile(value[0], value[1])
 
                 
 def calc_induced_freq(spectrum, impedance):
@@ -165,8 +161,8 @@ if __name__ == '__main__':
     plt.show()
     
     profile = prof.Profile(timeRange, profile)
-    profile.beam_spectrum_freq_generation()
-    profile.beam_spectrum_generation()
+#    profile.beam_spectrum_freq_generation()
+#    profile.beam_spectrum_generation()
     
     plt.semilogx(profile.beam_spectrum_freq, profile.beam_spectrum)
     plt.show()
