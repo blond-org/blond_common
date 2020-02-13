@@ -379,9 +379,9 @@ class Resonators(_ImpedanceObject):
         nIn = len(frequency_R)
         
         if nIn != self.n_resonators:
-            raise exceptions.InputError(f"""Number of resonant frequencies
-                                        ({nIn}) does not match number of
-                                        resonators ({self.n_resonators})""")
+            raise exceptions.InputError("Number of resonant frequencies "\
+                                +"(" + str(nIn) + ") does not match number of "\
+                                +"resonators (" + str(self.n_resonators) + ")")
 
         self.__frequency_R = frequency_R
         self.__omega_R = 2 * np.pi * frequency_R
@@ -398,9 +398,9 @@ class Resonators(_ImpedanceObject):
         nIn = len(omega_R)
 
         if nIn != self.n_resonators:
-            raise exceptions.InputError(f"""Number of resonant frequencies
-                                        ({nIn}) does not match number of
-                                        resonators ({self.n_resonators})""")
+            raise exceptions.InputError("Number of resonant frequencies "\
+                                +"(" + str(nIn) + ") does not match number of "\
+                                +"resonators (" + str(self.n_resonators) + ")")
         
         self.__frequency_R = omega_R / 2 / np.pi
         self.__omega_R = omega_R
@@ -718,8 +718,8 @@ class ResistiveWall(_ImpedanceObject):
 
         assertions.single_none(resistivity, conductivity, 
                                exception=exceptions.InputError,
-                               msg="""Exactly one of resistivity and 
-                                   conductivity should be assigned a value""")
+                               msg='Exactly one of resistivity and '\
+                               + 'conductivity should be assigned a value')
 
         # Beam pipe conductivity in :math:`s / m`
         if resistivity is not None:
