@@ -11,18 +11,18 @@
 **Module to compute the beam profile through slices**
 
 :Authors: **Danilo Quartullo**, **Alexandre Lasheen**, 
-          **Juan F. Esteban Mueller**
+          **Juan F. Esteban Mueller**, **Simon Albright**
 '''
 
+# General imports
 from __future__ import division, print_function
 from builtins import object
 import numpy as np
-# from numpy.fft import rfft, rfftfreq
-from scipy import ndimage
-import ctypes
-#from ..toolbox import filters_and_fitting as ffroutines
-#from ..utils import bmath as bm
 import numpy.fft as fft
+
+# BLonD_common imports
+from ...devtools import assertions as assrt
+from ...devtools import exceptions as excpt
 
 class CutOptions(object):
     r"""
@@ -142,9 +142,9 @@ class CutOptions(object):
 
         else:
 
-            self.cut_left = float(self.convert_coordinates(self.cut_left,
+            self.cut_left = float(self._convert_coordinates(self.cut_left,
                                                      self.cuts_unit))
-            self.cut_right = float(self.convert_coordinates(self.cut_right,
+            self.cut_right = float(self._convert_coordinates(self.cut_right,
                                                       self.cuts_unit))
 
         self.edges = np.linspace(self.cut_left, self.cut_right,
@@ -167,17 +167,21 @@ class CutOptions(object):
         self.edges += delta
         self.bin_centers += delta
 
-    def convert_coordinates(self, value, input_unit_type):
+    def _convert_coordinates(self, value, input_unit_type):
         """
         Method to convert a value from 'rad' to 's'.
         """
 
-        if input_unit_type is 's':
+        if input_unit_type == 's':
             return value
 
-        elif input_unit_type is 'rad':
+        elif input_unit_type == 'rad':
             return value /\
                 self.RFParams.omega_rf[0, self.RFParams.counter[0]]
+        
+        else:
+            raise excpt.InputError("input_unit_type not recognised")
+        
 
     def get_slices_parameters(self):
         """
@@ -295,6 +299,10 @@ class Profile:
     
     def __init__(self, time_array, profile_array):
         
+        assrt.equal_array_lengths(time_array, profile_array,
+                  msg = 'time_array and profile_array should be equal length',
+                  exception = excpt.InputDataError)
+        
         self.time_array_loaded = time_array
         self.profile_array_loaded = profile_array
         
@@ -311,282 +319,29 @@ class Profile:
         """
         if n_sampling_fft is None:
             n_sampling_fft = len(self.profile_array)
-        self.beam_spectrum_freq = fft.rfftfreq(n_sampling_fft, self.bin_size)
+        self._beam_spectrum_freq = fft.rfftfreq(n_sampling_fft, self.bin_size)
 
     def beam_spectrum_generation(self, n_sampling_fft = None):
         """
         Beam spectrum calculation
         """
 
-        self.beam_spectrum = fft.rfft(self.profile_array, n_sampling_fft)
-
-
-#deprecated
-class _Profile(object):
-    """
-    Contains the beam profile and related quantities including beam spectrum,
-    profile derivative.
-
-    Parameters
-    ----------
-
-    Beam : object
-        Beam from which the profile has to be calculated
-    CutOptions : object
-        Options for profile cutting (see above)
-    FitOptions : object
-        Options to get profile position and length (see above)
-    FilterOptions : object
-        Options to set a filter (see above)
-    OtherSlicesOptions : object
-        All remaining options, like smooth histogram and direct
-        slicing (see above)
-
-    Attributes
-    ----------
-
-    Beam : object
-    n_slices : int
-        number of slices to be used
-    cut_left : float
-        left extreme of the profile
-    cut_right : float
-        right extreme of the profile
-    n_sigma : float
-        defines the left and right extremes of the profile in case those are
-        not given explicitly
-    edges : float array
-        contains the edges of the slices
-    bin_centers : float array
-        contains the centres of the slices
-    bin_size : float
-        lenght of one bin (or slice)
-    n_macroparticles : float array
-        contains the histogram (or profile); its elements are real if the
-        smooth histogram tracking is used
-    beam_spectrum : float array
-        contains the spectrum of the beam (arb. units)
-    beam_spectrum_freq : float array
-        contains the frequencies on which the spectrum is computed [Hz]
-    operations : list
-        contains all the methods to be called every turn, like slice track,
-        fitting, filtering etc.
-    bunchPosition : float
-        profile position [s]
-    bunchLength : float
-        profile length [s]
-    filterExtraOptions : unknown (see above)
-
-    Examples
-    --------
-
-    >>> n_slices = 100
-    >>> CutOptions = profileModule.CutOptions(cut_left=0,
-    >>>       cut_right=self.ring.t_rev[0], n_slices = n_slices, cuts_unit='s')
-    >>> FitOptions = profileModule.FitOptions(fit_option='gaussian',
-    >>>                                        fitExtraOptions=None)
-    >>> filter_option = {'pass_frequency':1e7,
-    >>>    'stop_frequency':1e8, 'gain_pass':1, 'gain_stop':2,
-    >>>    'transfer_function_plot':False}
-    >>> FilterOptions = profileModule.FilterOptions(filterMethod='chebishev',
-    >>>         filterExtraOptions=filter_option)
-    >>> OtherSlicesOptions = profileModule.OtherSlicesOptions(smooth=False,
-    >>>                             direct_slicing = True)
-    >>> self.profile4 = profileModule.Profile(my_beam, CutOptions = CutOptions,
-    >>>                     FitOptions= FitOptions,
-    >>>                     FilterOptions=FilterOptions,
-    >>>                     OtherSlicesOptions = OtherSlicesOptions)
-
-    """
-
-    def __init__(self, Beam,
-                 CutOptions=CutOptions(),
-                 FitOptions=FitOptions(),
-                 FilterOptions=FilterOptions(),
-                 OtherSlicesOptions=OtherSlicesOptions()):
-        """
-        Constructor
-        """
-
-        # Copy of CutOptions object to be usef for reslicing
-        self.cut_options = CutOptions
-
-        # Define bins
-        CutOptions.set_cuts(Beam)
-
-        # Import (reference) Beam
-        self.Beam = Beam
-
-        # Get all computed parameters from CutOptions
-        self.set_slices_parameters()
-
-        # Initialize profile array as zero array
-        self.n_macroparticles = np.zeros(self.n_slices, dtype=float)
-
-        # Initialize beam_spectrum and beam_spectrum_freq as empty arrays
-        self.beam_spectrum = np.array([], dtype=float)
-        self.beam_spectrum_freq = np.array([], dtype=float)
-
-        if OtherSlicesOptions.smooth:
-            self.operations = [self._slice_smooth]
-        else:
-            self.operations = [self._slice]
-
-        if FitOptions.fit_option is not None:
-            self.fit_option = FitOptions.fit_option
-            self.bunchPosition = 0.0
-            self.bunchLength = 0.0
-            if FitOptions.fit_option == 'gaussian':
-                self.operations.append(self.apply_fit)
-            elif FitOptions.fit_option == 'rms':
-                self.operations.append(self.rms)
-            elif FitOptions.fit_option == 'fwhm':
-                self.operations.append(self.fwhm)
-
-        if FilterOptions.filterMethod == 'chebishev':
-            self.filterExtraOptions = FilterOptions.filterExtraOptions
-            self.operations.append(self.apply_filter)
-
-        if OtherSlicesOptions.direct_slicing:
-            self.track()
-
-    def set_slices_parameters(self):
-        self.n_slices, self.cut_left, self.cut_right, self.n_sigma, \
-                self.edges, self.bin_centers, self.bin_size = \
-                self.cut_options.get_slices_parameters()
-
-    def track(self):
-        """
-        Track method in order to update the slicing along with the tracker.
-        """
-
-        for op in self.operations:
-            op()
-
-    def _slice(self):
-        """
-        Constant space slicing with a constant frame. 
-        """
-        bm.slice(self)
-        # libblond.histogram(self.Beam.dt.ctypes.data_as(ctypes.c_void_p), 
-        #                  self.n_macroparticles.ctypes.data_as(ctypes.c_void_p), 
-        #                  ctypes.c_double(self.cut_left), 
-        #                  ctypes.c_double(self.cut_right), 
-        #                  ctypes.c_int(self.n_slices), 
-        #                  ctypes.c_int(self.Beam.n_macroparticles))
-
-    def _slice_smooth(self):
-        """
-        At the moment 4x slower than _slice but smoother (filtered).
-        """
-        bm.slice_smooth(self)
-        # libblond.smooth_histogram(self.Beam.dt.ctypes.data_as(ctypes.c_void_p), 
-        #                  self.n_macroparticles.ctypes.data_as(ctypes.c_void_p), 
-        #                  ctypes.c_double(self.cut_left), 
-        #                  ctypes.c_double(self.cut_right), 
-        #                  ctypes.c_uint(self.n_slices), 
-        #                  ctypes.c_uint(self.Beam.n_macroparticles))
-
+        self._beam_spectrum = fft.rfft(self.profile_array, n_sampling_fft)
     
-    def apply_fit(self):
-        """
-        It applies Gaussian fit to the profile.
-        """
-
-        if self.bunchLength == 0:
-            p0 = [max(self.n_macroparticles), np.mean(self.Beam.dt),
-                  np.std(self.Beam.dt)]
-        else:
-            p0 = [max(self.n_macroparticles), self.bunchPosition,
-                  self.bunchLength/4]
-
-        self.fitExtraOptions = ffroutines.gaussian_fit(self.n_macroparticles,
-                                                       self.bin_centers, p0)
-        self.bunchPosition = self.fitExtraOptions[1]
-        self.bunchLength = 4*self.fitExtraOptions[2]
-
-    def apply_filter(self):
-        """
-        It applies Chebishev filter to the profile.
-        """
-        self.n_macroparticles = ffroutines.beam_profile_filter_chebyshev(
-            self.n_macroparticles, self.bin_centers, self.filterExtraOptions)
-
-    def rms(self):
-        """
-        Computation of the RMS bunch length and position from the line
-        density (bunch length = 4sigma).
-        """
-
-        self.bunchPosition, self.bunchLength = ffroutines.rms(
-            self.n_macroparticles, self.bin_centers)
-
-    def rms_multibunch(self, n_bunches, bunch_spacing_buckets, bucket_size_tau,
-                       bucket_tolerance=0.40):
-        """
-        Computation of the bunch length (4sigma) and position from RMS.
-        """
-
-        self.bunchPosition, self.bunchLength = ffroutines.rms_multibunch(
-            self.n_macroparticles, self.bin_centers, n_bunches,
-            bunch_spacing_buckets, bucket_size_tau, bucket_tolerance)
-
-    def fwhm(self, shift=0):
-        """
-        Computation of the bunch length and position from the FWHM
-        assuming Gaussian line density.
-        """
-
-        self.bunchPosition, self.bunchLength = ffroutines.fwhm(
-            self.n_macroparticles, self.bin_centers, shift)
-
-    def fwhm_multibunch(self, n_bunches, bunch_spacing_buckets,
-                        bucket_size_tau, bucket_tolerance=0.40, shift=0):
-        """
-        Computation of the bunch length and position from the FWHM
-        assuming Gaussian line density for multibunch case.
-        """
-
-        self.bunchPosition, self.bunchLength = ffroutines.fwhm_multibunch(
-            self.n_macroparticles, self.bin_centers, n_bunches,
-            bunch_spacing_buckets, bucket_size_tau, bucket_tolerance, shift)
-
-    def beam_spectrum_freq_generation(self, n_sampling_fft):
-        """
-        Frequency array of the beam spectrum
-        """
-
-        self.beam_spectrum_freq = bm.rfftfreq(n_sampling_fft, self.bin_size)
-
-    def beam_spectrum_generation(self, n_sampling_fft):
-        """
-        Beam spectrum calculation
-        """
-
-        self.beam_spectrum = bm.rfft(self.n_macroparticles, n_sampling_fft)
-
-    def beam_profile_derivative(self, mode='gradient'):
-        """
-        The input is one of the three available methods for differentiating
-        a function. The two outputs are the bin centres and the discrete
-        derivative of the Beam profile respectively.*
-        """
-
-        x = self.bin_centers
-        dist_centers = x[1] - x[0]
-
-        if mode is 'filter1d':
-            derivative = ndimage.gaussian_filter1d(
-                self.n_macroparticles, sigma=1, order=1, mode='wrap') / \
-                dist_centers
-        elif mode is 'gradient':
-            derivative = np.gradient(self.n_macroparticles, dist_centers)
-        elif mode is 'diff':
-            derivative = np.diff(self.n_macroparticles) / dist_centers
-            diffCenters = x[0:-1] + dist_centers/2
-            derivative = np.interp(x, diffCenters, derivative)
-        else:
-            #ProfileDerivativeError
-            raise RuntimeError('Option for derivative is not recognized.')
-
-        return x, derivative
+    @property
+    def beam_spectrum_freq(self):
+        
+        try:
+            return self._beam_spectrum_freq
+        except AttributeError:
+            self.beam_spectrum_freq_generation()
+            return self._beam_spectrum_freq
+        
+    @property
+    def beam_spectrum(self):
+        
+        try:
+            return self._beam_spectrum
+        except AttributeError:
+            self.beam_spectrum_generation()
+            return self._beam_spectrum
