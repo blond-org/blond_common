@@ -101,7 +101,8 @@ class InducedVoltage:
 
 
     def _calc_induced_time(self, normalisation):
-        return calc_induced_time(self.beam_profile, self.total_wake)
+        return calc_induced_time(self.beam_profile, 
+                                 self.total_wake*normalisation)
     
     def _calc_induced_freq(self, normalisation):
         return calc_induced_freq(self.beam_spectrum, 
@@ -161,8 +162,9 @@ if __name__ == '__main__':
     plt.show()
     
     profile = prof.Profile(timeRange, profile)
-#    profile.beam_spectrum_freq_generation()
-#    profile.beam_spectrum_generation()
+    
+    profile.beam_spectrum_freq_generation()
+    profile.beam_spectrum_generation()
     
     plt.semilogx(profile.beam_spectrum_freq, profile.beam_spectrum)
     plt.show()
@@ -177,77 +179,3 @@ if __name__ == '__main__':
                              reson1.impedance/(timeRange[1] - timeRange[0]))
     plt.plot(profile.time_array, VInd.real)
     plt.show()
-    
-#%%    
-
-    induced = InducedVoltage([], [reson1])
-    induced.profile = profile
-    induced.sum_impedance_sources()
-
-    induced.calc_induced(cont.e/(timeRange[1] - timeRange[0]))
-    
-    plt.plot(profile.time_array, VInd.real)
-    plt.plot(induced.interp_time_array, induced.VInduced)
-    plt.show()
-    
-    RShunts = [.1E3, 20, .5E3, 10]
-    FRes = [100E6, 1E6, 50E6, 2E6]
-    Q = [1E3, 20, 2E3, 19]
-    resonList = []
-    for r, f, q in zip(RShunts, FRes, Q):
-        resonList.append(impSource.Resonators(r, f, q))
-        
-    for r in resonList:
-        r.imped_calc(profile.beam_spectrum_freq)
-        plt.semilogx(profile.beam_spectrum_freq/1E6, r.impedance.real)
-    plt.show()
-    
-    induced = InducedVoltage(resonList)
-    induced.profile = profile
-    induced.sum_impedance_sources()
-
-    induced.calc_induced(cont.e/(timeRange[1] - timeRange[0]))
-    induced.calc_induced_by_source(normalisation = cont.e/(timeRange[1] - timeRange[0]))
-    
-    plt.plot(induced.interp_time_array*1E6, induced.VInduced, label='total')
-    
-    for i, v in enumerate(induced.imped_induced):
-        plt.plot(induced.interp_time_array*1E6, v, label=i)
-    plt.legend()
-    plt.show()
-    
-##%%
-#    
-#    def gaussVind(tau, A,tc,sigma, R,fr,Q):
-#        omegaR = 2*np.pi*fr
-#        alpha = 0.5*omegaR/Q
-#        omegaEff = omegaR * np.sqrt(1-0.25/Q**2)
-#        
-#        res = R*alpha/omegaEff \
-#        * np.exp((tc-tau + 0.5*(alpha-1j*omegaEff) * sigma**2) * (alpha-1j*omegaEff))\
-#        * (1j*alpha+omegaEff) \
-#        * erfc((tc-tau+sigma**2*(alpha-1j*omegaEff))/np.sqrt(2)/sigma)
-#        
-#        return -res.real
-#
-#    def bunchProfile(tau, A=1, tc=0, sigma=1):
-#        return A * np.exp(-0.5*(tau-tc)**2/sigma**2) / np.sqrt(2*np.pi) / sigma
-#    
-#    calcProf = bunchProfile(timeRange, ampl, pos, sigma)
-#
-#    calcProf /= np.sum(calcProf)
-#    calcProf *= 1E13
-#
-#    plt.plot(profile.time_array, profile.profile_array)
-#    plt.plot(timeRange, calcProf)
-#    plt.show()
-#    VAnal = 1E13*cont.e*gaussVind(timeRange, ampl, pos, sigma, rShunt, fRes, Q)
-#    
-##%%
-#    
-#    plt.plot(timeRange*1E6, VAnal)
-#    plt.plot(profile.time_array*1E6, VInd.real)
-#    plt.show()
-#
-#    plt.plot(timeRange*1E6, VAnal-VInd.real)
-#    plt.show()
