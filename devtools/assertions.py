@@ -17,6 +17,15 @@ def equal_array_lengths(*args, msg, exception):
     if len(set(len(a) for a in args)) > 1:
         raise exception(msg)
 
+
+def equal_arrays(*args, msg, exception):
+    
+    equal_array_lengths(*args, msg = msg, exception = exception)
+    for arg in list(zip(*args)):
+        if not all(arg[0] == a for a in arg):
+            raise exception(msg)
+
+
 def not_none(*args, msg, exception):
     
     if all(v is None for v in args):
