@@ -20,9 +20,15 @@ from scipy.constants import c
 from scipy.integrate import cumtrapz
 from ..beam.beam import Proton
 from ..input_parameters.rf_parameters_options import RFStationOptions
+import sys
+
+#BLonD_Common imports
+from ...datatypes import datatypes as dTypes
+from ...devtools import exceptions as excpt
+from ...devtools import assertions as assrt
 
 
-class RFStation(object):
+class RFStation:
     r""" Class containing all the RF parameters for all the RF systems in one
     ring segment or RF station.
 
@@ -204,24 +210,46 @@ class RFStation(object):
 
     """
 
-    def __init__(self, Ring, harmonic, voltage, phi_rf_d, n_rf=1,
+    def __init__(self, Ring, harmonic, voltage, phi_rf_d,
                  section_index=1, omega_rf=None, phi_noise=None,
                  phi_modulation=None, RFStationOptions=RFStationOptions()):
 
         # Different indices
         self.counter = [int(0)]
         self.section_index = int(section_index - 1)
+        
+        
         if self.section_index < 0 \
                 or self.section_index > Ring.n_sections - 1:
             raise RuntimeError("ERROR in RFStation: section_index out of" +
                                " allowed range!")
 
-        if hasattr(voltage, 'data_type'):
-            if voltage.data_type[2] != phi_rf_d.data_type[2]:
-                raise RuntimeError("voltage and phase harmonics do not match")
-            self.n_rf = len(voltage.data_type[2])
-        else:
-            self.n_rf = int(n_rf)
+
+        #Coercion of voltage to RF_section_function datatype
+        if not isinstance(voltage, dTypes.RF_section_function):
+            try:
+                voltage = dTypes.RF_section_function(*voltage, 
+                                                     harmonics = harmonic, 
+                                                     interpolation = 'linear')
+            except excpt.DataDefinitionError:
+                voltage = dTypes.RF_section_function(*voltage, 
+                                                     harmonics = harmonic)
+        #Coercion of phase to RF_section_function datatype                                  
+        if not isinstance(phi_rf_d, dTypes.RF_section_function):
+            try:
+                phi_rf_d = dTypes.RF_section_function(*phi_rf_d, 
+                                                     harmonics = harmonic, 
+                                                     interpolation = 'linear')
+            except excpt.DataDefinitionError:
+                phi_rf_d = dTypes.RF_section_function(*phi_rf_d, 
+                                                     harmonics = harmonic)
+
+        assrt.equal_arrays(voltage.data_type[2], phi_rf_d.data_type[2],
+            msg = 'Harmonics of voltage and phase functions do not match', 
+            exception = excpt.InputDataError)
+        
+        self.n_rf = len(voltage.data_type[2])
+        
 
         # Imported from Ring
         self.Particle = Ring.Particle
