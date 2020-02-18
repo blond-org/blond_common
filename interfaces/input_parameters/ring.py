@@ -231,18 +231,15 @@ class Ring:
 #            circumference=self.ring_circumference,
 #            bending_radius=self.bending_radius)
         
-        print("BEFORE TEST: ", synchronous_data)
-#        print(isinstance(synchronous_data, dTypes.ring_program))
         if not isinstance(synchronous_data, dTypes.ring_program):
                 synchronous_data = dTypes.ring_program(synchronous_data, 
                                            data_type = synchronous_data_type)
-        print("AFTER TEST:", synchronous_data.data_type)
         self.momentum = RingOptions.reshape_data(synchronous_data,
                                                  self.Particle.mass,
                                                  self.Particle.charge,
                                                  self.ring_circumference,
                                                  self.bending_radius)
-        
+        return
         sys.exit()
 
         # Updating the number of turns in case it was changed after ramp

@@ -23,6 +23,7 @@ from scipy.constants import c
 from scipy.interpolate import splrep, splev
 from ...devtools.path import makedir
 import warnings
+import sys
 
 # General imports
 import scipy.constants as cont
@@ -581,10 +582,16 @@ class RingOptions:
 
     def __init__(self, interp_time = 't_rev', interpolation = 'linear',
                  t_start = None, t_end = None, flat_bottom = 0, flat_top = 0, 
-                 n_turns = None, n_sections = 1):
+                 n_turns = np.inf, n_sections = 1):
         
-        if (interp_time.casefold() == 't_rev') \
-        or isinstance(interp_time, float) \
+        try:
+            interp_time = interp_time.casefold()
+            if interp_time == 't_rev':
+                interp_time = 0
+        except AttributeError:
+            pass
+        
+        if isinstance(interp_time, float) \
         or isinstance(interp_time, tuple) \
         or isinstance(interp_time, list):
             self.interp_time = interp_time            
@@ -609,7 +616,7 @@ class RingOptions:
         else:
             raise excpt.InputError("flat_top must be 0 or greater")
     
-        if n_turns is not None:
+        if n_turns is not np.inf:
             try:
                 self.n_turns = int(n_turns)
                 if n_turns % 1 != 0:
@@ -675,7 +682,8 @@ class RingOptions:
             
             print("TEST BEFORE PREPROCESS")
             inputTime = input_data[sect][0]
-            if isinstance(input_data, dTypes.ring_program):
+            if isinstance(input_data[sect], dTypes.ring_program):
+                print("IN isinstance")
                 processTime, processData = self.preprocess(mass, circumference,
                                                            inputTime, 
                                                            inputValues)
@@ -684,18 +692,18 @@ class RingOptions:
                 
 #            else:
 #                try:
-#                    iter(self.interp_time)
+#                    iter(self.interp_tim.e)
 #                except TypeError:
 #                    self.interp_time = np.arange(inputTime[0], inputTime[-1], \
 #                                            float(self.interp_time))
             
 #                output_data.append(np.interp(self.interp_time, inputTime, \
 #                                                 inputValues))
-        print(output_time, output_data)
+#        print(output_time, output_data)
         output_time = np.array(output_time, ndmin=2, dtype=float)
         output_data = np.array(output_data, ndmin=2, dtype=float)
 
-        return output_data
+        return output_time, output_data
                 
 
     def preprocess(self, mass, circumference, time, momentum, 
@@ -712,8 +720,8 @@ class RingOptions:
 
         if self.t_start == None:
             self.t_start = time[0]
-        if self.t_stop == None:
-            self.t_stop = time[-1]
+        if self.t_end == None:
+            self.t_end = time[-1]
 
         # Obtain flat bottom data, extrapolate to constant
 #        beta_0 = np.sqrt(1/(1 + (mass/momentum[0])**2))
@@ -730,9 +738,18 @@ class RingOptions:
 #        time_start_ramp = np.max(time[momentum == momentum[0]])
 #        time_end_ramp = np.min(time[momentum == momentum[-1]])
         
-        time_func = timing.time_from_sampling(self.sampling)
+        time_func, start, end = timing.time_from_sampling(self.interp_time)
+        
+        if start > self.t_start:
+            self.t_start = start
+            warnings.warn("self.t_start being overwritten")
+
+        if end < self.t_end:
+            self.t_end = end
+            warnings.warn("self.t_stop being overwritten")
+        
         if interpolation == 'linear':
-            time, momentum = self._linear_interpolation(self, mass, 
+            time, momentum = self._linear_interpolation(mass, 
                                                         circumference, time, 
                                                         momentum, time_func)
             
@@ -756,24 +773,28 @@ class RingOptions:
 
         time_start_interp, time_end_interp = self._ramp_start_stop(time, 
                                                                    momentum)
-        
+
         next_time = time_interp[0] + T0
+        
         next_store_time = time_func(time_interp[0])
         if next_time >= next_store_time:
             time_interp.append(next_time)
             next_store_time = time_func(time_interp[0])
 
+        print(next_time, next_store_time)
+        
         while next_time < time_end_interp:
             
             next_momentum = np.interp(next_time, time, momentum)
             next_beta = np.sqrt(1/(1 + (mass/next_momentum)**2))
             next_time = next_time + self._calc_t_rev(circumference, next_beta)
             nTurns += 1
-            
+
             if next_time >= next_store_time:
                 time_interp.append(next_time)
                 momentum_interp.append(next_momentum)
-                next_store_time = time_func(time_interp[0])
+                next_store_time = time_func(time_interp[-1])
+                print("Next store: " + str(next_store_time))
             
             if nTurns >= self.n_turns:
                 break
@@ -794,8 +815,8 @@ class RingOptions:
         if time_start_ramp > self.t_start:
             time_start_ramp = self.t_start
         
-        if time_end_ramp < self.t_stop:
-            time_end_ramp = self.t_stop
+        if time_end_ramp < self.t_end:
+            time_end_ramp = self.t_end
 
         return time_start_ramp, time_end_ramp
     

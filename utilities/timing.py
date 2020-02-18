@@ -27,26 +27,49 @@ def time_from_sampling(resolution):
 
         def sample_func(time):
             return time
+        
+        start = 0
+        end = np.inf
     
     elif isinstance(resolution, numbers.Number):
 
         def sample_func(time):
             return time + resolution
+        
+        start = 0
+        end = np.inf
     
     elif isinstance(resolution, tuple):
         
         def sample_func(time):
-            if time >= resolution[1][0] and time <= resolution[1][1]:
+            if time >= resolution[1][0] and time < resolution[1][1]:
                 return time + resolution[0]
+        
+        start, end = resolution[1]
                 
     elif isinstance(resolution, list):
         
         def sample_func(time):
-            for t in resolution:
-                if time >= t[1][0] and time <= t[1][1]:
-                    return time + t[0]
+            for r in resolution:
+                if time >= r[1][0] and time < r[1][1]:
+                    return time + r[0]
+            else:
+                next_time = np.inf
+                for r in resolution:
+                    if time <= r[1][0] and r[1][0] < next_time:
+                        next_time = r[1][0]
 
-    return sample_func
+                return next_time
+                
+        start = np.inf
+        end = 0
+        for r in resolution:
+            if r[1][0] < start:
+                start = r[1][0]
+            if r[1][1] > end:
+                end = r[1][1]
+
+    return sample_func, start, end
 
 
 # Calculate turn numbers from a passed time_range at times given by 'resolution'
