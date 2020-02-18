@@ -15,9 +15,38 @@ Module to interpolate time arrays
 #General imports
 import numpy as np
 import warnings
+import numbers
 
 #BLonD_Common imports
 from ..devtools import exceptions as excpt
+
+
+def time_from_sampling(resolution):
+    
+    if resolution == 't_rev':
+
+        def sample_func(time):
+            return time
+    
+    elif isinstance(resolution, numbers.Number):
+
+        def sample_func(time):
+            return time + resolution
+    
+    elif isinstance(resolution, tuple):
+        
+        def sample_func(time):
+            if time >= resolution[1][0] and time <= resolution[1][1]:
+                return time + resolution[0]
+                
+    elif isinstance(resolution, list):
+        
+        def sample_func(time):
+            for t in resolution:
+                if time >= t[1][0] and time <= t[1][1]:
+                    return time + t[0]
+
+    return sample_func
 
 
 # Calculate turn numbers from a passed time_range at times given by 'resolution'

@@ -17,11 +17,13 @@ from builtins import str, range, object
 import numpy as np
 import warnings
 from scipy.constants import c
-from ..input_parameters.ring_options import RingOpt
+from . import ring_options as ringOpt
+import sys
 
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 from ..beam import beam
+from ...datatypes import datatypes as dTypes
 
 
 class Ring:
@@ -185,6 +187,8 @@ class Ring:
                  bending_radius=None, n_sections=1, alpha_1=None, alpha_2=None,
                  RingOptions=None, **kwargs):
 
+        print("START: ", synchronous_data)
+
         # Conversion of initial inputs to expected types
         self.n_turns = int(n_turns)
         self.n_sections = int(n_sections)
@@ -210,23 +214,36 @@ class Ring:
             self.Particle = beam.make_particle(Particle)
             
         if RingOptions is None:
-            RingOptions = RingOpt(**kwargs)
+            RingOptions = ringOpt.RingOptions(**kwargs)
         # Keeps RingOptions as an attribute
         self.RingOptions = RingOptions
 
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
-        self.momentum = RingOptions.reshape_data(
-            synchronous_data,
-            self.n_turns,
-            self.n_sections,
-            interp_time=RingOptions.interp_time,
-            input_to_momentum=True,
-            synchronous_data_type=synchronous_data_type,
-            mass=self.Particle.mass,
-            charge=self.Particle.charge,
-            circumference=self.ring_circumference,
-            bending_radius=self.bending_radius)
+#        self.momentum = RingOptions.reshape_data(
+#            synchronous_data,
+#            self.n_turns,
+#            self.n_sections,
+#            input_to_momentum=True,
+#            synchronous_data_type=synchronous_data_type,
+#            mass=self.Particle.mass,
+#            charge=self.Particle.charge,
+#            circumference=self.ring_circumference,
+#            bending_radius=self.bending_radius)
+        
+        print("BEFORE TEST: ", synchronous_data)
+#        print(isinstance(synchronous_data, dTypes.ring_program))
+        if not isinstance(synchronous_data, dTypes.ring_program):
+                synchronous_data = dTypes.ring_program(synchronous_data, 
+                                           data_type = synchronous_data_type)
+        print("AFTER TEST:", synchronous_data.data_type)
+        self.momentum = RingOptions.reshape_data(synchronous_data,
+                                                 self.Particle.mass,
+                                                 self.Particle.charge,
+                                                 self.ring_circumference,
+                                                 self.bending_radius)
+        
+        sys.exit()
 
         # Updating the number of turns in case it was changed after ramp
         # interpolation
@@ -242,37 +259,42 @@ class Ring:
         self.energy = np.sqrt(self.momentum**2 + self.Particle.mass**2)
         self.kin_energy = np.sqrt(self.momentum**2 + self.Particle.mass**2) - \
             self.Particle.mass
+            
         self.delta_E = np.diff(self.energy, axis=1)
+        if self.RingOptions.interp_time != 't_rev':
+            self._recalc_delta_E()
+            
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))
+
         if RingOptions.interp_time == 't_rev':
             self.cycle_time = np.cumsum(self.t_rev)  # Always starts with zero
+
         elif isinstance(RingOptions.interp_time, float):
             self.cycle_time = np.arange(
                 0, len(self.t_rev)*RingOptions.interp_time,
                 RingOptions.interp_time)  # Always starts with zero
+
         elif isinstance(RingOptions.interp_time, np.ndarray) or \
                 isinstance(RingOptions.interp_time, list):
             self.cycle_time = np.array(RingOptions.interp_time)
             self.cycle_time -= self.cycle_time[0]  # Always starts with zero
+
         self.f_rev = 1/self.t_rev
         self.omega_rev = 2*np.pi*self.f_rev
 
         # Momentum compaction, checks, and derived slippage factors
         self.alpha_0 = RingOptions.reshape_data(
-            alpha_0, self.n_turns, self.n_sections,
-            interp_time=self.cycle_time)
+            alpha_0, self.n_turns, self.n_sections)
         self.alpha_order = 0
 
         if alpha_1 is not None:
             self.alpha_1 = RingOptions.reshape_data(
-                alpha_1, self.n_turns, self.n_sections,
-                interp_time=self.cycle_time)
+                alpha_1, self.n_turns, self.n_sections)
             self.alpha_order = 1
 
         if alpha_2 is not None:
             self.alpha_2 = RingOptions.reshape_data(
-                alpha_2, self.n_turns, self.n_sections,
-                interp_time=self.cycle_time)
+                alpha_2, self.n_turns, self.n_sections)
             self.alpha_order = 2
 
             # Filling alpha_1 with zeros if only alpha_2 program was set
