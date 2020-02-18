@@ -183,7 +183,7 @@ class Ring:
     def __init__(self, ring_length, alpha_0, synchronous_data, Particle,
                  n_turns=1, synchronous_data_type='momentum',
                  bending_radius=None, n_sections=1, alpha_1=None, alpha_2=None,
-                 RingOptions=RingOptions()):
+                 RingOptions=None, **kwargs):
 
         # Conversion of initial inputs to expected types
         self.n_turns = int(n_turns)
@@ -209,7 +209,8 @@ class Ring:
         else:
             self.Particle = beam.make_particle(Particle)
             
-
+        if RingOptions is None:
+            RingOptions = RingOptions(**kwargs)
         # Keeps RingOptions as an attribute
         self.RingOptions = RingOptions
 
