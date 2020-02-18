@@ -34,10 +34,9 @@ class _function(np.ndarray):
         self.data_type = getattr(obj, 'data_type', None)
 
 
+class _ring_function(_function):
 
-class momentum_program(_function):
-    
-    def __new__(cls, *args, time = None, n_turns = None):
+    def __new__(cls, *args, func_type, time = None, n_turns = None):
         
         _check_time_turns(time, n_turns)
             
@@ -50,10 +49,10 @@ class momentum_program(_function):
             
         if len(data_types) == 1:
             return super().__new__(cls, data_points[0], \
-                        ('momentum', data_types[0], 'single_section'))
+                        (func_type, data_types[0], 'single_section'))
         else:
             return super().__new__(cls, data_points, \
-                        ('momentum', data_types[0], 'multi_section'))
+                        (func_type, data_types[0], 'multi_section'))
 
 
 class RF_section_function(_function):
@@ -125,6 +124,21 @@ class RF_section_function(_function):
         
         return super().__new__(cls, data_points, ('RF', data_types[0], \
                                                   harmonics))
+
+
+
+class ring_program(_ring_function):
+    
+    def __new__(cls, *args, data_type='momentum', time = None, n_turns = None):
+        return super().__new__(cls, *args, func_type = data_type, time = time, 
+                         n_turns = n_turns)
+
+
+class momentum_compaction(_ring_function):
+    
+    def __new__(cls, *args, order = 0, time = None, n_turns = None):
+        return super().__new__(cls, *args, func_type = order, time = time, 
+                         n_turns = n_turns)
 
 
 #For functions defined by turn number, check all have same number of turns
