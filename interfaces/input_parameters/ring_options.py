@@ -119,7 +119,7 @@ class RingOptions(object):
                                " not recognised. Aborting...")
 
     def reshape_data(self, input_data, n_turns, n_sections,
-                     interp_time='t_rev', input_to_momentum=False,
+                      input_to_momentum=False,
                      synchronous_data_type='momentum', mass=None, charge=None,
                      circumference=None, bending_radius=None):
         r"""Checks whether the user input is consistent with the expectation
@@ -208,19 +208,19 @@ class RingOptions(object):
                 
                 inputTime = input_data[sect][0]
                 
-                if interp_time == 't_rev':
+                if self.interp_time == 't_rev':
                     output_data.append(self.preprocess(
                             mass,
                             circumference,
                             inputTime, inputValues)[1])
                 else:
                     try:
-                        iter(interp_time)
+                        iter(self.interp_time)
                     except TypeError:
-                        interp_time = np.arange(inputTime[0], inputTime[-1], \
-                                                float(interp_time))
+                        self.interp_time = np.arange(inputTime[0], inputTime[-1], \
+                                                float(self.interp_time))
                 
-                    output_data.append(np.interp(interp_time, inputTime, \
+                    output_data.append(np.interp(self.interp_time, inputTime, \
                                                      inputValues))
                 
             output_data = np.array(output_data, ndmin=2, dtype=float)
@@ -279,29 +279,29 @@ class RingOptions(object):
                     raise RuntimeError("ERROR in Ring: synchronous data " +
                                        "does not match the time data")
 
-                if input_to_momentum and (interp_time == 't_rev'):
+                if input_to_momentum and (self.interp_time == 't_rev'):
                     output_data.append(self.preprocess(
                         mass,
                         circumference,
                         input_data_time,
                         input_data_values)[1])
 
-                elif isinstance(interp_time, float) or \
-                        isinstance(interp_time, int):
-                    interp_time = float(interp_time)
-                    interp_time = np.arange(
+                elif isinstance(self.interp_time, float) or \
+                        isinstance(self.interp_time, int):
+                    self.interp_time = float(self.interp_time)
+                    self.interp_time = np.arange(
                         input_data_time[0],
                         input_data_time[-1],
-                        interp_time)
+                        self.interp_time)
 
                     output_data.append(np.interp(
-                        interp_time,
+                        self.interp_time,
                         input_data_time,
                         input_data_values))
 
-                elif isinstance(interp_time, np.ndarray):
+                elif isinstance(self.interp_time, np.ndarray):
                     output_data.append(np.interp(
-                        interp_time,
+                        self.interp_time,
                         input_data_time,
                         input_data_values))
 
