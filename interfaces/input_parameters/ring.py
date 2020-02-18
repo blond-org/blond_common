@@ -17,7 +17,7 @@ from builtins import str, range, object
 import numpy as np
 import warnings
 from scipy.constants import c
-from ..input_parameters.ring_options import RingOptions
+from ..input_parameters.ring_options import RingOpt
 
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
@@ -210,7 +210,7 @@ class Ring:
             self.Particle = beam.make_particle(Particle)
             
         if RingOptions is None:
-            RingOptions = RingOptions(**kwargs)
+            RingOptions = RingOpt(**kwargs)
         # Keeps RingOptions as an attribute
         self.RingOptions = RingOptions
 
