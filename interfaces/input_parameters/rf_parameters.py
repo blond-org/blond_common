@@ -227,6 +227,14 @@ class RFStation:
 
         #Coercion of voltage to RF_section_function datatype
         if not isinstance(voltage, dTypes.RF_section_function):
+            if isinstance(voltage, dict):
+                useV = []
+                for h in harmonic:
+                    useV.append(voltage.pop(h, 0))
+                if len(voltage) != 0:
+                    raise RuntimeError("Unrecognised harmonics in voltage")
+                voltage = useV
+
             try:
                 voltage = dTypes.RF_section_function(*voltage, 
                                                      harmonics = harmonic, 
@@ -236,6 +244,13 @@ class RFStation:
                                                      harmonics = harmonic)
         #Coercion of phase to RF_section_function datatype                                  
         if not isinstance(phi_rf_d, dTypes.RF_section_function):
+            if isinstance(phi_rf_d, dict):
+                usePhi = []
+                for h in harmonic:
+                    usePhi.append(phi_rf_d.pop(h, 0))
+                if len(voltage) != 0:
+                    raise RuntimeError("Unrecognised harmonics in phi_rf_d")
+                phi_rf_d = usePhi
             try:
                 phi_rf_d = dTypes.RF_section_function(*phi_rf_d, 
                                                      harmonics = harmonic, 
@@ -396,6 +411,7 @@ class RFStation:
                 eta_i = getattr(self, 'eta_' + str(i))[counter]
                 eta += eta_i * (delta**i)
             return eta
+
 
 
 def calculate_Q_s(RFStation, Particle=Proton()):
