@@ -12,6 +12,7 @@ Assertions for input checking
 :Authors: **Simon Albright**
 """
 
+
 def equal_array_lengths(*args, msg, exception):
     
     if len(set(len(a) for a in args)) > 1:
@@ -30,7 +31,7 @@ def not_none(*args, msg, exception):
     
     if all(v is None for v in args):
         raise exception(msg)
-        
+
 
 def single_none(*args, msg, exception):
     
