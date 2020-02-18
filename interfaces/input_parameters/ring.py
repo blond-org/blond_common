@@ -19,8 +19,12 @@ import warnings
 from scipy.constants import c
 from ..input_parameters.ring_options import RingOptions
 
+from ...devtools import exceptions as excpt
+from ...devtools import assertions as assrt
+from ..beam import beam
 
-class Ring(object):
+
+class Ring:
     r""" Class containing the general properties of the synchrotron that are
     independent of the RF system or the beam.
 
@@ -196,12 +200,15 @@ class Ring(object):
             self.bending_radius = bending_radius
 
         if self.n_sections != len(self.ring_length):
-            #InputDataError
-            raise RuntimeError("ERROR in Ring: Number of sections and ring " +
-                               "length size do not match!")
+            raise excpt.InputDataError("ERROR in Ring: Number of sections "
+                                       +"and ring length size do not match!")
 
         # Primary particle mass and charge used for energy calculations
-        self.Particle = Particle
+        if isinstance(Particle, beam.Particle):
+            self.Particle = Particle
+        else:
+            self.Particle = beam.make_particle(Particle)
+            
 
         # Keeps RingOptions as an attribute
         self.RingOptions = RingOptions
