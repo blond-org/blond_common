@@ -655,6 +655,7 @@ class RingOptions:
 
         data_type = input_data.data_type
         
+        #TODO:  Mulit section
         if data_type[1] == 'single':
             if isinstance(input_data, dTypes.ring_program):
                 input_data = convert_data(input_data, mass, charge,
