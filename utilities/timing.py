@@ -44,6 +44,9 @@ def time_from_sampling(resolution):
         def sample_func(time):
             if time >= resolution[1][0] and time < resolution[1][1]:
                 return time + resolution[0]
+
+            else:
+                return np.inf
         
         start, end = resolution[1]
                 

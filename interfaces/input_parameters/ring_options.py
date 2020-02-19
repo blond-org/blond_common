@@ -24,6 +24,7 @@ from scipy.interpolate import splrep, splev
 from ...devtools.path import makedir
 import warnings
 import sys
+import numbers
 
 # General imports
 import scipy.constants as cont
@@ -586,12 +587,13 @@ class RingOptions:
         
         try:
             interp_time = interp_time.casefold()
-            if interp_time == 't_rev':
-                interp_time = 0
         except AttributeError:
             pass
-        
-        if isinstance(interp_time, float) \
+    
+        if interp_time == 't_rev':
+            interp_time = 0
+
+        if isinstance(interp_time, numbers.Number) \
         or isinstance(interp_time, tuple) \
         or isinstance(interp_time, list):
             self.interp_time = interp_time            
@@ -615,14 +617,17 @@ class RingOptions:
             self.flat_top = flat_top
         else:
             raise excpt.InputError("flat_top must be 0 or greater")
-    
+
         if n_turns is not np.inf:
             try:
                 self.n_turns = int(n_turns)
                 if n_turns % 1 != 0:
                     warnings.warn("non integer n_turns cast to int")
             except (ValueError, TypeError):
-                raise excpt.InputError("n_turns must be castable as int")
+                if n_turns is None:
+                    self.n_turns = np.inf
+                else:
+                    raise excpt.InputError("n_turns must be castable as int")
         else:
             self.n_turns = n_turns
         
@@ -654,7 +659,7 @@ class RingOptions:
             if isinstance(input_data, dTypes.ring_program):
                 input_data = convert_data(input_data, mass, charge,
                                           data_type[0], bending_radius)
-            return input_data * np.ones((self.n_sections, self.n_turns+1))
+            return input_data * np.ones((self.n_sections, len(self.use_turns)))
         
         if data_type[2] == 'single_section':
             input_data = (input_data, )
@@ -675,31 +680,17 @@ class RingOptions:
                                               data_type[0], bending_radius)
             
             if data_type[1] == 'by_turn':
-                print("in by turn")
-                print(data_type)
                 output_data.append(inputValues)
                 continue
             
-            print("TEST BEFORE PREPROCESS")
             inputTime = input_data[sect][0]
             if isinstance(input_data[sect], dTypes.ring_program):
-                print("IN isinstance")
                 processTime, processData = self.preprocess(mass, circumference,
                                                            inputTime, 
                                                            inputValues)
                 output_time.append(processTime)
                 output_data.append(processData)
                 
-#            else:
-#                try:
-#                    iter(self.interp_tim.e)
-#                except TypeError:
-#                    self.interp_time = np.arange(inputTime[0], inputTime[-1], \
-#                                            float(self.interp_time))
-            
-#                output_data.append(np.interp(self.interp_time, inputTime, \
-#                                                 inputValues))
-#        print(output_time, output_data)
         output_time = np.array(output_time, ndmin=2, dtype=float)
         output_data = np.array(output_data, ndmin=2, dtype=float)
 
@@ -708,7 +699,7 @@ class RingOptions:
 
     def preprocess(self, mass, circumference, time, momentum, 
                    interpolation = None):
-        print("in preprocess")
+
         if interpolation is None:
             interpolation = self.interpolation
         
@@ -724,22 +715,9 @@ class RingOptions:
             self.t_end = time[-1]
 
         # Obtain flat bottom data, extrapolate to constant
-#        beta_0 = np.sqrt(1/(1 + (mass/momentum[0])**2))
-#        T0 = circumference/(beta_0*c)  # Initial revolution period [s]
-#        shift = time[0] - self.flat_bottom*T0
-#        time_interp = shift + T0*np.arange(0, self.flat_bottom+1)
-#        beta_interp = beta_0*np.ones(self.flat_bottom+1)
-#        momentum_interp = momentum[0]*np.ones(self.flat_bottom+1)
-#
-#        time_interp = time_interp.tolist()
-#        beta_interp = beta_interp.tolist()
-#        momentum_interp = momentum_interp.tolist()
-#
-#        time_start_ramp = np.max(time[momentum == momentum[0]])
-#        time_end_ramp = np.min(time[momentum == momentum[-1]])
         
         time_func, start, end = timing.time_from_sampling(self.interp_time)
-        
+
         if start > self.t_start:
             self.t_start = start
             warnings.warn("self.t_start being overwritten")
@@ -747,6 +725,7 @@ class RingOptions:
         if end < self.t_end:
             self.t_end = end
             warnings.warn("self.t_stop being overwritten")
+        
         
         if interpolation == 'linear':
             time, momentum = self._linear_interpolation(mass, 
@@ -770,19 +749,18 @@ class RingOptions:
         nTurns = 0
         time_interp = [self.t_start]
         momentum_interp = [pInit]
+        self.use_turns = [0]
 
         time_start_interp, time_end_interp = self._ramp_start_stop(time, 
                                                                    momentum)
 
+        if time_end_interp > self.t_end:
+            time_end_interp = self.t_end
+
         next_time = time_interp[0] + T0
         
         next_store_time = time_func(time_interp[0])
-        if next_time >= next_store_time:
-            time_interp.append(next_time)
-            next_store_time = time_func(time_interp[0])
 
-        print(next_time, next_store_time)
-        
         while next_time < time_end_interp:
             
             next_momentum = np.interp(next_time, time, momentum)
@@ -793,12 +771,16 @@ class RingOptions:
             if next_time >= next_store_time:
                 time_interp.append(next_time)
                 momentum_interp.append(next_momentum)
+                self.use_turns.append(nTurns)
                 next_store_time = time_func(time_interp[-1])
-                print("Next store: " + str(next_store_time))
             
-            if nTurns >= self.n_turns:
+            if nTurns > self.n_turns:
                 break
-        
+        else:
+            if self.n_turns != np.inf:
+                warnings.warn("Maximum time reached before number of turns")
+            self.n_turns = nTurns
+            
         return time_interp, momentum_interp
 
 

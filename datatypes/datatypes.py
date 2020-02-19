@@ -38,17 +38,11 @@ class _ring_function(_function):
 
     def __new__(cls, *args, func_type, time = None, n_turns = None):
         
-        print("START RING FUNC: ", args)
-        
         _check_time_turns(time, n_turns)
             
         data_points, data_types = _get_dats_types(*args, time = time, \
                                                   n_turns = n_turns)
         _check_data_types(data_types)
-
-        print("MAKING RING FUNCTION")
-
-        print(data_points, data_types)
 
         if 'by_turn' in data_types:
             _check_turn_numbers(data_points, data_types)
