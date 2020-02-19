@@ -38,12 +38,29 @@ class _function(np.ndarray):
         
         self.data_type = getattr(obj, 'data_type', None)
     
+#    @classmethod
+#    def 
     
-    def reshape(self, n_turns, n_sections = 1, use_time = None,
-                use_turns = None):
-        pass
-#        if self.time_base == 'single':
-            
+    
+    def reshape(self, n_sections = 1, use_time = None, use_turns = None):
+        
+        if use_turns is None and use_time is None:
+            raise exceptions.InputError("Either use_turns or use_time "
+                                        + "should be defined, not both")
+        elif use_turns is not None:
+            nPts = len(use_turns)
+        elif use_time is not None:
+            nPts = len(use_time)
+        else:
+            raise exceptions.InputError("Either use_turns or use_time "
+                                        +"must be defined")
+        
+        if self.time_base == 'single':
+            if self.sectioning == 'single_section':
+                newArray = (np.zeros([n_sections, nPts]) 
+                            + self).view(self.__class__)
+                return newArray
+        
         
 
 
