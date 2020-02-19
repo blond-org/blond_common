@@ -11,7 +11,6 @@ class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None):
         
-        
         if data_type is None:
             raise exceptions.InputError("data_type must be specified")
         
@@ -21,13 +20,12 @@ class _function(np.ndarray):
             raise exceptions.InputError("Function components could not be " \
                                         + "correctly coerced into ndarray, " \
                                         + "check input dimensionality")
-        
+
         obj.data_type = data_type
         
         obj.func_type = data_type[0]
         obj.time_base = data_type[1]
-        obj.sectioning = data_type[2]
-        
+        obj.sectioning = data_type[2]        
         
         return obj
     
@@ -37,29 +35,41 @@ class _function(np.ndarray):
             return
         
         self.data_type = getattr(obj, 'data_type', None)
-    
-#    @classmethod
-#    def 
+
+        if self.data_type is not None:
+            self.func_type = self.data_type[0]
+            self.time_base = self.data_type[1]
+            self.sectioning = self.data_type[2] 
     
     
     def reshape(self, n_sections = 1, use_time = None, use_turns = None):
         
         if use_turns is None and use_time is None:
-            raise exceptions.InputError("Either use_turns or use_time "
-                                        + "should be defined, not both")
-        elif use_turns is not None:
-            nPts = len(use_turns)
-        elif use_time is not None:
+            raise exceptions.InputError("At least one of use_turns and "
+                                        + "use_time should be defined")
+            
+        if use_time is not None:
             nPts = len(use_time)
         else:
-            raise exceptions.InputError("Either use_turns or use_time "
-                                        +"must be defined")
+            nPts = len(use_turns)
+
+        newArray = np.zeros([n_sections, nPts])
+
+        for s in range(n_sections):        
+            if self.time_base == 'single':
+                if self.sectioning == 'single_section':
+                    newArray[s] += self
+    
+            elif self.time_base == 'by_turn':
+                if self.sectioning == 'single_section':
+                    newArray[s] = self[0, use_turns]
+            
+            elif self.time_base == 'by_time':
+                if self.sectioning == 'single_section':
+                    pass
+            
         
-        if self.time_base == 'single':
-            if self.sectioning == 'single_section':
-                newArray = (np.zeros([n_sections, nPts]) 
-                            + self).view(self.__class__)
-                return newArray
+        return newArray.view(self.__class__)
         
         
 
@@ -78,7 +88,7 @@ class _ring_function(_function):
             _check_turn_numbers(data_points, data_types)
             
         if len(data_types) == 1:
-            return super().__new__(cls, data_points[0], \
+            return super().__new__(cls, data_points, \
                         (func_type, data_types[0], 'single_section'))
         else:
             return super().__new__(cls, data_points, \
