@@ -24,6 +24,11 @@ class _function(np.ndarray):
         
         obj.data_type = data_type
         
+        obj.func_type = data_type[0]
+        obj.time_base = data_type[1]
+        obj.sectioning = data_type[2]
+        
+        
         return obj
     
     def __array_finalize__(self, obj):
@@ -32,6 +37,14 @@ class _function(np.ndarray):
             return
         
         self.data_type = getattr(obj, 'data_type', None)
+    
+    
+    def reshape(self, n_turns, n_sections = 1, use_time = None,
+                use_turns = None):
+        pass
+#        if self.time_base == 'single':
+            
+        
 
 
 class _ring_function(_function):
