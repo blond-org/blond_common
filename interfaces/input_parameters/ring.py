@@ -299,9 +299,7 @@ class Ring:
 
     def _eta0(self):
         """ Function to calculate the zeroth order slippage factor eta_0 """
-        print(self.eta_0.shape)
-        print(self.alpha_0.shape)
-        print(self.gamma.shape)
+
         for i in range(0, self.n_sections):
             self.eta_0[i] = self.alpha_0[i] - self.gamma[i]**(-2.)
 

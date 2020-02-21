@@ -22,13 +22,14 @@ from ..devtools import exceptions as excpt
 
 
 def time_from_sampling(*args):
-    print(args)
+
     if len(args) == 1 and isinstance(args[0], numbers.Number):
         def sample_func(time):
             return time + args[0]
         
         start = 0
         end = np.inf
+
     else:        
         def sample_func(time):
             for r in args:
