@@ -21,59 +21,81 @@ import numbers
 from ..devtools import exceptions as excpt
 
 
-def time_from_sampling(resolution):
-    
-    if resolution == 't_rev':
-
+def time_from_sampling(*args):
+    print(args)
+    if len(args) == 1 and isinstance(args[0], numbers.Number):
         def sample_func(time):
-            return time
+            return time + args[0]
         
         start = 0
         end = np.inf
-    
-    elif isinstance(resolution, numbers.Number):
-
+    else:        
         def sample_func(time):
-            return time + resolution
-        
-        start = 0
-        end = np.inf
-    
-    elif isinstance(resolution, tuple):
-        
-        def sample_func(time):
-            if time >= resolution[1][0] and time < resolution[1][1]:
-                return time + resolution[0]
-
-            else:
-                return np.inf
-        
-        start, end = resolution[1]
-                
-    elif isinstance(resolution, list):
-        
-        def sample_func(time):
-            for r in resolution:
+            for r in args:
                 if time >= r[1][0] and time < r[1][1]:
                     return time + r[0]
             else:
                 next_time = np.inf
-                for r in resolution:
+                for r in args:
                     if time <= r[1][0] and r[1][0] < next_time:
                         next_time = r[1][0]
 
                 return next_time
-                
+        
         start = np.inf
         end = 0
-        for r in resolution:
+        for r in args:
+            print(r)
             if r[1][0] < start:
                 start = r[1][0]
             if r[1][1] > end:
                 end = r[1][1]
-
+    
     return sample_func, start, end
+    
+#    resolution = 1
+#    if isinstance(resolution, numbers.Number):
+#
+#        def sample_func(time):
+#            return time + resolution
+#        
+#        start = 0
+#        end = np.inf
+#    
+#    elif isinstance(resolution, tuple):
+#        
+#        def sample_func(time):
+#            if time >= resolution[1][0] and time < resolution[1][1]:
+#                return time + resolution[0]
+#
+#            else:
+#                return np.inf
+#        
+#        start, end = resolution[1]
+#                
+#    elif isinstance(resolution, list):
+#        
+#        def sample_func(time):
+#            for r in resolution:
+#                if time >= r[1][0] and time < r[1][1]:
+#                    return time + r[0]
+#            else:
+#                next_time = np.inf
+#                for r in resolution:
+#                    if time <= r[1][0] and r[1][0] < next_time:
+#                        next_time = r[1][0]
+#
+#                return next_time
+#                
+#        start = np.inf
+#        end = 0
+#        for r in resolution:
+#            if r[1][0] < start:
+#                start = r[1][0]
+#            if r[1][1] > end:
+#                end = r[1][1]
 
+    
 
 # Calculate turn numbers from a passed time_range at times given by 'resolution'
 # If resolution is a float, turn numbers evenly spaced by 'resolution' s will

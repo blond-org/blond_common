@@ -2,14 +2,17 @@
 import numpy as np
 import sys
 import os
+import warnings
+import scipy.constants as cont
 
 #Common imports
 from ..devtools import exceptions
+from ..utilities import rel_transforms as rt
 
 
 class _function(np.ndarray):
     
-    def __new__(cls, input_array, data_type=None):
+    def __new__(cls, input_array, data_type=None, interpolation = None):
         
         if data_type is None:
             raise exceptions.InputError("data_type must be specified")
@@ -25,7 +28,9 @@ class _function(np.ndarray):
         
         obj.func_type = data_type[0]
         obj.time_base = data_type[1]
-        obj.sectioning = data_type[2]        
+        obj.sectioning = data_type[2]
+        
+        obj.interpolation = interpolation
         
         return obj
     
@@ -42,7 +47,7 @@ class _function(np.ndarray):
             self.sectioning = self.data_type[2] 
     
     
-    def reshape(self, n_sections = 1, use_time = None, use_turns = None):
+    def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
         
         if use_turns is None and use_time is None:
             raise exceptions.InputError("At least one of use_turns and "
@@ -52,21 +57,94 @@ class _function(np.ndarray):
             nPts = len(use_time)
         else:
             nPts = len(use_turns)
+            
+        if self.time_base == 'by_turn' and use_turns is None:
+            raise exceptions.InputError("If function is defined by_turn "
+                                        + "use_turns must be given")
 
-        newArray = np.zeros([n_sections, nPts])
+        if self.time_base == 'by_time' and use_time is None:
+            raise exceptions.InputError("If function is defined by_time "
+                                        + "use_time must be given")
 
+        return np.zeros([n_sections, nPts])
+    
+    
+    def _comp_definition_reshape(self, n_sections, use_time, use_turns):
+        
+        if n_sections > 1 and self.shape[0] == 1:
+            warnings.warn("multi-section required, but "
+                          + str(self.__class__.__name__) + " function is single"
+                          + " section, expanding to match n_sections")
+
+        elif n_sections != self.shape[0]:
+            raise exceptions.DataDefinitionError("n_sections (" \
+                                                 + str(n_sections) \
+                                                 + ") does not match function "
+                                                 + "definition ("\
+                                                 + str(self.shape[0]) + ")")
+    
+        if self.time_base == 'by_time':
+            if use_time is None:
+                raise exceptions.DataDefinitionError("Function is defined by "
+                                                     + "time but use_time has"
+                                                     + " not been given")
+            if use_time[-1] > self[0, 0, -1]:
+                warnings.warn("use_time extends beyond function definition, "
+                              + "interpolation will assume fixed value")
+            if use_time[0] < self[0, 0, 0]:
+                warnings.warn("use_time starts before function definition, "
+                              + "interpolation will assume fixed value")
+        
+        if self.time_base == 'by_turn':
+            if use_turns is None:
+                raise exceptions.DataDefinitionError("Function is defined by "
+                                                     + "turn but use_turns has"
+                                                     + " not been given")
+            if np.max(use_turns) > self.shape[1]:
+                raise exceptions.DataDefinitionError("Function does not have "
+                                                     + "enough turns defined "
+                                                     + "for maximum requested "
+                                                     + "turn number")
+    
+    def _interpolate(self, section, use_time):
+
+        if not np.all(np.diff(use_time) > 0):
+            raise exceptions.InputDataError("use_time is not monotonically "
+                                            + "increasing")
+            
+        if self.interpolation == 'linear':
+            return self._interpolate_linear(section, use_time)
+        else:
+            raise RuntimeError("Invalid interpolation requested")
+            
+
+    def _interpolate_linear(self, section, use_time):
+        if self.sectioning == 'single_section':
+            return np.interp(use_time, self[0, 0], self[0, 1])
+        else:
+            return np.interp(use_time, self[section, 0], self[section, 1])
+    
+    
+    def reshape(self, n_sections = 1, use_time = None, use_turns = None):
+        
+        self._comp_definition_reshape(n_sections, use_time, use_turns)        
+        newArray = self._prep_reshape(n_sections, use_time, use_turns)
+        
         for s in range(n_sections):        
             if self.time_base == 'single':
                 if self.sectioning == 'single_section':
                     newArray[s] += self
+                else:
+                    newArray[s] += self[s]
     
             elif self.time_base == 'by_turn':
                 if self.sectioning == 'single_section':
                     newArray[s] = self[0, use_turns]
+                else:
+                    newArray[s] = self[s, use_turns]
             
             elif self.time_base == 'by_time':
-                if self.sectioning == 'single_section':
-                    pass
+                    newArray[s] = self._interpolate(s, use_time)
             
         
         return newArray.view(self.__class__)
@@ -76,29 +154,204 @@ class _function(np.ndarray):
 
 class _ring_function(_function):
 
-    def __new__(cls, *args, func_type, time = None, n_turns = None):
+    def __new__(cls, *args, func_type, time = None, n_turns = None, 
+                allow_single = False, interpolation = None):
         
         _check_time_turns(time, n_turns)
             
         data_points, data_types = _get_dats_types(*args, time = time, \
                                                   n_turns = n_turns)
-        _check_data_types(data_types)
+
+        _check_data_types(data_types, allow_single)
+        if allow_single:
+            data_types, data_points = _expand_singletons(data_types, 
+                                                         data_points)
 
         if 'by_turn' in data_types:
             _check_turn_numbers(data_points, data_types)
             
         if len(data_types) == 1:
             return super().__new__(cls, data_points, \
-                        (func_type, data_types[0], 'single_section'))
+                        (func_type, data_types[0], 'single_section'), 
+                        interpolation)
         else:
             return super().__new__(cls, data_points, \
-                        (func_type, data_types[0], 'multi_section'))
+                        (func_type, data_types[0], 'multi_section'), 
+                        interpolation)
+
+
+class ring_program(_ring_function):
+    
+    def __new__(cls, *args, data_type='momentum', time = None, n_turns = None):
+        allowed = ['momentum', 'total energy', 'kinetic energy', 'bending field']
+        if data_type not in allowed:
+            raise exceptions.InputDataError("data_type must be one of "
+                                            + str(tuple(a for a in allowed)))
+        
+        return super().__new__(cls, *args, func_type = data_type, time = time, 
+                         n_turns = n_turns)
+    
+            
+    def _convert_section(self, section, mass, charge = None, bending_radius = None):
+        
+        if self.time_base == 'by_time':
+            sectionFunction = np.array(self[section, 1])
+        else:
+            sectionFunction = np.array(self[section])
+        
+        if self.func_type == 'momentum':
+            pass
+        elif self.func_type == 'total energy':
+            sectionFunction = rt.energy_to_mom(sectionFunction, mass)
+            np.sqrt(sectionFunction**2 - mass**2)
+        elif self.func_type == 'kinetic energy':
+            sectionFunction = rt.kin_energy_to_mom(sectionFunction, mass)
+        elif self.func_type == 'bending field':
+            if None in (bending_radius, charge):
+                raise exceptions.InputError("Converting from bending field "
+                                            + "requires both charge and "
+                                            + "bending radius to be defined")
+            sectionFunction = rt.B_to_mom(sectionFunction, bending_radius, charge)
+    
+        else:
+            raise RuntimeError("Function type invalid")
+
+        return sectionFunction
+    
+    
+    def convert(self, mass, charge = None, bending_radius = None, inPlace = True):
+        
+        newArray = np.zeros(self.shape)
+
+        for s in range(self.shape[0]):
+            if self.time_base == 'by_time':
+                newArray[s, 1] = self._convert_section(s, mass, bending_radius)
+                newArray[s, 0] = self[s, 0]
+            else:
+                newArray[s] = self._convert_section(s, mass, bending_radius)
+
+        if inPlace:
+            for s in range(self.shape[0]):
+                if self.time_base == 'by_time':
+                    self[s, 1] = newArray[s, 1]
+                else:
+                    self[s] = newArray[s]
+            
+            self.func_type = 'momentum'
+            self.data_type = (self.func_type, self.time_base, self.sectioning)
+        
+        else:
+            return super().__new__(self.__class__, *newArray, func_type = 'momentum')
+        
+        
+    def preprocess(self, mass, circumference, interp_time = None, 
+                   interpolation = 'linear', t_start = None, t_end = None,
+                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
+
+        if self.func_type != 'momentum':
+            raise exceptions.DataDefinitionError("Only momentum functions "
+                                                 + "can be preprocessed, not "
+                                                 + self.func_type + "first run"
+                                                 + self.__class__.__name__ \
+                                                 + ".convert")
+
+        if not hasattr(interp_time, '__call__'):
+            if interp_time is None:
+                interp_time = 0
+            interp_time = lambda x: interp_time
+        
+        if t_start < self[0,0,0]:
+            warnings.warn("t_start too early, starting from " 
+                          + str(self[0, 0, 0]))
+
+        if t_end > self[0,0,-1] and t_end != np.inf:
+            warnings.warn("t_stop too late, ending at " 
+                          + str(self[0, 0, -1]))
+        
+        for s in range(self.shape[0]):
+            nTurns, useTurns, time, momentum = self._linear_interpolation(mass, circumference, 
+                                                    (interp_time, t_start, t_end), 
+                                                    targetNTurns, s)
+        
+        newArray = np.zeros([2+self.shape[0], len(useTurns)])
+        newArray[0, :] = useTurns
+        newArray[1, :] = time
+
+        for s in range(self.shape[0]):
+            newArray[s+2] = momentum
+        
+        return newArray.view(self.__class__)
+        
+    
+    def _linear_interpolation(self, mass, circumference, time, targetNTurns,
+                              section):
+        
+        time_func = time[0]
+        start = time[1]
+        stop = time[2]
+        
+        pInit = np.interp(start, self[section, 0], self[section, 1])
+        beta_0 = rt.mom_to_beta(pInit, mass)
+        T0 = rt.beta_to_trev(beta_0, circumference)
+
+        nTurns = 0
+        time_interp = [start]
+        momentum_interp = [pInit]
+        use_turns = [0]
+
+        next_time = time_interp[0] + T0
+        
+        next_store_time = time_func(time_interp[0])
+
+        while next_time < stop:
+            
+            next_momentum = np.interp(next_time, self[section, 0], 
+                                      self[section, 1])
+            next_beta = rt.mom_to_beta(next_momentum, mass)
+            next_time = next_time + rt.beta_to_trev(next_beta, circumference)
+            nTurns += 1
+
+            if next_time >= next_store_time:
+                time_interp.append(next_time)
+                momentum_interp.append(next_momentum)
+                use_turns.append(nTurns)
+                next_store_time = time_func(time_interp[-1])
+            
+            if nTurns > targetNTurns:
+                break
+        else:
+            if targetNTurns != np.inf:
+                warnings.warn("Maximum time reached before number of turns")
+            
+        return nTurns, use_turns, time_interp, momentum_interp
+        
+
+    def _ramp_start_stop(self):
+        
+        if self.time_base != 'by_time':
+            raise RuntimeError("Only implemented for by_time functions")
+        
+        time_start_ramp = np.max(self[0, 0][self[0, 1] == self[0, 1, 0]])
+        time_end_ramp = np.max(self[0, 0][self[0, 1] == self[0, 1, -1]])
+
+        return time_start_ramp, time_end_ramp
+
+
+
+
+class momentum_compaction(_ring_function):
+    
+    def __new__(cls, *args, order = 0, time = None, n_turns = None, 
+                interpolation = 'linear'):
+        return super().__new__(cls, *args, func_type = order, time = time, 
+                                 n_turns = n_turns, allow_single = True,
+                                 interpolation = 'linear')
 
 
 class RF_section_function(_function):
     
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = None):
+                interpolation = 'linear'):
         
         _check_time_turns(time, n_turns)
         
@@ -107,10 +360,76 @@ class RF_section_function(_function):
         
         _check_data_types(data_types, allow_single=True)
 
+        data_types, data_points = _expand_singletons(data_types, data_points)
+
+        try:
+            iter(harmonics)
+        except TypeError:
+            harmonics = (harmonics,)
+        
+        if len(data_points) != len(harmonics):
+            raise exceptions.InputError("Number of functions does not match " \
+                                        + "number of harmonics")
+
+        if all(t == 'single' for t in data_types):
+            return super().__new__(cls, data_points, \
+                                    ('RF', data_types[0], harmonics),
+                                    interpolation)
+
+        if interpolation is None or len(data_points) == 1:
+            return super().__new__(cls, data_points, \
+                                    ('RF', data_types[0], harmonics),
+                                    interpolation)
+        
+        if interpolation is not None and data_types[0] != 'by_time':
+            raise exceptions.DataDefinitionError("Interpolation only possible" \
+                                                 + " if functions are defined" \
+                                                 + " by time")
+
+        if interpolation != 'linear':
+            raise RuntimeError("Only linear interpolation currently available")
+        
+        input_times = []
+        for d in data_points:
+            input_times += d[0].tolist()
+        
+        interp_times = sorted(set(input_times))
+
+        for i in range(len(data_points)):
+             interp_data = np.interp(interp_times, data_points[i][0], \
+                                     data_points[i][1])
+             data_points[i] = np.array([interp_times, interp_data])
+        
+        return super().__new__(cls, data_points, ('RF', data_types[0], \
+                                                  harmonics), interpolation)
+
+
+    def reshape(self, use_time = None, use_turns = None):
+               
+        newArray = self._prep_reshape(len(self.sectioning), 
+                                      use_time = use_time, 
+                                      use_turns = use_turns)
+        
+        for h in range(len(self.sectioning)):
+            if self.time_base == 'single':
+                    newArray[h] += self[h]
+    
+            elif self.time_base == 'by_turn':
+                    newArray[h] = self[0, use_turns]
+            
+            elif self.time_base == 'by_time':
+                newArray[h] = self._interpolate(h, use_time)
+            
+        return newArray.view(self.__class__)
+
+
+
+def _expand_singletons(data_types, data_points):
+    
         if 'by_turn' in data_types:
             n_turns = _check_turn_numbers(data_points, data_types, \
                                           allow_single=True)
-        
+
             if 'single' in data_types:
                 for i, t in enumerate(data_types):
                     if t == 'single':
@@ -129,57 +448,8 @@ class RF_section_function(_function):
                     data_types[i] = 'by_time'
                     data_points[i] = np.array([useTime, \
                                                [data_points[i]]*len(useTime)])
-
-        try:
-            iter(harmonics)
-        except TypeError:
-            harmonics = (harmonics,)
-        
-        if len(data_points) != len(harmonics):
-            raise exceptions.InputError("Number of functions does not match " \
-                                        + "number of harmonics")
-                
-        if interpolation is None or len(data_points) == 1:
-            return super().__new__(cls, data_points, \
-                                    ('RF', data_types[0], harmonics))
-        
-        if interpolation is not None and data_types[0] != 'by_time':
-            raise exceptions.DataDefinitionError("Interpolation only possible" \
-                                                 + " if functions are defined" \
-                                                 + " by time")
-
-        if interpolation != 'linear':
-            raise RuntimeError("Only linear interpolation currently available")
-            
-        input_times = []
-        for d in data_points:
-            input_times += d[0].tolist()
-        
-        interp_times = sorted(set(input_times))
-
-        for i in range(len(data_points)):
-             interp_data = np.interp(interp_times, data_points[i][0], \
-                                     data_points[i][1])
-             data_points[i] = np.array([interp_times, interp_data])
-        
-        return super().__new__(cls, data_points, ('RF', data_types[0], \
-                                                  harmonics))
-
-
-
-class ring_program(_ring_function):
     
-    def __new__(cls, *args, data_type='momentum', time = None, n_turns = None):
-        return super().__new__(cls, *args, func_type = data_type, time = time, 
-                         n_turns = n_turns)
-
-
-class momentum_compaction(_ring_function):
-    
-    def __new__(cls, *args, order = 0, time = None, n_turns = None):
-        return super().__new__(cls, *args, func_type = order, time = time, 
-                         n_turns = n_turns)
-
+        return data_types, data_points
 
 #For functions defined by turn number, check all have same number of turns
 def _check_turn_numbers(data_points, data_types, allow_single=False):
@@ -264,7 +534,7 @@ def _check_dims(data, time = None, n_turns = None):
             raise exceptions.InputError("Input length does not match n_turns")
     
     elif time is not None:
-        if data.shape[0] == 2:
+        if data.shape[0] == 2 and hasattr(data[0], '__iter__'):
             raise exceptions.InputError("Data has been passed with " \
                                         + "[time, value] format and time " \
                                         + "defined, only 1 should be given")

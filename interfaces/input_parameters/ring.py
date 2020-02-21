@@ -24,6 +24,7 @@ from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 from ..beam import beam
 from ...datatypes import datatypes as dTypes
+from ...utilities import timing as tmng
 
 
 class Ring:
@@ -183,12 +184,11 @@ class Ring:
     """
 
     def __init__(self, ring_length, alpha, synchronous_data, Particle,
-                 synchronous_data_type='momentum',
-                 bending_radius=None, n_sections=1,
-                 RingOptions=None, **kwargs):
+#                 synchronous_data_type='momentum',
+                 bending_radius=None, **kwargs):
 
         # Conversion of initial inputs to expected types
-        self.n_sections = int(n_sections)
+#        self.n_sections = int(n_sections)
 
         # Ring length and checks
         self.ring_length = np.array(ring_length, ndmin=1, dtype=float)
@@ -200,36 +200,60 @@ class Ring:
         else:
             self.bending_radius = bending_radius
 
-        if self.n_sections != len(self.ring_length):
-            raise excpt.InputDataError("ERROR in Ring: Number of sections "
-                                       +"and ring length size do not match!")
-
         # Primary particle mass and charge used for energy calculations
         if isinstance(Particle, beam.Particle):
             self.Particle = Particle
         else:
             self.Particle = beam.make_particle(Particle)
             
-        if RingOptions is None:
-            RingOptions = ringOpt.RingOptions(n_sections = n_sections, **kwargs)
-        # Keeps RingOptions as an attribute
-        self.RingOptions = RingOptions
+#        if RingOptions is None:
+#            RingOptions = ringOpt.RingOptions(n_sections = n_sections, **kwargs)
+#        # Keeps RingOptions as an attribute
+#        self.RingOptions = RingOptions
 
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
         if not isinstance(synchronous_data, dTypes.ring_program):
                 synchronous_data = dTypes.ring_program(synchronous_data, 
                                            data_type = synchronous_data_type)
-        self.time, self.momentum = RingOptions.reshape_data(synchronous_data,
-                                                     self.Particle.mass,
-                                                     self.Particle.charge,
-                                                     self.ring_circumference,
-                                                     self.bending_radius)
-        self.cycle_time = self.time[0]        
+
+        if synchronous_data.shape[0] != len(self.ring_length):
+            raise excpt.InputDataError("ERROR in Ring: Number of sections "
+                                       +"and ring length size do not match!")
+
+#        self.time, self.momentum = RingOptions.reshape_data(synchronous_data,
+#                                                     self.Particle.mass,
+#                                                     self.Particle.charge,
+#                                                     self.ring_circumference,
+#                                                     self.bending_radius)
+#        self.cycle_time = self.time[0]    
+                
+        t_start = kwargs.pop('t_start', 0)
+        t_stop = kwargs.pop('t_start', np.inf)
+        interp_time = kwargs.pop('interp_time', 0)
+        
+        if not hasattr(interp_time, '__iter__'):
+            interp_time = (interp_time, )
+        
+        sample_func, start, stop = tmng.time_from_sampling(*interp_time)
+        
+        if t_start > start:
+            start = t_start
+        if t_stop < stop:
+            stop = t_stop
+        
+        synchronous_data.convert(self.Particle.mass, self.Particle.charge, 
+                                 self.bending_radius)
+        
+        self.momentum = synchronous_data.preprocess(self.Particle.mass, 
+                                    self.ring_circumference, sample_func, 'linear',
+                                    start, stop)
+        return
+        sys.exit()
 
         # Updating the number of turns in case it was changed after ramp
         # interpolation
-        self.n_turns = self.RingOptions.n_turns
+#        self.n_turns = self.RingOptions.n_turns
 
         # Derived from momentum
         self.beta = np.sqrt(1/(1 + (self.Particle.mass/self.momentum)**2))
@@ -264,8 +288,8 @@ class Ring:
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
                 a = dTypes.momentum_compaction(a, order = i)
-            a = RingOptions.reshape_data(a)
-            setattr(self, 'alpha_'+str(i), a)
+            setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections, 
+                                                    self.cycle_time))
             setattr(self, 'eta_'+str(i), np.zeros(a.shape))
         self.alpha_order = i
 
