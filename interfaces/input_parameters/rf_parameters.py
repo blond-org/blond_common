@@ -212,7 +212,7 @@ class RFStation:
 
     def __init__(self, Ring, harmonic, voltage, phi_rf_d,
                  section_index=1, omega_rf=None, phi_noise=None,
-                 phi_modulation=None, RFStationOptions=RFStationOptions()):
+                 phi_modulation=None):#, RFStationOptions=RFStationOptions()):
 
         # Different indices
         self.counter = [int(0)]
@@ -284,7 +284,7 @@ class RFStation:
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
         # for the drift
-        alpha_order = 2
+        alpha_order = Ring.alpha_order
         for i in range(alpha_order+1):
             dummy = getattr(Ring, 'eta_' + str(i))
             setattr(self, "eta_%s" % i, dummy[self.section_index])
