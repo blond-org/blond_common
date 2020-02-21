@@ -145,7 +145,6 @@ class _function(np.ndarray):
             
             elif self.time_base == 'by_time':
                     newArray[s] = self._interpolate(s, use_time)
-            
         
         return newArray.view(self.__class__)
         
@@ -183,7 +182,8 @@ class _ring_function(_function):
 class ring_program(_ring_function):
     
     def __new__(cls, *args, data_type='momentum', time = None, n_turns = None):
-        allowed = ['momentum', 'total energy', 'kinetic energy', 'bending field']
+        allowed = ['momentum', 'total energy', 'kinetic energy', 
+                   'bending field']
         if data_type not in allowed:
             raise exceptions.InputDataError("data_type must be one of "
                                             + str(tuple(a for a in allowed)))
@@ -192,7 +192,8 @@ class ring_program(_ring_function):
                          n_turns = n_turns)
     
             
-    def _convert_section(self, section, mass, charge = None, bending_radius = None):
+    def _convert_section(self, section, mass, charge = None, 
+                         bending_radius = None):
         
         if self.time_base == 'by_time':
             sectionFunction = np.array(self[section, 1])
@@ -211,7 +212,8 @@ class ring_program(_ring_function):
                 raise exceptions.InputError("Converting from bending field "
                                             + "requires both charge and "
                                             + "bending radius to be defined")
-            sectionFunction = rt.B_to_mom(sectionFunction, bending_radius, charge)
+            sectionFunction = rt.B_to_mom(sectionFunction, bending_radius, 
+                                          charge)
     
         else:
             raise RuntimeError("Function type invalid")
@@ -219,7 +221,8 @@ class ring_program(_ring_function):
         return sectionFunction
     
     
-    def convert(self, mass, charge = None, bending_radius = None, inPlace = True):
+    def convert(self, mass, charge = None, bending_radius = None, 
+                inPlace = True):
         
         newArray = np.zeros(self.shape)
 
@@ -241,7 +244,8 @@ class ring_program(_ring_function):
             self.data_type = (self.func_type, self.time_base, self.sectioning)
         
         else:
-            return super().__new__(self.__class__, *newArray, func_type = 'momentum')
+            return super().__new__(self.__class__, *newArray, 
+                        func_type = 'momentum')
         
         
     def preprocess(self, mass, circumference, interp_time = None, 
@@ -268,19 +272,27 @@ class ring_program(_ring_function):
             warnings.warn("t_stop too late, ending at " 
                           + str(self[0, 0, -1]))
         
+        
         for s in range(self.shape[0]):
-            nTurns, useTurns, time, momentum = self._linear_interpolation(mass, circumference, 
-                                                    (interp_time, t_start, t_end), 
-                                                    targetNTurns, s)
+            nTurns, useTurns, time, momentum = self._linear_interpolation(mass,
+                                                              circumference, 
+                                                            (interp_time, 
+                                                             t_start, t_end), 
+                                                            targetNTurns, s)
         
         newArray = np.zeros([2+self.shape[0], len(useTurns)])
         newArray[0, :] = useTurns
         newArray[1, :] = time
 
+        #TODO: multi-section
         for s in range(self.shape[0]):
             newArray[s+2] = momentum
+            
+        newArray = newArray.view(self.__class__)
         
-        return newArray.view(self.__class__)
+        newArray.n_turns = nTurns
+        
+        return newArray
         
     
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
@@ -495,7 +507,8 @@ def _check_data_types(data_types, allow_single = False):
 #Raise exceptions if both time and n_turns are not None
 def _check_time_turns(time, n_turns):
     if time is not None and n_turns is not None:
-            raise exceptions.InputError("time and n_turns cannot both be specified")
+            raise exceptions.InputError("time and n_turns cannot both be "
+                                        + "specified")
 
 #Loop over _check_dims for all *args and return corresponding data_points 
 #and data_types
@@ -526,7 +539,8 @@ def _check_dims(data, time = None, n_turns = None):
         else:
             return [data]*n_turns, 'by_turn'
 
-    #If n_turns specified and data is not single valued it should be of len(n_turns)
+    #If n_turns specified and data is not single valued it should be 
+    #of len(n_turns)
     if n_turns is not None:
         if len(data) == n_turns:
             return data, 'by_turn'
