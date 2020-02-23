@@ -226,7 +226,7 @@ class RFStation:
 
 
         #Coercion of voltage to RF_section_function datatype
-        if not isinstance(voltage, dTypes.RF_section_function):
+        if not isinstance(voltage, dTypes.voltage_program):
             if isinstance(voltage, dict):
                 useV = []
                 for h in harmonic:
@@ -236,14 +236,14 @@ class RFStation:
                 voltage = useV
 
             try:
-                voltage = dTypes.RF_section_function(*voltage, 
-                                                     harmonics = harmonic, 
-                                                     interpolation = 'linear')
+                voltage = dTypes.voltage_program(*voltage, 
+                                                 harmonics = harmonic, 
+                                                 interpolation = 'linear')
             except excpt.DataDefinitionError:
-                voltage = dTypes.RF_section_function(*voltage, 
-                                                     harmonics = harmonic)
-        #Coercion of phase to RF_section_function datatype                                  
-        if not isinstance(phi_rf_d, dTypes.RF_section_function):
+                voltage = dTypes.voltage_program(*voltage, 
+                                                 harmonics = harmonic)
+        #Coercion of phase to RF_section_function datatype 
+        if not isinstance(phi_rf_d, dTypes.phase_program):
             if isinstance(phi_rf_d, dict):
                 usePhi = []
                 for h in harmonic:
@@ -252,12 +252,12 @@ class RFStation:
                     raise RuntimeError("Unrecognised harmonics in phi_rf_d")
                 phi_rf_d = usePhi
             try:
-                phi_rf_d = dTypes.RF_section_function(*phi_rf_d, 
-                                                     harmonics = harmonic, 
-                                                     interpolation = 'linear')
+                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                                                 harmonics = harmonic, 
+                                                 interpolation = 'linear')
             except excpt.DataDefinitionError:
-                phi_rf_d = dTypes.RF_section_function(*phi_rf_d, 
-                                                     harmonics = harmonic)
+                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                                                harmonics = harmonic)
 
         assrt.equal_arrays(voltage.data_type[2], phi_rf_d.data_type[2],
             msg = 'Harmonics of voltage and phase functions do not match', 

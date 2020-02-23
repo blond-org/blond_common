@@ -361,17 +361,17 @@ class momentum_compaction(_ring_function):
                                  interpolation = 'linear')
 
 
-class RF_section_function(_function):
+class _RF_function(_function):
     
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
+                interpolation = 'linear', allow_single = True):
         
         _check_time_turns(time, n_turns)
         
         data_points, data_types = _get_dats_types(*args, time = time, \
                                                   n_turns = n_turns)
         
-        _check_data_types(data_types, allow_single=True)
+        _check_data_types(data_types, allow_single = allow_single)
 
         data_types, data_points = _expand_singletons(data_types, data_points)
 
@@ -436,7 +436,100 @@ class RF_section_function(_function):
         return newArray.view(self.__class__)
 
 
+class voltage_program(_RF_function):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
 
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+
+
+class phase_program(_RF_function):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
+
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+
+
+class _freq_phase_off(_RF_function):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
+
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+    
+    
+    def calc_delta_omega(self, design_omega):
+        
+        if not isinstance(self, _phase_modulation):
+            raise RuntimeError("calc_delta_omega can only be used with a "
+                               + "phase modulation function")
+        
+        delta_omega = np.zeros(self.shape)
+        for i, h in enumerate(self.harmonics):
+            delta_omega[i] = np.gradient(self[i]) * design_omega \
+                          / (2*np.pi * h)
+    
+    
+    def calc_delta_phase(self, design_omega):
+        
+        if not isinstance(self, omega_modulation):
+            raise RuntimeError("calc_delta_omega can only be used with a "
+                               + "phase modulation function")
+        
+        delta_phase = np.zeros(self.shape)
+        for i, h in enumerate(self.harmonics):
+            delta_phase[i] = self[i]*2*np.pi*h/design_omega
+        
+        
+        
+class _phase_modulation(_freq_phase_off):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
+
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+
+
+class single_tone_modulation(_phase_modulation):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
+
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+
+
+class phase_noise(_phase_modulation):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
+
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+        
+
+class omega_modulation(_freq_phase_off):
+    
+    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
+                interpolation = 'linear'):
+
+        return super().__new__(cls, *args, harmonics = harmonics, time = time,
+                                n_turns = n_turns, 
+                                interpolation = interpolation)
+    
+    
 def _expand_singletons(data_types, data_points):
     
         if 'by_turn' in data_types:
