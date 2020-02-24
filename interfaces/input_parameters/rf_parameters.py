@@ -285,7 +285,7 @@ class RFStation:
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
         # for the drift
-        alpha_order = Ring.alpha_order
+        alpha_order = 2#Ring.alpha_order
         for i in range(alpha_order+1):
             dummy = getattr(Ring, 'eta_' + str(i))
             setattr(self, "eta_%s" % i, dummy[self.section_index])

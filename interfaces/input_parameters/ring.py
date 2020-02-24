@@ -270,7 +270,7 @@ class Ring:
 
             maxAlpha = np.max(tuple(alpha.keys())).astype(int)
             alpha = [alpha.pop(i, 0) for i in range(maxAlpha+1)]
-            
+
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
                 a = dTypes.momentum_compaction(a, order = i)
@@ -279,6 +279,13 @@ class Ring:
             setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
                                                     len(self.use_turns)]))
         self.alpha_order = i
+        
+        for i in range(3 - self.alpha_order):
+            setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections, 
+                                                    len(self.use_turns)]))
+            setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
+                                                    len(self.use_turns)]))
+            
 
         # Slippage factor derived from alpha, beta, gamma
         self.eta_generation()
