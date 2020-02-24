@@ -249,6 +249,8 @@ class Ring:
         self.delta_E = np.diff(self.energy, axis=1)
         if self.n_turns < self.momentum[0, -1]:
             self._recalc_delta_E()
+        
+        self.momentum = self.momentum[2:]
             
         self.f_rev = 1/self.t_rev
         self.omega_rev = 2*np.pi*self.f_rev
