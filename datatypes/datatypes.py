@@ -417,23 +417,41 @@ class _RF_function(_function):
                                                   harmonics), interpolation)
 
 
-    def reshape(self, use_time = None, use_turns = None):
-               
-        newArray = self._prep_reshape(len(self.sectioning), 
+    def reshape(self, harmonics = None, use_time = None, use_turns = None):
+        
+        if harmonics is None:
+            harmonics = self.sectioning
+
+        newArray = self._prep_reshape(len(harmonics), 
                                       use_time = use_time, 
                                       use_turns = use_turns)
         
-        for h in range(len(self.sectioning)):
+        for i, h in enumerate(harmonics):
+            for j, s in enumerate(self.sectioning):
+                if h == s:
+                    break
+            else:
+                continue
+            
             if self.time_base == 'single':
-                    newArray[h] += self[h]
+                newArray[i] += self[j]
     
             elif self.time_base == 'by_turn':
-                    newArray[h] = self[0, use_turns]
+                newArray[i] = self[j, use_turns]
             
             elif self.time_base == 'by_time':
-                newArray[h] = self._interpolate(h, use_time)
-            
-        return newArray.view(self.__class__)
+                newArray[i] = self._interpolate(j, use_time)
+        
+        newArray = newArray.view(self.__class__)
+
+        newArray.func_type = self.func_type
+        newArray.time_base = 'interpolated'
+        newArray.sectioning = harmonics
+
+        newArray.data_type = (newArray.func_type, newArray.time_base,
+                              newArray.sectioning)
+
+        return newArray
 
 
 class voltage_program(_RF_function):
@@ -468,30 +486,57 @@ class _freq_phase_off(_RF_function):
     
     def calc_delta_omega(self, design_omega):
         
-        if not isinstance(self, _phase_modulation):
+        if not isinstance(self, phase_offset):
             raise RuntimeError("calc_delta_omega can only be used with a "
                                + "phase modulation function")
         
         delta_omega = np.zeros(self.shape)
-        for i, h in enumerate(self.harmonics):
+        for i, h in enumerate(self.sectioning):
             delta_omega[i] = np.gradient(self[i]) * design_omega \
                           / (2*np.pi * h)
-    
-    
-    def calc_delta_phase(self, design_omega):
         
-        if not isinstance(self, omega_modulation):
+        delta_omega = delta_omega.view(phase_offset)
+
+        delta_omega.func_type = self.func_type
+        delta_omega.time_base = 'interpolated'
+        delta_omega.sectioning = self.sectioning
+
+        delta_omega.data_type = (delta_omega.func_type, delta_omega.time_base,
+                                 delta_omega.sectioning)
+
+        return delta_omega
+    
+    
+    def calc_delta_phase(self, design_omega, wrap=False):
+        
+        if not isinstance(self, omega_offset):
             raise RuntimeError("calc_delta_omega can only be used with a "
                                + "phase modulation function")
         
         delta_phase = np.zeros(self.shape)
-        for i, h in enumerate(self.harmonics):
-            delta_phase[i] = self[i]*2*np.pi*h/design_omega
+        for i, h in enumerate(self.sectioning):
+            delta_phase[i] = np.cumsum(h*(h*self[i])/design_omega)
+            if wrap:
+                while np.max(delta_phase[i]) > np.pi:
+                    delta_phase[i, delta_phase[i] > np.pi] -= 2*np.pi
+                while np.min(delta_phase[i]) < -np.pi:
+                    delta_phase[i, delta_phase[i] < -np.pi] += 2*np.pi
         
+        delta_phase = delta_phase.view(phase_offset)
+
+        delta_phase.func_type = self.func_type
+        delta_phase.time_base = 'interpolated'
+        delta_phase.sectioning = self.sectioning
+
+        delta_phase.data_type = (delta_phase.func_type, delta_phase.time_base,
+                                 delta_phase.sectioning)
+
+        return delta_phase
         
-        
-class _phase_modulation(_freq_phase_off):
-    
+
+
+class phase_offset(_freq_phase_off):
+
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
                 interpolation = 'linear'):
 
@@ -500,18 +545,8 @@ class _phase_modulation(_freq_phase_off):
                                 interpolation = interpolation)
 
 
-class single_tone_modulation(_phase_modulation):
-    
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
+class omega_offset(_freq_phase_off):
 
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
-
-
-class phase_noise(_phase_modulation):
-    
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
                 interpolation = 'linear'):
 
@@ -519,16 +554,11 @@ class phase_noise(_phase_modulation):
                                 n_turns = n_turns, 
                                 interpolation = interpolation)
         
-
-class omega_modulation(_freq_phase_off):
     
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
-
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
     
+###############################################
+####FUNCTIONS TO HELP IN DATA TYPE CREATION####
+###############################################
     
 def _expand_singletons(data_types, data_points):
     
