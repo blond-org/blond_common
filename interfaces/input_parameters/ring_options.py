@@ -14,6 +14,7 @@
     **Simon Albright**
 '''
 
+# General imports old
 from __future__ import division
 from builtins import str, range
 import numpy as np
@@ -21,9 +22,20 @@ import matplotlib.pyplot as plt
 from scipy.constants import c
 from scipy.interpolate import splrep, splev
 from ...devtools.path import makedir
+import warnings
+import sys
+import numbers
+
+# General imports
+import scipy.constants as cont
+
+# BLonD_Common imports
+from ...devtools import exceptions as excpt
+from ...datatypes import datatypes as dTypes
+from ...utilities import timing
 
 
-class RingOptions(object):
+class _RingOptions(object):
     r""" Class to preprocess the synchronous data for Ring, interpolating it to
     every turn.
 
@@ -69,23 +81,21 @@ class RingOptions(object):
         if interpolation in ['linear', 'cubic', 'derivative']:
             self.interpolation = str(interpolation)
         else:
-            #InputDataError
-            raise RuntimeError("ERROR: Interpolation scheme in " +
+            raise excpt.InputError("ERROR: Interpolation scheme in " +
                                "PreprocessRamp not recognised. Aborting...")
 
         self.smoothing = float(smoothing)
 
         if flat_bottom < 0:
-            #MomentumError
-            raise RuntimeError("ERROR: flat_bottom value in PreprocessRamp" +
-                               " not recognised. Aborting...")
+            raise excpt.MomentumError("ERROR: flat_bottom value in " 
+                                      + "PreprocessRamp not recognised. "
+                                      + "Aborting...")
         else:
             self.flat_bottom = int(flat_bottom)
 
         if flat_top < 0:
-            #MomentumError
-            raise RuntimeError("ERROR: flat_top value in PreprocessRamp" +
-                               " not recognised. Aborting...")
+            raise excpt.MomentumError("ERROR: flat_top value in PreprocessRamp"
+                                      + " not recognised. Aborting...")
         else:
             self.flat_top = int(flat_top)
 
@@ -96,7 +106,6 @@ class RingOptions(object):
                 not isinstance(interp_time, float) and \
                 not isinstance(interp_time, np.ndarray) and \
                 not isinstance(interp_time, list):
-            #MomentumError
             raise RuntimeError("ERROR: interp_time value in PreprocessRamp" +
                                " not recognised. Aborting...")
         else:
@@ -105,8 +114,7 @@ class RingOptions(object):
         if (plot is True) or (plot is False):
             self.plot = bool(plot)
         else:
-            #TypeError
-            raise RuntimeError("ERROR: plot value in PreprocessRamp" +
+            raise TypeError("ERROR: plot value in PreprocessRamp" +
                                " not recognised. Aborting...")
 
         self.figdir = str(figdir)
@@ -114,12 +122,11 @@ class RingOptions(object):
         if sampling > 0:
             self.sampling = int(sampling)
         else:
-            #TypeError
-            raise RuntimeError("ERROR: sampling value in PreprocessRamp" +
+            raise TypeError("ERROR: sampling value in PreprocessRamp" +
                                " not recognised. Aborting...")
 
     def reshape_data(self, input_data, n_turns, n_sections,
-                     interp_time='t_rev', input_to_momentum=False,
+                      input_to_momentum=False,
                      synchronous_data_type='momentum', mass=None, charge=None,
                      circumference=None, bending_radius=None):
         r"""Checks whether the user input is consistent with the expectation
@@ -176,7 +183,7 @@ class RingOptions(object):
             if data_type[0] != 'momentum':
                 raise RuntimeError("Input data is not a momentum_program")
             
-            #Needs modifying for single valued multi-section functions
+            #TO DO: Needs modifying for single valued multi-section functions
             if data_type[1] == 'single':
                 if input_to_momentum:
                     input_data = convert_data(input_data, mass, charge,
@@ -208,19 +215,19 @@ class RingOptions(object):
                 
                 inputTime = input_data[sect][0]
                 
-                if interp_time == 't_rev':
+                if self.interp_time == 't_rev':
                     output_data.append(self.preprocess(
                             mass,
                             circumference,
                             inputTime, inputValues)[1])
                 else:
                     try:
-                        iter(interp_time)
+                        iter(self.interp_time)
                     except TypeError:
-                        interp_time = np.arange(inputTime[0], inputTime[-1], \
-                                                float(interp_time))
+                        self.interp_time = np.arange(inputTime[0], inputTime[-1], \
+                                                float(self.interp_time))
                 
-                    output_data.append(np.interp(interp_time, inputTime, \
+                    output_data.append(np.interp(self.interp_time, inputTime, \
                                                      inputValues))
                 
             output_data = np.array(output_data, ndmin=2, dtype=float)
@@ -279,29 +286,29 @@ class RingOptions(object):
                     raise RuntimeError("ERROR in Ring: synchronous data " +
                                        "does not match the time data")
 
-                if input_to_momentum and (interp_time == 't_rev'):
+                if input_to_momentum and (self.interp_time == 't_rev'):
                     output_data.append(self.preprocess(
                         mass,
                         circumference,
                         input_data_time,
                         input_data_values)[1])
 
-                elif isinstance(interp_time, float) or \
-                        isinstance(interp_time, int):
-                    interp_time = float(interp_time)
-                    interp_time = np.arange(
+                elif isinstance(self.interp_time, float) or \
+                        isinstance(self.interp_time, int):
+                    self.interp_time = float(self.interp_time)
+                    self.interp_time = np.arange(
                         input_data_time[0],
                         input_data_time[-1],
-                        interp_time)
+                        self.interp_time)
 
                     output_data.append(np.interp(
-                        interp_time,
+                        self.interp_time,
                         input_data_time,
                         input_data_values))
 
-                elif isinstance(interp_time, np.ndarray):
+                elif isinstance(self.interp_time, np.ndarray):
                     output_data.append(np.interp(
-                        interp_time,
+                        self.interp_time,
                         input_data_time,
                         input_data_values))
 
@@ -568,6 +575,235 @@ class RingOptions(object):
         return time_interp, momentum_interp
 
 
+
+class RingOptions:
+    r""" Class to preprocess the synchronous data for Ring, interpolating it to
+    every turn.
+    """
+
+    def __init__(self, interp_time = 't_rev', interpolation = 'linear',
+                 t_start = None, t_end = None, flat_bottom = 0, flat_top = 0, 
+                 n_turns = np.inf, n_sections = 1):
+        
+        try:
+            interp_time = interp_time.casefold()
+        except AttributeError:
+            pass
+    
+        if interp_time == 't_rev':
+            interp_time = 0
+
+        if isinstance(interp_time, numbers.Number) \
+        or isinstance(interp_time, tuple) \
+        or isinstance(interp_time, list):
+            self.interp_time = interp_time            
+        else:
+            raise excpt.InputError("interp_time not recognised")
+        
+        if interpolation in ('linear', 'cubic', 'derivative'):
+            self.interpolation = interpolation
+        else:
+            raise excpt.InputError("interpolation type not recognised")
+
+        self.t_start = t_start
+        self.t_end = t_end
+
+        if flat_bottom >= 0:
+            self.flat_bottom = flat_bottom
+        else:
+            raise excpt.InputError("flat_bottom must be 0 or greater")
+
+        if flat_top >= 0:
+            self.flat_top = flat_top
+        else:
+            raise excpt.InputError("flat_top must be 0 or greater")
+
+        if n_turns is not np.inf:
+            try:
+                self.n_turns = int(n_turns)
+                if n_turns % 1 != 0:
+                    warnings.warn("non integer n_turns cast to int")
+            except (ValueError, TypeError):
+                if n_turns is None:
+                    self.n_turns = np.inf
+                else:
+                    raise excpt.InputError("n_turns must be castable as int")
+        else:
+            self.n_turns = n_turns
+        
+        try:
+            self.n_sections = int(n_sections)
+            if n_sections % 1 != 0:
+                warnings.warn("non integer n_sections cast to int")
+        except (ValueError, TypeError):
+            raise excpt.InputError("n_sections must be castable as int")
+    
+    
+    def reshape_data(self, input_data, mass=None, charge=None,
+                     circumference=None, bending_radius=None,
+                     machine_times=None):
+        
+        if not isinstance(input_data, dTypes._function):
+            raise excpt.InputError("data_type object expected")
+            
+        if isinstance(input_data, dTypes.ring_program) and \
+            any(val is None for val in (mass, charge, circumference)):
+            raise excpt.InputError("For interpolation of momentum type "
+                                   + "functions mass, charge, circumference "
+                                   + "must all be passed")
+            
+
+        data_type = input_data.data_type
+        
+        #TODO:  Mulit section
+        if data_type[1] == 'single':
+            if isinstance(input_data, dTypes.ring_program):
+                input_data = convert_data(input_data, mass, charge,
+                                          data_type[0], bending_radius)
+            return input_data * np.ones((self.n_sections, len(self.use_turns)))
+        
+        if data_type[2] == 'single_section':
+            input_data = (input_data, )
+        
+        output_data = []
+        output_time = []
+        for sect in range(self.n_sections):
+            if data_type[1] == 'by_turn':
+                inputValues = input_data[sect]
+            elif data_type[1] == 'by_time':
+                inputValues = input_data[sect][1]
+            else:
+                raise RuntimeError("Input data type not recognised, " 
+                                   + "should be by_turn or by_time")
+            
+            if isinstance(input_data, dTypes.ring_program):
+                inputValues = convert_data(inputValues, mass, charge, 
+                                              data_type[0], bending_radius)
+            
+            if data_type[1] == 'by_turn':
+                output_data.append(inputValues)
+                continue
+            
+            inputTime = input_data[sect][0]
+            if isinstance(input_data[sect], dTypes.ring_program):
+                processTime, processData = self.preprocess(mass, circumference,
+                                                           inputTime, 
+                                                           inputValues)
+                output_time.append(processTime)
+                output_data.append(processData)
+                
+        output_time = np.array(output_time, ndmin=2, dtype=float)
+        output_data = np.array(output_data, ndmin=2, dtype=float)
+
+        return output_time, output_data
+                
+
+    def preprocess(self, mass, circumference, time, momentum, 
+                   interpolation = None):
+
+        if interpolation is None:
+            interpolation = self.interpolation
+        
+        # Some checks on the options
+        if ((self.t_start is not None) and (self.t_start < time[0])) or \
+            ((self.t_end is not None) and (self.t_end > time[-1])):
+            raise excpt.InputError("ERROR: [t_start, t_end] should be " +
+                                   "included in the passed time array.")
+
+        if self.t_start == None:
+            self.t_start = time[0]
+        if self.t_end == None:
+            self.t_end = time[-1]
+
+        # Obtain flat bottom data, extrapolate to constant
+        
+        time_func, start, end = timing.time_from_sampling(self.interp_time)
+
+        if start > self.t_start:
+            self.t_start = start
+            warnings.warn("self.t_start being overwritten")
+
+        if end < self.t_end:
+            self.t_end = end
+            warnings.warn("self.t_stop being overwritten")
+        
+        
+        if interpolation == 'linear':
+            time, momentum = self._linear_interpolation(mass, 
+                                                        circumference, time, 
+                                                        momentum, time_func)
+            
+        else:
+            raise RuntimeError("Buggered")
+        
+        return time, momentum
+            
+                
+
+    def _linear_interpolation(self, mass, circumference, time, momentum, 
+                              time_func):
+        
+        pInit = np.interp(self.t_start, time, momentum)
+        beta_0 = np.sqrt(1/(1 + (mass/pInit)**2))
+        T0 = self._calc_t_rev(circumference, beta_0)
+
+        nTurns = 0
+        time_interp = [self.t_start]
+        momentum_interp = [pInit]
+        self.use_turns = [0]
+
+        time_start_interp, time_end_interp = self._ramp_start_stop(time, 
+                                                                   momentum)
+
+        if time_end_interp > self.t_end:
+            time_end_interp = self.t_end
+
+        next_time = time_interp[0] + T0
+        
+        next_store_time = time_func(time_interp[0])
+
+        while next_time < time_end_interp:
+            
+            next_momentum = np.interp(next_time, time, momentum)
+            next_beta = np.sqrt(1/(1 + (mass/next_momentum)**2))
+            next_time = next_time + self._calc_t_rev(circumference, next_beta)
+            nTurns += 1
+
+            if next_time >= next_store_time:
+                time_interp.append(next_time)
+                momentum_interp.append(next_momentum)
+                self.use_turns.append(nTurns)
+                next_store_time = time_func(time_interp[-1])
+            
+            if nTurns > self.n_turns:
+                break
+        else:
+            if self.n_turns != np.inf:
+                warnings.warn("Maximum time reached before number of turns")
+            self.n_turns = nTurns
+            
+        return time_interp, momentum_interp
+
+
+
+    def _calc_t_rev(self, circumference, beta):
+        return circumference/(beta*cont.c)
+    
+    
+    def _ramp_start_stop(self, time, momentum):
+        
+        time_start_ramp = np.max(time[momentum == momentum[0]])
+        time_end_ramp = np.min(time[momentum == momentum[-1]])
+
+        if time_start_ramp > self.t_start:
+            time_start_ramp = self.t_start
+        
+        if time_end_ramp < self.t_end:
+            time_end_ramp = self.t_end
+
+        return time_start_ramp, time_end_ramp
+    
+    
 def convert_data(synchronous_data, mass, charge,
                  synchronous_data_type='momentum', bending_radius=None):
         """ Function to convert synchronous data (i.e. energy program of the
