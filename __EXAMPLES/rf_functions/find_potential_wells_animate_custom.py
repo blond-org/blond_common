@@ -151,8 +151,8 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
 
                         label += '\nWith inner sep, taking highest max!'
                         plt.plot([left_pos, right_pos],
-                                 [float(inner_sep_max_right),
-                                  float(inner_sep_max_right)],
+                                 [float(inner_sep_max_left),
+                                  float(inner_sep_max_left)],
                                  'g', label=label)
                         ax.legend(labels=(label, ))
                         wells_found += 1
@@ -256,8 +256,8 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
 
                         label += '\nWith inner sep, taking highest max!'
                         plt.plot([left_pos, right_pos],
-                                 [float(inner_sep_max_right),
-                                  float(inner_sep_max_right)],
+                                 [float(inner_sep_max_left),
+                                  float(inner_sep_max_left)],
                                  'g', label=label)
                         ax.legend(labels=(label, ))
                         wells_found += 1
