@@ -1,119 +1,20 @@
-# coding: utf8
-# Copyright 2014-2019 CERN. This software is distributed under the
-# terms of the GNU General Public Licence version 3 (GPL Version 3),
-# copied verbatim in the file LICENCE.md.
-# In applying this licence, CERN does not waive the privileges and immunities
-# granted to it by virtue of its status as an Intergovernmental Organization or
-# submit itself to any jurisdiction.
-# Project website: http://blond.web.cern.ch/
-
 '''
-**Module containing base functions to compute like rf voltage, rf potential,
-separatrices, acceptance, emittance, synchrotron frequency**
-
-:Authors: **Simon Albright**, **Alexandre Lasheen**
+Animation of the find_potential_wells_cubic function
 '''
 
-# External imports
+# Adding folder on TOP of blond_common to PYTHONPATH
+import sys
 import numpy as np
 import scipy.interpolate as interp
-from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic
+import matplotlib.pyplot as plt
+sys.path.append('./../../../')
+
+from blond_common.maths.calculus import minmax_location_cubic
 
 
-def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
-                          phi_offset, time_bounds=None):
-
-    voltage = np.array(voltage, ndmin=1)
-    harmonic_number = np.array(harmonic_number, ndmin=1)
-    phi_offset = np.array(phi_offset, ndmin=1)
-
-    if time_bounds is None:
-        left_time = 0
-        right_time = t_rev / harmonic_number[0]
-        margin = 0.2
-    else:
-        left_time = time_bounds[0]
-        right_time = time_bounds[1]
-        margin = 0
-
-    omega_rev = 2*np.pi/t_rev
-
-    time_array = np.linspace(left_time-left_time*margin,
-                             right_time+right_time*margin,
-                             n_points)
-
-    voltage_array = np.zeros(len(time_array))
-
-    for indexRF in range(len(voltage)):
-        voltage_array += voltage[indexRF] * np.sin(
-            harmonic_number[indexRF]*omega_rev*time_array+phi_offset[indexRF])
-
-    return time_array, voltage_array
-
-
-def rf_potential_generation(n_points, t_rev, voltage, harmonic_number,
-                            phi_offset, eta_0, charge, energy_increment,
-                            time_bounds=None):
-
-    voltage = np.array(voltage, ndmin=1)
-    harmonic_number = np.array(harmonic_number, ndmin=1)
-    phi_offset = np.array(phi_offset, ndmin=1)
-
-    if time_bounds is None:
-        left_time = 0
-        right_time = t_rev / harmonic_number[0]
-        margin = 0.2
-    else:
-        left_time = time_bounds[0]
-        right_time = time_bounds[1]
-        margin = 0
-
-    omega_rev = 2*np.pi/t_rev
-
-    time_array = np.linspace(left_time-left_time*margin,
-                             right_time+right_time*margin,
-                             n_points)
-
-    eom_factor_potential = np.sign(eta_0) * charge / t_rev
-
-    potential_well = eom_factor_potential*energy_increment/abs(charge) * \
-        time_array
-
-    for indexRF in range(len(voltage)):
-        potential_well += eom_factor_potential * \
-            voltage[indexRF]/(harmonic_number[indexRF]*omega_rev) * np.cos(
-                harmonic_number[indexRF]*omega_rev*time_array +
-                phi_offset[indexRF])
-
-    return time_array, potential_well
-
-
-def rf_potential_generation_cubic(time_array, voltage_array, eta_0, charge,
-                                  t_rev, energy_increment,
-                                  interpolated_voltage_minus_increment=None):
-
-    eom_factor_potential = np.sign(eta_0) * charge / t_rev
-
-    if interpolated_voltage_minus_increment is None:
-        voltage_minus_increment = voltage_array - \
-            (energy_increment)/abs(charge)
-        interpolated_voltage_minus_increment = interp.splrep(
-            time_array, voltage_minus_increment)
-    else:
-        pass
-
-    potential_well = - eom_factor_potential * integ_cubic(
-        time_array, voltage_minus_increment,
-        tck=interpolated_voltage_minus_increment)[1]
-
-    return time_array, potential_well, (voltage_minus_increment,
-                                        interpolated_voltage_minus_increment)
-
-
-# Defining a routine to locate potential wells and inner separatrices
-def find_potential_wells_cubic(time_array_full, potential_well_full,
-                               relative_max_val_precision_limit=1e-6,
-                               mest=10, verbose=False):
+def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
+                                       relative_max_val_precision_limit=1e-6,
+                                       mest=10, verbose=False):
 
     potwell_max_locs = []
     potwell_max_vals = []
@@ -135,6 +36,28 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
     min_val = min_max_results[1][0]
     max_val = min_max_results[1][1]
 
+    plt.figure('Potential well')
+    plt.clf()
+    plt.title('The potential well')
+    plt.plot(time_array_full, potential_well_full)
+#     plt.pause(1)
+    plt.title('Finding minima')
+    for index_min in range(len(min_pos)):
+        plt.plot(min_pos[index_min], min_val[index_min], 'go', markersize=3)
+#         plt.pause(0.5)
+#     plt.pause(1)
+    plt.title('Finding maxima')
+    for index_max in range(len(max_pos)):
+        plt.plot(max_pos[index_max], max_val[index_max], 'ro', markersize=3)
+#         plt.pause(0.5)
+#     plt.pause(3)
+
+    wells_found = 0
+    plt.figure('Potential well')
+    plt.clf()
+    plt.title('Wells found: %d' % (wells_found))
+    plt.plot(time_array_full, potential_well_full)
+
     for index_max in range(len(max_val)):
 
         # Setting a max
@@ -145,31 +68,44 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
         inner_sep_max_left = np.nan
         inner_sep_max_right = np.nan
 
+        plt.figure('Potential well')
+        plt.clf()
+        plt.title('Wells found: %d' % (wells_found))
+        label = 'Taking a max'
+        plt.plot(present_max_pos, present_max_val, 'ro', markersize=3,
+                 label=label)
+        plt.plot(time_array_full, potential_well_full, zorder=1)
+        plt.legend(loc='upper left')
+        ax = plt.gca()
+        plt.pause(1)
+
         # Checking left
         # This is a right max, checking for the left counterparts
-        most_right_max = False
-        for index_left in range(index_max+1):
+        for index_left in range(index_max+2):
             if (index_left == 0) and (index_max == 0):
                 # This is the most left max
+                label += '\nThis is the most left max!'
+                ax.legend(labels=(label, ))
+                plt.pause(1)
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
-                most_right_max = True
             elif (index_left == 0) and (index_max != 0):
                 # This indexes set corresponds to the same max
                 continue
             elif index_left > index_max:
                 # No more max on the left, checking edge
+                label += '\nChecking the left edge!'
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
             else:
                 left_max_val = max_val[index_max-index_left]
+                left_max_pos = max_pos[index_max-index_left]
 
             right_pos = present_max_pos
             right_val = present_max_val
 
             if np.isclose(left_max_val, present_max_val,
-                          rtol=relative_max_val_precision_limit, atol=0) \
-                    and not most_right_max:
+                          rtol=relative_max_val_precision_limit, atol=0):
                 # The left max is identical to the present max, a pot. well
                 # is found
                 left_pos = left_max_pos
@@ -178,6 +114,16 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                 if [left_pos, right_pos] not in potwell_max_locs:
                     potwell_max_locs.append([left_pos, right_pos])
                     potwell_max_vals.append([left_val, right_val])
+
+                    label += '\nThere is a higher max on the left!'
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
+
+                    label += '\nIntersecting!'
+                    plt.plot(left_pos, left_val, 'ro',
+                             markersize=3, label=label)
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
 
                     if np.isnan(inner_sep_max_left):
                         potwell_inner_max.append(np.nan)
@@ -188,11 +134,30 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                                 float(min_val[(min_pos > left_pos) *
                                               (min_pos < right_pos)]))
 
+                        label += '\nNo inner sep, taking min!'
+                        plt.plot(potwell_min_locs[-1],
+                                 potwell_min_vals[-1],
+                                 'go', markersize=3, label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
+
                     else:
                         potwell_inner_max.append(
                                 float(inner_sep_max_left))
                         potwell_min_locs.append(np.nan)
                         potwell_min_vals.append(np.nan)
+
+                        label += '\nWith inner sep, taking highest max!'
+                        plt.plot([left_pos, right_pos],
+                                 [float(inner_sep_max_right),
+                                  float(inner_sep_max_right)],
+                                 'g', label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
 
                     if verbose:
                         print('+L1 - IMAX '+str(index_max)+' - ILEFT ' +
@@ -213,6 +178,11 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
                 inner_sep_max_left = np.nanmax([
                     inner_sep_max_left, left_max_val])
+
+                label += '\nThere is a smaller max on the left! ' + \
+                    '(inner sep)'
+                ax.legend(labels=(label, ))
+                plt.pause(1)
 
                 if verbose:
                     print('L2 - IMAX '+str(index_max)+' - ILEFT ' +
@@ -250,6 +220,16 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                     potwell_max_locs.append([left_pos, right_pos])
                     potwell_max_vals.append([left_val, right_val])
 
+                    label += '\nThere is a higher max on the left!'
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
+
+                    label += '\nIntersecting!'
+                    plt.plot(left_pos, left_val, 'ro',
+                             markersize=3, label=label)
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
+
                     if np.isnan(inner_sep_max_left):
                         potwell_inner_max.append(np.nan)
                         potwell_min_locs.append(
@@ -259,11 +239,30 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                                 float(min_val[(min_pos > left_pos) *
                                               (min_pos < right_pos)]))
 
+                        label += '\nNo inner sep, taking min!'
+                        plt.plot(potwell_min_locs[-1],
+                                 potwell_min_vals[-1],
+                                 'go', markersize=3, label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
+
                     else:
                         potwell_inner_max.append(
                                 float(inner_sep_max_left))
                         potwell_min_locs.append(np.nan)
                         potwell_min_vals.append(np.nan)
+
+                        label += '\nWith inner sep, taking highest max!'
+                        plt.plot([left_pos, right_pos],
+                                 [float(inner_sep_max_right),
+                                  float(inner_sep_max_right)],
+                                 'g', label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
 
                     if verbose:
                         print('+L3 - IMAX '+str(index_max)+' - ILEFT ' +
@@ -280,18 +279,20 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking right:
         # This is a left max, checking for the right counterpart
-        most_left_max = False
-        for index_right in range(len(max_val)-index_max):
+        for index_right in range(len(max_val)-index_max+1):
             if (index_right == 0) and (index_max == (len(max_val)-1)):
                 # This is the most left max
+                label += '\nThis is the most right max!'
+                ax.legend(labels=(label, ))
+                plt.pause(1)
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
-                most_left_max = True
             elif (index_right == 0) and (index_max != (len(max_val)-1)):
                 # This indexes set corresponds to the same max
                 continue
             elif index_right == (len(max_val)-index_max):
                 # No more max on the right, checking edge
+                label += '\nChecking the right edge!'
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
             else:
@@ -302,8 +303,7 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             left_val = present_max_val
 
             if np.isclose(right_max_val, present_max_val,
-                          rtol=relative_max_val_precision_limit, atol=0) \
-                    and not most_left_max:
+                          rtol=relative_max_val_precision_limit, atol=0):
                 # The right max is identical to the present max, a pot.
                 # well is found
                 right_pos = right_max_pos
@@ -312,6 +312,16 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                 if [left_pos, right_pos] not in potwell_max_locs:
                     potwell_max_locs.append([left_pos, right_pos])
                     potwell_max_vals.append([left_val, right_val])
+
+                    label += '\nThere is a higher max on the right!'
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
+
+                    label += '\nIntersecting!'
+                    plt.plot(right_pos, right_val, 'ro',
+                             markersize=3, label=label)
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
 
                     if np.isnan(inner_sep_max_right):
                         potwell_inner_max.append(np.nan)
@@ -322,11 +332,30 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                                 float(min_val[(min_pos > left_pos) *
                                               (min_pos < right_pos)]))
 
+                        label += '\nNo inner sep, taking min!'
+                        plt.plot(potwell_min_locs[-1],
+                                 potwell_min_vals[-1],
+                                 'go', markersize=3, label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
+
                     else:
                         potwell_inner_max.append(
                                 float(inner_sep_max_right))
                         potwell_min_locs.append(np.nan)
                         potwell_min_vals.append(np.nan)
+
+                        label += '\nWith inner sep, taking highest max!'
+                        plt.plot([left_pos, right_pos],
+                                 [float(inner_sep_max_right),
+                                  float(inner_sep_max_right)],
+                                 'g', label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
 
                     if verbose:
                         print('+R1 - IMAX '+str(index_max)+' - IRIGHT ' +
@@ -347,6 +376,11 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
                 inner_sep_max_right = np.nanmax([
                     inner_sep_max_right, right_max_val])
+
+                label += '\nThere is a smaller max on the right! ' + \
+                    '(inner sep)'
+                ax.legend(labels=(label, ))
+                plt.pause(1)
 
                 if verbose:
                     print('R2 - IMAX '+str(index_max)+' - IRIGHT ' +
@@ -384,6 +418,16 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                     potwell_max_locs.append([left_pos, right_pos])
                     potwell_max_vals.append([left_val, right_val])
 
+                    label += '\nThere is a higher max on the right!'
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
+
+                    label += '\nIntersecting!'
+                    plt.plot(right_pos, right_val, 'ro',
+                             markersize=3, label=label)
+                    ax.legend(labels=(label, ))
+                    plt.pause(1)
+
                     if np.isnan(inner_sep_max_right):
                         potwell_inner_max.append(np.nan)
                         potwell_min_locs.append(
@@ -393,11 +437,30 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
                                 float(min_val[(min_pos > left_pos) *
                                               (min_pos < right_pos)]))
 
+                        label += '\nNo inner sep, taking min!'
+                        plt.plot(potwell_min_locs[-1],
+                                 potwell_min_vals[-1],
+                                 'go', markersize=3, label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
+
                     else:
                         potwell_inner_max.append(
                                 float(inner_sep_max_right))
                         potwell_min_locs.append(np.nan)
                         potwell_min_vals.append(np.nan)
+
+                        label += '\nWith inner sep, taking highest max!'
+                        plt.plot([left_pos, right_pos],
+                                 [float(inner_sep_max_right),
+                                  float(inner_sep_max_right)],
+                                 'g', label=label)
+                        ax.legend(labels=(label, ))
+                        wells_found += 1
+                        plt.title('Wells found: %d' % (wells_found))
+                        plt.pause(1)
 
                     if verbose:
                         print('+R3 - IMAX '+str(index_max)+' - IRIGHT ' +
@@ -419,189 +482,13 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             potwell_min_vals)
 
 
-def potential_well_cut_cubic(time_array_full, potential_well_full,
-                             potwell_max_locs):
+if __name__ == "__main__":
 
-    tck_potential_well = interp.splrep(time_array_full,
-                                       potential_well_full)
+    # Defining a ramp with a program time vs. energy (warning: initial energy cannot be 0)
 
-    potential_well_list = []
-    time_array_list = []
-    for index_well in range(len(potwell_max_locs)):
+    loaded_data = np.load('custom_pot_well.npy')
 
-        left_position = potwell_max_locs[index_well][0]
-        right_position = potwell_max_locs[index_well][1]
-
-        new_n_points = len(
-            time_array_full[
-                (time_array_full >= left_position) *
-                (time_array_full <= right_position)])
-
-        xnew = np.linspace(left_position, right_position, new_n_points)
-
-        out = interp.splev(xnew, tck_potential_well)
-
-        time_array_list.append(xnew)
-        potential_well_list.append(out)
-
-    return time_array_list, potential_well_list
-
-
-def potential_to_hamiltonian(time_array, potential_array, beta, energy, eta):
-    
-    HVal = np.max(potential_array)
-    return np.abs((HVal - potential_array)*2*beta**2*energy/eta)
-
-
-def trajectory_area_cubic(time_array, potential_array, eta_0, beta_rel,
-                          tot_energy, min_potential_well=None):
-
-    if min_potential_well is None:
-        min_potential_well = np.min(minmax_location_cubic(
-            time_array, potential_array)[1][0])
-
-    eom_factor_dE = abs(eta_0) / (2*beta_rel**2.*tot_energy)
-
-    dEtraj = np.sqrt((potential_array[0]-potential_array) / eom_factor_dE)
-    dEtraj[np.isnan(dEtraj)] = 0
-
-    full_length_time = time_array[-1]-time_array[0]
-    hamiltonian = potential_array[0]-min_potential_well
-    calc_area = 2*integ_cubic(time_array, dEtraj)[1][-1]
-    half_energy_height = np.sqrt((hamiltonian) / eom_factor_dE)
-
-    return time_array, dEtraj, hamiltonian, calc_area, half_energy_height, \
-        full_length_time
-
-
-def area_vs_hamiltonian_cubic(time_array, potential_array, eta_0, beta_rel,
-                              tot_energy, min_potential_well=None,
-                              inner_max_potential_well=None,
-                              n_points_reinterp=None):
-
-    if (inner_max_potential_well is not None) and \
-            np.isfinite(inner_max_potential_well):
-        n_points_above_inner_max = len(potential_array[1:-1][
-            potential_array[1:-1] >= inner_max_potential_well])
-        index_above_inner_max = np.where(
-            potential_array[1:-1] >= inner_max_potential_well)[0]
-    else:
-        n_points_above_inner_max = len(potential_array)-2
-        index_above_inner_max = np.arange(1, len(potential_array)-1)
-
-    tck_potential_well = interp.splrep(time_array, potential_array)
-
-    if min_potential_well is None:
-        min_potential_well = np.min(minmax_location_cubic(
-            time_array, potential_array, tck=tck_potential_well)[1][0])
-
-    calc_area_scan = np.empty(n_points_above_inner_max)
-    calc_area_scan[:] = np.nan
-    hamiltonian_scan = np.empty(n_points_above_inner_max)
-    hamiltonian_scan[:] = np.nan
-    half_energy_height_scan = np.empty(n_points_above_inner_max)
-    half_energy_height_scan[:] = np.nan
-    full_length_time_scan = np.empty(n_points_above_inner_max)
-    full_length_time_scan[:] = np.nan
-
-    for counter, indexAmplitude in enumerate(index_above_inner_max):
-
-        tck_adjusted = (
-            tck_potential_well[0],
-            tck_potential_well[1]-tck_potential_well[1][indexAmplitude],
-            tck_potential_well[2])
-
-        roots_adjusted = interp.sproot(tck_adjusted)
-
-        if len(roots_adjusted) != 2:
-            continue
-
-        left_position = np.min(roots_adjusted)
-        right_position = np.max(roots_adjusted)
-
-        if n_points_reinterp is None:
-            n_points_reinterp = len(np.where(
-                (tck_potential_well[0] >= left_position) *
-                (tck_potential_well[0] <= right_position))[0])
-
-        fine_time_array = np.linspace(left_position, right_position,
-                                      n_points_reinterp)
-        fine_potential_well = interp.splev(fine_time_array, tck_adjusted) + \
-            tck_potential_well[1][indexAmplitude]
-
-        (time_array_traj, dEtraj,
-         hamiltonian, calc_area,
-         half_energy_height,
-         full_length_time) = trajectory_area_cubic(
-             fine_time_array, fine_potential_well, eta_0, beta_rel,
-             tot_energy, min_potential_well=min_potential_well)
-
-        calc_area_scan[counter] = calc_area
-        hamiltonian_scan[counter] = hamiltonian
-        half_energy_height_scan[counter] = half_energy_height
-        full_length_time_scan[counter] = full_length_time
-
-    good_indexes = np.isfinite(calc_area_scan)
-
-    return time_array[index_above_inner_max][good_indexes], \
-        hamiltonian_scan[good_indexes], calc_area_scan[good_indexes], \
-        half_energy_height_scan[good_indexes], \
-        full_length_time_scan[good_indexes]
-
-
-def synchrotron_frequency_cubic(time_array, potential_array, eta_0, beta_rel,
-                                tot_energy, min_potential_well=None,
-                                inner_max_potential_well=None,
-                                n_points_reinterp=None):
-
-    (time_array_ham, hamiltonian_scan,
-     calc_area_scan, half_energy_height_scan,
-     full_length_time_scan) = area_vs_hamiltonian_cubic(
-        time_array, potential_array, eta_0, beta_rel,
-        tot_energy, min_potential_well=min_potential_well,
-        inner_max_potential_well=inner_max_potential_well,
-        n_points_reinterp=n_points_reinterp)
-
-    sync_freq = np.zeros(len(calc_area_scan))
-    time_array_fs = np.zeros(len(calc_area_scan))
-    hamiltonian_scan_fs = np.zeros(len(calc_area_scan))
-    calc_area_scan_fs = np.zeros(len(calc_area_scan))
-    half_energy_height_scan_fs = np.zeros(len(calc_area_scan))
-    full_length_time_scan_fs = np.zeros(len(calc_area_scan))
-
-    # Taking every second point, in single RF the consecutive points
-    # can be too close to each other for cubic spline interpolation
-    sorted_area = np.argsort(calc_area_scan[::2])
-
-    sync_freq[::2] = deriv_cubic(
-        calc_area_scan[::2][sorted_area],
-        hamiltonian_scan[::2][sorted_area])[1]
-
-    time_array_fs[::2] = time_array_ham[::2][sorted_area]
-    hamiltonian_scan_fs[::2] = hamiltonian_scan[::2][sorted_area]
-    calc_area_scan_fs[::2] = calc_area_scan[::2][sorted_area]
-    half_energy_height_scan_fs[::2] = half_energy_height_scan[::2][sorted_area]
-    full_length_time_scan_fs[::2] = full_length_time_scan[::2][sorted_area]
-
-    # Doing the same with the second set of points
-    sorted_area = np.argsort(calc_area_scan[1::2])
-
-    sync_freq[1::2] = deriv_cubic(
-        calc_area_scan[1::2][sorted_area],
-        hamiltonian_scan[1::2][sorted_area])[1]
-
-    time_array_fs[1::2] = time_array_ham[1::2][sorted_area]
-    hamiltonian_scan_fs[1::2] = hamiltonian_scan[1::2][sorted_area]
-    calc_area_scan_fs[1::2] = calc_area_scan[1::2][sorted_area]
-    half_energy_height_scan_fs[1::2] = half_energy_height_scan[1::2][
-        sorted_area]
-    full_length_time_scan_fs[1::2] = full_length_time_scan[1::2][sorted_area]
-
-    sorted_time = np.argsort(time_array_fs)
-
-    return time_array_fs[sorted_time], \
-        sync_freq[sorted_time], \
-        hamiltonian_scan_fs[sorted_time], \
-        calc_area_scan_fs[sorted_time], \
-        half_energy_height_scan_fs[sorted_time], \
-        full_length_time_scan_fs[sorted_time]
+    (potential_well_locs, potential_well_vals,
+     potential_well_inner_max, potential_well_min,
+     potential_well_min_val) = find_potential_wells_cubic_animate(
+        loaded_data[0,:], loaded_data[1,:], mest=200, verbose=False)
