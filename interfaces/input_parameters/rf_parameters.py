@@ -270,6 +270,7 @@ class RFStation:
         # Imported from Ring
         self.Particle = Ring.Particle
         self.n_turns = Ring.n_turns
+        self.cycle_time = Ring.cycle_time
         self.ring_circumference = Ring.ring_circumference
         self.section_length = Ring.ring_length[self.section_index]
         self.length_ratio = float(self.section_length/self.ring_circumference)
@@ -414,6 +415,40 @@ class RFStation:
             return eta
 
 
+    def parameters_at_time(self, cycle_moments):
+        """ Function to return various RF parameters at a specific moment in
+        time.
+
+        Parameters
+        ----------
+        cycle_moments : float array
+            Moments of time at which cycle parameters are to be calculated [s].
+
+        Returns
+        -------
+        parameters : dictionary
+            Contains 'momentum', 'beta', 'gamma', 'energy', 'kin_energy',
+            'f_rev', 't_rev'. 'omega_rev', 'eta_0', and 'delta_E' interpolated
+            to the moments contained in the 'cycle_moments' array
+
+        """
+        voltage = []
+        phase = []
+        harmonic = []
+        omega = []
+        for v, p, h, o in zip(self.voltage, self.phi_rf_d, self.harmonic,
+                              self.omega_rf_d):
+            voltage.append(np.interp(cycle_moments, self.cycle_time, v))
+            phase.append(np.interp(cycle_moments, self.cycle_time, p))
+            harmonic.append(np.interp(cycle_moments, self.cycle_time, h))
+            omega.append(np.interp(cycle_moments, self.cycle_time, o))
+        parameters = {}
+        parameters['voltage'] = voltage
+        parameters['phi_rf_d'] = phase
+        parameters['harmonics'] = harmonic
+        parameters['omega_rf_d'] = omega
+
+        return parameters
 
 def calculate_Q_s(RFStation, Particle=Proton()):
     r""" Function calculating the turn-by-turn synchrotron tune for

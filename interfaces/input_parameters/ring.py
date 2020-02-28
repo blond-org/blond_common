@@ -369,6 +369,7 @@ class Ring:
         parameters['delta_E'] = np.interp(cycle_moments,
                                           self.cycle_time[1:],
                                           np.diff(self.energy[0]))
+        parameters['charge'] = self.Particle.charge
 
         return parameters
 
