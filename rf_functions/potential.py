@@ -19,6 +19,9 @@ import numpy as np
 import scipy.interpolate as interp
 from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic
 
+# BLonD_Common imports
+from ..devtools import exceptions as excpt
+
 
 def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
                           phi_offset, time_bounds=None):
@@ -445,6 +448,21 @@ def potential_well_cut_cubic(time_array_full, potential_well_full,
         potential_well_list.append(out)
 
     return time_array_list, potential_well_list
+
+
+def sort_potential_wells(time_list, well_list):
+    
+    if not hasattr(time_list[0], '__iter__'):
+        time_list = (time_list,)
+        well_list = (well_list,)
+        
+    order = [a for a,b in sorted(enumerate(time_list), 
+                                 key = lambda itt : itt[1][0])]
+    
+    retTimes = [time_list[i] for i in order]
+    retWells = [well_list[i] for i in order]
+    
+    return retTimes, retWells
 
 
 def potential_to_hamiltonian(time_array, potential_array, beta, energy, eta):
