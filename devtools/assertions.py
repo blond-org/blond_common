@@ -33,13 +33,26 @@ def not_none(*args, msg, exception):
         raise exception(msg)
 
 
-def single_none(*args, msg, exception):
+def _count_none(*args):
     
     nNone = 0
     for a in args:
         if a is None:
             nNone += 1
     
+    return nNone
+
+def single_none(*args, msg, exception):
+
+    nNone = _count_none(*args)
+
     if nNone != 1:
         raise exception(msg)
-        
+
+
+def single_not_none(*args, msg, exception):
+    
+    nNone = _count_none(*args)
+
+    if nNone != len(args) - 1:
+        raise exception(msg)
