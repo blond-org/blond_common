@@ -249,7 +249,7 @@ class ring_program(_ring_function):
         
         
     def preprocess(self, mass, circumference, interp_time = None, 
-                   interpolation = 'linear', t_start = None, t_end = None,
+                   interpolation = 'linear', t_start = 0, t_end = np.inf,
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
 
         if self.func_type != 'momentum':
@@ -261,15 +261,17 @@ class ring_program(_ring_function):
 
         if not hasattr(interp_time, '__call__'):
             if interp_time is None:
-                interp_time = 0
-            interp_time = lambda x: interp_time
+                _interp_time = 0
+            else:
+                _interp_time = interp_time
+            interp_time = lambda x: _interp_time
         
         if t_start < self[0, 0, 0]:
             warnings.warn("t_start too early, starting from " 
                           + str(self[0, 0, 0]))
             t_start = self[0, 0, 0]
 
-        if t_end > self[0, 0, -1]:# and t_end != np.inf:
+        if t_end > self[0, 0, -1]:
             warnings.warn("t_stop too late, ending at " 
                           + str(self[0, 0, -1]))
             t_end = self[0, 0, -1]
