@@ -522,7 +522,10 @@ def calculate_phi_s(RFStation, Particle=Proton(),
 
     if accelerating_systems == 'as_single':
 
-        denergy = np.append(RFStation.delta_E, RFStation.delta_E[-1])
+        if RFStation.delta_E.shape[0] == RFStation.momentum.shape[0]:
+            denergy = RFStation.delta_E.copy()
+        else:
+            denergy = np.append(RFStation.delta_E, RFStation.delta_E[-1])
         acceleration_ratio = denergy/(Particle.charge*RFStation.voltage[0, :])
         acceleration_test = np.where((acceleration_ratio > -1) *
                                      (acceleration_ratio < 1) is False)[0]
