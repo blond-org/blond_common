@@ -247,7 +247,7 @@ class Ring:
                                                self.Particle.mass)
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))            
         self.delta_E = np.diff(self.energy, axis=1)
-        if self.n_turns < self.momentum[0, -1]:
+        if self.n_turns > len(self.use_turns):
             self._recalc_delta_E()
         
         self.momentum = self.momentum[2:]
@@ -368,12 +368,12 @@ class Ring:
                                         self.eta_0[0])
         parameters['delta_E'] = np.interp(cycle_moments,
                                           self.cycle_time[1:],
-                                          np.diff(self.energy[0]))
+                                          self.delta_E[0])
         parameters['charge'] = self.Particle.charge
 
         return parameters
 
-
+    #TODO: fix len(delta_E) for non 't_rev' interpolation
     def _recalc_delta_E(self):
         """
         Function to recalculate delta_E.
@@ -382,12 +382,10 @@ class Ring:
         value for each turn.
         """
         
-        
         for section in range(self.n_sections):
             ENow = self.energy[section]
             ENext = np.interp(self.cycle_time + self.t_rev, self.cycle_time, 
                               ENow)
             
-            for turn in range(len(self.delta_E[section])):
-                self.delta_E[section][turn] = ENext[turn] - ENow[turn]
+            self.delta_E[section][:] = (ENext - ENow)[:-1]
 

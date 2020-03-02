@@ -225,6 +225,8 @@ class RFStation:
 
         #Coercion of voltage to RF_section_function datatype
         if not isinstance(voltage, dTypes.voltage_program):
+            if not hasattr(voltage, '__iter__'):
+                voltage = (voltage, )
             if isinstance(voltage, dict):
                 useV = []
                 for h in harmonic:
@@ -243,6 +245,8 @@ class RFStation:
 
         #Coercion of phase to RF_section_function datatype
         if not isinstance(phi_rf_d, dTypes.phase_program):
+            if not hasattr(phi_rf_d, '__iter__'):
+                phi_rf_d = (phi_rf_d, )
             if isinstance(phi_rf_d, dict):
                 usePhi = []
                 for h in harmonic:
@@ -258,7 +262,9 @@ class RFStation:
                 phi_rf_d = dTypes.phase_program(*phi_rf_d, 
                                                 harmonics = harmonic)
 
-        
+        if not hasattr(harmonic, '__iter__'):
+            harmonic = (harmonic,)
+
         assrt.equal_arrays(harmonic, voltage.data_type[2], 
                            phi_rf_d.data_type[2],
             msg = 'Declared harmonics and harmonics of voltage and phase'
