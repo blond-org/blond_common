@@ -3,12 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # BLonD_Common imports
+from ...rf_functions import potential as pot
 
 
 class Beam_Parameters:
     
     def __init__(self, ring, rf, use_samples = None, init_coord = None, 
-                 harmonic_divide = 1):
+                 harmonic_divide = 1, potential_resolution = 1000):
         
         self.ring = ring
         self.rf = rf
@@ -16,9 +17,106 @@ class Beam_Parameters:
         if use_samples is None:
             use_samples = list(range(len(self.ring.use_turns)))
         
-        self.use_samples = use_samples
+        self.use_samples = use_samples       
+        self.n_samples = len(self.use_samples)
+
         self.init_coord = init_coord
         
+        self.harmonic_divide = harmonic_divide
+        
+        self.potential_resolution = potential_resolution
+        
+        self.volt_wave_array = np.zeros([self.n_samples, 
+                                         self.potential_resolution])
+        self.time_window_array = np.zeros([self.n_samples, 
+                                           self.potential_resolution])
+        self.potential_well_array = np.zeros([self.n_samples, 
+                                              self.potential_resolution])
+    
+        self.calc_potential_wells()
+        
+    
+    def calc_potential_wells(self, sample = None):
+
+        '''
+        Calculate potential well at all or specified sample
+
+        Parameters
+        ----------
+        sample : None, int
+            if not None:
+               well calculated only for specified sample
+        '''
+
+        if sample is None:
+            for s in range(self.n_samples):
+                time, well, vWave = self.sample_potential_well(s)
+                self.volt_wave_array[s] = vWave
+                self.time_window_array[s] = time
+                self.potential_well_array[s] = well
+
+        else:
+            time, well, vWave = self.sample_potential_well(sample)
+            self.volt_wave_array[sample] = vWave
+            self.time_window_array[sample] = time
+            self.potential_well_array[sample] = well
+    
+
+    def sample_potential_well(self, sample, volts = None):
+
+        '''
+        Calculate potential well at given sample with existing or passed voltage
+
+        Parameters
+        ----------
+        sample : int
+            sample number to use
+        volts : None, np.array or list
+            if None:
+                Use voltage from self.rfprogram to define potential well
+            else:
+                Use passed voltage to define potential well
+        Returns
+        -------
+        time : array
+            time axis of potential well
+        well : array
+            potential well amplitude
+        vWave : array
+            full voltage used to calculate potential well
+            returned if volts is None
+        '''        
+        
+        
+        ringPars = self.ring.parameters_at_sample(sample)
+        rfPars = self.rf.parameters_at_sample(sample)
+        
+        timeBounds = (0, ringPars['t_rev']/self.harmonic_divide)
+        print("TIMEBOUNDS:", timeBounds)
+        
+        if volts is None:
+             vTime, vWave = pot.rf_voltage_generation(self.potential_resolution,
+                                                      ringPars['t_rev'],
+                                                      rfPars['voltage'],
+                                                      rfPars['harmonic'],
+                                                      rfPars['phi_rf_d'],
+                                                      time_bounds = timeBounds)
+        else:
+            vWave = volts
+            vTime = np.linspace(timeBounds[0], timeBounds[1], 
+                                self.potential_resolution)
+
+        time, well, _ = pot.rf_potential_generation_cubic(vTime, vWave, 
+                                                          ringPars['eta_0'], 
+                                                          ringPars['charge'],
+                                                          ringPars['t_rev'], 
+                                                          ringPars['delta_E'])
+
+        if volts is None:
+            return time, well, vWave
+        else:
+            return time, well
+    
     
     def track_synchronous(self, start_sample = 0):
         
