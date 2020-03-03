@@ -288,6 +288,8 @@ class RFStation:
         self.delta_E = Ring.delta_E[self.section_index]
         self.alpha_order = Ring.alpha_order
         self.charge = self.Particle.charge
+        
+        self.use_turns = Ring.use_turns
 
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
@@ -451,10 +453,33 @@ class RFStation:
         parameters = {}
         parameters['voltage'] = voltage
         parameters['phi_rf_d'] = phase
-        parameters['harmonics'] = harmonic
+        parameters['harmonic'] = harmonic
         parameters['omega_rf_d'] = omega
 
         return parameters
+    
+    
+    def parameters_at_turn(self, turn):
+
+        try:
+            sample = np.where(self.use_turns == turn)[0][0]
+        except IndexError:
+            raise excpt.InputError("turn " + str(turn) + " has not been "
+                                   + "stored for the specified interpolation")
+        else:
+            return self.parameters_at_sample(sample)
+
+
+    def parameters_at_sample(self, sample):
+        
+        parameters = {}
+        parameters['voltage'] = self.voltage[:, sample]
+        parameters['phi_rf_d'] = self.phi_rf_d[:, sample]
+        parameters['harmonic'] = self.harmonic[:, sample]
+        parameters['omega_rf_d'] = self.omega_rf_d[:, sample]
+        
+        return parameters
+        
 
 def calculate_Q_s(RFStation, Particle=Proton()):
     r""" Function calculating the turn-by-turn synchrotron tune for
