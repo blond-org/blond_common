@@ -371,6 +371,33 @@ class Ring:
                                           np.diff(self.energy[0]))
 
         return parameters
+    
+    
+    def parameters_at_turn(self, turn):
+
+        try:
+            sample = np.where(self.use_turns == turn)[0][0]
+        except IndexError:
+            raise excpt.InputError("turn " + str(turn) + " has not been "
+                                   + "stored for the specified interpolation")
+        else:
+            return parameters_at_sample(sample)
+    
+    def parameters_at_sample(self, sample):
+        
+        parameters = {}
+        parameters['momentum'] = self.momentum[0, sample]
+        parameters['beta'] = self.beta[0, sample]
+        parameters['gamma'] = self.gamma[0, sample]
+        parameters['energy'] = self.energy[0, sample]
+        parameters['kin_energy'] = self.kin_energy[0, sample]
+        parameters['f_rev'] = self.f_rev[sample]
+        parameters['t_rev'] = self.t_rev[sample]
+        parameters['omega_rev'] = self.omega_rev[sample]
+        parameters['eta_0'] = self.eta_0[0, sample]
+        parameters['delta_E'] = self.delta_E[0, sample]
+
+        return parameters
 
 
     def _recalc_delta_E(self):
