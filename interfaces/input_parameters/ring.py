@@ -398,10 +398,11 @@ class Ring:
         parameters['omega_rev'] = self.omega_rev[sample]
         parameters['eta_0'] = self.eta_0[0, sample]
         parameters['delta_E'] = self.delta_E[0, sample]
+        parameters['charge'] = self.Particle.charge
 
         return parameters
 
-    #TODO: fix len(delta_E) for non 't_rev' interpolation
+
     def _recalc_delta_E(self):
         """
         Function to recalculate delta_E.
@@ -409,11 +410,14 @@ class Ring:
         not be correct.  This function recalculates it to give the correct 
         value for each turn.
         """
-        
+
         for section in range(self.n_sections):
             ENow = self.energy[section]
             ENext = np.interp(self.cycle_time + self.t_rev, self.cycle_time, 
                               ENow)
             
             self.delta_E[section][:] = ENext - ENow
+            EThen = np.interp(self.cycle_time[-1] - self.t_rev[-1], 
+                              self.cycle_time, ENow)
+            self.delta_E[section][-1] = ENow[-1] - EThen
 
