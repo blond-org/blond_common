@@ -383,7 +383,7 @@ class Ring:
             raise excpt.InputError("turn " + str(turn) + " has not been "
                                    + "stored for the specified interpolation")
         else:
-            return parameters_at_sample(sample)
+            return self.parameters_at_sample(sample)
     
     def parameters_at_sample(self, sample):
         
