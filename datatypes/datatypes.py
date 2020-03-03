@@ -557,7 +557,63 @@ class omega_offset(_freq_phase_off):
                                 interpolation = interpolation)
         
     
+
+class _beam_data(_function):
     
+    def __new__(cls, *args, param, units, time = None, n_turns = None, 
+                interpolation = 'linear'):
+        
+        _check_time_turns(time, n_turns)
+            
+        data_points, data_types = _get_dats_types(*args, time = time, \
+                                                  n_turns = n_turns)
+        
+        _check_data_types(data_types, True)
+        data_types, data_points = _expand_singletons(data_types, 
+                                                     data_points)
+        
+        if 'by_turn' in data_types:
+            _check_turn_numbers(data_points, data_types)
+
+        if len(data_types) == 1:
+            data = (param, data_types[0], 'single_bunch')
+        if len(data_types) == 1:
+            data = (param, data_types[0], 'multi_bunch')
+        
+        obj = super().__new__(cls, data_points, data, interpolation)
+        obj.units = units
+
+
+class emittance(_beam_data):
+    
+    def __new__(cls, *args, emittance_type = 'matched_area', units = 'eVs', 
+                time = None, n_turns = None, interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, param = emittance_type, 
+                               time = time, n_turns = n_turns,
+                               interpoaltion = interpolation)
+
+
+class length(_beam_data):
+    
+    def __new__(cls, *args, length_type = 'full_length', units = 's',
+                time = None, n_turns = None, interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, param =  length_type, units = units,
+                               time = time, n_turns = n_turns,
+                               interpoaltion = interpolation)
+
+
+class height(_beam_data):
+    
+    def __new__(cls, *args, height_type = 'half_height', units = 'eV',
+                time = None, n_turns = None, interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, param =  height_type, units = units,
+                               time = time, n_turns = n_turns,
+                               interpoaltion = interpolation)
+
+
 ###############################################
 ####FUNCTIONS TO HELP IN DATA TYPE CREATION####
 ###############################################
