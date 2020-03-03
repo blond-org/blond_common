@@ -112,7 +112,7 @@ class InducedVoltage:
     @property
     def profile(self):
         return self._profile
-    
+
     @profile.setter
     def profile(self, value):
         
