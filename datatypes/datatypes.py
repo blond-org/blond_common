@@ -761,3 +761,23 @@ def _check_dims(data, time = None, n_turns = None):
         return data, 'by_turn'
 
     raise exceptions.InputError("Input data not understood")
+
+
+
+
+############################################
+####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
+############################################
+
+def zeros(shape, cls):
+    return np.zeros(shape).view(cls)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
