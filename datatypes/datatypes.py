@@ -614,6 +614,17 @@ class height(_beam_data):
                                interpoaltion = interpolation)
 
 
+class synchronous_phase(_beam_data):
+    
+    def __new__(cls, *args, units = 's', time = None, n_turns = None, 
+                interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, param = 'synchronous_phase',
+                               units = units, time = time, n_turns = n_turns,
+                               interpoaltion = interpolation)
+
+
+
 ###############################################
 ####FUNCTIONS TO HELP IN DATA TYPE CREATION####
 ###############################################
