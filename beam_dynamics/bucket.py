@@ -240,7 +240,9 @@ if __name__ == '__main__':
 
     inTime = np.linspace(0, 2*np.pi, 100)
     inWell = np.cos(inTime)
-    inWell += np.cos(inTime*2)
+#    inWell += np.cos(inTime*2)
+#    inWell -= np.min(inWell)
+    inWell += np.cos(inTime*3)*2
     inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
@@ -257,6 +259,9 @@ if __name__ == '__main__':
 #    plt.axvline(np.pi - targetLength/2)
 #    plt.axvline(np.pi + targetLength/2)
     plt.plot(bunch[0], bunch[1])
+    plt.xlabel("Phase units")
+    plt.ylabel("Energy units")
+#    plt.savefig("../tripleBucketAndInner.pdf")
     plt.show()
     
     
