@@ -534,8 +534,7 @@ class _RF_function(_function):
         
         newArray = newArray.view(self.__class__)
 
-        newArray.data_type = {'func_type': self.func_type, 
-                              'timebase':  'interpolated',
+        newArray.data_type = {'timebase':  'interpolated',
                               'harmonics': harmonics}
 
         return newArray
@@ -578,15 +577,14 @@ class _freq_phase_off(_RF_function):
                                + "phase modulation function")
         
         delta_omega = np.zeros(self.shape)
-        for i, h in enumerate(self.sectioning):
+        for i, h in enumerate(self.harmonics):
             delta_omega[i] = np.gradient(self[i]) * design_omega \
                           / (2*np.pi * h)
         
         delta_omega = delta_omega.view(omega_offset)
 
-        delta_omega.data_type = {'func_type': self.func_type,
-                                 'timebase': self.timebase,
-                                 'sectioning': self.sectioning}
+        delta_omega.data_type = {'timebase': self.timebase,
+                                 'harmonics': self.harmonics}
         
         return delta_omega
     
@@ -598,7 +596,7 @@ class _freq_phase_off(_RF_function):
                                + "phase modulation function")
         
         delta_phase = np.zeros(self.shape)
-        for i, h in enumerate(self.sectioning):
+        for i, h in enumerate(self.harmonics):
             delta_phase[i] = np.cumsum(h*(h*self[i])/design_omega)
             if wrap:
                 while np.max(delta_phase[i]) > np.pi:
@@ -608,9 +606,8 @@ class _freq_phase_off(_RF_function):
         
         delta_phase = delta_phase.view(phase_offset)
 
-        delta_phase.data_type = {'func_type': self.func_type,
-                                 'timebase': self.timebase,
-                                 'sectioning': self.sectioning}
+        delta_phase.data_type = {'timebase': self.timebase,
+                                 'harmonics': self.harmonics}
 
         return delta_phase
         
