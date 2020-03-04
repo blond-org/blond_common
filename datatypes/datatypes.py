@@ -39,8 +39,10 @@ class _function(np.ndarray):
 
 
     @classmethod
-    def zeros(cls, shape):
-        return np.zeros(shape).view(cls)
+    def zeros(cls, shape, data_type = None):
+        newArray = np.zeros(shape).view(cls)
+        newArray.data_type = data_type
+        return newArray
 
 
     @property
@@ -698,7 +700,7 @@ class emittance(_beam_data):
         
         return super().__new__(cls, *args, emittance_type = emittance_type, 
                                time = time, n_turns = n_turns,
-                               interpoaltion = interpolation)
+                               interpolation = interpolation)
 
 
     @property
@@ -721,7 +723,7 @@ class length(_beam_data):
         
         return super().__new__(cls, *args, length_type = length_type, 
                                units = units, time = time, n_turns = n_turns,
-                               interpoaltion = interpolation)
+                               interpolation = interpolation)
 
 
     @property
@@ -744,7 +746,7 @@ class height(_beam_data):
         
         return super().__new__(cls, *args, height_type = height_type, 
                                units = units, time = time, n_turns = n_turns,
-                               interpoaltion = interpolation)
+                               interpolation = interpolation)
 
 
     @property
@@ -767,7 +769,7 @@ class synchronous_phase(_beam_data):
         
         return super().__new__(cls, *args, units = units, time = time, 
                                n_turns = n_turns, 
-                               interpoaltion = interpolation)
+                               interpolation = interpolation)
 
 
 
