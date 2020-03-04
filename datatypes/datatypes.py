@@ -26,25 +26,41 @@ class _function(np.ndarray):
 
         obj.data_type = data_type
         
-        obj.func_type = data_type[0]
-        obj.time_base = data_type[1]
-        obj.sectioning = data_type[2]
-        
         obj.interpolation = interpolation
         
         return obj
     
     def __array_finalize__(self, obj):
-        
+
         if obj is None:
             return
-        
+
         self.data_type = getattr(obj, 'data_type', None)
 
-        if self.data_type is not None:
-            self.func_type = self.data_type[0]
-            self.time_base = self.data_type[1]
-            self.sectioning = self.data_type[2] 
+
+    @property
+    def data_type(self):
+        return self._data_type
+
+    @data_type.setter
+    def data_type(self, value):
+        self._data_type = value
+        if self._data_type is not None:
+            for d in self._data_type:
+                if d in dir(self):
+                    setattr(self, d, self.data_type[d])
+                else:
+                    raise exceptions.InputDataError("data_type has "
+                                                    + "unrecognised option '"
+                                                    + str(d) + "'")
+
+    @property
+    def timebase(self):
+        return self._timebase
+    
+    @timebase.setter
+    def timebase(self, value):
+        self._timebase = value
     
     
     def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
@@ -171,13 +187,33 @@ class _ring_function(_function):
             
         if len(data_types) == 1:
             return super().__new__(cls, data_points, \
-                        (func_type, data_types[0], 'single_section'), 
+                        {'func_type': func_type, 'timebase': data_types[0], 
+                         'sectioning': 'single_section'}, 
                         interpolation)
         else:
             return super().__new__(cls, data_points, \
-                        (func_type, data_types[0], 'multi_section'), 
+                        {'func_type': func_type, 'timebase': data_types[0], 
+                         'sectioning': 'multi_section'}, 
                         interpolation)
 
+    @property
+    def func_type(self):
+        return self._func_type
+    
+    @func_type.setter
+    def func_type(self, value):
+        self._func_type = value
+    
+    
+    @property
+    def sectioning(self):
+        return self._sectioning
+    
+    @sectioning.setter
+    def sectioning(self, value):
+        self._sectioning = value
+
+        
 
 class ring_program(_ring_function):
     
@@ -318,10 +354,12 @@ class ring_program(_ring_function):
         
         next_store_time = time_func(time_interp[0])
 
+        input_time = self[section, 0].tolist()
+        input_momentum = self[section, 0].tolist()
+
         while next_time < stop:
-            
-            next_momentum = np.interp(next_time, self[section, 0], 
-                                      self[section, 1])
+            next_momentum = np.interp(next_time, input_time, 
+                                      input_momentum)
             next_beta = rt.mom_to_beta(next_momentum, mass)
             next_time = next_time + rt.beta_to_trev(next_beta, circumference)
             nTurns += 1
@@ -334,6 +372,7 @@ class ring_program(_ring_function):
             
             if nTurns > targetNTurns:
                 break
+
         else:
             if targetNTurns != np.inf:
                 warnings.warn("Maximum time reached before number of turns")
