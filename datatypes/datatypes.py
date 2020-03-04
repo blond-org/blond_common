@@ -639,8 +639,8 @@ class omega_offset(_freq_phase_off):
 
 class _beam_data(_function):
     
-    def __new__(cls, *args, param, units, time = None, n_turns = None, 
-                interpolation = 'linear'):
+    def __new__(cls, *args, units, time = None, n_turns = None, 
+                interpolation = 'linear', **kwargs):
         
         _check_time_turns(time, n_turns)
             
@@ -655,12 +655,40 @@ class _beam_data(_function):
             _check_turn_numbers(data_points, data_types)
 
         if len(data_types) == 1:
-            data = (param, data_types[0], 'single_bunch')
-        if len(data_types) == 1:
-            data = (param, data_types[0], 'multi_bunch')
+            bunching = 'single_bunch'
+        else:
+            bunching = 'multi_bunch'
         
-        obj = super().__new__(cls, data_points, data, interpolation)
-        obj.units = units
+        data_type = {'timebase': data_types[0], 'bunching': bunching,
+                     'units': units, **kwargs}
+        
+        return super().__new__(cls, data_points, data_type, interpolation)
+
+
+    @property
+    def bunching(self):
+        try:
+            return self._bunching
+        except AttributeError:
+            return None
+    
+    @bunching.setter
+    def bunching(self, value):
+        self._check_data_type('bunching', value)
+        self._bunching = value
+        
+        
+    @property
+    def units(self):
+        try:
+            return self._units
+        except AttributeError:
+            return None
+    
+    @units.setter
+    def units(self, value):
+        self._check_data_type('units', value)
+        self._units = value
 
 
 class emittance(_beam_data):
@@ -668,9 +696,22 @@ class emittance(_beam_data):
     def __new__(cls, *args, emittance_type = 'matched_area', units = 'eVs', 
                 time = None, n_turns = None, interpolation = 'linear'):
         
-        return super().__new__(cls, *args, param = emittance_type, 
+        return super().__new__(cls, *args, emittance_type = emittance_type, 
                                time = time, n_turns = n_turns,
                                interpoaltion = interpolation)
+
+
+    @property
+    def emittance_type(self):
+        try:
+            return self._emittance_type
+        except AttributeError:
+            return None
+    
+    @emittance_type.setter
+    def emittance_type(self, value):
+        self._check_data_type('emittance_type', value)
+        self._emittance_type = value
 
 
 class length(_beam_data):
@@ -678,19 +719,45 @@ class length(_beam_data):
     def __new__(cls, *args, length_type = 'full_length', units = 's',
                 time = None, n_turns = None, interpolation = 'linear'):
         
-        return super().__new__(cls, *args, param =  length_type, units = units,
-                               time = time, n_turns = n_turns,
+        return super().__new__(cls, *args, length_type = length_type, 
+                               units = units, time = time, n_turns = n_turns,
                                interpoaltion = interpolation)
 
+
+    @property
+    def length_type(self):
+        try:
+            return self._length_type
+        except AttributeError:
+            return None
+    
+    @length_type.setter
+    def length_type(self, value):
+        self._check_data_type('length_type', value)
+        self._length_type = value
+        
 
 class height(_beam_data):
     
     def __new__(cls, *args, height_type = 'half_height', units = 'eV',
                 time = None, n_turns = None, interpolation = 'linear'):
         
-        return super().__new__(cls, *args, param =  height_type, units = units,
-                               time = time, n_turns = n_turns,
+        return super().__new__(cls, *args, height_type = height_type, 
+                               units = units, time = time, n_turns = n_turns,
                                interpoaltion = interpolation)
+
+
+    @property
+    def height_type(self):
+        try:
+            return self._height_type
+        except AttributeError:
+            return None
+    
+    @height_type.setter
+    def height_type(self, value):
+        self._check_data_type('height_type', value)
+        self._height_type = value
 
 
 class synchronous_phase(_beam_data):
@@ -698,8 +765,8 @@ class synchronous_phase(_beam_data):
     def __new__(cls, *args, units = 's', time = None, n_turns = None, 
                 interpolation = 'linear'):
         
-        return super().__new__(cls, *args, param = 'synchronous_phase',
-                               units = units, time = time, n_turns = n_turns,
+        return super().__new__(cls, *args, units = units, time = time, 
+                               n_turns = n_turns, 
                                interpoaltion = interpolation)
 
 
