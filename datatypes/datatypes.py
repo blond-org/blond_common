@@ -92,11 +92,11 @@ class _function(np.ndarray):
         else:
             nPts = len(use_turns)
             
-        if self.time_base == 'by_turn' and use_turns is None:
+        if self.timebase == 'by_turn' and use_turns is None:
             raise exceptions.InputError("If function is defined by_turn "
                                         + "use_turns must be given")
 
-        if self.time_base == 'by_time' and use_time is None:
+        if self.timebase == 'by_time' and use_time is None:
             raise exceptions.InputError("If function is defined by_time "
                                         + "use_time must be given")
 
@@ -117,7 +117,7 @@ class _function(np.ndarray):
                                                  + "definition ("\
                                                  + str(self.shape[0]) + ")")
     
-        if self.time_base == 'by_time':
+        if self.timebase == 'by_time':
             if use_time is None:
                 raise exceptions.DataDefinitionError("Function is defined by "
                                                      + "time but use_time has"
@@ -129,7 +129,7 @@ class _function(np.ndarray):
                 warnings.warn("use_time starts before function definition, "
                               + "interpolation will assume fixed value")
         
-        if self.time_base == 'by_turn':
+        if self.timebase == 'by_turn':
             if use_turns is None:
                 raise exceptions.DataDefinitionError("Function is defined by "
                                                      + "turn but use_turns has"
@@ -165,19 +165,19 @@ class _function(np.ndarray):
         newArray = self._prep_reshape(n_sections, use_time, use_turns)
         
         for s in range(n_sections):        
-            if self.time_base == 'single':
+            if self.timebase == 'single':
                 if self.sectioning == 'single_section':
                     newArray[s] += self
                 else:
                     newArray[s] += self[s]
     
-            elif self.time_base == 'by_turn':
+            elif self.timebase == 'by_turn':
                 if self.sectioning == 'single_section':
                     newArray[s] = self[0, use_turns]
                 else:
                     newArray[s] = self[s, use_turns]
             
-            elif self.time_base == 'by_time':
+            elif self.timebase == 'by_time':
                     newArray[s] = self._interpolate(s, use_time)
         
         return newArray.view(self.__class__)
@@ -239,7 +239,7 @@ class ring_program(_ring_function):
                                             + str(tuple(a for a in allowed)))
         
         return super().__new__(cls, *args, time = time, n_turns = n_turns, 
-                    func_type = func_type)
+                               func_type = func_type)
     
     @property
     def func_type(self):
@@ -256,7 +256,7 @@ class ring_program(_ring_function):
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
         
-        if self.time_base == 'by_time':
+        if self.timebase == 'by_time':
             sectionFunction = np.array(self[section, 1])
         else:
             sectionFunction = np.array(self[section])
@@ -288,7 +288,7 @@ class ring_program(_ring_function):
         newArray = np.zeros(self.shape)
 
         for s in range(self.shape[0]):
-            if self.time_base == 'by_time':
+            if self.timebase == 'by_time':
                 newArray[s, 1] = self._convert_section(s, mass, bending_radius)
                 newArray[s, 0] = self[s, 0]
             else:
@@ -296,7 +296,7 @@ class ring_program(_ring_function):
 
         if inPlace:
             for s in range(self.shape[0]):
-                if self.time_base == 'by_time':
+                if self.timebase == 'by_time':
                     self[s, 1] = newArray[s, 1]
                 else:
                     self[s] = newArray[s]
@@ -406,7 +406,7 @@ class ring_program(_ring_function):
 
     def _ramp_start_stop(self):
         
-        if self.time_base != 'by_time':
+        if self.timebase != 'by_time':
             raise RuntimeError("Only implemented for by_time functions")
         
         time_start_ramp = np.max(self[0, 0][self[0, 1] == self[0, 1, 0]])
@@ -523,13 +523,13 @@ class _RF_function(_function):
             else:
                 continue
             
-            if self.time_base == 'single':
+            if self.timebase == 'single':
                 newArray[i] += self[j]
     
-            elif self.time_base == 'by_turn':
+            elif self.timebase == 'by_turn':
                 newArray[i] = self[j, use_turns]
             
-            elif self.time_base == 'by_time':
+            elif self.timebase == 'by_time':
                 newArray[i] = self._interpolate(j, use_time)
         
         newArray = newArray.view(self.__class__)
