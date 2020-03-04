@@ -265,12 +265,12 @@ class RFStation:
         if not hasattr(harmonic, '__iter__'):
             harmonic = (harmonic,)
 
-        assrt.equal_arrays(harmonic, voltage.data_type[2], 
-                           phi_rf_d.data_type[2],
+        assrt.equal_arrays(harmonic, voltage.harmonics, 
+                           phi_rf_d.harmonics,
             msg = 'Declared harmonics and harmonics of voltage and phase'
             + ' functions do not all match', exception = excpt.InputDataError)
         
-        self.n_rf = len(voltage.data_type[2])
+        self.n_rf = len(voltage.harmonics)
         
 
         # Imported from Ring
