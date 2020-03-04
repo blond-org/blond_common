@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 # BLonD_Common imports
 from ...rf_functions import potential as pot
 from ...maths import calculus as calc
+from ...datatypes import datatypes as dt
 
 
 class Beam_Parameters:
@@ -130,6 +131,16 @@ class Beam_Parameters:
         if start_sample == 0:
             self.particle_tracks = np.zeros([len(self.init_coord),
                                             self.n_samples])
+            if len(self.init_coord) == 1:
+                bunching = 'single_bunch'
+            else:
+                bunching = 'multi_bunch'
+            self.particle_tracks \
+                    = dt.synchronous_phase.zeros([len(self.init_coord),
+                                                  self.n_samples],
+                                                {'timebase': 'by_turn',
+                                                 'bunching': bunching,
+                                                 'units': 's'})
 
         self.n_particles = len(self.init_coord)
 
@@ -142,8 +153,9 @@ class Beam_Parameters:
 
             self.particle_tracks[p][0] = self.time_window_array[0][startPoint]
 
-            locs, values = calc.minmax_location_cubic(self.time_window_array[0],
-                                                      self.potential_well_array[0])
+            locs, values \
+                    = calc.minmax_location_cubic(self.time_window_array[0],
+                                                 self.potential_well_array[0])
             locs = locs[0]
             offsets = np.abs(self.particle_tracks[p][0] - locs)
             newLoc = np.where(offsets == np.min(offsets))[0][0]
@@ -154,8 +166,9 @@ class Beam_Parameters:
         #particle location is nearest minimum in potential well
         for p in range(self.n_particles):
             for t in range(start_sample+1, self.n_samples):
-               locs, values = calc.minmax_location_cubic(self.time_window_array[t], 
-                                                         self.potential_well_array[t])
+               locs, values \
+                   = calc.minmax_location_cubic(self.time_window_array[t], 
+                                                self.potential_well_array[t])
                locs = locs[0]
                offsets = np.abs(self.particle_tracks[p][t-1] - locs)
                newLoc = np.where(offsets == np.min(offsets))[0][0]
