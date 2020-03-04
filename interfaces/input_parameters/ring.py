@@ -247,7 +247,8 @@ class Ring:
                                                self.Particle.mass)
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))            
         self.delta_E = np.diff(self.energy, axis=1)
-        if self.n_turns < self.momentum[0, -1]:
+        if self.n_turns > len(self.use_turns):
+            self.delta_E = np.zeros(self.energy.shape)
             self._recalc_delta_E()
         
         self.momentum = self.momentum[2:]
@@ -368,7 +369,36 @@ class Ring:
                                         self.eta_0[0])
         parameters['delta_E'] = np.interp(cycle_moments,
                                           self.cycle_time[1:],
-                                          np.diff(self.energy[0]))
+                                          self.delta_E[0])
+        parameters['charge'] = self.Particle.charge
+
+        return parameters
+    
+    
+    def parameters_at_turn(self, turn):
+
+        try:
+            sample = np.where(self.use_turns == turn)[0][0]
+        except IndexError:
+            raise excpt.InputError("turn " + str(turn) + " has not been "
+                                   + "stored for the specified interpolation")
+        else:
+            return self.parameters_at_sample(sample)
+    
+    def parameters_at_sample(self, sample):
+        
+        parameters = {}
+        parameters['momentum'] = self.momentum[0, sample]
+        parameters['beta'] = self.beta[0, sample]
+        parameters['gamma'] = self.gamma[0, sample]
+        parameters['energy'] = self.energy[0, sample]
+        parameters['kin_energy'] = self.kin_energy[0, sample]
+        parameters['f_rev'] = self.f_rev[sample]
+        parameters['t_rev'] = self.t_rev[sample]
+        parameters['omega_rev'] = self.omega_rev[sample]
+        parameters['eta_0'] = self.eta_0[0, sample]
+        parameters['delta_E'] = self.delta_E[0, sample]
+        parameters['charge'] = self.Particle.charge
 
         return parameters
 
@@ -380,13 +410,14 @@ class Ring:
         not be correct.  This function recalculates it to give the correct 
         value for each turn.
         """
-        
-        
+
         for section in range(self.n_sections):
             ENow = self.energy[section]
             ENext = np.interp(self.cycle_time + self.t_rev, self.cycle_time, 
                               ENow)
             
-            for turn in range(len(self.delta_E[section])):
-                self.delta_E[section][turn] = ENext[turn] - ENow[turn]
+            self.delta_E[section][:] = ENext - ENow
+            EThen = np.interp(self.cycle_time[-1] - self.t_rev[-1], 
+                              self.cycle_time, ENow)
+            self.delta_E[section][-1] = ENow[-1] - EThen
 

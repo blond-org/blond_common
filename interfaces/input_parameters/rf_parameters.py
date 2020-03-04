@@ -225,6 +225,8 @@ class RFStation:
 
         #Coercion of voltage to RF_section_function datatype
         if not isinstance(voltage, dTypes.voltage_program):
+            if not hasattr(voltage, '__iter__'):
+                voltage = (voltage, )
             if isinstance(voltage, dict):
                 useV = []
                 for h in harmonic:
@@ -243,6 +245,8 @@ class RFStation:
 
         #Coercion of phase to RF_section_function datatype
         if not isinstance(phi_rf_d, dTypes.phase_program):
+            if not hasattr(phi_rf_d, '__iter__'):
+                phi_rf_d = (phi_rf_d, )
             if isinstance(phi_rf_d, dict):
                 usePhi = []
                 for h in harmonic:
@@ -258,7 +262,9 @@ class RFStation:
                 phi_rf_d = dTypes.phase_program(*phi_rf_d, 
                                                 harmonics = harmonic)
 
-        
+        if not hasattr(harmonic, '__iter__'):
+            harmonic = (harmonic,)
+
         assrt.equal_arrays(harmonic, voltage.data_type[2], 
                            phi_rf_d.data_type[2],
             msg = 'Declared harmonics and harmonics of voltage and phase'
@@ -270,6 +276,7 @@ class RFStation:
         # Imported from Ring
         self.Particle = Ring.Particle
         self.n_turns = Ring.n_turns
+        self.cycle_time = Ring.cycle_time
         self.ring_circumference = Ring.ring_circumference
         self.section_length = Ring.ring_length[self.section_index]
         self.length_ratio = float(self.section_length/self.ring_circumference)
@@ -281,6 +288,8 @@ class RFStation:
         self.delta_E = Ring.delta_E[self.section_index]
         self.alpha_order = Ring.alpha_order
         self.charge = self.Particle.charge
+        
+        self.use_turns = Ring.use_turns
 
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
@@ -414,6 +423,63 @@ class RFStation:
             return eta
 
 
+    def parameters_at_time(self, cycle_moments):
+        """ Function to return various RF parameters at a specific moment in
+        time.
+
+        Parameters
+        ----------
+        cycle_moments : float array
+            Moments of time at which cycle parameters are to be calculated [s].
+
+        Returns
+        -------
+        parameters : dictionary
+            Contains 'momentum', 'beta', 'gamma', 'energy', 'kin_energy',
+            'f_rev', 't_rev'. 'omega_rev', 'eta_0', and 'delta_E' interpolated
+            to the moments contained in the 'cycle_moments' array
+
+        """
+        voltage = []
+        phase = []
+        harmonic = []
+        omega = []
+        for v, p, h, o in zip(self.voltage, self.phi_rf_d, self.harmonic,
+                              self.omega_rf_d):
+            voltage.append(np.interp(cycle_moments, self.cycle_time, v))
+            phase.append(np.interp(cycle_moments, self.cycle_time, p))
+            harmonic.append(np.interp(cycle_moments, self.cycle_time, h))
+            omega.append(np.interp(cycle_moments, self.cycle_time, o))
+        parameters = {}
+        parameters['voltage'] = voltage
+        parameters['phi_rf_d'] = phase
+        parameters['harmonic'] = harmonic
+        parameters['omega_rf_d'] = omega
+
+        return parameters
+    
+    
+    def parameters_at_turn(self, turn):
+
+        try:
+            sample = np.where(self.use_turns == turn)[0][0]
+        except IndexError:
+            raise excpt.InputError("turn " + str(turn) + " has not been "
+                                   + "stored for the specified interpolation")
+        else:
+            return self.parameters_at_sample(sample)
+
+
+    def parameters_at_sample(self, sample):
+        
+        parameters = {}
+        parameters['voltage'] = self.voltage[:, sample]
+        parameters['phi_rf_d'] = self.phi_rf_d[:, sample]
+        parameters['harmonic'] = self.harmonic[:, sample]
+        parameters['omega_rf_d'] = self.omega_rf_d[:, sample]
+        
+        return parameters
+        
 
 def calculate_Q_s(RFStation, Particle=Proton()):
     r""" Function calculating the turn-by-turn synchrotron tune for
@@ -481,7 +547,10 @@ def calculate_phi_s(RFStation, Particle=Proton(),
 
     if accelerating_systems == 'as_single':
 
-        denergy = np.append(RFStation.delta_E, RFStation.delta_E[-1])
+        if RFStation.delta_E.shape[0] == RFStation.momentum.shape[0]:
+            denergy = RFStation.delta_E.copy()
+        else:
+            denergy = np.append(RFStation.delta_E, RFStation.delta_E[-1])
         acceleration_ratio = denergy/(Particle.charge*RFStation.voltage[0, :])
         acceleration_test = np.where((acceleration_ratio > -1) *
                                      (acceleration_ratio < 1) is False)[0]
