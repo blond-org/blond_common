@@ -46,6 +46,9 @@ class _function(np.ndarray):
             self.time_base = self.data_type[1]
             self.sectioning = self.data_type[2] 
     
+    @classmethod
+    def zeros(cls, shape):
+        return np.zeros(shape).view(cls)
     
     def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
         
@@ -768,9 +771,6 @@ def _check_dims(data, time = None, n_turns = None):
 ############################################
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
 ############################################
-
-def zeros(shape, cls):
-    return np.zeros(shape).view(cls)
     
     
     
