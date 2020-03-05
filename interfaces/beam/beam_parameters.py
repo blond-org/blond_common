@@ -323,7 +323,6 @@ class Beam_Parameters:
                                                 'length_type': 'full',
                                                 'units': 's'})
 
-        #TODO: add bunch parameters
         for n in range(n_pars):
             buckets = self.buckets_by_particle(n)
             for b in range(len(buckets)):
