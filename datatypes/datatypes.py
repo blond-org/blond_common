@@ -175,7 +175,7 @@ class _function(np.ndarray):
                     newArray[s] += self[s]
     
             elif self.timebase == 'by_turn':
-                if self.sectioning == 'single_section':
+                if self.shape[0] == 1:# == 'single_section':
                     newArray[s] = self[0, use_turns]
                 else:
                     newArray[s] = self[s, use_turns]
