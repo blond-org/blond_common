@@ -42,8 +42,10 @@ class Bucket:
         except TypeError:
             raise excpt.InputError("time and well must both be iterable")
         
-        self.time_loaded = np.array(time, dtype=float)
-        self.well_loaded = np.array(well, dtype=float)
+        orderedTime, orderedWell = pot.sort_potential_wells(time, well)
+        
+        self.time_loaded = np.array(orderedTime[0], dtype=float)
+        self.well_loaded = np.array(orderedWell[0], dtype=float)
         
         self.beta = beta
         self.energy = energy
@@ -54,7 +56,27 @@ class Bucket:
         
         self.calc_separatrix()
         self.basic_parameters()
+        
+        self.inner_times = orderedTime[1:]
+        self.inner_wells = orderedWell[1:]
     
+    
+    def inner_buckets(self):
+        
+        self.inner_separatrices = []
+        for t, w in zip(self.inner_times, self.inner_wells):
+            hamil = pot.potential_to_hamiltonian(t, w,
+                                             self.beta, self.energy, 
+                                             self.eta)
+
+            upper_energy_bound = np.sqrt(hamil)
+        
+            sepTime = t.tolist() + t[::-1].tolist()
+            sepEnergy = upper_energy_bound.tolist() \
+                    + (-upper_energy_bound[::-1]).tolist()
+        
+            self.inner_separatrices.append(np.array([sepTime, sepEnergy]))
+            
 
     def smooth_well(self, nPoints = None, reinterp=False):
     
