@@ -25,6 +25,11 @@ class Beam_Parameters:
         self.use_samples = use_samples       
         self.n_samples = len(self.use_samples)
 
+        if init_coord is None:
+            init_coord = 0.5*ring.t_rev[0]/harmonic_divide
+        if not hasattr(init_coord, '__iter__'):
+            init_coord = (init_coord,)
+            
         self.init_coord = init_coord
         
         self.harmonic_divide = harmonic_divide
@@ -43,6 +48,15 @@ class Beam_Parameters:
                                            use_time = self.ring.cycle_time, 
                                            use_turns = self.ring.use_turns)
     
+        self.calc_potential_wells()
+        self.track_synchronous()
+        self.buckets = {}
+        self.calc_buckets()
+        self.bucket_parameters(True)
+    
+    
+    def full_update(self):
+
         self.calc_potential_wells()
         self.track_synchronous()
         self.buckets = {}
