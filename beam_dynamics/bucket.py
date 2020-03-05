@@ -257,6 +257,57 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])    
 
 
+    ##################################################
+    ####Functions for calculating bunch parameters####
+    ##################################################
+
+    def _set_bunch(self, bunch_length = None, bunch_emittance = None,
+                           bunch_height = None):
+        
+        allowed = ('bunch_length', 'bunch_emittance', 'bunch_height')
+        assrt.single_not_none(bunch_length, bunch_emittance, bunch_height,
+                              msg = 'Exactly 1 of ' + str(allowed) \
+                              + ' should be given', 
+                              exception = excpt.InputError)
+        
+        if bunch_length is not None:
+            outline = self.outline_from_length(bunch_length)
+        elif bunch_emittance is not None:
+            outline = self.outline_from_emittance(bunch_emittance)
+        elif bunch_height is not None:
+            outline = self.outline_from_dE(bunch_height)
+        
+        self._bunch_length = np.max(outline[0]) - np.min(outline[0])
+        self._bunch_height = np.max(outline[1])
+        self._bunch_emittance = np.trapz(outline[1], outline[0])
+
+
+    @property
+    def bunch_length(self):
+        return self._bunch_length
+    
+    @property
+    def bunch_height(self):
+        return self._bunch_height
+    
+    @property
+    def bunch_emittance(self):
+        return self._bunch_emittance
+    
+    
+    @bunch_length.setter
+    def bunch_length(self, value):
+        self._set_bunch(bunch_length = value)
+    
+    @bunch_height.setter
+    def bunch_height(self, value):
+        self._set_bunch(bunch_height = value)
+    
+    @bunch_emittance.setter
+    def bunch_emittance(self, value):
+        self._set_bunch(bunch_emittance = value)
+        
+        
 
 if __name__ == '__main__':
 

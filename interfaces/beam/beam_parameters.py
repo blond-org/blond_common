@@ -13,7 +13,8 @@ from ...beam_dynamics import bucket as buck
 class Beam_Parameters:
     
     def __init__(self, ring, rf, use_samples = None, init_coord = None, 
-                 harmonic_divide = 1, potential_resolution = 1000):
+                 harmonic_divide = 1, potential_resolution = 1000,
+                 bunch_emittance = 0):
         
         self.ring = ring
         self.rf = rf
@@ -36,12 +37,17 @@ class Beam_Parameters:
                                            self.potential_resolution])
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
+
+        self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
+                                           n_sections = len(init_coord), 
+                                           use_time = self.ring.cycle_time, 
+                                           use_turns = self.ring.use_turns)
     
         self.calc_potential_wells()
         self.track_synchronous()
         self.buckets = {}
         self.calc_buckets()
-        self.bucket_parameters()
+        self.bucket_parameters(True)
         
     
     def calc_potential_wells(self, sample = None):
@@ -321,15 +327,15 @@ class Beam_Parameters:
         for n in range(n_pars):
             buckets = self.buckets_by_particle(n)
             for b in range(len(buckets)):
-#                if update_bunch_parameters:
-#                    buckets[b].bunch_emittance = buckets[b].bunch_emittance
+                if update_bunch_parameters:
+                    buckets[b].bunch_emittance = self.bunch_emittance[n, b]
                     
-#                self.bunch_heights[n, b] = buckets[b].bunch_dE
+                self.bunch_heights[n, b] = buckets[b].bunch_height
                 self.heights[n, b] = buckets[b].half_height
                 self.areas[n, b] = buckets[b].area
-#                self.bunch_emittances[n, b] = buckets[b].bunch_emittance
+                self.bunch_emittances[n, b] = buckets[b].bunch_emittance
                 self.lengths[n, b] = buckets[b].length
-#                self.bunch_lengths[n, b] = buckets[b].bunch_length
+                self.bunch_lengths[n, b] = buckets[b].bunch_length
 
         
         
