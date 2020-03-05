@@ -9,7 +9,7 @@ import scipy.constants as cont
 from ..devtools import exceptions
 from ..utilities import rel_transforms as rt
 
-
+#TODO:  Overwrite some np funcs (e.g. __iadd__) where necessary
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
