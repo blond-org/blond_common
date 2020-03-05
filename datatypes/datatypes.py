@@ -9,7 +9,8 @@ import scipy.constants as cont
 from ..devtools import exceptions
 from ..utilities import rel_transforms as rt
 
-#TODO:  Overwrite some np funcs (e.g. __iadd__) where necessary
+#TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
+#TODO: In derived classes handle passing datatype as input
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
@@ -168,7 +169,7 @@ class _function(np.ndarray):
         
         for s in range(n_sections):        
             if self.timebase == 'single':
-                if self.sectioning == 'single_section':
+                if len(self.shape) == 1:#self.sectioning == 'single_section':
                     newArray[s] += self
                 else:
                     newArray[s] += self[s]
@@ -703,8 +704,10 @@ class emittance(_beam_data):
     def __new__(cls, *args, emittance_type = 'matched_area', units = 'eVs', 
                 time = None, n_turns = None, interpolation = 'linear'):
         
-        return super().__new__(cls, *args, emittance_type = emittance_type, 
-                               time = time, n_turns = n_turns,
+        return super().__new__(cls, *args, 
+                               emittance_type = emittance_type,
+                               units = units, time = time, 
+                               n_turns = n_turns,
                                interpolation = interpolation)
 
 
@@ -727,7 +730,8 @@ class length(_beam_data):
                 time = None, n_turns = None, interpolation = 'linear'):
         
         return super().__new__(cls, *args, length_type = length_type, 
-                               units = units, time = time, n_turns = n_turns,
+                               units = units, time = time, 
+                               n_turns = n_turns,
                                interpolation = interpolation)
 
 
