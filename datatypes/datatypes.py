@@ -153,7 +153,7 @@ class _function(np.ndarray):
             
 
     def _interpolate_linear(self, section, use_time):
-        if self.sectioning == 'single_section':
+        if self.shape[0] == 1:
             return np.interp(use_time, self[0, 0], self[0, 1])
         else:
             return np.interp(use_time, self[section, 0], self[section, 1])
@@ -166,13 +166,13 @@ class _function(np.ndarray):
         
         for s in range(n_sections):        
             if self.timebase == 'single':
-                if self.sectioning == 'single_section':
+                if self.shape[0] == 1:
                     newArray[s] += self
                 else:
                     newArray[s] += self[s]
     
             elif self.timebase == 'by_turn':
-                if self.sectioning == 'single_section':
+                if self.shape[0] == 1:
                     newArray[s] = self[0, use_turns]
                 else:
                     newArray[s] = self[s, use_turns]
@@ -462,7 +462,10 @@ class _RF_function(_function):
             raise exceptions.InputError("Number of functions does not match " \
                                         + "number of harmonics")
 
-        if not (all(t == 'single' for t in data_types) \
+        if 'by_turn' in data_types:
+            pass
+        
+        elif not (all(t == 'single' for t in data_types) \
             or (interpolation is None or len(data_points) == 1)):
 
             if interpolation is not None and data_types[0] != 'by_time':
