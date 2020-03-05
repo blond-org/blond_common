@@ -9,7 +9,8 @@ import scipy.constants as cont
 from ..devtools import exceptions
 from ..utilities import rel_transforms as rt
 
-
+#TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
+#TODO: In derived classes handle passing datatype as input
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
@@ -23,29 +24,65 @@ class _function(np.ndarray):
             raise exceptions.InputError("Function components could not be " \
                                         + "correctly coerced into ndarray, " \
                                         + "check input dimensionality")
-
-        obj.data_type = data_type
         
-        obj.func_type = data_type[0]
-        obj.time_base = data_type[1]
-        obj.sectioning = data_type[2]
+        obj.data_type = data_type
         
         obj.interpolation = interpolation
         
         return obj
     
     def __array_finalize__(self, obj):
-        
+
         if obj is None:
             return
-        
+
         self.data_type = getattr(obj, 'data_type', None)
 
-        if self.data_type is not None:
-            self.func_type = self.data_type[0]
-            self.time_base = self.data_type[1]
-            self.sectioning = self.data_type[2] 
+
+    @classmethod
+    def zeros(cls, shape, data_type = None):
+        newArray = np.zeros(shape).view(cls)
+        newArray.data_type = data_type
+        return newArray
+
+
+    @property
+    def data_type(self):
+        return self._data_type
+
+    @data_type.setter
+    def data_type(self, value):
+
+        if value is None:
+            self._data_type = {}
+            return
+
+        self._data_type = value
+        if self._data_type is not None:
+            for d in self._data_type:
+                if hasattr(self, d):
+                    setattr(self, d, value[d])
+                else:
+                    raise exceptions.InputDataError("data_type has "
+                                                    + "unrecognised option '"
+                                                    + str(d) + "'")
+
+    @property
+    def timebase(self):
+        try:
+            return self._timebase
+        except AttributeError:
+            return None
     
+    @timebase.setter
+    def timebase(self, value):
+        self._check_data_type('timebase', value)
+        self._timebase = value
+
+    
+    def _check_data_type(self, element, value):
+        self._data_type[element] = value
+        
     
     def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
         
@@ -58,11 +95,11 @@ class _function(np.ndarray):
         else:
             nPts = len(use_turns)
             
-        if self.time_base == 'by_turn' and use_turns is None:
+        if self.timebase == 'by_turn' and use_turns is None:
             raise exceptions.InputError("If function is defined by_turn "
                                         + "use_turns must be given")
 
-        if self.time_base == 'by_time' and use_time is None:
+        if self.timebase == 'by_time' and use_time is None:
             raise exceptions.InputError("If function is defined by_time "
                                         + "use_time must be given")
 
@@ -83,7 +120,7 @@ class _function(np.ndarray):
                                                  + "definition ("\
                                                  + str(self.shape[0]) + ")")
     
-        if self.time_base == 'by_time':
+        if self.timebase == 'by_time':
             if use_time is None:
                 raise exceptions.DataDefinitionError("Function is defined by "
                                                      + "time but use_time has"
@@ -95,7 +132,7 @@ class _function(np.ndarray):
                 warnings.warn("use_time starts before function definition, "
                               + "interpolation will assume fixed value")
         
-        if self.time_base == 'by_turn':
+        if self.timebase == 'by_turn':
             if use_turns is None:
                 raise exceptions.DataDefinitionError("Function is defined by "
                                                      + "turn but use_turns has"
@@ -119,7 +156,7 @@ class _function(np.ndarray):
             
 
     def _interpolate_linear(self, section, use_time):
-        if self.sectioning == 'single_section':
+        if self.shape[0] == 1:
             return np.interp(use_time, self[0, 0], self[0, 1])
         else:
             return np.interp(use_time, self[section, 0], self[section, 1])
@@ -131,19 +168,21 @@ class _function(np.ndarray):
         newArray = self._prep_reshape(n_sections, use_time, use_turns)
         
         for s in range(n_sections):        
-            if self.time_base == 'single':
-                if self.sectioning == 'single_section':
+            if self.timebase == 'single':
+
+                if self.shape[0] == 1:
                     newArray[s] += self
                 else:
                     newArray[s] += self[s]
     
-            elif self.time_base == 'by_turn':
-                if self.sectioning == 'single_section':
+            elif self.timebase == 'by_turn':
+
+                if self.shape[0] == 1:
                     newArray[s] = self[0, use_turns]
                 else:
                     newArray[s] = self[s, use_turns]
             
-            elif self.time_base == 'by_time':
+            elif self.timebase == 'by_time':
                     newArray[s] = self._interpolate(s, use_time)
         
         return newArray.view(self.__class__)
@@ -153,8 +192,8 @@ class _function(np.ndarray):
 
 class _ring_function(_function):
 
-    def __new__(cls, *args, func_type, time = None, n_turns = None, 
-                allow_single = False, interpolation = None):
+    def __new__(cls, *args, time = None, n_turns = None, 
+                allow_single = False, interpolation = None, **kwargs):
         
         _check_time_turns(time, n_turns)
             
@@ -168,34 +207,61 @@ class _ring_function(_function):
 
         if 'by_turn' in data_types:
             _check_turn_numbers(data_points, data_types)
-            
+        
+        
         if len(data_types) == 1:
-            return super().__new__(cls, data_points, \
-                        (func_type, data_types[0], 'single_section'), 
-                        interpolation)
+            data_type = {'timebase': data_types[0], 
+                         'sectioning': 'single_section'}
         else:
-            return super().__new__(cls, data_points, \
-                        (func_type, data_types[0], 'multi_section'), 
-                        interpolation)
+            data_type = {'timebase': data_types[0], 
+                         'sectioning': 'multi_section'}
+        
+        data_type = {**data_type, **kwargs}
+        
+        return super().__new__(cls, data_points, data_type, interpolation)
+    
+    @property
+    def sectioning(self):
+        try:
+            return self._sectioning
+        except AttributeError:
+            return None
+    
+    @sectioning.setter
+    def sectioning(self, value):
+        self._check_data_type('sectioning', value)
+        self._sectioning = value
 
+        
 
 class ring_program(_ring_function):
     
-    def __new__(cls, *args, data_type='momentum', time = None, n_turns = None):
+    def __new__(cls, *args, func_type='momentum', time = None, n_turns = None):
         allowed = ['momentum', 'total energy', 'kinetic energy', 
                    'bending field']
-        if data_type not in allowed:
-            raise exceptions.InputDataError("data_type must be one of "
+        if func_type not in allowed:
+            raise exceptions.InputDataError("func_type must be one of "
                                             + str(tuple(a for a in allowed)))
         
-        return super().__new__(cls, *args, func_type = data_type, time = time, 
-                         n_turns = n_turns)
+        return super().__new__(cls, *args, time = time, n_turns = n_turns, 
+                               func_type = func_type)
     
+    @property
+    def func_type(self):
+        try:
+            return self._func_type
+        except AttributeError:
+            return None
+    
+    @func_type.setter
+    def func_type(self, value):
+        self._check_data_type('func_type', value)
+        self._func_type = value
             
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
         
-        if self.time_base == 'by_time':
+        if self.timebase == 'by_time':
             sectionFunction = np.array(self[section, 1])
         else:
             sectionFunction = np.array(self[section])
@@ -227,7 +293,7 @@ class ring_program(_ring_function):
         newArray = np.zeros(self.shape)
 
         for s in range(self.shape[0]):
-            if self.time_base == 'by_time':
+            if self.timebase == 'by_time':
                 newArray[s, 1] = self._convert_section(s, mass, bending_radius)
                 newArray[s, 0] = self[s, 0]
             else:
@@ -235,13 +301,12 @@ class ring_program(_ring_function):
 
         if inPlace:
             for s in range(self.shape[0]):
-                if self.time_base == 'by_time':
+                if self.timebase == 'by_time':
                     self[s, 1] = newArray[s, 1]
                 else:
                     self[s] = newArray[s]
             
             self.func_type = 'momentum'
-            self.data_type = (self.func_type, self.time_base, self.sectioning)
         
         else:
             return super().__new__(self.__class__, *newArray, 
@@ -318,10 +383,12 @@ class ring_program(_ring_function):
         
         next_store_time = time_func(time_interp[0])
 
+        input_time = self[section, 0].tolist()
+        input_momentum = self[section, 1].tolist()
+
         while next_time < stop:
-            
-            next_momentum = np.interp(next_time, self[section, 0], 
-                                      self[section, 1])
+            next_momentum = np.interp(next_time, input_time, 
+                                      input_momentum)
             next_beta = rt.mom_to_beta(next_momentum, mass)
             next_time = next_time + rt.beta_to_trev(next_beta, circumference)
             nTurns += 1
@@ -334,6 +401,7 @@ class ring_program(_ring_function):
             
             if nTurns > targetNTurns:
                 break
+
         else:
             if targetNTurns != np.inf:
                 warnings.warn("Maximum time reached before number of turns")
@@ -343,7 +411,7 @@ class ring_program(_ring_function):
 
     def _ramp_start_stop(self):
         
-        if self.time_base != 'by_time':
+        if self.timebase != 'by_time':
             raise RuntimeError("Only implemented for by_time functions")
         
         time_start_ramp = np.max(self[0, 0][self[0, 1] == self[0, 1, 0]])
@@ -358,15 +426,28 @@ class momentum_compaction(_ring_function):
     
     def __new__(cls, *args, order = 0, time = None, n_turns = None, 
                 interpolation = 'linear'):
-        return super().__new__(cls, *args, func_type = order, time = time, 
+
+        return super().__new__(cls, *args, time = time, 
                                  n_turns = n_turns, allow_single = True,
-                                 interpolation = 'linear')
+                                 interpolation = 'linear', order=order)
+
+    @property
+    def order(self):
+        try:
+            return self._order
+        except AttributeError:
+            return None
+    
+    @order.setter
+    def order(self, value):
+        self._check_data_type('order', value)
+        self._order = value
 
 
 class _RF_function(_function):
     
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear', allow_single = True):
+                interpolation = 'linear', allow_single = True, **kwargs):
         
         _check_time_turns(time, n_turns)
         
@@ -386,72 +467,83 @@ class _RF_function(_function):
             raise exceptions.InputError("Number of functions does not match " \
                                         + "number of harmonics")
 
-        if all(t == 'single' for t in data_types):
-            return super().__new__(cls, data_points, \
-                                    ('RF', data_types[0], harmonics),
-                                    interpolation)
+        if 'by_turn' in data_types:
+            pass
+        
+        elif not (all(t == 'single' for t in data_types) \
+            or (interpolation is None or len(data_points) == 1)):
 
-        if interpolation is None or len(data_points) == 1:
-            return super().__new__(cls, data_points, \
-                                    ('RF', data_types[0], harmonics),
-                                    interpolation)
+            if interpolation is not None and data_types[0] != 'by_time':
+                raise exceptions.DataDefinitionError("Interpolation only "
+                                                     + "possible if functions "
+                                                     + "are defined by time")
+    
+            if interpolation != 'linear':
+                raise RuntimeError("Only linear interpolation currently "
+                                   + "available")
+            
+            input_times = []
+            for d in data_points:
+                input_times += d[0].tolist()
+            
+            interp_times = sorted(set(input_times))
+    
+            for i in range(len(data_points)):
+                 interp_data = np.interp(interp_times, data_points[i][0], \
+                                         data_points[i][1])
+                 data_points[i] = np.array([interp_times, interp_data])
         
-        if interpolation is not None and data_types[0] != 'by_time':
-            raise exceptions.DataDefinitionError("Interpolation only possible" \
-                                                 + " if functions are defined" \
-                                                 + " by time")
+        data_type = {'timebase': data_types[0], 'harmonics': harmonics, 
+                     **kwargs}
+        
+        return super().__new__(cls, data_points, data_type, 
+                               interpolation)
 
-        if interpolation != 'linear':
-            raise RuntimeError("Only linear interpolation currently available")
-        
-        input_times = []
-        for d in data_points:
-            input_times += d[0].tolist()
-        
-        interp_times = sorted(set(input_times))
 
-        for i in range(len(data_points)):
-             interp_data = np.interp(interp_times, data_points[i][0], \
-                                     data_points[i][1])
-             data_points[i] = np.array([interp_times, interp_data])
-        
-        return super().__new__(cls, data_points, ('RF', data_types[0], \
-                                                  harmonics), interpolation)
+
+    @property
+    def harmonics(self):
+        try:
+            return self._harmonics
+        except AttributeError:
+            return None
+    
+    @harmonics.setter
+    def harmonics(self, value):
+        self._check_data_type('harmonics', value)
+        self._harmonics = value
+
 
 
     def reshape(self, harmonics = None, use_time = None, use_turns = None):
         
         if harmonics is None:
-            harmonics = self.sectioning
+            harmonics = self.harmonics
 
         newArray = self._prep_reshape(len(harmonics), 
                                       use_time = use_time, 
                                       use_turns = use_turns)
         
         for i, h in enumerate(harmonics):
-            for j, s in enumerate(self.sectioning):
+            for j, s in enumerate(self.harmonics):
                 if h == s:
                     break
             else:
                 continue
             
-            if self.time_base == 'single':
+            if self.timebase == 'single':
                 newArray[i] += self[j]
     
-            elif self.time_base == 'by_turn':
+            elif self.timebase == 'by_turn':
                 newArray[i] = self[j, use_turns]
             
-            elif self.time_base == 'by_time':
+            elif self.timebase == 'by_time':
                 newArray[i] = self._interpolate(j, use_time)
         
         newArray = newArray.view(self.__class__)
 
-        newArray.func_type = self.func_type
-        newArray.time_base = 'interpolated'
-        newArray.sectioning = harmonics
-
-        newArray.data_type = (newArray.func_type, newArray.time_base,
-                              newArray.sectioning)
+        newArray.data_type = {'timebase':  'interpolated',
+                              'harmonics': harmonics}
 
         return newArray
 
@@ -493,19 +585,15 @@ class _freq_phase_off(_RF_function):
                                + "phase modulation function")
         
         delta_omega = np.zeros(self.shape)
-        for i, h in enumerate(self.sectioning):
+        for i, h in enumerate(self.harmonics):
             delta_omega[i] = np.gradient(self[i]) * design_omega \
                           / (2*np.pi * h)
         
-        delta_omega = delta_omega.view(phase_offset)
+        delta_omega = delta_omega.view(omega_offset)
 
-        delta_omega.func_type = self.func_type
-        delta_omega.time_base = 'interpolated'
-        delta_omega.sectioning = self.sectioning
-
-        delta_omega.data_type = (delta_omega.func_type, delta_omega.time_base,
-                                 delta_omega.sectioning)
-
+        delta_omega.data_type = {'timebase': self.timebase,
+                                 'harmonics': self.harmonics}
+        
         return delta_omega
     
     
@@ -516,7 +604,7 @@ class _freq_phase_off(_RF_function):
                                + "phase modulation function")
         
         delta_phase = np.zeros(self.shape)
-        for i, h in enumerate(self.sectioning):
+        for i, h in enumerate(self.harmonics):
             delta_phase[i] = np.cumsum(h*(h*self[i])/design_omega)
             if wrap:
                 while np.max(delta_phase[i]) > np.pi:
@@ -526,12 +614,8 @@ class _freq_phase_off(_RF_function):
         
         delta_phase = delta_phase.view(phase_offset)
 
-        delta_phase.func_type = self.func_type
-        delta_phase.time_base = 'interpolated'
-        delta_phase.sectioning = self.sectioning
-
-        delta_phase.data_type = (delta_phase.func_type, delta_phase.time_base,
-                                 delta_phase.sectioning)
+        delta_phase.data_type = {'timebase': self.timebase,
+                                 'harmonics': self.harmonics}
 
         return delta_phase
         
@@ -556,8 +640,153 @@ class omega_offset(_freq_phase_off):
                                 n_turns = n_turns, 
                                 interpolation = interpolation)
         
+
+class _beam_data(_function):
     
+    def __new__(cls, *args, units, time = None, n_turns = None, 
+                interpolation = 'linear', **kwargs):
+        
+        _check_time_turns(time, n_turns)
+            
+        data_points, data_types = _get_dats_types(*args, time = time, \
+                                                  n_turns = n_turns)
+        
+        _check_data_types(data_types, True)
+        data_types, data_points = _expand_singletons(data_types, 
+                                                     data_points)
+        
+        if 'by_turn' in data_types:
+            _check_turn_numbers(data_points, data_types)
+
+        if len(data_types) == 1:
+            bunching = 'single_bunch'
+        else:
+            bunching = 'multi_bunch'
+        
+        data_type = {'timebase': data_types[0], 'bunching': bunching,
+                     'units': units, **kwargs}
+        
+        return super().__new__(cls, data_points, data_type, interpolation)
+
+
+    @property
+    def bunching(self):
+        try:
+            return self._bunching
+        except AttributeError:
+            return None
     
+    @bunching.setter
+    def bunching(self, value):
+        self._check_data_type('bunching', value)
+        self._bunching = value
+        
+        
+    @property
+    def units(self):
+        try:
+            return self._units
+        except AttributeError:
+            return None
+    
+    @units.setter
+    def units(self, value):
+        self._check_data_type('units', value)
+        self._units = value
+
+
+class acceptance(_beam_data):
+    
+    def __new__(cls, *args, units = 'eVs', time = None, n_turns = None, 
+                interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, time = time, n_turns = n_turns,
+                               interpolation = interpolation)
+
+
+class emittance(_beam_data):
+    
+    def __new__(cls, *args, emittance_type = 'matched_area', units = 'eVs', 
+                time = None, n_turns = None, interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, 
+                               emittance_type = emittance_type,
+                               units = units, time = time, 
+                               n_turns = n_turns,
+                               interpolation = interpolation)
+
+
+    @property
+    def emittance_type(self):
+        try:
+            return self._emittance_type
+        except AttributeError:
+            return None
+    
+    @emittance_type.setter
+    def emittance_type(self, value):
+        self._check_data_type('emittance_type', value)
+        self._emittance_type = value
+
+
+class length(_beam_data):
+    
+    def __new__(cls, *args, length_type = 'full_length', units = 's',
+                time = None, n_turns = None, interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, length_type = length_type, 
+                               units = units, time = time, 
+                               n_turns = n_turns,
+                               interpolation = interpolation)
+
+
+    @property
+    def length_type(self):
+        try:
+            return self._length_type
+        except AttributeError:
+            return None
+    
+    @length_type.setter
+    def length_type(self, value):
+        self._check_data_type('length_type', value)
+        self._length_type = value
+        
+
+class height(_beam_data):
+    
+    def __new__(cls, *args, height_type = 'half_height', units = 'eV',
+                time = None, n_turns = None, interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, height_type = height_type, 
+                               units = units, time = time, n_turns = n_turns,
+                               interpolation = interpolation)
+
+
+    @property
+    def height_type(self):
+        try:
+            return self._height_type
+        except AttributeError:
+            return None
+    
+    @height_type.setter
+    def height_type(self, value):
+        self._check_data_type('height_type', value)
+        self._height_type = value
+
+
+class synchronous_phase(_beam_data):
+    
+    def __new__(cls, *args, units = 's', time = None, n_turns = None, 
+                interpolation = 'linear'):
+        
+        return super().__new__(cls, *args, units = units, time = time, 
+                               n_turns = n_turns, 
+                               interpolation = interpolation)
+
+
+
 ###############################################
 ####FUNCTIONS TO HELP IN DATA TYPE CREATION####
 ###############################################
@@ -694,3 +923,20 @@ def _check_dims(data, time = None, n_turns = None):
         return data, 'by_turn'
 
     raise exceptions.InputError("Input data not understood")
+
+
+
+
+############################################
+####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
+############################################
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

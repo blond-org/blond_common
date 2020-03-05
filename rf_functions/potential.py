@@ -450,14 +450,20 @@ def potential_well_cut_cubic(time_array_full, potential_well_full,
     return time_array_list, potential_well_list
 
 
-def sort_potential_wells(time_list, well_list):
+def sort_potential_wells(time_list, well_list, by = 't_start'):
     
     if not hasattr(time_list[0], '__iter__'):
         time_list = (time_list,)
         well_list = (well_list,)
-        
-    order = [a for a,b in sorted(enumerate(time_list), 
+    
+    if by == 't_start':
+        order = [a for a,b in sorted(enumerate(time_list), 
                                  key = lambda itt : itt[1][0])]
+    elif by == 'size':
+        order = [a for a,b in sorted(enumerate(time_list), 
+                                 key = lambda itt : itt[1][0] - itt[1][-1])]
+    else:
+        raise AttributeError("no sorting option for " + str(by))
     
     retTimes = [time_list[i] for i in order]
     retWells = [well_list[i] for i in order]
