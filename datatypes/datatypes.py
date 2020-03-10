@@ -399,7 +399,7 @@ class ring_program(_ring_function):
                 use_turns.append(nTurns)
                 next_store_time = time_func(time_interp[-1])
             
-            if nTurns > targetNTurns:
+            if nTurns >= targetNTurns-1:
                 break
 
         else:
