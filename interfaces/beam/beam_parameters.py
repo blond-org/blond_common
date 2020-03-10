@@ -29,7 +29,7 @@ class Beam_Parameters:
             init_coord = 0.5*ring.t_rev[0]/harmonic_divide
         if not hasattr(init_coord, '__iter__'):
             init_coord = (init_coord,)
-            
+
         self.init_coord = init_coord
         
         self.harmonic_divide = harmonic_divide
