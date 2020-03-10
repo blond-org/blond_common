@@ -271,11 +271,20 @@ class Bucket:
                               exception = excpt.InputError)
         
         if bunch_length is not None:
-            outline = self.outline_from_length(bunch_length)
+            if bunch_length == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_length(bunch_length)
         elif bunch_emittance is not None:
-            outline = self.outline_from_emittance(bunch_emittance)
+            if bunch_emittance == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_emittance(bunch_emittance)
         elif bunch_height is not None:
-            outline = self.outline_from_dE(bunch_height)
+            if bunch_height == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_dE(bunch_height)
         
         self._bunch_length = np.max(outline[0]) - np.min(outline[0])
         self._bunch_height = np.max(outline[1])
