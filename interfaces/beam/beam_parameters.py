@@ -190,7 +190,11 @@ class Beam_Parameters:
         ringPars = self.ring.parameters_at_sample(sample)
         rfPars = self.rf.parameters_at_sample(sample)
         
-        timeBounds = (0, ringPars['t_rev']/self.harmonic_divide)
+        tRight = ringPars['t_rev']/self.harmonic_divide
+        tLeft = -0.05*tRight
+        tRight *= 1.05
+        
+        timeBounds = (tLeft, tRight)
         
         if volts is None:
              vTime, vWave = pot.rf_voltage_generation(self.potential_resolution,
@@ -243,7 +247,6 @@ class Beam_Parameters:
 
         maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell)
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
-
         particleLoc = self.particle_tracks[particle][sample]
         
         #Check which subwells contain current particle
@@ -254,7 +257,7 @@ class Beam_Parameters:
         subWell = [wells[r] for r in relevant]
         
         biggest = pot.sort_potential_wells(subTime, subWell, by='size')[0][0]
-      
+
         #check which subwells are within the bounds of the largest well 
         #containing the current particle
         relevant = [i for i, t in enumerate(times) if t[0] >= biggest[0] and
@@ -267,7 +270,7 @@ class Beam_Parameters:
         wells -= np.min(mins)
         
         times, wells = pot.sort_potential_wells(times, wells, by='t_start')
-
+        
         return times, wells
     
 
