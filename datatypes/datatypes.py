@@ -329,7 +329,7 @@ class ring_program(_ring_function):
                 _interp_time = 0
             else:
                 _interp_time = interp_time
-            interp_time = lambda x: _interp_time
+            interp_time = lambda x: x + _interp_time
         
         if t_start < self[0, 0, 0]:
             warnings.warn("t_start too early, starting from " 
