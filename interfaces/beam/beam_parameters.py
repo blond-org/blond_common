@@ -43,7 +43,7 @@ class Beam_Parameters:
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
 
-        self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
+        self.bunch_emittance = dt.emittance(*bunch_emittance, units = 'eVs').reshape(\
                                            n_sections = len(init_coord), 
                                            use_time = self.ring.cycle_time, 
                                            use_turns = self.ring.use_turns)
@@ -245,9 +245,22 @@ class Beam_Parameters:
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
 
-        maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell)
+        maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
+                                     mest = int(3*np.max(self.rf.harmonic)))
+        
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
         particleLoc = self.particle_tracks[particle][sample]
+        
+#        plt.plot(inTime, inWell)
+#        for i, (t, w) in enumerate(zip(times, wells)):
+#            plt.plot(t, w+i*100)
+#        plt.axvline(particleLoc, color='red')
+#        for locs in maxLocs:
+#            for l in locs:
+#                plt.axvline(l)
+#        plt.show()
+        
+#        sys.exit()
         
         #Check which subwells contain current particle
         relevant = [i for i, t in enumerate(times) if particleLoc>t[0] and 
