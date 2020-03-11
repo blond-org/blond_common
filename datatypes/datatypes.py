@@ -520,7 +520,8 @@ class _RF_function(_function):
         if harmonics is None:
             harmonics = self.harmonics
 
-        use_turns = [int(turn) for turn in use_turns]
+        if use_turns is not None:
+            use_turns = [int(turn) for turn in use_turns]
 
         newArray = self._prep_reshape(len(harmonics), 
                                       use_time = use_time, 
