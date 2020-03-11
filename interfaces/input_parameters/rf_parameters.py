@@ -289,7 +289,7 @@ class RFStation:
         self.alpha_order = Ring.alpha_order
         self.charge = self.Particle.charge
         
-        self.use_turns = Ring.use_turns
+        self.use_turns = Ring.use_turns.astype(int)
 
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
