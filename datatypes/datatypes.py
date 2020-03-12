@@ -329,7 +329,7 @@ class ring_program(_ring_function):
                 _interp_time = 0
             else:
                 _interp_time = interp_time
-            interp_time = lambda x: _interp_time
+            interp_time = lambda x: x + _interp_time
         
         if t_start < self[0, 0, 0]:
             warnings.warn("t_start too early, starting from " 
@@ -399,7 +399,7 @@ class ring_program(_ring_function):
                 use_turns.append(nTurns)
                 next_store_time = time_func(time_interp[-1])
             
-            if nTurns > targetNTurns:
+            if nTurns >= targetNTurns-1:
                 break
 
         else:
@@ -520,6 +520,9 @@ class _RF_function(_function):
         
         if harmonics is None:
             harmonics = self.harmonics
+
+        if use_turns is not None:
+            use_turns = [int(turn) for turn in use_turns]
 
         newArray = self._prep_reshape(len(harmonics), 
                                       use_time = use_time, 
