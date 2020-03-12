@@ -116,7 +116,8 @@ def rf_potential_generation_cubic(time_array, voltage_array, eta_0, charge,
 # Defining a routine to locate potential wells and inner separatrices
 def find_potential_wells_cubic(time_array_full, potential_well_full,
                                relative_max_val_precision_limit=1e-6,
-                               mest=10, verbose=False):
+                               mest=10, edge_is_max=False,
+                               verbose=False):
 
     potwell_max_locs = []
     potwell_max_vals = []
@@ -138,6 +139,18 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
     min_val = min_max_results[1][0]
     max_val = min_max_results[1][1]
 
+    left_edge_is_max = False
+    right_edge_is_max = False
+    if edge_is_max:
+        if potential_well_full[0] > potential_well_full[-1]:
+            max_pos = np.insert(max_pos, 0, time_array_full[0])
+            max_val = np.insert(max_val, 0, potential_well_full[0])
+            left_edge_is_max = True
+        else:
+            max_pos = np.append(max_pos, time_array_full[-1])
+            max_val = np.append(max_val, potential_well_full[-1])
+            right_edge_is_max = True
+
     for index_max in range(len(max_val)):
 
         # Setting a max
@@ -150,29 +163,39 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking left
         # This is a right max, checking for the left counterparts
-        most_right_max = False
+
         for index_left in range(index_max+2):
+            if left_edge_is_max and (index_max == 0):
+                # The left edge was manually added as a maximum, no check
+                # to the left
+                break
+
             if (index_left == 0) and (index_max == 0):
                 # This is the most left max
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
-                most_right_max = True
+            elif (index_left == 1) and (index_max == 0):
+                # This indexes set is there to avoid checking the left edge
+                # twice while one most left max
+                continue
             elif (index_left == 0) and (index_max != 0):
                 # This indexes set corresponds to the same max
                 continue
-            elif index_left > index_max:
+
+            elif (index_left == (index_max+1)) and (index_max != 0):
+
                 # No more max on the left, checking edge
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
             else:
                 left_max_val = max_val[index_max-index_left]
+                left_max_pos = max_pos[index_max-index_left]
 
             right_pos = present_max_pos
             right_val = present_max_val
 
             if np.isclose(left_max_val, present_max_val,
-                          rtol=relative_max_val_precision_limit, atol=0) \
-                    and not most_right_max:
+                          rtol=relative_max_val_precision_limit, atol=0):
                 # The left max is identical to the present max, a pot. well
                 # is found
                 left_pos = left_max_pos
@@ -283,17 +306,28 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking right:
         # This is a left max, checking for the right counterpart
-        most_left_max = False
+
         for index_right in range(len(max_val)-index_max+1):
+            if right_edge_is_max and (index_max == (len(max_val)-1)):
+                # The right edge was manually added as a maximum, no check
+                # to the right
+                break
+
             if (index_right == 0) and (index_max == (len(max_val)-1)):
                 # This is the most left max
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
-                most_left_max = True
+            elif (index_right == 1) and (index_max == (len(max_val)-1)):
+                # This indexes set is there to avoid checking the right edge
+                # twice while one most right max
+                continue
             elif (index_right == 0) and (index_max != (len(max_val)-1)):
                 # This indexes set corresponds to the same max
                 continue
-            elif index_right == (len(max_val)-index_max):
+
+            elif (index_right == (len(max_val)-index_max)) and \
+                    (index_max != (len(max_val)-1)):
+
                 # No more max on the right, checking edge
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
@@ -305,8 +339,7 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             left_val = present_max_val
 
             if np.isclose(right_max_val, present_max_val,
-                          rtol=relative_max_val_precision_limit, atol=0) \
-                    and not most_left_max:
+                          rtol=relative_max_val_precision_limit, atol=0):
                 # The right max is identical to the present max, a pot.
                 # well is found
                 right_pos = right_max_pos
