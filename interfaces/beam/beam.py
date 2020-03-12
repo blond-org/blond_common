@@ -22,6 +22,8 @@ from scipy.constants import m_p, m_e, e, c
 # from ..trackers.utilities import is_in_separatrix
 # import blond.utils.exceptions as blExcept
 
+from ...devtools import exceptions as excpt
+
 
 class Particle(object):
 
@@ -48,6 +50,36 @@ class Electron(Particle):
         self.mass = float(m_e*c**2/e)
         self.charge = float(-1)
 
+
+def make_particle(particle):
+    
+    if isinstance(particle, str):
+        return _particle_from_str(particle)
+    elif isinstance(particle, dict):
+        try:
+            return Particle(particle['user_mass'], particle['user_charge'])
+        except KeyError:
+            raise excpt.InputError("If defining particle with a dict, "
+                                   + "the keys must be 'user_mass' and "
+                                   + "'user_charge")
+    else:
+        raise excpt.InputError("Particle definition not recognised")
+        
+    
+def _particle_from_str(inString):
+    
+    inString = inString.casefold()
+
+    if inString == 'electron':
+        return Electron()
+    elif inString == 'proton':
+        return Proton()
+    else:
+        raise excpt.InputDataError("""Particle type not recognised, 
+                                   available defaults are 'electron' and
+                                   'proton'""")
+        
+    
 
 class Beam(object):
     """Class containing the beam properties.
