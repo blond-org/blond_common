@@ -160,7 +160,7 @@ class _function(np.ndarray):
             return np.interp(use_time, self[0, 0], self[0, 1])
         else:
             return np.interp(use_time, self[section, 0], self[section, 1])
-    
+   
     
     def reshape(self, n_sections = 1, use_time = None, use_turns = None):
         
@@ -467,31 +467,32 @@ class _RF_function(_function):
             raise exceptions.InputError("Number of functions does not match " \
                                         + "number of harmonics")
 
-        if 'by_turn' in data_types:
-            pass
+        if not 'by_turn' in data_types:
+            data_points = interpolate_input(data_points, data_types, 
+                                            interpolation)
         
-        elif not (all(t == 'single' for t in data_types) \
-            or (interpolation is None or len(data_points) == 1)):
-
-            if interpolation is not None and data_types[0] != 'by_time':
-                raise exceptions.DataDefinitionError("Interpolation only "
-                                                     + "possible if functions "
-                                                     + "are defined by time")
-    
-            if interpolation != 'linear':
-                raise RuntimeError("Only linear interpolation currently "
-                                   + "available")
-            
-            input_times = []
-            for d in data_points:
-                input_times += d[0].tolist()
-            
-            interp_times = sorted(set(input_times))
-    
-            for i in range(len(data_points)):
-                 interp_data = np.interp(interp_times, data_points[i][0], \
-                                         data_points[i][1])
-                 data_points[i] = np.array([interp_times, interp_data])
+#        elif not (all(t == 'single' for t in data_types) \
+#            or (interpolation is None or len(data_points) == 1)):
+#
+#            if interpolation is not None and data_types[0] != 'by_time':
+#                raise exceptions.DataDefinitionError("Interpolation only "
+#                                                     + "possible if functions "
+#                                                     + "are defined by time")
+#    
+#            if interpolation != 'linear':
+#                raise RuntimeError("Only linear interpolation currently "
+#                                   + "available")
+#            
+#            input_times = []
+#            for d in data_points:
+#                input_times += d[0].tolist()
+#            
+#            interp_times = sorted(set(input_times))
+#    
+#            for i in range(len(data_points)):
+#                 interp_data = np.interp(interp_times, data_points[i][0], \
+#                                         data_points[i][1])
+#                 data_points[i] = np.array([interp_times, interp_data])
         
         data_type = {'timebase': data_types[0], 'harmonics': harmonics, 
                      **kwargs}
@@ -657,6 +658,8 @@ class _beam_data(_function):
         
         if 'by_turn' in data_types:
             _check_turn_numbers(data_points, data_types)
+        else:
+            data_points = interpolate_input(data_points, data_types, interpolation)
 
         if len(data_types) == 1:
             bunching = 'single_bunch'
@@ -925,6 +928,31 @@ def _check_dims(data, time = None, n_turns = None):
     raise exceptions.InputError("Input data not understood")
 
 
+
+def interpolate_input(data_points, data_types, interpolation = 'linear'):
+    
+    if interpolation != 'linear':
+        raise RuntimeError("Only linear interpolation defined")
+    
+    if all(t == 'single' for t in data_types):
+        return data_points
+    
+    if data_types[0] != 'by_time':
+        exceptions.DataDefinitionError("Interpolation only possible if functions "
+                                       + "are defined by time")
+    
+    input_times = []
+    for d in data_points:
+        input_times += d[0].tolist()
+    
+    interp_times = sorted(set(input_times))
+
+    for i in range(len(data_points)):
+         interp_data = np.interp(interp_times, data_points[i][0], \
+                                 data_points[i][1])
+         data_points[i] = np.array([interp_times, interp_data])
+
+    return data_points
 
 
 ############################################
