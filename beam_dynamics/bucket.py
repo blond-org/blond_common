@@ -239,10 +239,15 @@ class Bucket:
     
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
-        
-        interpTime = self._interp_time_from_potential(result['x'][0], nPts)
-        interpWell = self._well_smooth_func(interpTime)
-        interpWell[interpWell>interpWell[0]] = interpWell[0]
+
+        try:        
+            interpTime = self._interp_time_from_potential(result['x'][0], nPts)
+        except excpt.InputError:
+            interpTime = self.time.copy()
+            interpWell = self.well.copy()
+        else:
+            interpWell = self._well_smooth_func(interpTime)
+            interpWell[interpWell>interpWell[0]] = interpWell[0]
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
                                                              interpWell, 
