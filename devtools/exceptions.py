@@ -18,11 +18,15 @@
 # BLonD Common exceptions
 # =======================
 
-class InputError(Exception):
+class BLonD_Exception(Exception):
     pass
 
 
-class DataDefinitionError(Exception):
+class InputError(BLonD_Exception):
+    pass
+
+
+class DataDefinitionError(BLonD_Exception):
     pass
 
 
@@ -30,15 +34,23 @@ class DataDefinitionError(Exception):
 # Beam Exceptions
 # ===============
 
-class MassError(Exception):
+class MassError(BLonD_Exception):
     pass
 
 
-class AllParticlesLost(Exception):
+class AllParticlesLost(BLonD_Exception):
     pass
 
 
-class ParticleAdditionError(Exception):
+class ParticleAdditionError(BLonD_Exception):
+    pass
+
+
+# =================
+# Bucket Exceptions
+# =================
+
+class BunchSizeError(BLonD_Exception, ValueError):
     pass
 
 
@@ -46,11 +58,11 @@ class ParticleAdditionError(Exception):
 # Distribution Generation Exceptions
 # ==================================
 
-class DistributionError(Exception):
+class DistributionError(BLonD_Exception):
     pass
 
 
-class GenerationError(Exception):
+class GenerationError(BLonD_Exception):
     pass
 
 
@@ -58,11 +70,11 @@ class GenerationError(Exception):
 # Profile Exceptions
 # ==================
 
-class CutError(Exception):
+class CutError(BLonD_Exception):
     pass
 
 
-class ProfileDerivativeError(Exception):
+class ProfileDerivativeError(BLonD_Exception):
     pass
 
 
@@ -70,23 +82,23 @@ class ProfileDerivativeError(Exception):
 # Impedance Exceptions
 # ====================
 
-class WakeLengthError(Exception):
+class WakeLengthError(BLonD_Exception):
     pass
 
 
-class FrequencyResolutionError(Exception):
+class FrequencyResolutionError(BLonD_Exception):
     pass
 
 
-class ResonatorError(Exception):
+class ResonatorError(BLonD_Exception):
     pass
 
 
-class WrongCalcError(Exception):
+class WrongCalcError(BLonD_Exception):
     pass
 
 
-class MissingParameterError(Exception):
+class MissingParameterError(BLonD_Exception):
     pass
 
 
@@ -94,7 +106,7 @@ class MissingParameterError(Exception):
 # Input Parameters Exceptions
 # ===========================
 
-class MomentumError(Exception):
+class MomentumError(BLonD_Exception):
     pass
 
 
@@ -102,19 +114,19 @@ class MomentumError(Exception):
 # LLRF Exceptions
 # ===============
 
-class PhaseLoopError(Exception):
+class PhaseLoopError(BLonD_Exception):
     pass
 
 
-class PhaseNoiseError(Exception):
+class PhaseNoiseError(BLonD_Exception):
     pass
 
 
-class FeedbackError(Exception):
+class FeedbackError(BLonD_Exception):
     pass
 
 
-class ImpulseError(Exception):
+class ImpulseError(BLonD_Exception):
     pass
 
 
@@ -122,11 +134,11 @@ class ImpulseError(Exception):
 # Toolbox Exceptions
 # ==================
 
-class PhaseSpaceError(Exception):
+class PhaseSpaceError(BLonD_Exception):
     pass
 
 
-class NoiseDiffusionError(Exception):
+class NoiseDiffusionError(BLonD_Exception):
     pass
 
 
@@ -134,23 +146,23 @@ class NoiseDiffusionError(Exception):
 # Tracker Exceptions
 # ==================
 
-class PotentialWellError(Exception):
+class PotentialWellError(BLonD_Exception):
     pass
 
 
-class SolverError(Exception):
+class SolverError(BLonD_Exception):
     pass
 
 
-class PeriodicityError(Exception):
+class PeriodicityError(BLonD_Exception):
     pass
 
 
-class ProfileError(Exception):
+class ProfileError(BLonD_Exception):
     pass
 
 
-class SynchrotronMotionError(Exception):
+class SynchrotronMotionError(BLonD_Exception):
     pass
 
 
@@ -158,15 +170,15 @@ class SynchrotronMotionError(Exception):
 # Util Exceptions
 # ===============
 
-class ConvolutionError(Exception):
+class ConvolutionError(BLonD_Exception):
     pass
 
 
-class IntegrationError(Exception):
+class IntegrationError(BLonD_Exception):
     pass
 
 
-class SortError(Exception):
+class SortError(BLonD_Exception):
     pass
 
 
@@ -174,9 +186,9 @@ class SortError(Exception):
 # Global Exceptions
 # =================
 
-class InterpolationError(Exception):
+class InterpolationError(BLonD_Exception):
     pass
 
 
-class InputDataError(Exception):
+class InputDataError(BLonD_Exception):
     pass
