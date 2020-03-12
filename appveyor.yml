@@ -2,18 +2,18 @@ image:
   - Visual Studio 2017
 environment:
   matrix:
-    - PATH: C:\Python36-x64;C:\Miniconda36-x64\Scripts;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
+    - PATH: C:\Python36-x64;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
+    - PATH: C:\Python37-x64;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
   # matrix:
     # - VSVER: Visual Studio 14 2015
     # - VSVER: Visual Studio 14 2015 Win64
 
-# cache: 
-#   - C:\ProgramData\chocolatey\bin -> appveyor.yml 
-#   - C:\ProgramData\chocolatey\lib -> appveyor.yml
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
+  
 clone_folder: C:\projects\blond_common
 platform: 
   - x86
-  - Any CPU
 
 configuration:
   # - Debug
@@ -26,15 +26,11 @@ configuration:
 before_build:
   # - git submodule update --init --recursive
   - PATH
-  # - python --version
+  - python --version
   # - conda --version 
-  # - gcc --version
-  # - g++ --version
-  - conda update -q -y conda
-  - conda info -a
-  - conda create -q -y -n test-environment python=3.6 pip
-  - activate test-environment
-  - pip install -r requirements.txt
+  - gcc --version
+  - python -m pip install --upgrade pip setuptools wheel pytest 
+  - python -m pip install -r requirements.txt
   # - pip install coveralls pytest parameterized
 
 
