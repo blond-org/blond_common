@@ -43,10 +43,15 @@ class Beam_Parameters:
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
 
-        self.bunch_emittance = dt.emittance(*bunch_emittance, units = 'eVs').reshape(\
-                                           n_sections = len(init_coord), 
-                                           use_time = self.ring.cycle_time, 
-                                           use_turns = self.ring.use_turns)
+        if not isinstance(bunch_emittance, dt.emittance):
+            self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
+                                               n_sections = len(init_coord), 
+                                               use_time = self.ring.cycle_time, 
+                                               use_turns = self.ring.use_turns)
+        else:
+            self.bunch_emittance = bunch_emittance.reshape(len(self.init_coord),
+                                                           use_time = self.ring.cycle_time, 
+                                               use_turns = self.ring.use_turns)
     
         self.calc_potential_wells()
         self.track_synchronous()
@@ -122,25 +127,26 @@ class Beam_Parameters:
 
             startPoint = np.where(self.time_window_array[0]
                                   <= self.init_coord[p])[0][-1]
-
             self.particle_tracks[p][0] = self.time_window_array[0][startPoint]
 
             locs, values \
                     = calc.minmax_location_cubic(self.time_window_array[0],
-                                                 self.potential_well_array[0])
+                                                 self.potential_well_array[0],
+                                                 mest = int(3*np.max(self.rf.harmonic)))
             locs = locs[0]
             offsets = np.abs(self.particle_tracks[p][0] - locs)
             newLoc = np.where(offsets == np.min(offsets))[0][0]
                 
             self.particle_tracks[p][0] = locs[newLoc]
-
+        
         #Loop over all particles and all but first sample, at each sample new 
         #particle location is nearest minimum in potential well
         for p in range(self.n_particles):
             for t in range(start_sample+1, self.n_samples):
                locs, values \
                    = calc.minmax_location_cubic(self.time_window_array[t], 
-                                                self.potential_well_array[t])
+                                                self.potential_well_array[t],
+                                                mest = int(3*np.max(self.rf.harmonic)))
                locs = locs[0]
                offsets = np.abs(self.particle_tracks[p][t-1] - locs)
                newLoc = np.where(offsets == np.min(offsets))[0][0]
@@ -245,8 +251,13 @@ class Beam_Parameters:
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
 
-        maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
+        try:
+            maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
                                      mest = int(3*np.max(self.rf.harmonic)))
+        except:
+            plt.plot(inTime, inWell)
+            plt.show()
+            raise
         
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
         particleLoc = self.particle_tracks[particle][sample]
@@ -259,7 +270,7 @@ class Beam_Parameters:
 #            for l in locs:
 #                plt.axvline(l)
 #        plt.show()
-        
+#        
 #        sys.exit()
         
         #Check which subwells contain current particle
