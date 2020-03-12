@@ -15,8 +15,8 @@ if __name__ == "__main__":
 
     # Defining a ramp with a program time vs. energy (warning: initial energy cannot be 0)
 
-    from blond_common_fork.interfaces.beam.beam import Particle
-    from blond_common_fork.interfaces.input_parameters.ring import Ring
+    from blond_common.interfaces.beam.beam import Particle
+    from blond_common.interfaces.input_parameters.ring import Ring
     from scipy.constants import u, c, e
 
     ring_length = 2*np.pi*100                   # Machine circumference [m]
@@ -33,7 +33,7 @@ if __name__ == "__main__":
                 particle, synchronous_data_type='bending field',
                 bending_radius=bending_radius)
 
-    from blond_common_fork.interfaces.input_parameters.rf_parameters import RFStation
+    from blond_common.interfaces.input_parameters.rf_parameters import RFStation
 
     harmonic = [21, 28, 169]
     #voltage = [80e3, 0, 0]  # V, h21 Single RF
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     rf_station = RFStation(ring, harmonic, voltage, phi_rf, n_rf=3)
 
-    from blond_common_fork.rf_functions.potential import rf_voltage_generation
+    from blond_common.rf_functions.potential import rf_voltage_generation
 
     n_points = 10000
     t_rev = ring.t_rev[0]
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     time_array, rf_voltage_array = rf_voltage_generation(
         n_points, t_rev, voltage, harmonic, phi_rf, time_bounds=time_bounds)
 
-    from blond_common_fork.rf_functions.potential import rf_potential_generation
+    from blond_common.rf_functions.potential import rf_potential_generation
 
     n_points = 10000
     eta_0 = ring.eta_0[0, 0]
