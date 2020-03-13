@@ -42,8 +42,10 @@ class Bucket:
         except TypeError:
             raise excpt.InputError("time and well must both be iterable")
         
-        self.time_loaded = np.array(time, dtype=float)
-        self.well_loaded = np.array(well, dtype=float)
+        orderedTime, orderedWell = pot.sort_potential_wells(time, well)
+        
+        self.time_loaded = np.array(orderedTime[0], dtype=float)
+        self.well_loaded = np.array(orderedWell[0], dtype=float)
         
         self.beta = beta
         self.energy = energy
@@ -54,7 +56,27 @@ class Bucket:
         
         self.calc_separatrix()
         self.basic_parameters()
+        
+        self.inner_times = orderedTime[1:]
+        self.inner_wells = orderedWell[1:]
     
+    
+    def inner_buckets(self):
+        
+        self.inner_separatrices = []
+        for t, w in zip(self.inner_times, self.inner_wells):
+            hamil = pot.potential_to_hamiltonian(t, w,
+                                             self.beta, self.energy, 
+                                             self.eta)
+
+            upper_energy_bound = np.sqrt(hamil)
+        
+            sepTime = t.tolist() + t[::-1].tolist()
+            sepEnergy = upper_energy_bound.tolist() \
+                    + (-upper_energy_bound[::-1]).tolist()
+        
+            self.inner_separatrices.append(np.array([sepTime, sepEnergy]))
+            
 
     def smooth_well(self, nPoints = None, reinterp=False):
     
@@ -235,12 +257,65 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])    
 
 
+    ##################################################
+    ####Functions for calculating bunch parameters####
+    ##################################################
+
+    def _set_bunch(self, bunch_length = None, bunch_emittance = None,
+                           bunch_height = None):
+        
+        allowed = ('bunch_length', 'bunch_emittance', 'bunch_height')
+        assrt.single_not_none(bunch_length, bunch_emittance, bunch_height,
+                              msg = 'Exactly 1 of ' + str(allowed) \
+                              + ' should be given', 
+                              exception = excpt.InputError)
+        
+        if bunch_length is not None:
+            outline = self.outline_from_length(bunch_length)
+        elif bunch_emittance is not None:
+            outline = self.outline_from_emittance(bunch_emittance)
+        elif bunch_height is not None:
+            outline = self.outline_from_dE(bunch_height)
+        
+        self._bunch_length = np.max(outline[0]) - np.min(outline[0])
+        self._bunch_height = np.max(outline[1])
+        self._bunch_emittance = np.trapz(outline[1], outline[0])
+
+
+    @property
+    def bunch_length(self):
+        return self._bunch_length
+    
+    @property
+    def bunch_height(self):
+        return self._bunch_height
+    
+    @property
+    def bunch_emittance(self):
+        return self._bunch_emittance
+    
+    
+    @bunch_length.setter
+    def bunch_length(self, value):
+        self._set_bunch(bunch_length = value)
+    
+    @bunch_height.setter
+    def bunch_height(self, value):
+        self._set_bunch(bunch_height = value)
+    
+    @bunch_emittance.setter
+    def bunch_emittance(self, value):
+        self._set_bunch(bunch_emittance = value)
+        
+        
 
 if __name__ == '__main__':
 
     inTime = np.linspace(0, 2*np.pi, 100)
     inWell = np.cos(inTime)
-    inWell += np.cos(inTime*2)
+#    inWell += np.cos(inTime*2)
+#    inWell -= np.min(inWell)
+    inWell += np.cos(inTime*3)*2
     inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
@@ -257,6 +332,9 @@ if __name__ == '__main__':
 #    plt.axvline(np.pi - targetLength/2)
 #    plt.axvline(np.pi + targetLength/2)
     plt.plot(bunch[0], bunch[1])
+    plt.xlabel("Phase units")
+    plt.ylabel("Energy units")
+#    plt.savefig("../tripleBucketAndInner.pdf")
     plt.show()
     
     

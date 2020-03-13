@@ -19,6 +19,9 @@ import numpy as np
 import scipy.interpolate as interp
 from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic
 
+# BLonD_Common imports
+from ..devtools import exceptions as excpt
+
 
 def rf_voltage_generation(n_points, t_rev, voltage, harmonic_number,
                           phi_offset, time_bounds=None):
@@ -160,11 +163,13 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking left
         # This is a right max, checking for the left counterparts
+
         for index_left in range(index_max+2):
             if left_edge_is_max and (index_max == 0):
                 # The left edge was manually added as a maximum, no check
                 # to the left
                 break
+
             if (index_left == 0) and (index_max == 0):
                 # This is the most left max
                 left_max_val = potential_well_full[0]
@@ -176,7 +181,9 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             elif (index_left == 0) and (index_max != 0):
                 # This indexes set corresponds to the same max
                 continue
+
             elif (index_left == (index_max+1)) and (index_max != 0):
+
                 # No more max on the left, checking edge
                 left_max_val = potential_well_full[0]
                 left_max_pos = time_array_full[0]
@@ -299,11 +306,13 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
 
         # Checking right:
         # This is a left max, checking for the right counterpart
+
         for index_right in range(len(max_val)-index_max+1):
             if right_edge_is_max and (index_max == (len(max_val)-1)):
                 # The right edge was manually added as a maximum, no check
                 # to the right
                 break
+
             if (index_right == 0) and (index_max == (len(max_val)-1)):
                 # This is the most left max
                 right_max_val = potential_well_full[-1]
@@ -315,8 +324,10 @@ def find_potential_wells_cubic(time_array_full, potential_well_full,
             elif (index_right == 0) and (index_max != (len(max_val)-1)):
                 # This indexes set corresponds to the same max
                 continue
+
             elif (index_right == (len(max_val)-index_max)) and \
                     (index_max != (len(max_val)-1)):
+
                 # No more max on the right, checking edge
                 right_max_val = potential_well_full[-1]
                 right_max_pos = time_array_full[-1]
@@ -470,6 +481,27 @@ def potential_well_cut_cubic(time_array_full, potential_well_full,
         potential_well_list.append(out)
 
     return time_array_list, potential_well_list
+
+
+def sort_potential_wells(time_list, well_list, by = 't_start'):
+    
+    if not hasattr(time_list[0], '__iter__'):
+        time_list = (time_list,)
+        well_list = (well_list,)
+    
+    if by == 't_start':
+        order = [a for a,b in sorted(enumerate(time_list), 
+                                 key = lambda itt : itt[1][0])]
+    elif by == 'size':
+        order = [a for a,b in sorted(enumerate(time_list), 
+                                 key = lambda itt : itt[1][0] - itt[1][-1])]
+    else:
+        raise AttributeError("no sorting option for " + str(by))
+    
+    retTimes = [time_list[i] for i in order]
+    retWells = [well_list[i] for i in order]
+    
+    return retTimes, retWells
 
 
 def potential_to_hamiltonian(time_array, potential_array, beta, energy, eta):
