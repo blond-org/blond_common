@@ -29,6 +29,7 @@ else:
     from ..maths import interpolation as interp
     from ..devtools import exceptions as excpt
     from ..devtools import assertions as assrt
+    from ..interfaces.beam import matched_distribution as matchDist
 
 
 class Bucket:
@@ -322,6 +323,47 @@ class Bucket:
         self._set_bunch(bunch_emittance = value)
         
         
+    ###################################################
+    ####Functions for generation bunches parameters####
+    ###################################################
+        
+    
+    def make_profiles(self, dist_type, length = None, emittance = None, 
+                      dE = None, use_action = False):
+        
+        if not all(par is None for par in (length, emittance, dE)):
+            self._set_bunch(length, emittance, dE)
+        
+        self.dE_array = np.linspace(np.min(self.separatrix[1]), 
+                                    np.max(self.separatrix[1]), len(self.time))
+        
+        self.compute_action()
+        
+        if use_action:
+            size = self.bunch_emittance / (2*np.pi)
+        else:
+            size = np.interp(self.bunch_emittance / (2*np.pi), 
+                             self.J_array[self.J_array.argsort()], 
+                             self.well[self.well.argsort()])
+        
+        profiles = matchDist.matched_profile(dist_type, size, self.time, 
+                                             self.well, self.dE_array, 
+                                             self.beta, self.energy, self.eta)
+
+        self.time_profile, self.energy_profile = profiles
+
+    def compute_action(self):
+    
+        J_array = np.zeros(len(self.time))
+        for i in range(len(self.time)):
+            useWell = self.well[self.well < self.well[i]]
+            useTime = self.time[self.well < self.well[i]]
+            contour = np.sqrt(np.abs((self.well[i] - useWell)*2
+                              *self.beta**2*self.energy/self.eta))
+            J_array[i] = np.trapz(contour, useTime)/np.pi
+    
+        self.J_array = J_array
+
 
 if __name__ == '__main__':
 
