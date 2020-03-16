@@ -8,6 +8,7 @@ from ...rf_functions import potential as pot
 from ...maths import calculus as calc
 from ...datatypes import datatypes as dt
 from ...beam_dynamics import bucket as buck
+from ...devtools import exceptions as excpt
 
 
 class Beam_Parameters:
@@ -27,9 +28,16 @@ class Beam_Parameters:
 
         self.init_coord = init_coord
         
-        self.harmonic_divide = harmonic_divide
         
-        self.potential_resolution = potential_resolution
+        if harmonic_divide % 1 == 0:
+            self.harmonic_divide = int(harmonic_divide)
+        else:
+            raise excpt.InputError("harmonic_divide should be int-like")
+
+        if harmonic_divide % 1 == 0:
+            self.potential_resolution = int(potential_resolution)
+        else:
+            raise excpt.InputError("potential_resolution should be int-like")
         
         self.volt_wave_array = np.zeros([self.n_samples, 
                                          self.potential_resolution])
