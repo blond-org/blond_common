@@ -197,8 +197,18 @@ class Bucket:
             aList.append(aTemp)
             
         for h, a in zip(hList, aList):
-            plt.plot(a)
-        plt.show()
+            h = np.array(h)
+            a = np.array(a)
+            if len(h) <= 1:
+                continue
+            # print(h, a)
+            sorted_area = np.argsort(a[::2])
+            # sync_freq = calc.deriv_cubic(
+            #     a[::2][sorted_area],
+            #     h[::2][sorted_area])[1]
+            sync_freq = np.gradient(h[::2][sorted_area])/np.gradient(a[::2][sorted_area])
+            plt.plot(sync_freq)
+            plt.show()
         
         # maxLocs = locs[1]
         # maxVals = vals[1]
