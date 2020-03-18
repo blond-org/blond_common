@@ -154,7 +154,7 @@ class Bucket:
                 useWell = self.well[self.well<self.well[i]]
                 try:
                     fine_time_array = np.linspace(useTime[0], useTime[-1],
-                                                  5000)
+                                                  1000)
                 except:
                     continue
                 fine_potential_well = self._well_smooth_func(fine_time_array)
@@ -195,18 +195,21 @@ class Bucket:
             
             hList.append(hTemp)
             aList.append(aTemp)
-            
+        for a in aList:
+            plt.plot(np.diff(a))
+        plt.show()
+        sys.exit()
         for h, a in zip(hList, aList):
             h = np.array(h)
             a = np.array(a)
             if len(h) <= 1:
                 continue
             # print(h, a)
-            sorted_area = np.argsort(a[::2])
-            # sync_freq = calc.deriv_cubic(
-            #     a[::2][sorted_area],
-            #     h[::2][sorted_area])[1]
-            sync_freq = np.gradient(h[::2][sorted_area])/np.gradient(a[::2][sorted_area])
+            sorted_area = np.argsort(a[::5])
+            sync_freq = calc.deriv_cubic(
+                a[::5][sorted_area],
+                h[::5][sorted_area])[1]
+            # sync_freq = np.gradient(h[::2][sorted_area])/np.gradient(a[::2][sorted_area])
             plt.plot(sync_freq)
             plt.show()
         
