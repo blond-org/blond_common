@@ -37,17 +37,28 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
     min_val = min_max_results[1][0]
     max_val = min_max_results[1][1]
 
+    most_left_min_pos = np.min(min_pos)
+    most_right_min_pos = np.max(min_pos)
+    most_left_max_pos = np.min(max_pos)
+    most_right_max_pos = np.max(max_pos)
+
     left_edge_is_max = False
     right_edge_is_max = False
     if edge_is_max:
+        # Adding the left or right edge to the list of max
+        # The addition is done only if there is a min between the closest
+        # max to the left/right edge and the actual edge
+        # (avoid consecutive maxes)
         if potential_well_full[0] > potential_well_full[-1]:
-            max_pos = np.insert(max_pos, 0, time_array_full[0])
-            max_val = np.insert(max_val, 0, potential_well_full[0])
-            left_edge_is_max = True
+            if most_left_min_pos > most_left_max_pos:
+                max_pos = np.insert(max_pos, 0, time_array_full[0])
+                max_val = np.insert(max_val, 0, potential_well_full[0])
+                left_edge_is_max = True
         else:
-            max_pos = np.append(max_pos, time_array_full[-1])
-            max_val = np.append(max_val, potential_well_full[-1])
-            right_edge_is_max = True
+            if most_right_min_pos < most_right_max_pos:
+                max_pos = np.append(max_pos, time_array_full[-1])
+                max_val = np.append(max_val, potential_well_full[-1])
+                right_edge_is_max = True
 
     plt.figure('Potential well')
     plt.clf()
@@ -104,8 +115,11 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
                 label += '\nThis is the most left max!'
                 ax.legend(labels=(label, ))
                 plt.pause(1)
-                left_max_val = potential_well_full[0]
-                left_max_pos = time_array_full[0]
+                if most_left_min_pos > max_pos[index_max]:
+                    break
+                else:
+                    left_max_val = potential_well_full[0]
+                    left_max_pos = time_array_full[0]
             elif (index_left == 1) and (index_max == 0):
                 # This indexes set is there to avoid checking the left edge
                 # twice while one most left max
@@ -306,12 +320,15 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
                 # to the right
                 break
             if (index_right == 0) and (index_max == (len(max_val)-1)):
-                # This is the most left max
+                # This is the most right max
                 label += '\nThis is the most right max!'
                 ax.legend(labels=(label, ))
                 plt.pause(1)
-                right_max_val = potential_well_full[-1]
-                right_max_pos = time_array_full[-1]
+                if most_right_min_pos < max_pos[index_max]:
+                    break
+                else:
+                    right_max_val = potential_well_full[-1]
+                    right_max_pos = time_array_full[-1]
             elif (index_right == 1) and (index_max == (len(max_val)-1)):
                 # This indexes set is there to avoid checking the right edge
                 # twice while one most right max
