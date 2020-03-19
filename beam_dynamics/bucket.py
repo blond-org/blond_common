@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import sys
+import scipy.interpolate as spInterp
 
 #BLonD_Common imports
 from ..rf_functions import potential as pot
@@ -115,10 +116,10 @@ class Bucket:
         wellBits = [self.well]
         timeBits = [self.time]
         for l, v in zip(locs[1], vals[1]):
-            wellBits.append(self.well[(self.time < l)*(self.well<v)])
-            timeBits.append(self.time[(self.time < l)*(self.well<v)])
-            wellBits.append(self.well[(self.time > l)*(self.well<v)])
-            timeBits.append(self.time[(self.time > l)*(self.well<v)])
+            wellBits.append(self.well[(self.time <= l)*(self.well<=v)])
+            timeBits.append(self.time[(self.time <= l)*(self.well<=v)])
+            wellBits.append(self.well[(self.time >= l)*(self.well<=v)])
+            timeBits.append(self.time[(self.time >= l)*(self.well<=v)])
         
         indices = []
         for i, (t1, w1) in enumerate(zip(timeBits, wellBits)):
@@ -136,51 +137,49 @@ class Bucket:
             t = np.delete(t, i)
             mainIndices.append(np.intersect1d(self.time, t, True, True)[1])
         
-        # for j, i in enumerate(mainIndices):
-        #     plt.plot(self.time[i], self.well[i] + j*50)
-        # plt.show()
+        for j, i in enumerate(mainIndices):
+            plt.plot(self.time[i], self.well[i] + j*0)
+        plt.show()
+    
         self.smooth_well()
-        hList, aList = [], []
+        tck_potential_well = spInterp.splrep(self.time, self.well)
+        hList, aList, tList = [], [], []
         for indices in mainIndices:
-            if len(indices) == 1:
+            if len(indices) <= 1:
                 hList.append([])
                 aList.append([])
+                tList.append([])
                 continue
             left = True
             hTemp = []
             aTemp = []
+            tTemp = []
+            plt.plot(self.time[indices[0]:indices[-1]], 
+                     self.well[indices[0]:indices[-1]])
+            plt.plot(self.time[indices], 
+                     self.well[indices])
+            plt.show()
             for i in indices:
-                useTime = self.time[self.well<self.well[i]]
-                useWell = self.well[self.well<self.well[i]]
+                tck_adjusted = (
+                tck_potential_well[0],
+                (tck_potential_well[1]-self.well[i]),
+                tck_potential_well[2])
+                roots_adjusted = spInterp.sproot(tck_adjusted)
+                roots_adjusted = [r for r in roots_adjusted if 
+                                  (r>self.time[indices[0]] and 
+                                   r < self.time[indices[-1]])]
                 try:
-                    fine_time_array = np.linspace(useTime[0], useTime[-1],
+                    left_position = np.min(roots_adjusted)
+                    right_position = np.max(roots_adjusted)
+                except ValueError:
+                    continue
+                try:
+                    fine_time_array = np.linspace(left_position, right_position,
                                                   1000)
                 except:
                     continue
-                fine_potential_well = self._well_smooth_func(fine_time_array)
-                # if left:
-                #     try:
-                #         _, _, h, a, _, _ = pot.trajectory_area_cubic(self.time[i:], 
-                #                                                      self.well[i:], 
-                #                                                      self.eta, 
-                #                                                      self.beta,
-                #                                                      self.energy)
-                #     except (ValueError, TypeError) as e:
-                #         if isinstance(e, TypeError):
-                #             print(indices)
-                #             raise
-                #         left = False
-                #         _, _, h, a, _, _ = pot.trajectory_area_cubic(self.time[:i], 
-                #                                                      self.well[:i], 
-                #                                                      self.eta, 
-                #                                                      self.beta,
-                #                                                      self.energy)
-                # elif not left:
-                #         _, _, h, a, _, _ = pot.trajectory_area_cubic(self.time[:i], 
-                #                                                      self.well[:i], 
-                #                                                      self.eta, 
-                #                                                      self.beta,
-                #                                                      self.energy)
+                fine_potential_well = spInterp.splev(fine_time_array, tck_adjusted) \
+                                        + self.well[i]
                 try:
                     _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
                                                                  fine_potential_well, 
@@ -189,60 +188,23 @@ class Bucket:
                                                                  self.energy)
                 except:
                     continue
-                    # print(useWell)
                 hTemp.append(h)
                 aTemp.append(a)
+                tTemp.append(self.time[i])
             
             hList.append(hTemp)
             aList.append(aTemp)
-        for a in aList:
-            plt.plot(np.diff(a))
+            tList.append(tTemp)
+        for t, a in zip(tList, aList):
+            plt.plot(t, a)
         plt.show()
-        sys.exit()
-        for h, a in zip(hList, aList):
-            h = np.array(h)
-            a = np.array(a)
-            if len(h) <= 1:
-                continue
-            # print(h, a)
-            sorted_area = np.argsort(a[::5])
-            sync_freq = calc.deriv_cubic(
-                a[::5][sorted_area],
-                h[::5][sorted_area])[1]
-            # sync_freq = np.gradient(h[::2][sorted_area])/np.gradient(a[::2][sorted_area])
-            plt.plot(sync_freq)
-            plt.show()
-        
-        # maxLocs = locs[1]
-        # maxVals = vals[1]
-        # minV = np.min(vals[0])
-        # maxMax = np.max(maxVals)
-        
-        # print(maxLocs, maxVals)
-        
-        # sys.exit()
-        
-        # try:
-        #     fsData = pot.synchrotron_frequency_cubic(self.time, self.well,
-        #                                              self.eta, self.beta, 
-        #                                              self.energy, minV,
-        #                                              maxMax)
-        # except TypeError:
-        #     fsData = pot.synchrotron_frequency_cubic(self.time, self.well,
-        #                                              self.eta, self.beta, 
-        #                                              self.energy, minV,
-        #                                      np.max(maxVals[maxVals < maxMax]))
-        
-        # fsData = [fsData]
-        
-        # for t, w in zip(self.inner_times, self.inner_wells):
-        #     # print(t[1], t[-1])
-        #     plt.plot(t, w)
-        #     for l in locs[1]:
-        #         if l > t[1] and l < t[-1]:
-        #             print(f'{l} is in {t[1], t[-1]}')
-        #             plt.axvline(l)
-        #     plt.show()
+        for t, h, a in zip(tList, hList, aList):
+            try:
+                plt.plot(t, np.gradient(h)/np.gradient(a))
+            except:
+                pass
+        plt.show()
+
         
 
 
