@@ -4,6 +4,7 @@ import sys
 import os
 import warnings
 import scipy.constants as cont
+import matplotlib.pyplot as plt
 
 #Common imports
 from ..devtools import exceptions
@@ -386,9 +387,18 @@ class ring_program(_ring_function):
         input_time = self[section, 0].tolist()
         input_momentum = self[section, 1].tolist()
 
+        k = 0
+
         while next_time < stop:
-            next_momentum = np.interp(next_time, input_time, 
-                                      input_momentum)
+            while next_time > input_time[k]:
+                k += 1
+            # next_momentum = np.interp(next_time, input_time, 
+            #                           input_momentum)
+            next_momentum = input_momentum[k-1] \
+                            + (input_momentum[k] - input_momentum[k-1]) \
+                             * (next_time - input_time[k-1]) \
+                             / (input_time[k] - input_time[k-1])
+                             
             next_beta = rt.mom_to_beta(next_momentum, mass)
             next_time = next_time + rt.beta_to_trev(next_beta, circumference)
             nTurns += 1
@@ -398,14 +408,14 @@ class ring_program(_ring_function):
                 momentum_interp.append(next_momentum)
                 use_turns.append(nTurns)
                 next_store_time = time_func(time_interp[-1])
-            
+
             if nTurns >= targetNTurns-1:
                 break
 
         else:
             if targetNTurns != np.inf:
                 warnings.warn("Maximum time reached before number of turns")
-            
+
         return nTurns, use_turns, time_interp, momentum_interp
         
 
