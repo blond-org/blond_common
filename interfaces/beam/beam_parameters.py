@@ -26,14 +26,8 @@ class Beam_Parameters:
         self.use_samples = use_samples       
         self.n_samples = len(self.use_samples)
 
-        if init_coord is None:
-            init_coord = 0.5*ring.t_rev[0]/harmonic_divide
-        if not hasattr(init_coord, '__iter__'):
-            init_coord = (init_coord,)
-
         self.init_coord = init_coord
-        
-        
+
         if harmonic_divide % 1 == 0:
             self.harmonic_divide = int(harmonic_divide)
         else:
@@ -51,25 +45,16 @@ class Beam_Parameters:
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
 
-        if not isinstance(bunch_emittance, dt.emittance):
-            self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
-                                               n_sections = len(init_coord), 
-                                               use_time = self.ring.cycle_time, 
-                                               use_turns = self.ring.use_turns)
-        else:
-            self.bunch_emittance = bunch_emittance.reshape(len(self.init_coord),
-                                                           use_time = self.ring.cycle_time, 
-                                               use_turns = self.ring.use_turns)
-    
-        self.calc_potential_wells()
-        self.track_synchronous()
-        self.buckets = {}
-        self.calc_buckets()
-        self.bucket_parameters(True)
-    
-    
-    def full_update(self):
+        try:
+            n_parts = len(init_coord)
+        except TypeError:
+            n_parts = 1
 
+        self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
+                                           n_sections = n_parts,
+                                           use_time = self.ring.cycle_time,
+                                           use_turns = self.ring.use_turns)
+    
         self.calc_potential_wells()
         self.track_synchronous()
         self.buckets = {}
@@ -135,26 +120,25 @@ class Beam_Parameters:
 
             startPoint = np.where(self.time_window_array[0]
                                   <= self.init_coord[p])[0][-1]
+
             self.particle_tracks[p][0] = self.time_window_array[0][startPoint]
 
             locs, values \
                     = calc.minmax_location_cubic(self.time_window_array[0],
-                                                 self.potential_well_array[0],
-                                                 mest = int(3*np.max(self.rf.harmonic)))
+                                                 self.potential_well_array[0])
             locs = locs[0]
             offsets = np.abs(self.particle_tracks[p][0] - locs)
             newLoc = np.where(offsets == np.min(offsets))[0][0]
                 
             self.particle_tracks[p][0] = locs[newLoc]
-        
+
         #Loop over all particles and all but first sample, at each sample new 
         #particle location is nearest minimum in potential well
         for p in range(self.n_particles):
             for t in range(start_sample+1, self.n_samples):
                locs, values \
                    = calc.minmax_location_cubic(self.time_window_array[t], 
-                                                self.potential_well_array[t],
-                                                mest = int(3*np.max(self.rf.harmonic)))
+                                                self.potential_well_array[t])
                locs = locs[0]
                offsets = np.abs(self.particle_tracks[p][t-1] - locs)
                newLoc = np.where(offsets == np.min(offsets))[0][0]
@@ -204,11 +188,7 @@ class Beam_Parameters:
         ringPars = self.ring.parameters_at_sample(sample)
         rfPars = self.rf.parameters_at_sample(sample)
         
-        tRight = ringPars['t_rev']/self.harmonic_divide
-        tLeft = -0.05*tRight
-        tRight *= 1.05
-        
-        timeBounds = (tLeft, tRight)
+        timeBounds = (0, ringPars['t_rev']/self.harmonic_divide)
         
         if volts is None:
              vTime, vWave = pot.rf_voltage_generation(self.potential_resolution,
@@ -259,27 +239,10 @@ class Beam_Parameters:
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
 
-        try:
-            maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
-                                     mest = int(3*np.max(self.rf.harmonic)))
-        except:
-            plt.plot(inTime, inWell)
-            plt.show()
-            raise
-        
+        maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell)
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
+
         particleLoc = self.particle_tracks[particle][sample]
-        
-#        plt.plot(inTime, inWell)
-#        for i, (t, w) in enumerate(zip(times, wells)):
-#            plt.plot(t, w+i*100)
-#        plt.axvline(particleLoc, color='red')
-#        for locs in maxLocs:
-#            for l in locs:
-#                plt.axvline(l)
-#        plt.show()
-#        
-#        sys.exit()
         
         #Check which subwells contain current particle
         relevant = [i for i, t in enumerate(times) if particleLoc>t[0] and 
@@ -289,7 +252,7 @@ class Beam_Parameters:
         subWell = [wells[r] for r in relevant]
         
         biggest = pot.sort_potential_wells(subTime, subWell, by='size')[0][0]
-
+      
         #check which subwells are within the bounds of the largest well 
         #containing the current particle
         relevant = [i for i, t in enumerate(times) if t[0] >= biggest[0] and
@@ -302,7 +265,7 @@ class Beam_Parameters:
         wells -= np.min(mins)
         
         times, wells = pot.sort_potential_wells(times, wells, by='t_start')
-        
+
         return times, wells
     
 
