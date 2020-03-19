@@ -489,6 +489,12 @@ def potential_well_cut_cubic(time_array_full, potential_well_full,
     return time_array_list, potential_well_list
 
 
+def potential_to_hamiltonian(time_array, potential_array, beta, energy, eta):
+    
+    HVal = np.max(potential_array)
+    return np.abs((HVal - potential_array)*2*beta**2*energy/eta)
+
+
 def trajectory_area_cubic(time_array, potential_array, eta_0, beta_rel,
                           tot_energy, min_potential_well=None):
 
