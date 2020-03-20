@@ -29,6 +29,7 @@ else:
     from ..maths import interpolation as interp
     from ..devtools import exceptions as excpt
     from ..devtools import assertions as assrt
+    from ..interfaces.beam import matched_distribution as matchDist
 
 
 class Bucket:
@@ -42,8 +43,10 @@ class Bucket:
         except TypeError:
             raise excpt.InputError("time and well must both be iterable")
         
-        self.time_loaded = np.array(time, dtype=float)
-        self.well_loaded = np.array(well, dtype=float)
+        orderedTime, orderedWell = pot.sort_potential_wells(time, well)
+        
+        self.time_loaded = np.array(orderedTime[0], dtype=float)
+        self.well_loaded = np.array(orderedWell[0], dtype=float)
         
         self.beta = beta
         self.energy = energy
@@ -54,7 +57,27 @@ class Bucket:
         
         self.calc_separatrix()
         self.basic_parameters()
+        
+        self.inner_times = orderedTime[1:]
+        self.inner_wells = orderedWell[1:]
     
+    
+    def inner_buckets(self):
+        
+        self.inner_separatrices = []
+        for t, w in zip(self.inner_times, self.inner_wells):
+            hamil = pot.potential_to_hamiltonian(t, w,
+                                             self.beta, self.energy, 
+                                             self.eta)
+
+            upper_energy_bound = np.sqrt(hamil)
+        
+            sepTime = t.tolist() + t[::-1].tolist()
+            sepEnergy = upper_energy_bound.tolist() \
+                    + (-upper_energy_bound[::-1]).tolist()
+        
+            self.inner_separatrices.append(np.array([sepTime, sepEnergy]))
+            
 
     def smooth_well(self, nPoints = None, reinterp=False):
     
@@ -217,10 +240,15 @@ class Bucket:
     
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
-        
-        interpTime = self._interp_time_from_potential(result['x'][0], nPts)
-        interpWell = self._well_smooth_func(interpTime)
-        interpWell[interpWell>interpWell[0]] = interpWell[0]
+
+        try:        
+            interpTime = self._interp_time_from_potential(result['x'][0], nPts)
+        except excpt.InputError:
+            interpTime = self.time.copy()
+            interpWell = self.well.copy()
+        else:
+            interpWell = self._well_smooth_func(interpTime)
+            interpWell[interpWell>interpWell[0]] = interpWell[0]
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
                                                              interpWell, 
@@ -235,12 +263,115 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])    
 
 
+    ##################################################
+    ####Functions for calculating bunch parameters####
+    ##################################################
+
+    def _set_bunch(self, bunch_length = None, bunch_emittance = None,
+                           bunch_height = None):
+        
+        allowed = ('bunch_length', 'bunch_emittance', 'bunch_height')
+        assrt.single_not_none(bunch_length, bunch_emittance, bunch_height,
+                              msg = 'Exactly 1 of ' + str(allowed) \
+                              + ' should be given', 
+                              exception = excpt.InputError)
+        
+        if bunch_length is not None:
+            if bunch_length == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_length(bunch_length)
+        elif bunch_emittance is not None:
+            if bunch_emittance == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_emittance(bunch_emittance)
+        elif bunch_height is not None:
+            if bunch_height == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_dE(bunch_height)
+        
+        self._bunch_length = np.max(outline[0]) - np.min(outline[0])
+        self._bunch_height = np.max(outline[1])
+        self._bunch_emittance = np.trapz(outline[1], outline[0])
+
+
+    @property
+    def bunch_length(self):
+        return self._bunch_length
+    
+    @property
+    def bunch_height(self):
+        return self._bunch_height
+    
+    @property
+    def bunch_emittance(self):
+        return self._bunch_emittance
+    
+    
+    @bunch_length.setter
+    def bunch_length(self, value):
+        self._set_bunch(bunch_length = value)
+    
+    @bunch_height.setter
+    def bunch_height(self, value):
+        self._set_bunch(bunch_height = value)
+    
+    @bunch_emittance.setter
+    def bunch_emittance(self, value):
+        self._set_bunch(bunch_emittance = value)
+        
+        
+    ###################################################
+    ####Functions for generation bunches parameters####
+    ###################################################
+        
+    
+    def make_profiles(self, dist_type, length = None, emittance = None, 
+                      dE = None, use_action = False):
+        
+        if not all(par is None for par in (length, emittance, dE)):
+            self._set_bunch(length, emittance, dE)
+        
+        self.dE_array = np.linspace(np.min(self.separatrix[1]), 
+                                    np.max(self.separatrix[1]), len(self.time))
+        
+        self.compute_action()
+        
+        if use_action:
+            size = self.bunch_emittance / (2*np.pi)
+        else:
+            size = np.interp(self.bunch_emittance / (2*np.pi), 
+                             self.J_array[self.J_array.argsort()], 
+                             self.well[self.well.argsort()])
+        
+        profiles = matchDist.matched_profile(dist_type, size, self.time, 
+                                             self.well, self.dE_array, 
+                                             self.beta, self.energy, self.eta)
+
+        self.time_profile, self.energy_profile = profiles
+
+    def compute_action(self):
+    
+        J_array = np.zeros(len(self.time))
+        for i in range(len(self.time)):
+            useWell = self.well[self.well < self.well[i]]
+            useTime = self.time[self.well < self.well[i]]
+            contour = np.sqrt(np.abs((self.well[i] - useWell)*2
+                              *self.beta**2*self.energy/self.eta))
+            J_array[i] = np.trapz(contour, useTime)/np.pi
+    
+        self.J_array = J_array
+
 
 if __name__ == '__main__':
 
     inTime = np.linspace(0, 2*np.pi, 100)
     inWell = np.cos(inTime)
-    inWell += np.cos(inTime*2)
+#    inWell += np.cos(inTime*2)
+#    inWell -= np.min(inWell)
+    inWell += np.cos(inTime*3)*2
     inWell -= np.min(inWell)
     
     buck = Bucket(inTime, inWell, 3, 4, 5)
@@ -257,6 +388,9 @@ if __name__ == '__main__':
 #    plt.axvline(np.pi - targetLength/2)
 #    plt.axvline(np.pi + targetLength/2)
     plt.plot(bunch[0], bunch[1])
+    plt.xlabel("Phase units")
+    plt.ylabel("Energy units")
+#    plt.savefig("../tripleBucketAndInner.pdf")
     plt.show()
     
     

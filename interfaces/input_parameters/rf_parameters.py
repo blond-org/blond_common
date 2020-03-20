@@ -19,10 +19,15 @@ import numpy as np
 from scipy.constants import c
 from scipy.integrate import cumtrapz
 from ..beam.beam import Proton
-from ..input_parameters.rf_parameters_options import RFStationOptions
+import sys
+
+#BLonD_Common imports
+from ...datatypes import datatypes as dTypes
+from ...devtools import exceptions as excpt
+from ...devtools import assertions as assrt
 
 
-class RFStation(object):
+class RFStation:
     r""" Class containing all the RF parameters for all the RF systems in one
     ring segment or RF station.
 
@@ -204,28 +209,74 @@ class RFStation(object):
 
     """
 
-    def __init__(self, Ring, harmonic, voltage, phi_rf_d, n_rf=1,
-                 section_index=1, omega_rf=None, phi_noise=None,
-                 phi_modulation=None, RFStationOptions=RFStationOptions()):
+    def __init__(self, Ring, harmonic, voltage, phi_rf_d,
+                 section_index=1, omega_rf_offset=None, phi_rf_offset=None):
 
         # Different indices
         self.counter = [int(0)]
         self.section_index = int(section_index - 1)
+        
+        
         if self.section_index < 0 \
                 or self.section_index > Ring.n_sections - 1:
             raise RuntimeError("ERROR in RFStation: section_index out of" +
                                " allowed range!")
 
-        if hasattr(voltage, 'data_type'):
-            if voltage.data_type[2] != phi_rf_d.data_type[2]:
-                raise RuntimeError("voltage and phase harmonics do not match")
-            self.n_rf = len(voltage.data_type[2])
-        else:
-            self.n_rf = int(n_rf)
+
+        #Coercion of voltage to RF_section_function datatype
+        if not isinstance(voltage, dTypes.voltage_program):
+            if not hasattr(voltage, '__iter__'):
+                voltage = (voltage, )
+            if isinstance(voltage, dict):
+                useV = []
+                for h in harmonic:
+                    useV.append(voltage.pop(h, 0))
+                if len(voltage) != 0:
+                    raise RuntimeError("Unrecognised harmonics in voltage")
+                voltage = useV
+
+            try:
+                voltage = dTypes.voltage_program(*voltage, 
+                                                 harmonics = harmonic, 
+                                                 interpolation = 'linear')
+            except excpt.DataDefinitionError:
+                voltage = dTypes.voltage_program(*voltage, 
+                                                 harmonics = harmonic)
+
+        #Coercion of phase to RF_section_function datatype
+        if not isinstance(phi_rf_d, dTypes.phase_program):
+            if not hasattr(phi_rf_d, '__iter__'):
+                phi_rf_d = (phi_rf_d, )
+            if isinstance(phi_rf_d, dict):
+                usePhi = []
+                for h in harmonic:
+                    usePhi.append(phi_rf_d.pop(h, 0))
+                if len(phi_rf_d) != 0:
+                    raise RuntimeError("Unrecognised harmonics in phi_rf_d")
+                phi_rf_d = usePhi
+            try:
+                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                                                 harmonics = harmonic, 
+                                                 interpolation = 'linear')
+            except excpt.DataDefinitionError:
+                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                                                harmonics = harmonic)
+
+        if not hasattr(harmonic, '__iter__'):
+            harmonic = (harmonic,)
+
+        assrt.equal_arrays(harmonic, voltage.harmonics, 
+                           phi_rf_d.harmonics,
+            msg = 'Declared harmonics and harmonics of voltage and phase'
+            + ' functions do not all match', exception = excpt.InputDataError)
+        
+        self.n_rf = len(voltage.harmonics)
+        
 
         # Imported from Ring
         self.Particle = Ring.Particle
         self.n_turns = Ring.n_turns
+        self.cycle_time = Ring.cycle_time
         self.ring_circumference = Ring.ring_circumference
         self.section_length = Ring.ring_length[self.section_index]
         self.length_ratio = float(self.section_length/self.ring_circumference)
@@ -237,107 +288,109 @@ class RFStation(object):
         self.delta_E = Ring.delta_E[self.section_index]
         self.alpha_order = Ring.alpha_order
         self.charge = self.Particle.charge
+        
+        self.use_turns = Ring.use_turns.astype(int)
 
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
         # for the drift
-        alpha_order = 2
+        alpha_order = 2#Ring.alpha_order
         for i in range(alpha_order+1):
             dummy = getattr(Ring, 'eta_' + str(i))
             setattr(self, "eta_%s" % i, dummy[self.section_index])
         self.sign_eta_0 = np.sign(self.eta_0)
 
-        # Reshape input rf programs
-        # Reshape design harmonic
-        self.harmonic = RFStationOptions.reshape_data(harmonic,
-                                                      self.n_turns,
-                                                      self.n_rf,
-                                                      Ring.cycle_time,
-                                                      Ring.RingOptions.t_start)
         # Reshape design voltage
-        self.voltage = RFStationOptions.reshape_data(voltage,
-                                                     self.n_turns,
-                                                     self.n_rf,
-                                                     Ring.cycle_time,
-                                                     Ring.RingOptions.t_start)
+        self.voltage = voltage.reshape(use_time = Ring.cycle_time, 
+                                       use_turns = Ring.use_turns)
 
+        self.harmonic = np.zeros(self.voltage.shape)
+        for i, h in enumerate(harmonic):
+            self.harmonic[i] = h
+            
         # Checking if the RFStation is empty
         if np.sum(self.voltage) == 0:
             self.empty = True
         else:
             self.empty = False
 
+
         # Reshape design phase
-        self.phi_rf_d = RFStationOptions.reshape_data(phi_rf_d,
-                                                      self.n_turns,
-                                                      self.n_rf,
-                                                      Ring.cycle_time,
-                                                      Ring.RingOptions.t_start)
+        self.phi_rf_d = phi_rf_d.reshape(use_time = Ring.cycle_time, 
+                                         use_turns = Ring.use_turns)
+
 
         # Calculating design rf angular frequency
-        if omega_rf is None:
-            self.omega_rf_d = 2.*np.pi*self.beta*c*self.harmonic / \
-                (self.ring_circumference)
-        else:
-            self.omega_rf_d = RFStationOptions.reshape_data(
-                omega_rf,
-                self.n_turns,
-                self.n_rf,
-                Ring.cycle_time,
-                Ring.RingOptions.t_start)
+        self.omega_rf_d = 2.*np.pi*self.beta*c*self.harmonic / \
+                            (self.ring_circumference)
+        
+        
+        # Calculating omega and phi offsets
+        if omega_rf_offset is None:
+            useoff = (0,)*self.harmonic.shape[0]
+            omega_rf_offset = dTypes.omega_offset(*useoff, 
+                                                  harmonics=harmonic)
 
-        # Reshape phase noise
-        if phi_noise is not None:
-            self.phi_noise = RFStationOptions.reshape_data(
-                phi_noise,
-                self.n_turns,
-                self.n_rf,
-                Ring.cycle_time,
-                Ring.RingOptions.t_start)
-        else:
-            self.phi_noise = None
+        if not isinstance(omega_rf_offset, dTypes.omega_offset):
 
-        if phi_modulation is not None:
+            if isinstance(omega_rf_offset, dict):
+                useoff = []
+                for h in harmonic:
+                    useoff.append(omega_rf_offset.pop(h, 0))
+                if len(omega_rf_offset) != 0:
+                    raise RuntimeError("Unrecognised harmonics in phi_rf_d")
+                omega_rf_offset = useoff
 
             try:
-                iter(phi_modulation)
-            except TypeError:
-                phi_modulation = [phi_modulation]
+                omega_rf_offset = dTypes.omega_offset(*omega_rf_offset, 
+                                                 harmonics = harmonic, 
+                                                 interpolation = 'linear')
 
-            dPhi = np.zeros([self.n_rf, self.n_turns+1])
-            dOmega = np.zeros([self.n_rf, self.n_turns+1])
-            for pMod in phi_modulation:
-                system = np.where(self.harmonic[:, 0] == pMod.harmonic)[0]
-                if len(system) == 0:
-                    raise ValueError("No matching harmonic in phi_modulation")
-                elif len(system) > 1:
-                    raise RuntimeError("""Phase modulation not yet
-                                       implemented with multiple systems
-                                       at the same harmonic.""")
-                else:
-                    system = system[0]
+            except excpt.DataDefinitionError:
+                omega_rf_offset = dTypes.omega_offset(*omega_rf_offset, 
+                                                      harmonics = harmonic)
 
-                pMod.calc_modulation()
-                pMod.calc_delta_omega(
-                    (Ring.cycle_time, self.omega_rf_d[system]))
-                dPhiInput, dOmegaInput = pMod.extend_to_n_rf(
-                    self.harmonic[:, 0])
-                dPhi += RFStationOptions.reshape_data(
-                    dPhiInput,
-                    self.n_turns,
-                    self.n_rf,
-                    Ring.cycle_time,
-                    Ring.RingOptions.t_start)
-                dOmega += RFStationOptions.reshape_data(
-                    dOmegaInput,
-                    self.n_turns,
-                    self.n_rf,
-                    Ring.cycle_time,
-                    Ring.RingOptions.t_start)
-            self.phi_modulation = (dPhi, dOmega)
-        else:
-            self.phi_modulation = None
+        self.omega_rf_offset = omega_rf_offset.reshape(self.harmonic[:,0],
+                                                       Ring.cycle_time, 
+                                                       Ring.use_turns)
+            
+        if phi_rf_offset is None:
+            useoff = (0,)*self.harmonic.shape[0]
+            phi_rf_offset = dTypes.phase_offset(*useoff, 
+                                                harmonics=harmonic)
+        if not isinstance(phi_rf_offset, dTypes.phase_offset):
 
+            if isinstance(phi_rf_offset, dict):
+                useoff = []
+                for h in harmonic:
+                    useoff.append(phi_rf_offset.pop(h, 0))
+                if len(omega_rf_offset) != 0:
+                    raise RuntimeError("Unrecognised harmonics in phi_rf_d")
+                phi_rf_offset = useoff
+
+            try:
+                phi_rf_offset = dTypes.phase_offset(*phi_rf_offset, 
+                                                 harmonics = harmonic, 
+                                                 interpolation = 'linear')
+
+            except excpt.DataDefinitionError:
+                phi_rf_offset = dTypes.phase_offset(*phi_rf_offset, 
+                                                   harmonics = harmonic)
+
+        self.phi_rf_offset = phi_rf_offset.reshape(self.harmonic[:,0],
+                                                   Ring.cycle_time, 
+                                                   Ring.use_turns)
+            
+        
+        self.phi_rf_offset += self.omega_rf_offset.calc_delta_phase(
+                                                    Ring.omega_rev)
+
+        self.omega_rf_offset += self.phi_rf_offset.calc_delta_omega(
+                                                    Ring.omega_rev)        
+        
+        self.phi_rf_d += self.phi_rf_offset
+        self.omega_rf_d += self.omega_rf_offset
+        
         # Copy of the desing rf programs in the one used for tracking
         # and that can be changed by feedbacks
         self.phi_rf = np.array(self.phi_rf_d)
@@ -369,6 +422,64 @@ class RFStation(object):
                 eta += eta_i * (delta**i)
             return eta
 
+
+    def parameters_at_time(self, cycle_moments):
+        """ Function to return various RF parameters at a specific moment in
+        time.
+
+        Parameters
+        ----------
+        cycle_moments : float array
+            Moments of time at which cycle parameters are to be calculated [s].
+
+        Returns
+        -------
+        parameters : dictionary
+            Contains 'momentum', 'beta', 'gamma', 'energy', 'kin_energy',
+            'f_rev', 't_rev'. 'omega_rev', 'eta_0', and 'delta_E' interpolated
+            to the moments contained in the 'cycle_moments' array
+
+        """
+        voltage = []
+        phase = []
+        harmonic = []
+        omega = []
+        for v, p, h, o in zip(self.voltage, self.phi_rf_d, self.harmonic,
+                              self.omega_rf_d):
+            voltage.append(np.interp(cycle_moments, self.cycle_time, v))
+            phase.append(np.interp(cycle_moments, self.cycle_time, p))
+            harmonic.append(np.interp(cycle_moments, self.cycle_time, h))
+            omega.append(np.interp(cycle_moments, self.cycle_time, o))
+        parameters = {}
+        parameters['voltage'] = voltage
+        parameters['phi_rf_d'] = phase
+        parameters['harmonic'] = harmonic
+        parameters['omega_rf_d'] = omega
+
+        return parameters
+    
+    
+    def parameters_at_turn(self, turn):
+
+        try:
+            sample = np.where(self.use_turns == turn)[0][0]
+        except IndexError:
+            raise excpt.InputError("turn " + str(turn) + " has not been "
+                                   + "stored for the specified interpolation")
+        else:
+            return self.parameters_at_sample(sample)
+
+
+    def parameters_at_sample(self, sample):
+        
+        parameters = {}
+        parameters['voltage'] = self.voltage[:, sample]
+        parameters['phi_rf_d'] = self.phi_rf_d[:, sample]
+        parameters['harmonic'] = self.harmonic[:, sample]
+        parameters['omega_rf_d'] = self.omega_rf_d[:, sample]
+        
+        return parameters
+        
 
 def calculate_Q_s(RFStation, Particle=Proton()):
     r""" Function calculating the turn-by-turn synchrotron tune for
@@ -436,7 +547,10 @@ def calculate_phi_s(RFStation, Particle=Proton(),
 
     if accelerating_systems == 'as_single':
 
-        denergy = np.append(RFStation.delta_E, RFStation.delta_E[-1])
+        if RFStation.delta_E.shape[0] == RFStation.momentum.shape[0]:
+            denergy = RFStation.delta_E.copy()
+        else:
+            denergy = np.append(RFStation.delta_E, RFStation.delta_E[-1])
         acceleration_ratio = denergy/(Particle.charge*RFStation.voltage[0, :])
         acceleration_test = np.where((acceleration_ratio > -1) *
                                      (acceleration_ratio < 1) is False)[0]
