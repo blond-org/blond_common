@@ -29,6 +29,7 @@ else:
     from ..maths import interpolation as interp
     from ..devtools import exceptions as excpt
     from ..devtools import assertions as assrt
+    from ..interfaces.beam import matched_distribution as matchDist
 
 
 class Bucket:
@@ -239,10 +240,15 @@ class Bucket:
     
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
-        
-        interpTime = self._interp_time_from_potential(result['x'][0], nPts)
-        interpWell = self._well_smooth_func(interpTime)
-        interpWell[interpWell>interpWell[0]] = interpWell[0]
+
+        try:        
+            interpTime = self._interp_time_from_potential(result['x'][0], nPts)
+        except excpt.InputError:
+            interpTime = self.time.copy()
+            interpWell = self.well.copy()
+        else:
+            interpWell = self._well_smooth_func(interpTime)
+            interpWell[interpWell>interpWell[0]] = interpWell[0]
         
         energyContour = np.sqrt(pot.potential_to_hamiltonian(interpTime, 
                                                              interpWell, 
@@ -271,11 +277,20 @@ class Bucket:
                               exception = excpt.InputError)
         
         if bunch_length is not None:
-            outline = self.outline_from_length(bunch_length)
+            if bunch_length == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_length(bunch_length)
         elif bunch_emittance is not None:
-            outline = self.outline_from_emittance(bunch_emittance)
+            if bunch_emittance == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_emittance(bunch_emittance)
         elif bunch_height is not None:
-            outline = self.outline_from_dE(bunch_height)
+            if bunch_height == 0:
+                outline = [[0, 0], [0,0]]
+            else:
+                outline = self.outline_from_dE(bunch_height)
         
         self._bunch_length = np.max(outline[0]) - np.min(outline[0])
         self._bunch_height = np.max(outline[1])
@@ -308,6 +323,47 @@ class Bucket:
         self._set_bunch(bunch_emittance = value)
         
         
+    ###################################################
+    ####Functions for generation bunches parameters####
+    ###################################################
+        
+    
+    def make_profiles(self, dist_type, length = None, emittance = None, 
+                      dE = None, use_action = False):
+        
+        if not all(par is None for par in (length, emittance, dE)):
+            self._set_bunch(length, emittance, dE)
+        
+        self.dE_array = np.linspace(np.min(self.separatrix[1]), 
+                                    np.max(self.separatrix[1]), len(self.time))
+        
+        self.compute_action()
+        
+        if use_action:
+            size = self.bunch_emittance / (2*np.pi)
+        else:
+            size = np.interp(self.bunch_emittance / (2*np.pi), 
+                             self.J_array[self.J_array.argsort()], 
+                             self.well[self.well.argsort()])
+        
+        profiles = matchDist.matched_profile(dist_type, size, self.time, 
+                                             self.well, self.dE_array, 
+                                             self.beta, self.energy, self.eta)
+
+        self.time_profile, self.energy_profile = profiles
+
+    def compute_action(self):
+    
+        J_array = np.zeros(len(self.time))
+        for i in range(len(self.time)):
+            useWell = self.well[self.well < self.well[i]]
+            useTime = self.time[self.well < self.well[i]]
+            contour = np.sqrt(np.abs((self.well[i] - useWell)*2
+                              *self.beta**2*self.energy/self.eta))
+            J_array[i] = np.trapz(contour, useTime)/np.pi
+    
+        self.J_array = J_array
+
 
 if __name__ == '__main__':
 

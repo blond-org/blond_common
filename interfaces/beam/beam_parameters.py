@@ -27,8 +27,7 @@ class Beam_Parameters:
         self.n_samples = len(self.use_samples)
 
         self.init_coord = init_coord
-        
-        
+
         if harmonic_divide % 1 == 0:
             self.harmonic_divide = int(harmonic_divide)
         else:
@@ -46,9 +45,14 @@ class Beam_Parameters:
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
 
+        try:
+            n_parts = len(init_coord)
+        except TypeError:
+            n_parts = 1
+
         self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
-                                           n_sections = len(init_coord), 
-                                           use_time = self.ring.cycle_time, 
+                                           n_sections = n_parts,
+                                           use_time = self.ring.cycle_time,
                                            use_turns = self.ring.use_turns)
     
         self.calc_potential_wells()

@@ -484,7 +484,7 @@ def potential_well_cut_cubic(time_array_full, potential_well_full,
 
 
 def sort_potential_wells(time_list, well_list, by = 't_start'):
-    
+
     if not hasattr(time_list[0], '__iter__'):
         time_list = (time_list,)
         well_list = (well_list,)
