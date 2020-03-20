@@ -17,20 +17,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import sys
+import scipy.interpolate as spInterp
 
 #BLonD_Common imports
-if __name__ == "__main__":
-    import blond_common.rf_functions.potential as pot
-    import blond_common.maths.interpolation as interp
-    import blond_common.devtools.exceptions as excpt
-    import blond_common.devtools.assertions as assrt
-else:
-    from ..rf_functions import potential as pot
-    from ..maths import interpolation as interp
-    from ..devtools import exceptions as excpt
-    from ..devtools import assertions as assrt
-    from ..interfaces.beam import matched_distribution as matchDist
-
+from ..rf_functions import potential as pot
+from ..maths import interpolation as interp
+from ..devtools import exceptions as excpt
+from ..devtools import assertions as assrt
+from ..interfaces.beam import matched_distribution as matchDist
+from ..maths import calculus as calc
 
 class Bucket:
     
@@ -112,7 +107,105 @@ class Bucket:
         self.area = 2*np.trapz(self.upper_energy_bound, self.time)
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
+        
+    
+    def frequency_spread(self):
+        
+        locs, vals = calc.minmax_location_cubic(self.time, self.well)
 
+        wellBits = [self.well]
+        timeBits = [self.time]
+        for l, v in zip(locs[1], vals[1]):
+            wellBits.append(self.well[(self.time <= l)*(self.well<=v)])
+            timeBits.append(self.time[(self.time <= l)*(self.well<=v)])
+            wellBits.append(self.well[(self.time >= l)*(self.well<=v)])
+            timeBits.append(self.time[(self.time >= l)*(self.well<=v)])
+        
+        indices = []
+        for i, (t1, w1) in enumerate(zip(timeBits, wellBits)):
+            subIndex = []
+            for j, (t2, w2) in enumerate(zip(timeBits, wellBits)):
+                if i == j:
+                    continue
+                if t2[0] >= t1[0] and t2[-1] <= t1[-1]:
+                    subIndex += np.where((t1 >= t2[0])*(t1 <= t2[-1]))[0].tolist()
+            subIndex = list(set(subIndex))
+            indices.append(subIndex)
+                    
+        mainIndices =[]
+        for j, (i, t, w) in enumerate(zip(indices, timeBits, wellBits)):
+            t = np.delete(t, i)
+            mainIndices.append(np.intersect1d(self.time, t, True, True)[1])
+        
+        for j, i in enumerate(mainIndices):
+            plt.plot(self.time[i], self.well[i] + j*0)
+        plt.show()
+    
+        self.smooth_well()
+        tck_potential_well = spInterp.splrep(self.time, self.well)
+        hList, aList, tList = [], [], []
+        for indices in mainIndices:
+            if len(indices) <= 1:
+                hList.append([])
+                aList.append([])
+                tList.append([])
+                continue
+            left = True
+            hTemp = []
+            aTemp = []
+            tTemp = []
+            plt.plot(self.time[indices[0]:indices[-1]], 
+                     self.well[indices[0]:indices[-1]])
+            plt.plot(self.time[indices], 
+                     self.well[indices])
+            plt.show()
+            for i in indices:
+                tck_adjusted = (
+                tck_potential_well[0],
+                (tck_potential_well[1]-self.well[i]),
+                tck_potential_well[2])
+                roots_adjusted = spInterp.sproot(tck_adjusted)
+                roots_adjusted = [r for r in roots_adjusted if 
+                                  (r>self.time[indices[0]] and 
+                                   r < self.time[indices[-1]])]
+                try:
+                    left_position = np.min(roots_adjusted)
+                    right_position = np.max(roots_adjusted)
+                except ValueError:
+                    continue
+                try:
+                    fine_time_array = np.linspace(left_position, right_position,
+                                                  1000)
+                except:
+                    continue
+                fine_potential_well = spInterp.splev(fine_time_array, tck_adjusted) \
+                                        + self.well[i]
+                try:
+                    _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
+                                                                 fine_potential_well, 
+                                                                 self.eta, 
+                                                                 self.beta,
+                                                                 self.energy)
+                except:
+                    continue
+                hTemp.append(h)
+                aTemp.append(a)
+                tTemp.append(self.time[i])
+            
+            hList.append(hTemp)
+            aList.append(aTemp)
+            tList.append(tTemp)
+        for t, a in zip(tList, aList):
+            plt.plot(t, a)
+        plt.show()
+        for t, h, a in zip(tList, hList, aList):
+            try:
+                plt.plot(t, np.gradient(h)/np.gradient(a))
+            except:
+                pass
+        plt.show()
+
+        
 
 
     ################################################
@@ -364,44 +457,3 @@ class Bucket:
     
         self.J_array = J_array
 
-
-if __name__ == '__main__':
-
-    inTime = np.linspace(0, 2*np.pi, 100)
-    inWell = np.cos(inTime)
-#    inWell += np.cos(inTime*2)
-#    inWell -= np.min(inWell)
-    inWell += np.cos(inTime*3)*2
-    inWell -= np.min(inWell)
-    
-    buck = Bucket(inTime, inWell, 3, 4, 5)
-    buck.smooth_well(1000)
-    buck.calc_separatrix()
-    targetEmit = 30
-    bunch = buck.outline_from_emittance(targetEmit)
-#    targetLength = 5
-#    bunch = buck.outline_from_length(targetLength)
-#    targetHeight = 3
-#    bunch = buck.outline_from_dE(targetHeight)
-    plt.plot(buck.separatrix[0], buck.separatrix[1])
-#    plt.axhline(targetHeight)
-#    plt.axvline(np.pi - targetLength/2)
-#    plt.axvline(np.pi + targetLength/2)
-    plt.plot(bunch[0], bunch[1])
-    plt.xlabel("Phase units")
-    plt.ylabel("Energy units")
-#    plt.savefig("../tripleBucketAndInner.pdf")
-    plt.show()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
