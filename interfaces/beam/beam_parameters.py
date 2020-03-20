@@ -32,8 +32,7 @@ class Beam_Parameters:
             init_coord = (init_coord,)
 
         self.init_coord = init_coord
-        
-        
+
         if harmonic_divide % 1 == 0:
             self.harmonic_divide = int(harmonic_divide)
         else:
@@ -50,6 +49,12 @@ class Beam_Parameters:
                                            self.potential_resolution])
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
+
+
+        try:
+            n_parts = len(init_coord)
+        except TypeError:
+            n_parts = 1
 
         if not isinstance(bunch_emittance, dt.emittance):
             self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
