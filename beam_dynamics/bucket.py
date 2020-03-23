@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import sys
 import scipy.interpolate as spInterp
+import itertools as itl
+import warnings
 
 #BLonD_Common imports
 from ..rf_functions import potential as pot
@@ -107,19 +109,127 @@ class Bucket:
         self.area = 2*np.trapz(self.upper_energy_bound, self.time)
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
+
+
+    def frequency_spread(self, nPts = 5000):
         
-    
-    def frequency_spread(self):
+        diffs = np.diff(self.well)
+        self.smooth_well()
+        calcTime = np.linspace(self.time[0], self.time[-1], nPts)
+        calcWell = self._well_smooth_func(calcTime)
+        tck_potential_well = spInterp.splrep(calcTime, calcWell)
+        hList, aList, tList = [], [], []
+        
+        for i in range(len(self.well)):
+            bspl = spInterp.BSpline(tck_potential_well[0],
+                                    tck_potential_well[1] - self.well[i],
+                                    tck_potential_well[2])
+            roots_adjusted = spInterp.sproot(bspl)
+
+            if len(roots_adjusted) == 1:
+                warnings.warn("Single root detected, well may not be "\
+                              + "adequately resolved")
+                continue
+
+            diffRoot = self.time[i] - roots_adjusted
+            thisRoot = np.where(diffRoot**2 == np.min(diffRoot**2))[0][0]
+
+            if i == len(diffs):
+                break
+            if diffs[i]>0:
+                otherRoot = thisRoot - 1
+                leftTime = roots_adjusted[otherRoot]
+                rightTime = roots_adjusted[thisRoot]
+            elif diffs[i]<0:
+                otherRoot = thisRoot + 1
+                leftTime = roots_adjusted[thisRoot]
+                rightTime = roots_adjusted[otherRoot]
+            else:
+                continue
+            # plt.plot(self.time, bspl(self.time))
+            # plt.axvline(roots_adjusted[thisRoot], color='red')
+            # plt.axvline(roots_adjusted[otherRoot], color='blue')
+            # plt.axhline(0)
+            # plt.show()
+            
+            fine_time_array = np.linspace(leftTime, rightTime, 1000)
+            fine_potential_well = spInterp.splev(fine_time_array, bspl) \
+                                    + self.well[i]
+            try:
+                _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
+                                                        fine_potential_well, 
+                                                        self.eta, 
+                                                        self.beta,
+                                                        self.energy)
+            except ValueError:
+                continue
+
+            hList.append(h)
+            aList.append(a)
+            tList.append(self.time[i])
+        
+        plt.plot(tList, hList)
+        plt.show()
+        plt.plot(tList, aList)
+        plt.show()
+        
+        fs = np.gradient(hList)/np.gradient(aList)
+        plt.plot(aList, fs)
+        plt.show()
+        plt.plot(hList, fs)
+        plt.show()
+        plt.plot(tList, fs)
+        plt.show()
+        
+        return tList, aList, hList, fs
+
+
+    def _frequency_spread(self):
         
         locs, vals = calc.minmax_location_cubic(self.time, self.well)
+        timeList, wellList = self.time.tolist(), self.well.tolist()
+        insertPts = [np.where(self.time<locs[1][i])[0][-1] + i 
+                         for i in range(len(locs[1]))]
+        # print(insertPts)
+        # for i, l, v in zip(insertPts, locs[1], vals[1]):
+        #     plt.scatter(timeList[i-5:i+4], wellList[i-5:i+4], s=5)
+        #     timeList = timeList[:i] + [l] + timeList[i:]
+        #     wellList = wellList[:i] + [v] + wellList[i:]
+        
+        calcWell = np.array(wellList)
+        calcTime = np.array(timeList)
+        # plt.plot(calcTime, calcWell)
+        # plt.show()
+        # sys.exit()
 
-        wellBits = [self.well]
-        timeBits = [self.time]
+        wellBits = [calcWell]
+        timeBits = [calcTime]
         for l, v in zip(locs[1], vals[1]):
-            wellBits.append(self.well[(self.time <= l)*(self.well<=v)])
-            timeBits.append(self.time[(self.time <= l)*(self.well<=v)])
-            wellBits.append(self.well[(self.time >= l)*(self.well<=v)])
-            timeBits.append(self.time[(self.time >= l)*(self.well<=v)])
+            cutInd = (calcTime<=l) * (calcWell<=v)
+            wellLess = calcWell[cutInd] + [v]
+            timeLess = calcTime[cutInd] + [l]
+            wellBits.append(calcWell[cutInd].tolist() + [v])
+            timeBits.append(calcTime[cutInd].tolist() + [l])
+            cutInd = (calcTime>=l) * (calcWell<=v)
+            wellBits.append([v] + calcWell[cutInd].tolist())
+            timeBits.append([l] + calcTime[cutInd].tolist())
+            # wellBits.append(calcWell[cutInd].tolist())
+            # timeBits.append(calcTime[cutInd].tolist())
+            # cutInd = (calcTime<l) * (calcWell<v)
+            # wellBits.append(calcWell[cutInd])
+            # timeBits.append(calcTime[cutInd])
+            # cutInd = (calcTime>l) * (calcWell<v)
+            # wellBits.append(calcWell[cutInd])
+            # timeBits.append(calcTime[cutInd])
+        
+        wellBits = [np.array(w) for w in wellBits if len(w) > 2]
+        timeBits = [np.array(t) for t in timeBits if len(t) > 2]
+        
+        # for i, (t, w) in enumerate(zip(timeBits, wellBits)):
+        #     plt.plot(t, w, '.')
+        #     plt.show()
+        
+        # sys.exit()
         
         indices = []
         for i, (t1, w1) in enumerate(zip(timeBits, wellBits)):
@@ -131,18 +241,26 @@ class Bucket:
                     subIndex += np.where((t1 >= t2[0])*(t1 <= t2[-1]))[0].tolist()
             subIndex = list(set(subIndex))
             indices.append(subIndex)
-                    
+        
+        # bitCount = enumerate(zip(timeBits, wellBits))
+        # indices = [[] for i in range(len(wellBits))]
+        # for (i, (t1, w1)), (j, (t2, w2), ind) in itl.product(bitCount, 
+        #                                              zip(bitCount, indices)):
+        #     if i == j:
+        #         continue
+            
+            
         mainIndices =[]
         for j, (i, t, w) in enumerate(zip(indices, timeBits, wellBits)):
             t = np.delete(t, i)
-            mainIndices.append(np.intersect1d(self.time, t, True, True)[1])
+            mainIndices.append(np.intersect1d(calcTime, t, True, True)[1])
         
-        for j, i in enumerate(mainIndices):
-            plt.plot(self.time[i], self.well[i] + j*0)
-        plt.show()
-    
+        # for j, i in enumerate(mainIndices):
+        #     plt.plot(calcTime[i], calcWell[i] + j*0)
+        # plt.show()
+        # sys.exit()
         self.smooth_well()
-        tck_potential_well = spInterp.splrep(self.time, self.well)
+        tck_potential_well = spInterp.splrep(calcTime, calcWell)
         hList, aList, tList = [], [], []
         for indices in mainIndices:
             if len(indices) <= 1:
@@ -154,32 +272,34 @@ class Bucket:
             hTemp = []
             aTemp = []
             tTemp = []
-            plt.plot(self.time[indices[0]:indices[-1]], 
-                     self.well[indices[0]:indices[-1]])
-            plt.plot(self.time[indices], 
-                     self.well[indices])
+            plt.plot(calcTime[indices[0]:indices[-1]], 
+                     calcWell[indices[0]:indices[-1]])
+            plt.plot(calcTime[indices], 
+                     calcWell[indices])
             plt.show()
             for i in indices:
                 tck_adjusted = (
                 tck_potential_well[0],
-                (tck_potential_well[1]-self.well[i]),
+                (tck_potential_well[1]-calcWell[i]),
                 tck_potential_well[2])
                 roots_adjusted = spInterp.sproot(tck_adjusted)
                 roots_adjusted = [r for r in roots_adjusted if 
-                                  (r>self.time[indices[0]] and 
-                                   r < self.time[indices[-1]])]
+                                  (r>calcTime[indices[0]] and 
+                                   r < calcTime[indices[-1]])]
                 try:
                     left_position = np.min(roots_adjusted)
                     right_position = np.max(roots_adjusted)
                 except ValueError:
                     continue
+
                 try:
                     fine_time_array = np.linspace(left_position, right_position,
                                                   1000)
                 except:
                     continue
+                
                 fine_potential_well = spInterp.splev(fine_time_array, tck_adjusted) \
-                                        + self.well[i]
+                                        + calcWell[i]
                 try:
                     _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
                                                                  fine_potential_well, 
@@ -188,9 +308,10 @@ class Bucket:
                                                                  self.energy)
                 except:
                     continue
+
                 hTemp.append(h)
                 aTemp.append(a)
-                tTemp.append(self.time[i])
+                tTemp.append(calcTime[i])
             
             hList.append(hTemp)
             aList.append(aTemp)
