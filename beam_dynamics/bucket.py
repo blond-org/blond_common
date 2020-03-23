@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import sys
 import scipy.interpolate as spInterp
+import itertools as itl
+import warnings
 
 #BLonD_Common imports
 from ..rf_functions import potential as pot
@@ -107,105 +109,103 @@ class Bucket:
         self.area = 2*np.trapz(self.upper_energy_bound, self.time)
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
-        
-    
-    def frequency_spread(self):
-        
-        locs, vals = calc.minmax_location_cubic(self.time, self.well)
 
-        wellBits = [self.well]
-        timeBits = [self.time]
-        for l, v in zip(locs[1], vals[1]):
-            wellBits.append(self.well[(self.time <= l)*(self.well<=v)])
-            timeBits.append(self.time[(self.time <= l)*(self.well<=v)])
-            wellBits.append(self.well[(self.time >= l)*(self.well<=v)])
-            timeBits.append(self.time[(self.time >= l)*(self.well<=v)])
-        
-        indices = []
-        for i, (t1, w1) in enumerate(zip(timeBits, wellBits)):
-            subIndex = []
-            for j, (t2, w2) in enumerate(zip(timeBits, wellBits)):
-                if i == j:
-                    continue
-                if t2[0] >= t1[0] and t2[-1] <= t1[-1]:
-                    subIndex += np.where((t1 >= t2[0])*(t1 <= t2[-1]))[0].tolist()
-            subIndex = list(set(subIndex))
-            indices.append(subIndex)
-                    
-        mainIndices =[]
-        for j, (i, t, w) in enumerate(zip(indices, timeBits, wellBits)):
-            t = np.delete(t, i)
-            mainIndices.append(np.intersect1d(self.time, t, True, True)[1])
-        
-        for j, i in enumerate(mainIndices):
-            plt.plot(self.time[i], self.well[i] + j*0)
-        plt.show()
-    
-        self.smooth_well()
+
+    def frequency_spread(self, nPts = 5000):
+
+        self.smooth_well(2000)
+        diffs = np.gradient(self.well)
+        calcTime = np.linspace(self.time[0], self.time[-1], nPts)
+        calcWell = self._well_smooth_func(calcTime)
+        # tck_potential_well = spInterp.splrep(calcTime, calcWell)
         tck_potential_well = spInterp.splrep(self.time, self.well)
         hList, aList, tList = [], [], []
-        for indices in mainIndices:
-            if len(indices) <= 1:
-                hList.append([])
-                aList.append([])
-                tList.append([])
-                continue
-            left = True
-            hTemp = []
-            aTemp = []
-            tTemp = []
-            plt.plot(self.time[indices[0]:indices[-1]], 
-                     self.well[indices[0]:indices[-1]])
-            plt.plot(self.time[indices], 
-                     self.well[indices])
-            plt.show()
-            for i in indices:
-                tck_adjusted = (
-                tck_potential_well[0],
-                (tck_potential_well[1]-self.well[i]),
-                tck_potential_well[2])
-                roots_adjusted = spInterp.sproot(tck_adjusted)
-                roots_adjusted = [r for r in roots_adjusted if 
-                                  (r>self.time[indices[0]] and 
-                                   r < self.time[indices[-1]])]
-                try:
-                    left_position = np.min(roots_adjusted)
-                    right_position = np.max(roots_adjusted)
-                except ValueError:
-                    continue
-                try:
-                    fine_time_array = np.linspace(left_position, right_position,
-                                                  1000)
-                except:
-                    continue
-                fine_potential_well = spInterp.splev(fine_time_array, tck_adjusted) \
-                                        + self.well[i]
-                try:
-                    _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
-                                                                 fine_potential_well, 
-                                                                 self.eta, 
-                                                                 self.beta,
-                                                                 self.energy)
-                except:
-                    continue
-                hTemp.append(h)
-                aTemp.append(a)
-                tTemp.append(self.time[i])
-            
-            hList.append(hTemp)
-            aList.append(aTemp)
-            tList.append(tTemp)
-        for t, a in zip(tList, aList):
-            plt.plot(t, a)
-        plt.show()
-        for t, h, a in zip(tList, hList, aList):
-            try:
-                plt.plot(t, np.gradient(h)/np.gradient(a))
-            except:
-                pass
-        plt.show()
+        # plt.plot(self.time, self.well)
+        for i in range(len(self.well)):
+            bspl = spInterp.BSpline(tck_potential_well[0],
+                                    tck_potential_well[1] - self.well[i],
+                                    tck_potential_well[2])
+            roots_adjusted = spInterp.sproot(bspl, mest=20)
 
+            if len(roots_adjusted)%2 != 0:
+                warnings.warn("Odd number of roots detected, well may not be "\
+                              + "adequately resolved")
+                plt.plot(self.time, self.well - self.well[i], '.')
+                plt.axhline(0)
+                for r in roots_adjusted:
+                    plt.axvline(r)
+                plt.ylim([-10, 10])
+                # plt.axvline(self.time[i], color='red')
+                plt.show()
+                # sys.exit()
+                continue
+            
+            
+
+            diffRoot = self.time[i] - roots_adjusted
+            thisRoot = np.where(diffRoot**2 == np.min(diffRoot**2))[0][0]
+
+            if i == len(diffs):
+                break
+            try:
+                if diffs[i]>0:
+                    otherRoot = thisRoot - 1
+                    leftTime = roots_adjusted[otherRoot]
+                    rightTime = roots_adjusted[thisRoot]
+                elif diffs[i]<0:
+                    otherRoot = thisRoot + 1
+                    leftTime = roots_adjusted[thisRoot]
+                    rightTime = roots_adjusted[otherRoot]
+                else:
+                    continue
+            except:
+                # plt.plot(self.time, self.well - self.well[i])
+                # plt.axhline(0)
+                # for r in roots_adjusted:
+                #     plt.axvline(r)
+                # plt.axvline(self.time[i], color='red')
+                # plt.show()
+                raise
+            
+            fine_time_array = np.linspace(leftTime, rightTime, 1000)
+            fine_potential_well = spInterp.splev(fine_time_array, bspl) \
+                                    + self.well[i]
+            try:
+                _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
+                                                        fine_potential_well, 
+                                                        self.eta, 
+                                                        self.beta,
+                                                        self.energy)
+            except (ValueError, TypeError):
+                continue
+            # print(i)
+            # if i > 360 and i < 379:
+            # if self.time[i] > 3.45E-7 and self.time[i] < 3.6E-7:
+            #     plt.plot(self.time, self.well)
+            #     plt.plot(fine_time_array, fine_potential_well)
+            #     plt.xlim([3.45E-7, 3.6E-7])
+            #     plt.ylim([408, 411])
+            #     plt.axvline(leftTime, color='blue')
+            #     plt.axvline(rightTime, color='red')
+            #     plt.show()
+
+            hList.append(h)
+            aList.append(a)
+            tList.append(self.time[i])
+            # try:
+            #     
+            # except:
+            #     continue
+            # if i % 5 == 0:
+            #     plt.plot(self.time, bspl(self.time))
+            #     plt.axvline(self.time[i])
+            #     plt.gca().twinx().plot(tList, fs, color='red')
+            #     plt.show()
+        # plt.show()
+        fs = np.gradient(hList)/np.gradient(aList)
         
+        return tList, aList, hList, fs
+
 
 
     ################################################
