@@ -112,7 +112,7 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
     >>>
     >>> data_array = gaussian(time_array, *[amplitude, position, length])
     >>>
-    >>> center, fwhm = FWHM(time_array, data_array)
+    >>> maximum, center, fwhm = FWHM(time_array, data_array)
 
     """
 
@@ -180,7 +180,7 @@ def FWHM(time_array, data_array, level=0.5, fitOpt=None, plotOpt=None):
         else:
             plt.show()
 
-    return center, fwhm
+    return maximum_value, center, fwhm
 
 
 def peak_value(time_array, data_array, level=1.0, fitOpt=None, plotOpt=None):
