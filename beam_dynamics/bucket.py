@@ -113,19 +113,20 @@ class Bucket:
 
     def frequency_spread(self, nPts = 5000):
 
-        self.smooth_well(2000)
+        self.smooth_well()
         diffs = np.gradient(self.well)
         calcTime = np.linspace(self.time[0], self.time[-1], nPts)
         calcWell = self._well_smooth_func(calcTime)
-        # tck_potential_well = spInterp.splrep(calcTime, calcWell)
-        tck_potential_well = spInterp.splrep(self.time, self.well)
+        tck_potential_well = spInterp.splrep(calcTime, calcWell)
+
         hList, aList, tList = [], [], []
-        # plt.plot(self.time, self.well)
-        for i in range(len(self.well)):
-            bspl = spInterp.BSpline(tck_potential_well[0],
+
+        for i in range(1, len(self.well)-1):
+            tck_new = (tck_potential_well[0],
                                     tck_potential_well[1] - self.well[i],
                                     tck_potential_well[2])
-            roots_adjusted = spInterp.sproot(bspl, mest=20)
+            ppol = spInterp.PPoly.from_spline(tck_new)
+            roots_adjusted = ppol.roots()
 
             if len(roots_adjusted)%2 != 0:
                 warnings.warn("Odd number of roots detected, well may not be "\
@@ -135,12 +136,10 @@ class Bucket:
                 for r in roots_adjusted:
                     plt.axvline(r)
                 plt.ylim([-10, 10])
-                # plt.axvline(self.time[i], color='red')
+                plt.axvline(self.time[i], color='red')
                 plt.show()
                 # sys.exit()
                 continue
-            
-            
 
             diffRoot = self.time[i] - roots_adjusted
             thisRoot = np.where(diffRoot**2 == np.min(diffRoot**2))[0][0]
@@ -168,8 +167,7 @@ class Bucket:
                 raise
             
             fine_time_array = np.linspace(leftTime, rightTime, 1000)
-            fine_potential_well = spInterp.splev(fine_time_array, bspl) \
-                                    + self.well[i]
+            fine_potential_well = ppol(fine_time_array) + self.well[i]
             try:
                 _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
                                                         fine_potential_well, 
@@ -178,30 +176,11 @@ class Bucket:
                                                         self.energy)
             except (ValueError, TypeError):
                 continue
-            # print(i)
-            # if i > 360 and i < 379:
-            # if self.time[i] > 3.45E-7 and self.time[i] < 3.6E-7:
-            #     plt.plot(self.time, self.well)
-            #     plt.plot(fine_time_array, fine_potential_well)
-            #     plt.xlim([3.45E-7, 3.6E-7])
-            #     plt.ylim([408, 411])
-            #     plt.axvline(leftTime, color='blue')
-            #     plt.axvline(rightTime, color='red')
-            #     plt.show()
 
             hList.append(h)
             aList.append(a)
             tList.append(self.time[i])
-            # try:
-            #     
-            # except:
-            #     continue
-            # if i % 5 == 0:
-            #     plt.plot(self.time, bspl(self.time))
-            #     plt.axvline(self.time[i])
-            #     plt.gca().twinx().plot(tList, fs, color='red')
-            #     plt.show()
-        # plt.show()
+
         fs = np.gradient(hList)/np.gradient(aList)
         
         return tList, aList, hList, fs
