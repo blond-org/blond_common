@@ -113,61 +113,37 @@ class Bucket:
 
     def frequency_spread(self, nPts = 5000):
 
-        self.smooth_well()
-        diffs = np.gradient(self.well)
-        calcTime = np.linspace(self.time[0], self.time[-1], nPts)
-        calcWell = self._well_smooth_func(calcTime)
-        tck_potential_well = spInterp.splrep(calcTime, calcWell)
-
+        tck_potential_well = spInterp.splrep(self.time, self.well)
+        poly = spInterp.PPoly.from_spline(tck_potential_well)
+        diffs = poly.derivative()(self.time)
         hList, aList, tList = [], [], []
 
         for i in range(1, len(self.well)-1):
             tck_new = (tck_potential_well[0],
                                     tck_potential_well[1] - self.well[i],
                                     tck_potential_well[2])
-            ppol = spInterp.PPoly.from_spline(tck_new)
-            roots_adjusted = ppol.roots()
-
-            if len(roots_adjusted)%2 != 0:
-                warnings.warn("Odd number of roots detected, well may not be "\
-                              + "adequately resolved")
-                plt.plot(self.time, self.well - self.well[i], '.')
-                plt.axhline(0)
-                for r in roots_adjusted:
-                    plt.axvline(r)
-                plt.ylim([-10, 10])
-                plt.axvline(self.time[i], color='red')
-                plt.show()
-                # sys.exit()
-                continue
-
+            poly = spInterp.PPoly.from_spline(tck_new)
+            roots_adjusted = poly.roots()
+            # roots_adjusted = poly.solve(self.well[i])
             diffRoot = self.time[i] - roots_adjusted
             thisRoot = np.where(diffRoot**2 == np.min(diffRoot**2))[0][0]
 
             if i == len(diffs):
                 break
-            try:
-                if diffs[i]>0:
-                    otherRoot = thisRoot - 1
-                    leftTime = roots_adjusted[otherRoot]
-                    rightTime = roots_adjusted[thisRoot]
-                elif diffs[i]<0:
-                    otherRoot = thisRoot + 1
-                    leftTime = roots_adjusted[thisRoot]
-                    rightTime = roots_adjusted[otherRoot]
-                else:
-                    continue
-            except:
-                # plt.plot(self.time, self.well - self.well[i])
-                # plt.axhline(0)
-                # for r in roots_adjusted:
-                #     plt.axvline(r)
-                # plt.axvline(self.time[i], color='red')
-                # plt.show()
-                raise
-            
+
+            if diffs[i]>0:
+                otherRoot = thisRoot - 1
+                leftTime = roots_adjusted[otherRoot]
+                rightTime = roots_adjusted[thisRoot]
+            elif diffs[i]<0:
+                otherRoot = thisRoot + 1
+                leftTime = roots_adjusted[thisRoot]
+                rightTime = roots_adjusted[otherRoot]
+            else:
+                continue
+
             fine_time_array = np.linspace(leftTime, rightTime, 1000)
-            fine_potential_well = ppol(fine_time_array) + self.well[i]
+            fine_potential_well = poly(fine_time_array)
             try:
                 _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
                                                         fine_potential_well, 
