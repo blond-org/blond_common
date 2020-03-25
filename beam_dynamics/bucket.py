@@ -115,43 +115,124 @@ class Bucket:
 
         tck_potential_well = spInterp.splrep(self.time, self.well)
         poly = spInterp.PPoly.from_spline(tck_potential_well)
-        diffs = poly.derivative()(self.time)
+        # diffs = poly.derivative()(self.time)
+        diffs = np.gradient(self.well)
         hList, aList, tList = [], [], []
+        minimList = []
+        
+        locs, vals = calc.minmax_location_cubic(self.time, self.well,
+                                                tck=tck_potential_well)
 
         for i in range(1, len(self.well)-1):
             tck_new = (tck_potential_well[0],
                                     tck_potential_well[1] - self.well[i],
                                     tck_potential_well[2])
             poly = spInterp.PPoly.from_spline(tck_new)
-            roots_adjusted = poly.roots()
-            # roots_adjusted = poly.solve(self.well[i])
+            # roots_adjusted = list(set([r for r in poly.roots() \
+            #                             if r > self.time[0] \
+            #                                 and r < self.time[-1]]))
+            roots_adjusted = [r for r in poly.roots() if r > self.time[0] \
+                                            and r < self.time[-1]]
+            # roots_adjusted = list(set([r for r in poly.solve(self.well[i]) \
+            #                            if r > self.time[0] \
+            #                                and r < self.time[-1]]))
+            # roots_adjusted = [r for r in poly.solve(self.well[i]) \
+            #                                    if r > self.time[0] \
+            #                                       and r < self.time[-1]]
             diffRoot = self.time[i] - roots_adjusted
             thisRoot = np.where(diffRoot**2 == np.min(diffRoot**2))[0][0]
 
             if i == len(diffs):
                 break
 
-            if diffs[i]>0:
-                otherRoot = thisRoot - 1
-                leftTime = roots_adjusted[otherRoot]
-                rightTime = roots_adjusted[thisRoot]
-            elif diffs[i]<0:
-                otherRoot = thisRoot + 1
-                leftTime = roots_adjusted[thisRoot]
-                rightTime = roots_adjusted[otherRoot]
-            else:
+            try:
+                if diffs[i]>0:
+                    otherRoot = thisRoot - 1
+                    leftTime = roots_adjusted[otherRoot]
+                    rightTime = roots_adjusted[thisRoot]
+                elif diffs[i]<0:
+                    otherRoot = thisRoot + 1
+                    leftTime = roots_adjusted[thisRoot]
+                    rightTime = roots_adjusted[otherRoot]
+                else:
+                    continue
+            except:
+                plt.plot(self.time, self.well)
+                # print(leftTime, rightTime)
+                print(thisRoot, otherRoot)
+                print(roots_adjusted)
+                # plt.axvline(leftTime, color='red')
+                # plt.axvline(rightTime, color='red')
+                for r in roots_adjusted:
+                    plt.axvline(r)
+                # plt.axvline(locs[0][0])
+                # plt.axvline(locs[0][1])
+                plt.gca().twinx().plot(self.time, diffs, color='red')
+                plt.show()
+                sys.exit()
+
+            try:
+                useMin = np.min([v for l, v in zip(locs[0], vals[0]) \
+                                 if l > leftTime and l < rightTime])
+            except ValueError:
                 continue
+                # plt.plot(self.time, self.well)
+                # print(leftTime, rightTime)
+                # print(roots_adjusted)
+                # plt.axvline(leftTime, color='red')
+                # plt.axvline(rightTime, color='red')
+                # plt.axvline(locs[0][0])
+                # plt.axvline(locs[0][1])
+                # plt.show()
+                # raise
+                # sys.exit()
 
             fine_time_array = np.linspace(leftTime, rightTime, 1000)
-            fine_potential_well = poly(fine_time_array)
+            fine_potential_well = poly(fine_time_array) + self.well[i]
             try:
-                _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
+                _, _, h, a, _, _ = pot.trajectory_area_cubic(minimList, fine_time_array, 
                                                         fine_potential_well, 
                                                         self.eta, 
                                                         self.beta,
-                                                        self.energy)
+                                                        self.energy,
+                                                        min_potential_well = useMin)
             except (ValueError, TypeError):
                 continue
+            # eom_dE = np.abs(self.eta)/(2*self.beta**2*self.energy)
+            # useTime = self.time[(self.time>leftTime) * (self.time<rightTime)]
+            # dETraj = np.sqrt((self.well[i] \
+            #                  - self.well[(self.time>leftTime) \
+            #                              * (self.time<rightTime)])/eom_dE)
+            # dETraj = np.sqrt((self.well[i] - self.well)/eom_dE)
+            # print(self.time[0], leftTime)
+            # try:
+            #     # tckdE = spInterp.splrep(useTime[~np.isnan(dETraj)], 
+            #     #                         dETraj[~np.isnan(dETraj)])
+            #     tckdE = spInterp.splrep(self.time[(self.time>leftTime) \
+            #                               * (self.time<rightTime)], 
+            #                             dETraj[(self.time>leftTime) \
+            #                               * (self.time<rightTime)],
+            #                             xb = leftTime, xe = rightTime)
+            #     # plt.plot(useTime[~np.isnan(dETraj)], 
+            #     #                         dETraj[~np.isnan(dETraj)])
+            #     # plt.show()
+            # except TypeError:
+            #     # raise
+            #     # print(leftTime > self.time[0])
+            #     # plt.plot(self.time, dETraj)
+            #     # plt.axvline(leftTime, color='blue')
+            #     # plt.axvline(rightTime, color='red')
+            #     # sys.exit()
+            #     continue
+            #     # print(dETraj)
+            #     # sys.exit()
+            # # dEPoly = spInterp.PPoly.from_spline((tck_potential_well[0],
+            # #               (self.well[i] - tck_potential_well[1])/eom_dE,
+            # #               tck_potential_well[2]))
+            # dEPoly = spInterp.PPoly.from_spline(tckdE)
+            # # dETraj = np.sqrt((fine_potential_well-fine_potential_well[0])/eom_dE)
+            # a = 2*dEPoly.integrate(leftTime, rightTime)
+            # h = self.well[i] - useMin
 
             hList.append(h)
             aList.append(a)
@@ -159,7 +240,7 @@ class Bucket:
 
         fs = np.gradient(hList)/np.gradient(aList)
         
-        return tList, aList, hList, fs
+        return (tList, aList, hList, fs), minimList
 
 
 
