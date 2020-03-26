@@ -295,10 +295,12 @@ class ring_program(_ring_function):
 
         for s in range(self.shape[0]):
             if self.timebase == 'by_time':
-                newArray[s, 1] = self._convert_section(s, mass, bending_radius)
+                newArray[s, 1] = self._convert_section(s, mass, charge,
+                                                        bending_radius)
                 newArray[s, 0] = self[s, 0]
             else:
-                newArray[s] = self._convert_section(s, mass, bending_radius)
+                newArray[s] = self._convert_section(s, mass, charge,
+                                                     bending_radius)
 
         if inPlace:
             for s in range(self.shape[0]):
