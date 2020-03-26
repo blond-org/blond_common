@@ -484,9 +484,9 @@ def binomial_from_width_ratio(time_array, data_array, levels=[0.8, 0.2],
 
     # Finding the width at two different levels
     bunchPosition_1, bunchLength_1 = FWHM(
-        time_array, data_array, level=level1)[0:2]
+        time_array, data_array, level=level1)[1:3]
     bunchPosition_2, bunchLength_2 = FWHM(
-        time_array, data_array, level=level2)[0:2]
+        time_array, data_array, level=level2)[1:3]
 
     ratioFW = bunchLength_1/bunchLength_2
 
@@ -687,7 +687,7 @@ def gaussian_fit(time_array, data_array,
             [maxProfile-np.min(data_array),
              np.mean(time_array[data_array == maxProfile]),
              FWHM(time_array, data_array, level=0.5,
-                  fitOpt=fitOptFWHM)[1]/4.])
+                  fitOpt=fitOptFWHM)[2]/4.])
 
     fitDistribtion = analytic_distribution.Gaussian(
         *fitOpt.fitInitialParameters,
@@ -763,7 +763,7 @@ def generalized_gaussian_fit(time_array, data_array,
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]/4.,  # 1 sigma !!
+                  plotOpt=None)[2]/4.,  # 1 sigma !!
              2.])
 
     fit_parameters = arbitrary_profile_fit(
@@ -833,7 +833,7 @@ def waterbag_fit(time_array, data_array,
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
@@ -903,7 +903,7 @@ def parabolic_line_fit(time_array, data_array,
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.)/2])  # Full bunch length!!
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
@@ -972,7 +972,7 @@ def parabolic_amplitude_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
@@ -1041,7 +1041,7 @@ def binomial_amplitude2_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
@@ -1113,7 +1113,7 @@ def binomial_amplitudeN_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
              1.5])
 
     fit_parameters = arbitrary_profile_fit(
@@ -1182,7 +1182,7 @@ def cosine_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
@@ -1250,7 +1250,7 @@ def cosine_squared_fit(time_array, data_array, fitOpt=None, plotOpt=None):
                   data_array,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2])  # Full bunch length!!
 
     fit_parameters = arbitrary_profile_fit(
         time_array, data_array, profile_fit_function,
