@@ -209,7 +209,7 @@ class TestFittingProfile(object):
         '''
 
         t0 = time.perf_counter()
-        center_gauss = FWHM(self.time_array, self.gaussian_dist)[0]
+        center_gauss = FWHM(self.time_array, self.gaussian_dist)[1]
         t1 = time.perf_counter()
 
         runtime = t1-t0
@@ -224,7 +224,7 @@ class TestFittingProfile(object):
         '''
 
         t0 = time.perf_counter()
-        fwhm_gauss = FWHM(self.time_array, self.gaussian_dist)[1]
+        fwhm_gauss = FWHM(self.time_array, self.gaussian_dist)[2]
         t1 = time.perf_counter()
 
         runtime = t1-t0
