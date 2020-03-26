@@ -334,15 +334,16 @@ class ring_program(_ring_function):
                 _interp_time = interp_time
             interp_time = lambda x: x + _interp_time
         
-        if t_start < self[0, 0, 0]:
-            warnings.warn("t_start too early, starting from " 
-                          + str(self[0, 0, 0]))
-            t_start = self[0, 0, 0]
-
-        if t_end > self[0, 0, -1]:
-            warnings.warn("t_stop too late, ending at " 
-                          + str(self[0, 0, -1]))
-            t_end = self[0, 0, -1]
+        if self.timebase == 'by_time':
+            if t_start < self[0, 0, 0]:
+                warnings.warn("t_start too early, starting from " 
+                              + str(self[0, 0, 0]))
+                t_start = self[0, 0, 0]
+    
+            if t_end > self[0, 0, -1]:
+                warnings.warn("t_stop too late, ending at " 
+                              + str(self[0, 0, -1]))
+                t_end = self[0, 0, -1]
         
         for s in range(self.shape[0]):
             nTurns, useTurns, time, momentum = self._linear_interpolation(mass,
@@ -372,7 +373,7 @@ class ring_program(_ring_function):
         time_func = time[0]
         start = time[1]
         stop = time[2]
-        
+
         pInit = np.interp(start, self[section, 0], self[section, 1])
         beta_0 = rt.mom_to_beta(pInit, mass)
         T0 = rt.beta_to_trev(beta_0, circumference)
