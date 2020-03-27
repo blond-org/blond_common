@@ -306,7 +306,7 @@ class Ring:
         .. [1] "Accelerator Physics," S. Y. Lee, World Scientific,
                 Third Edition, 2012.
         """
-
+        #TODO: Safe handling of alpha_order > 2
         for i in range(self.alpha_order+1):
             getattr(self, '_eta' + str(i))()
 
