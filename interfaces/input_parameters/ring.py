@@ -234,7 +234,7 @@ class Ring:
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
-        self.use_turns = self.momentum[0]
+        self.use_turns = self.momentum[0].astype(int)
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = self.momentum.n_turns
@@ -279,7 +279,8 @@ class Ring:
             if not isinstance(a, dTypes.momentum_compaction):
                 a = dTypes.momentum_compaction(a, order = i)
             setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections, 
-                                                    self.cycle_time))
+                                                    self.cycle_time, 
+                                                    self.use_turns))
             setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
                                                     len(self.use_turns)]))
         self.alpha_order = i
