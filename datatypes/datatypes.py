@@ -295,10 +295,12 @@ class ring_program(_ring_function):
 
         for s in range(self.shape[0]):
             if self.timebase == 'by_time':
-                newArray[s, 1] = self._convert_section(s, mass, bending_radius)
+                newArray[s, 1] = self._convert_section(s, mass, charge,
+                                                        bending_radius)
                 newArray[s, 0] = self[s, 0]
             else:
-                newArray[s] = self._convert_section(s, mass, bending_radius)
+                newArray[s] = self._convert_section(s, mass, charge,
+                                                     bending_radius)
 
         if inPlace:
             for s in range(self.shape[0]):
@@ -313,7 +315,7 @@ class ring_program(_ring_function):
             return super().__new__(self.__class__, *newArray, 
                         func_type = 'momentum')
         
-        
+    #TODO: multi-section
     def preprocess(self, mass, circumference, interp_time = None, 
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
@@ -321,7 +323,7 @@ class ring_program(_ring_function):
         if self.func_type != 'momentum':
             raise exceptions.DataDefinitionError("Only momentum functions "
                                                  + "can be preprocessed, not "
-                                                 + self.func_type + "first run"
+                                                 + self.func_type + "first run "
                                                  + self.__class__.__name__ \
                                                  + ".convert")
 
@@ -332,28 +334,47 @@ class ring_program(_ring_function):
                 _interp_time = interp_time
             interp_time = lambda x: x + _interp_time
         
-        if t_start < self[0, 0, 0]:
-            warnings.warn("t_start too early, starting from " 
-                          + str(self[0, 0, 0]))
-            t_start = self[0, 0, 0]
-
-        if t_end > self[0, 0, -1]:
-            warnings.warn("t_stop too late, ending at " 
-                          + str(self[0, 0, -1]))
-            t_end = self[0, 0, -1]
+        if self.timebase == 'by_time':
+            if t_start < self[0, 0, 0]:
+                warnings.warn("t_start too early, starting from " 
+                              + str(self[0, 0, 0]))
+                t_start = self[0, 0, 0]
+    
+            if t_end > self[0, 0, -1]:
+                warnings.warn("t_stop too late, ending at " 
+                              + str(self[0, 0, -1]))
+                t_end = self[0, 0, -1]
         
-        for s in range(self.shape[0]):
-            nTurns, useTurns, time, momentum = self._linear_interpolation(mass,
-                                                              circumference, 
+            for s in range(self.shape[0]):
+                nTurns, useTurns, time, momentum = self._linear_interpolation(
+                                                            mass,
+                                                            circumference, 
                                                             (interp_time, 
                                                              t_start, t_end), 
                                                             targetNTurns, s)
+        #TODO: Sampling with turn by turn data
+        #TODO: nTurns != self.shape[1]
+        elif self.timebase == 'by_turn':
+            if targetNTurns < np.inf:
+                nTurns = targetNTurns
+            else:
+                nTurns = self.shape[1]
+            useTurns = np.arange(nTurns)
+            time = self._time_from_turn(mass, circumference)
+            momentum = self[0]
         
+        #TODO: Handle passed number of turns
+        elif self.timebase == 'single':
+            time = [0]
+            nTurns = 1
+            useTurns = [0]
+            momentum = self.copy()
+
         newArray = np.zeros([2+self.shape[0], len(useTurns)])
         newArray[0, :] = useTurns
         newArray[1, :] = time
 
-        #TODO: multi-section
+
         for s in range(self.shape[0]):
             newArray[s+2] = momentum
             
@@ -364,13 +385,19 @@ class ring_program(_ring_function):
         return newArray
         
     
+    def _time_from_turn(self, mass, circumference):
+        
+        trev = rt.mom_to_trev(self[0], mass, circ=circumference)
+        return np.cumsum(trev)
+        
+    
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
                               section):
         
         time_func = time[0]
         start = time[1]
         stop = time[2]
-        
+
         pInit = np.interp(start, self[section, 0], self[section, 1])
         beta_0 = rt.mom_to_beta(pInit, mass)
         T0 = rt.beta_to_trev(beta_0, circumference)
