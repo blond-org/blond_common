@@ -288,8 +288,8 @@ class Ring:
             if not hasattr(self, f'alpha_{i}'):
                 setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections, 
                                                         len(self.use_turns)]))
-            setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
-                                                    len(self.use_turns)]))
+                setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
+                                                        len(self.use_turns)]))
             
 
         # Slippage factor derived from alpha, beta, gamma
