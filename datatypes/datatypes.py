@@ -168,7 +168,7 @@ class _function(np.ndarray):
         self._comp_definition_reshape(n_sections, use_time, use_turns)        
         newArray = self._prep_reshape(n_sections, use_time, use_turns)
         
-        for s in range(n_sections):        
+        for s in range(n_sections):
             if self.timebase == 'single':
 
                 if self.shape[0] == 1:
