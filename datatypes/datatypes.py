@@ -108,7 +108,7 @@ class _function(np.ndarray):
     
     
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
-        
+
         if n_sections > 1 and self.shape[0] == 1:
             warnings.warn("multi-section required, but "
                           + str(self.__class__.__name__) + " function is single"

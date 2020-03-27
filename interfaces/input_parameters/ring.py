@@ -260,7 +260,7 @@ class Ring:
         
         if not hasattr(alpha, '__iter__'):
             alpha = (alpha, )
-            
+        
         if isinstance(alpha, dict):
             try:
                 if not all([k%1 == 0 for k in alpha.keys()]):
@@ -271,6 +271,9 @@ class Ring:
 
             maxAlpha = np.max(tuple(alpha.keys())).astype(int)
             alpha = [alpha.pop(i, 0) for i in range(maxAlpha+1)]
+        
+        if isinstance(alpha, dTypes._function):
+            alpha = (alpha,)
 
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
