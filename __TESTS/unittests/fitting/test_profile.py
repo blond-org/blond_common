@@ -225,7 +225,7 @@ class TestFittingProfile(unittest.TestCase):
         profile.
         '''
 
-        center_gauss, fwhm_gauss = FWHM(self.time_array, self.gaussian_dist)
+        peak_gauss, center_gauss, fwhm_gauss = FWHM(self.time_array, self.gaussian_dist)
 
         np.testing.assert_almost_equal(
             center_gauss*1e9, self.position_gauss*1e9,
@@ -240,7 +240,7 @@ class TestFittingProfile(unittest.TestCase):
         Amplitude profile.
         '''
 
-        center_parabamp, fwhm_parabamp = FWHM(self.time_array,
+        peak_parabamp, center_parabamp, fwhm_parabamp = FWHM(self.time_array,
                                               self.parabamp_dist)
 
         np.testing.assert_almost_equal(
@@ -257,7 +257,7 @@ class TestFittingProfile(unittest.TestCase):
         profile.
         '''
 
-        center_binom, fwhm_binom = FWHM(self.time_array, self.binom_dist)
+        peak_binom, center_binom, fwhm_binom = FWHM(self.time_array, self.binom_dist)
 
         np.testing.assert_almost_equal(
             center_binom*1e9, self.position_binom*1e9,
@@ -274,7 +274,7 @@ class TestFittingProfile(unittest.TestCase):
         '''
 
         fitOpt = FitOptions(bunchLengthFactor='gaussian')
-        center_gauss, fwhm_gauss = FWHM(self.time_array, self.gaussian_dist,
+        peak_gauss, center_gauss, fwhm_gauss = FWHM(self.time_array, self.gaussian_dist,
                                         fitOpt=fitOpt)
 
         np.testing.assert_almost_equal(
@@ -292,7 +292,7 @@ class TestFittingProfile(unittest.TestCase):
         '''
 
         fitOpt = FitOptions(bunchLengthFactor='parabolic_line')
-        center_parabline, fwhm_parabline = FWHM(self.time_array,
+        peak_parabline, center_parabline, fwhm_parabline = FWHM(self.time_array,
                                                 self.parabline_dist,
                                                 fitOpt=fitOpt)
 
@@ -311,7 +311,7 @@ class TestFittingProfile(unittest.TestCase):
         '''
 
         fitOpt = FitOptions(bunchLengthFactor='parabolic_amplitude')
-        center_parabamp, fwhm_parabamp = FWHM(self.time_array,
+        peak_parabamp, center_parabamp, fwhm_parabamp = FWHM(self.time_array,
                                               self.parabamp_dist,
                                               fitOpt=fitOpt)
 
@@ -835,7 +835,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.gaussian_dist)),
              0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1]/4])
+                      fitOpt=fitOptFWHM)[2]/4])
 
         fitted_params = gaussian_fit(self.time_array, self.gaussian_dist,
                                      fitOpt=fitOpt)
@@ -909,7 +909,7 @@ class TestFittingProfile(unittest.TestCase):
                  self.time_array[generalized_gaussian_dist == maxProfile])),
              1.1*FWHM(
                  self.time_array, generalized_gaussian_dist, level=0.5,
-                 fitOpt=fitOptFWHM)[1]/4,
+                 fitOpt=fitOptFWHM)[2]/4,
              0.9*2.0])
 
         fitted_params = generalized_gaussian_fit(self.time_array,
@@ -979,7 +979,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(waterbag_dist)),
              0.9*(np.mean(self.time_array[waterbag_dist == maxProfile])),
              1.1*FWHM(self.time_array, waterbag_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.)/2])
+                      fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.)/2])
 
         fitted_params = waterbag_fit(
             self.time_array, waterbag_dist, fitOpt=fitOpt)
@@ -1031,7 +1031,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.parabline_dist)),
              0.9*(np.mean(self.time_array[self.parabline_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.parabline_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.)/2])
+                      fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.)/2])
 
         fitted_params = parabolic_line_fit(
             self.time_array, self.parabline_dist, fitOpt=fitOpt)
@@ -1083,7 +1083,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.parabamp_dist)),
              0.9*(np.mean(self.time_array[self.parabamp_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.parabamp_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
+                      fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = parabolic_amplitude_fit(
             self.time_array, self.parabamp_dist, fitOpt=fitOpt)
@@ -1151,7 +1151,7 @@ class TestFittingProfile(unittest.TestCase):
                  binomial_amplitude2_dist == maxProfile])),
              1.1*FWHM(
                  self.time_array, binomial_amplitude2_dist, level=0.5,
-                 fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
+                 fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = binomial_amplitude2_fit(
             self.time_array, binomial_amplitude2_dist, fitOpt=fitOpt)
@@ -1207,7 +1207,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.binom_dist)),
              0.9*(np.mean(self.time_array[self.binom_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.binom_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2,
+                      fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.5)/2,
              0.9*1.5])
 
         fitted_params = binomial_amplitudeN_fit(
@@ -1274,7 +1274,7 @@ class TestFittingProfile(unittest.TestCase):
                  cosine_dist == maxProfile])),
              1.1*FWHM(
                  self.time_array, cosine_dist, level=0.5,
-                 fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
+                 fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = cosine_fit(
             self.time_array, cosine_dist, fitOpt=fitOpt)
@@ -1340,7 +1340,7 @@ class TestFittingProfile(unittest.TestCase):
                  cosine_squared_dist == maxProfile])),
              1.1*FWHM(
                  self.time_array, cosine_squared_dist, level=0.5,
-                 fitOpt=fitOptFWHM)[1] * np.sqrt(3+2*1.5)/2])
+                 fitOpt=fitOptFWHM)[2] * np.sqrt(3+2*1.5)/2])
 
         fitted_params = cosine_squared_fit(
             self.time_array, cosine_squared_dist, fitOpt=fitOpt)
@@ -1374,7 +1374,7 @@ class TestFittingProfile(unittest.TestCase):
                   self.binom_dist,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
              1.5])
 
         fitted_params = arbitrary_profile_fit(
@@ -1414,7 +1414,7 @@ class TestFittingProfile(unittest.TestCase):
                   self.binom_dist,
                   level=0.5,
                   fitOpt=fitOptFWHM,
-                  plotOpt=None)[1]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
+                  plotOpt=None)[2]*np.sqrt(3+2*1.5)/2,  # Full bunch length!!
              1.5])
 
         fitted_params = arbitrary_profile_fit(
@@ -1450,7 +1450,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.gaussian_dist)),
              0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1]/4])
+                      fitOpt=fitOptFWHM)[2]/4])
 
         with self.assertRaises(InputError):
             arbitrary_profile_fit(
@@ -1463,7 +1463,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.gaussian_dist)),
              0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1]/4])
+                      fitOpt=fitOptFWHM)[2]/4])
 
         with self.assertRaises(InputError):
             arbitrary_profile_fit(
@@ -1483,7 +1483,7 @@ class TestFittingProfile(unittest.TestCase):
             [1.2*(maxProfile-np.min(self.gaussian_dist)),
              0.9*(np.mean(self.time_array[self.gaussian_dist == maxProfile])),
              1.1*FWHM(self.time_array, self.gaussian_dist, level=0.5,
-                      fitOpt=fitOptFWHM)[1]/4])
+                      fitOpt=fitOptFWHM)[2]/4])
 
         plotOpt = PlotOptions()
         arbitrary_profile_fit(self.time_array, self.gaussian_dist,
