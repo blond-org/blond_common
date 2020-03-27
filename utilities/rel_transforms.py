@@ -102,6 +102,16 @@ def mom_to_frev(mom, rest_mass=None, n_nuc=None, atomic_mass=None,
     return frev
 
 
+def mom_to_trev(mom, rest_mass=None, n_nuc=None, atomic_mass=None, 
+                circ=None, rad=None):
+
+    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+    beta = mom_to_beta(mom, rest_mass)
+    trev = beta_to_trev(beta, circ, rad)
+
+    return trev
+
+
 def mom_to_energy(mom, rest_mass=None, n_nuc=None, atomic_mass=None):
 
     rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)

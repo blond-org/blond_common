@@ -282,8 +282,9 @@ class Ring:
         self.alpha_order = i
         
         for i in range(3 - self.alpha_order):
-            setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections, 
-                                                    len(self.use_turns)]))
+            if not hasattr(self, f'alpha_{i}'):
+                setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections, 
+                                                        len(self.use_turns)]))
             setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
                                                     len(self.use_turns)]))
             
