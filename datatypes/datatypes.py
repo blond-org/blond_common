@@ -12,6 +12,7 @@ from ..utilities import rel_transforms as rt
 
 #TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
 #TODO: In derived classes handle passing datatype as input
+#TODO: Make RF System object
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
@@ -234,30 +235,29 @@ class _ring_function(_function):
         self._sectioning = value
 
         
-
-class ring_program(_ring_function):
+#TODO: Make super, inherit to different func_types
+class _ring_program(_ring_function):
     
-    def __new__(cls, *args, func_type='momentum', time = None, n_turns = None):
-        allowed = ['momentum', 'total energy', 'kinetic energy', 
-                   'bending field']
-        if func_type not in allowed:
-            raise exceptions.InputDataError("func_type must be one of "
-                                            + str(tuple(a for a in allowed)))
+    def __new__(cls, *args, time = None, n_turns = None):
+#        allowed = ['momentum', 'total energy', 'kinetic energy', 
+#                   'bending field']
+#        if func_type not in allowed:
+#            raise exceptions.InputDataError("func_type must be one of "
+#                                            + str(tuple(a for a in allowed)))
         
-        return super().__new__(cls, *args, time = time, n_turns = n_turns, 
-                               func_type = func_type)
+        return super().__new__(cls, *args, time = time, n_turns = n_turns)
     
-    @property
-    def func_type(self):
-        try:
-            return self._func_type
-        except AttributeError:
-            return None
-    
-    @func_type.setter
-    def func_type(self, value):
-        self._check_data_type('func_type', value)
-        self._func_type = value
+#    @property
+#    def func_type(self):
+#        try:
+#            return self._func_type
+#        except AttributeError:
+#            return None
+#    
+#    @func_type.setter
+#    def func_type(self, value):
+#        self._check_data_type('func_type', value)
+#        self._func_type = value
             
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
@@ -267,14 +267,14 @@ class ring_program(_ring_function):
         else:
             sectionFunction = np.array(self[section])
         
-        if self.func_type == 'momentum':
+        if isinstance(self, momentum_program):
             pass
-        elif self.func_type == 'total energy':
+        elif isinstance(self, total_energy_program):
             sectionFunction = rt.energy_to_mom(sectionFunction, mass)
             np.sqrt(sectionFunction**2 - mass**2)
-        elif self.func_type == 'kinetic energy':
+        elif isinstance(self, kinetic_energy_program):
             sectionFunction = rt.kin_energy_to_mom(sectionFunction, mass)
-        elif self.func_type == 'bending field':
+        elif isinstance(self, bending_field_program):
             if None in (bending_radius, charge):
                 raise exceptions.InputError("Converting from bending field "
                                             + "requires both charge and "
@@ -309,22 +309,22 @@ class ring_program(_ring_function):
                 else:
                     self[s] = newArray[s]
             
-            self.func_type = 'momentum'
+            self.__class__ = momentum_program
         
         else:
-            return super().__new__(self.__class__, *newArray, 
-                        func_type = 'momentum')
+            return super().__new__(momentum_program, *newArray)
         
         
     def preprocess(self, mass, circumference, interp_time = None, 
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
 
-        if self.func_type != 'momentum':
+        if not isinstance(self, momentum_program):
             raise exceptions.DataDefinitionError("Only momentum functions "
                                                  + "can be preprocessed, not "
-                                                 + self.func_type + "first run"
-                                                 + self.__class__.__name__ \
+                                                 + self.__class__.__name__ 
+                                                 + ", first run " 
+                                                 + self.__class__.__name__ 
                                                  + ".convert")
 
         if not hasattr(interp_time, '__call__'):
@@ -432,6 +432,18 @@ class ring_program(_ring_function):
 
         return time_start_ramp, time_end_ramp
 
+
+class momentum_program(_ring_program):
+    pass
+
+class total_energy_program(_ring_program):
+    pass
+
+class kinetic_energy_program(_ring_program):
+    pass
+
+class bending_field_program(_ring_program):
+    pass
 
 
 
