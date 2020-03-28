@@ -128,12 +128,49 @@ def mom_to_kin_energy(mom, rest_mass=None, n_nuc=None, atomic_mass=None):
     return energy - rest_mass
 
 
-def energy_to_mom(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+def mom_to_B_field(mom, bending_radius, charge):
+    
+    B_field = mom/(bending_radius*charge*cont.c)
+    
+    return B_field
+
+
+def energy_to_momentum(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
 
     rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
     mom = np.sqrt(energy**2 - rest_mass**2)
 
     return mom
+
+
+def energy_to_kin_energy(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+    
+    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+
+    return energy - rest_mass
+
+
+#def energy_to_B_field(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+
+
+#class momentum_program(_ring_program):
+#    pass
+#
+#class total_energy_program(_ring_program):
+#    pass
+#
+#class kinetic_energy_program(_ring_program):
+#    pass
+#
+#class bending_field_program(_ring_program):
+#    pass
+#
+#def energy_to_mom(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+#
+#    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+#    mom = np.sqrt(energy**2 - rest_mass**2)
+#
+#    return mom
 
 
 def kin_energy_to_mom(kin_energy, rest_mass=None, n_nuc=None, atomic_mass=None):
