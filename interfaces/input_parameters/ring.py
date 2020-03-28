@@ -235,7 +235,7 @@ class Ring:
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
-        self.use_turns = self.momentum[0]
+        self.use_turns = self.momentum[0].astype(int)
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = self.momentum.n_turns
@@ -261,7 +261,7 @@ class Ring:
         
         if not hasattr(alpha, '__iter__'):
             alpha = (alpha, )
-            
+        
         if isinstance(alpha, dict):
             try:
                 if not all([k%1 == 0 for k in alpha.keys()]):
@@ -272,12 +272,16 @@ class Ring:
 
             maxAlpha = np.max(tuple(alpha.keys())).astype(int)
             alpha = [alpha.pop(i, 0) for i in range(maxAlpha+1)]
+        
+        if isinstance(alpha, dTypes._function):
+            alpha = (alpha,)
 
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
                 a = dTypes.momentum_compaction(a, order = i)
             setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections, 
-                                                    self.cycle_time))
+                                                    self.cycle_time, 
+                                                    self.use_turns))
             setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
                                                     len(self.use_turns)]))
         self.alpha_order = i
@@ -286,8 +290,8 @@ class Ring:
             if not hasattr(self, f'alpha_{i}'):
                 setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections, 
                                                         len(self.use_turns)]))
-            setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
-                                                    len(self.use_turns)]))
+                setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
+                                                        len(self.use_turns)]))
             
 
         # Slippage factor derived from alpha, beta, gamma
@@ -304,7 +308,7 @@ class Ring:
         .. [1] "Accelerator Physics," S. Y. Lee, World Scientific,
                 Third Edition, 2012.
         """
-
+        #TODO: Safe handling of alpha_order > 2
         for i in range(self.alpha_order+1):
             getattr(self, '_eta' + str(i))()
 

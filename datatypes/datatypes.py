@@ -109,7 +109,7 @@ class _function(np.ndarray):
     
     
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
-        
+
         if n_sections > 1 and self.shape[0] == 1:
             warnings.warn("multi-section required, but "
                           + str(self.__class__.__name__) + " function is single"
@@ -169,7 +169,7 @@ class _function(np.ndarray):
         self._comp_definition_reshape(n_sections, use_time, use_turns)        
         newArray = self._prep_reshape(n_sections, use_time, use_turns)
         
-        for s in range(n_sections):        
+        for s in range(n_sections):
             if self.timebase == 'single':
 
                 if self.shape[0] == 1:
@@ -314,7 +314,7 @@ class _ring_program(_ring_function):
         else:
             return super().__new__(momentum_program, *newArray)
         
-        
+    #TODO: multi-section
     def preprocess(self, mass, circumference, interp_time = None, 
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
@@ -345,18 +345,36 @@ class _ring_program(_ring_function):
                               + str(self[0, 0, -1]))
                 t_end = self[0, 0, -1]
         
-        for s in range(self.shape[0]):
-            nTurns, useTurns, time, momentum = self._linear_interpolation(mass,
-                                                              circumference, 
+            for s in range(self.shape[0]):
+                nTurns, useTurns, time, momentum = self._linear_interpolation(
+                                                            mass,
+                                                            circumference, 
                                                             (interp_time, 
                                                              t_start, t_end), 
                                                             targetNTurns, s)
+        #TODO: Sampling with turn by turn data
+        #TODO: nTurns != self.shape[1]
+        elif self.timebase == 'by_turn':
+            if targetNTurns < np.inf:
+                nTurns = targetNTurns
+            else:
+                nTurns = self.shape[1]
+            useTurns = np.arange(nTurns)
+            time = self._time_from_turn(mass, circumference)
+            momentum = self[0]
         
+        #TODO: Handle passed number of turns
+        elif self.timebase == 'single':
+            time = [0]
+            nTurns = 1
+            useTurns = [0]
+            momentum = self.copy()
+
         newArray = np.zeros([2+self.shape[0], len(useTurns)])
         newArray[0, :] = useTurns
         newArray[1, :] = time
 
-        #TODO: multi-section
+
         for s in range(self.shape[0]):
             newArray[s+2] = momentum
             
@@ -365,6 +383,12 @@ class _ring_program(_ring_function):
         newArray.n_turns = nTurns
         
         return newArray
+        
+    
+    def _time_from_turn(self, mass, circumference):
+        
+        trev = rt.mom_to_trev(self[0], mass, circ=circumference)
+        return np.cumsum(trev)
         
     
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
