@@ -317,7 +317,8 @@ class _ring_program(_ring_function):
     #TODO: multi-section
     def preprocess(self, mass, circumference, interp_time = None, 
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
-                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
+                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf,
+                   store_turns = True):
 
         if not isinstance(self, momentum_program):
             raise exceptions.DataDefinitionError("Only momentum functions "

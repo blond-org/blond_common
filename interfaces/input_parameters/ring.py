@@ -185,7 +185,7 @@ class Ring:
 
     #TODO: Optional argument to store turn numbers
     def __init__(self, ring_length, alpha, synchronous_data, Particle,
-                 bending_radius=None, **kwargs):
+                 bending_radius=None, store_turns = False, **kwargs):
 
         # Ring length and checks
         self.ring_length = np.array(ring_length, ndmin=1, dtype=float)
@@ -231,7 +231,8 @@ class Ring:
         
         self.momentum = synchronous_data.preprocess(self.Particle.mass, 
                                     self.ring_circumference, sample_func, 
-                                    'linear', start, stop)
+                                    'linear', start, stop, 
+                                    store_turns = store_turns)
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
