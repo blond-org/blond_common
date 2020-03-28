@@ -183,6 +183,7 @@ class Ring:
 
     """
 
+    #TODO: Optional argument to store turn numbers
     def __init__(self, ring_length, alpha, synchronous_data, Particle,
                  bending_radius=None, **kwargs):
 
