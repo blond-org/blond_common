@@ -273,23 +273,7 @@ class RFStation:
         self.n_rf = len(voltage.harmonics)
         
 
-        # Imported from Ring
-        self.Particle = Ring.Particle
-        self.n_turns = Ring.n_turns
-        self.cycle_time = Ring.cycle_time
-        self.ring_circumference = Ring.ring_circumference
-        self.section_length = Ring.ring_length[self.section_index]
-        self.length_ratio = float(self.section_length/self.ring_circumference)
-        self.t_rev = Ring.t_rev
-        self.momentum = Ring.momentum[self.section_index]
-        self.beta = Ring.beta[self.section_index]
-        self.gamma = Ring.gamma[self.section_index]
-        self.energy = Ring.energy[self.section_index]
-        self.delta_E = Ring.delta_E[self.section_index]
-        self.alpha_order = Ring.alpha_order
-        self.charge = self.Particle.charge
-        
-        self.use_turns = Ring.use_turns.astype(int)
+        self._ring_pars(Ring)
 
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
@@ -402,6 +386,46 @@ class RFStation:
         self.phi_s = calculate_phi_s(self, self.Particle)
         self.Q_s = calculate_Q_s(self, self.Particle)
         self.omega_s0 = self.Q_s*Ring.omega_rev
+
+
+    @classmethod
+    def from_rf_systems(cls, Ring, *args, section_index=1):
+
+        self = object.__new__(cls)
+        self.section_index = int(section_index-1)
+        self._ring_pars(Ring)
+        
+        rfShape = [len(args), len(self.cycle_time)]
+        
+        self.voltage = dTypes.voltage_program.zeros(rfShape)
+        self.phase = dTypes.phase_program.zeros(rfShape)
+        self.harmonic = np.zeros(rfShape)
+        
+        for i, a in enumerate(args):
+            self.voltage[i], self.phase[i], self.harmonic[i] \
+                            = a.sample(self.cycle_time, self.use_turns)
+        
+        return self
+        
+    
+    def _ring_pars(self, Ring):
+
+        self.Particle = Ring.Particle
+        self.n_turns = Ring.n_turns
+        self.cycle_time = Ring.cycle_time
+        self.ring_circumference = Ring.ring_circumference
+        self.section_length = Ring.ring_length[self.section_index]
+        self.length_ratio = float(self.section_length/self.ring_circumference)
+        self.t_rev = Ring.t_rev
+        self.momentum = Ring.momentum[self.section_index]
+        self.beta = Ring.beta[self.section_index]
+        self.gamma = Ring.gamma[self.section_index]
+        self.energy = Ring.energy[self.section_index]
+        self.delta_E = Ring.delta_E[self.section_index]
+        self.alpha_order = Ring.alpha_order
+        self.charge = self.Particle.charge
+        self.use_turns = Ring.use_turns.astype(int)
+
 
     def eta_tracking(self, beam, counter, dE):
         r"""Function to calculate the slippage factor as a function of the
