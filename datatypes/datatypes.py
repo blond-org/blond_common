@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 #Common imports
 from ..devtools import exceptions
+from ..devtools import assertions as assrt
 from ..utilities import rel_transforms as rt
 
 #TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
@@ -270,22 +271,100 @@ class _ring_program(_ring_function):
         if isinstance(self, momentum_program):
             pass
         elif isinstance(self, total_energy_program):
-            sectionFunction = rt.energy_to_mom(sectionFunction, mass)
-            np.sqrt(sectionFunction**2 - mass**2)
+            sectionFunction = rt.energy_to_momentum(sectionFunction, mass)
+#            np.sqrt(sectionFunction**2 - mass**2)
         elif isinstance(self, kinetic_energy_program):
-            sectionFunction = rt.kin_energy_to_mom(sectionFunction, mass)
+            sectionFunction = rt.kin_energy_to_momentum(sectionFunction, mass)
         elif isinstance(self, bending_field_program):
             if None in (bending_radius, charge):
                 raise exceptions.InputError("Converting from bending field "
                                             + "requires both charge and "
                                             + "bending radius to be defined")
-            sectionFunction = rt.B_to_mom(sectionFunction, bending_radius, 
-                                          charge)
+            sectionFunction = rt.B_field_to_momentum(sectionFunction, 
+                                                     bending_radius, 
+                                                     charge)
     
         else:
             raise RuntimeError("Function type invalid")
 
         return sectionFunction
+    
+    
+    def _convert(self, destination, inPlace, **kwargs):
+        
+        conversion_function = getattr(rt, self.source + '_to_' + destination)
+        newArray = np.zeros(self.shape)
+        
+        arguments = conversion_function.__code__.co_varnames[1:-1]
+        arguments = {arg: kwargs.pop(arg, None) for arg in arguments}        
+
+        checkList = tuple(arguments[arg] for arg in arguments \
+                         if arg not in ['rest_mass', 'n_nuc', 'atomic_mass'])
+        
+        checkKwargs = tuple(arg for arg in arguments \
+                        if arg not in ['rest_mass', 'n_nuc', 'atomic_mass'])
+        
+        assrt.all_not_none(*checkList, msg = 'conversion from ' + self.source \
+                           + ' to ' + destination + ' requires all of ' + 
+                           str(checkKwargs) + ' to be defined', 
+                           exception = exceptions.InputError)
+        
+        for s in range(self.shape[0]):
+            if self.timebase == 'by_time':
+                newArray[s, 1] = conversion_function(self[s, 1], **arguments)
+                newArray[s, 0] = self[s, 0]
+            else:
+                newArray[s] = conversion_function(self[s], **arguments)
+
+        if inPlace:
+            for s in range(self.shape[0]):
+                if self.timebase == 'by_time':
+                    self[s, 1] = newArray[s, 1]
+                else:
+                    self[s] = newArray[s]
+            
+            self.__class__ = momentum_program
+
+        else:
+            return super().__new__(momentum_program, *newArray)
+        
+
+    def _no_convert(self, inPlace):
+        
+        if inPlace:
+            return self
+        else:
+            return super().__new__(self.__class__, *self)
+
+
+    def to_momentum(self, inPlace = True, **kwargs):
+        
+        if self.source == 'momentum':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('momentum', inPlace, **kwargs)
+            
+    def to_total_energy(self, inPlace = True, **kwargs):
+        
+        if self.source == 'energy':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('energy', inPlace, **kwargs)
+
+    def to_B_field(self, inPlace = True, **kwargs):
+        
+        if self.source == 'B_field':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('B_field', inPlace, **kwargs)
+
+    def to_kin_energy(self, inPlace = True, **kwargs):
+        
+        if self.source == 'kin_energy':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('kin_energy', inPlace, **kwargs)                
+                
     
     
     def convert(self, mass, charge = None, bending_radius = None, 
@@ -459,16 +538,16 @@ class _ring_program(_ring_function):
 
 
 class momentum_program(_ring_program):
-    pass
+    source = 'momentum'
 
 class total_energy_program(_ring_program):
-    pass
+    source = 'energy'
 
 class kinetic_energy_program(_ring_program):
-    pass
+    source = 'kin_energy'
 
 class bending_field_program(_ring_program):
-    pass
+    source = 'B_field'
 
 
 
