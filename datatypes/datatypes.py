@@ -239,10 +239,7 @@ class _ring_function(_function):
 #TODO: Make super, inherit to different func_types
 class _ring_program(_ring_function):
     
-    conversions = {'momentum': momentum_program,
-                   'energy': total_energy_program,
-                   'kin_energy': kinetic_energy_program,
-                   'B_field': bending_field_program}
+    conversions = {}
 
     def __new__(cls, *args, time = None, n_turns = None):
 #        allowed = ['momentum', 'total energy', 'kinetic energy', 
@@ -575,15 +572,20 @@ class _ring_program(_ring_function):
 
 class momentum_program(_ring_program):
     source = 'momentum'
+    conversions[source] = cls
 
 class total_energy_program(_ring_program):
     source = 'energy'
+    conversions[source] = cls
+
 
 class kinetic_energy_program(_ring_program):
     source = 'kin_energy'
+    conversions[source] = cls
 
 class bending_field_program(_ring_program):
     source = 'B_field'
+    conversions[source] = cls
 
 
 
