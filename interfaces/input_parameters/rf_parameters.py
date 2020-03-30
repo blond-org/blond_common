@@ -398,11 +398,11 @@ class RFStation:
         rfShape = [len(args), len(self.cycle_time)]
         
         self.voltage = dTypes.voltage_program.zeros(rfShape)
-        self.phase = dTypes.phase_program.zeros(rfShape)
+        self.phi_rf_d = dTypes.phase_program.zeros(rfShape)
         self.harmonic = np.zeros(rfShape)
         
         for i, a in enumerate(args):
-            self.voltage[i], self.phase[i], self.harmonic[i] \
+            self.voltage[i], self.phi_rf_d[i], self.harmonic[i] \
                             = a.sample(self.cycle_time, self.use_turns)
         
         return self
