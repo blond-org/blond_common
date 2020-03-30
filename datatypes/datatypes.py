@@ -304,17 +304,22 @@ class _ring_program(_ring_function):
         arguments = conversion_function.__code__.co_varnames[1:-1]
         arguments = {arg: kwargs.pop(arg, None) for arg in arguments}        
 
+        massTypes = ['rest_mass', 'n_nuc', 'atomic_mass']
+
         checkList = tuple(arguments[arg] for arg in arguments \
-                         if arg not in ['rest_mass', 'n_nuc', 'atomic_mass'])
+                         if arg not in massTypes)
         
         checkKwargs = tuple(arg for arg in arguments \
-                        if arg not in ['rest_mass', 'n_nuc', 'atomic_mass'])
+                        if arg not in massTypes)
         
         errorMsg = 'conversion from ' + self.source + ' to ' + destination \
                    + ' requires all of ' + str(checkKwargs) + ' to be defined'
         
-        if all(m in arguments for m in ['rest_mass', 'n_nuc', 'atomic_mass']):
+        if all(m in arguments for m in massTypes):
             errorMsg += ' and one of (rest_mass, n_nuc, atomic_mass)'
+            assrt.single_not_none(*(arguments[m] for m in massTypes), 
+                                  msg = errorMsg, 
+                                  exception = exceptions.InputError)
         
         assrt.all_not_none(*checkList, msg = errorMsg, 
                            exception = exceptions.InputError)
