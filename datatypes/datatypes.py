@@ -239,6 +239,11 @@ class _ring_function(_function):
 #TODO: Make super, inherit to different func_types
 class _ring_program(_ring_function):
     
+    conversions = {'momentum': momentum_program,
+                   'energy': total_energy_program,
+                   'kin_energy': kinetic_energy_program,
+                   'B_field': bending_field_program}
+
     def __new__(cls, *args, time = None, n_turns = None):
 #        allowed = ['momentum', 'total energy', 'kinetic energy', 
 #                   'bending field']
@@ -323,10 +328,10 @@ class _ring_program(_ring_function):
                 else:
                     self[s] = newArray[s]
             
-            self.__class__ = momentum_program
+            self.__class__ = self.conversions[destination]
 
         else:
-            return super().__new__(momentum_program, *newArray)
+            return super().__new__(self.conversions[destination, *newArray)
         
 
     def _no_convert(self, inPlace):
