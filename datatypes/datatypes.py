@@ -310,9 +310,13 @@ class _ring_program(_ring_function):
         checkKwargs = tuple(arg for arg in arguments \
                         if arg not in ['rest_mass', 'n_nuc', 'atomic_mass'])
         
-        assrt.all_not_none(*checkList, msg = 'conversion from ' + self.source \
-                           + ' to ' + destination + ' requires all of ' + 
-                           str(checkKwargs) + ' to be defined', 
+        errorMsg = 'conversion from ' + self.source + ' to ' + destination \
+                   + ' requires all of ' + str(checkKwargs) + ' to be defined'
+        
+        if all(m in arguments for m in ['rest_mass', 'n_nuc', 'atomic_mass']):
+            errorMsg += ' and one of (rest_mass, n_nuc, atomic_mass)'
+        
+        assrt.all_not_none(*checkList, msg = errorMsg, 
                            exception = exceptions.InputError)
         
         for s in range(self.shape[0]):
