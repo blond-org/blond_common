@@ -236,7 +236,12 @@ class Ring:
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
-        self.use_turns = self.momentum[0].astype(int)
+        if store_turns:
+            self.parameters_at_turn = self._parameters_at_turn
+            self.use_turns = self.momentum[0].astype(int)
+        else:
+            self.parameters_at_turn = self._no_parameters_at_turn
+            self.use_turns = self.momentum[0]
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = self.momentum.n_turns
@@ -380,9 +385,14 @@ class Ring:
         parameters['charge'] = self.Particle.charge
 
         return parameters
-    
-    
-    def parameters_at_turn(self, turn):
+
+
+    def _no_parameters_at_turn(self, turn):
+        raise RuntimeError("parameters_at_turn only available if "\
+                           + "store_turns = True at object declaration")
+
+
+    def _parameters_at_turn(self, turn):
 
         try:
             sample = np.where(self.use_turns == turn)[0][0]
@@ -391,7 +401,8 @@ class Ring:
                                    + "stored for the specified interpolation")
         else:
             return self.parameters_at_sample(sample)
-    
+
+
     def parameters_at_sample(self, sample):
         
         parameters = {}
