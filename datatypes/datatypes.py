@@ -572,20 +572,19 @@ class _ring_program(_ring_function):
 
 class momentum_program(_ring_program):
     source = 'momentum'
-    conversions[source] = cls
+    super().conversions[source] = __class__
 
 class total_energy_program(_ring_program):
     source = 'energy'
-    conversions[source] = cls
-
+    super().conversions[source] = __class__
 
 class kinetic_energy_program(_ring_program):
     source = 'kin_energy'
-    conversions[source] = cls
+    super().conversions[source] = __class__
 
 class bending_field_program(_ring_program):
     source = 'B_field'
-    conversions[source] = cls
+    super().conversions[source] = __class__
 
 
 
