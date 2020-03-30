@@ -205,8 +205,8 @@ class Ring:
             
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
-        if not isinstance(synchronous_data, dTypes.ring_program):
-                synchronous_data = dTypes.ring_program(synchronous_data)
+        if not isinstance(synchronous_data, dTypes._ring_program):
+                synchronous_data = dTypes.momentum_program(synchronous_data)
 
         if synchronous_data.shape[0] != len(self.ring_length):
             raise excpt.InputDataError("ERROR in Ring: Number of sections "
@@ -244,8 +244,8 @@ class Ring:
         # Derived from momentum
         self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
         self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
-        self.energy = rt.mom_to_energy(self.momentum[2:], self.Particle.mass)
-        self.kin_energy = rt.mom_to_kin_energy(self.momentum[2:], 
+        self.energy = rt.momentum_to_energy(self.momentum[2:], self.Particle.mass)
+        self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:], 
                                                self.Particle.mass)
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))            
         self.delta_E = np.diff(self.energy, axis=1)

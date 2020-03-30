@@ -426,12 +426,20 @@ class _ring_program(_ring_function):
                 t_end = self[0, 0, -1]
         
             for s in range(self.shape[0]):
-                nTurns, useTurns, time, momentum = self._linear_interpolation(
-                                                            mass,
-                                                            circumference, 
-                                                            (interp_time, 
-                                                             t_start, t_end), 
-                                                            targetNTurns, s)
+                if store_turns:
+                    nTurns, useTurns, time, momentum = self._linear_interpolation(
+                                                                mass,
+                                                                circumference, 
+                                                                (interp_time, 
+                                                                 t_start, t_end), 
+                                                                targetNTurns, s)
+                else:
+                    nTurns, useTurns, time, momentum \
+                        = self._linear_interpolation_no_turns(mass, 
+                                                              circumference, 
+                                                              (interp_time,
+                                                               t_start, t_end),
+                                                              s)
         #TODO: Sampling with turn by turn data
         #TODO: nTurns != self.shape[1]
         elif self.timebase == 'by_turn':
@@ -458,7 +466,7 @@ class _ring_program(_ring_function):
         for s in range(self.shape[0]):
             newArray[s+2] = momentum
             
-        newArray = newArray.view(self.__class__)
+        newArray = newArray.view(momentum_program)
         
         newArray.n_turns = nTurns
         
@@ -470,6 +478,29 @@ class _ring_program(_ring_function):
         trev = rt.mom_to_trev(self[0], mass, circ=circumference)
         return np.cumsum(trev)
         
+    
+    def _linear_interpolation_no_turns(self, mass, circumference, time, 
+                                       section):
+        
+        time_func = time[0]
+        start = time[1]
+        stop = time[2]
+        
+        interp_time = [start]
+        while interp_time[-1] < stop:
+            interp_time.append(time_func(interp_time[-1]))
+        
+        if interp_time[-1] > stop:
+            interp_time = interp_time[:-1]
+        
+        input_time = self[section, 0]
+        input_momentum = self[section, 1]
+        
+        momentum_interp = np.interp(interp_time, input_time, input_momentum)
+        
+        return (np.NaN, np.full(len(interp_time), np.NaN), 
+                np.array(interp_time), momentum_interp)
+                
     
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
                               section):
