@@ -331,7 +331,7 @@ class _ring_program(_ring_function):
             self.__class__ = self.conversions[destination]
 
         else:
-            return super().__new__(self.conversions[destination, *newArray)
+            return super().__new__(self.conversions[destination], *newArray)
         
 
     def _no_convert(self, inPlace):
