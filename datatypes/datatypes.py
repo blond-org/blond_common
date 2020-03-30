@@ -250,6 +250,10 @@ class _ring_program(_ring_function):
         
         return super().__new__(cls, *args, time = time, n_turns = n_turns)
     
+    @classmethod
+    def add_to_conversions(cls):
+        cls.conversions[cls.source] = cls
+
 #    @property
 #    def func_type(self):
 #        try:
@@ -572,20 +576,19 @@ class _ring_program(_ring_function):
 
 class momentum_program(_ring_program):
     source = 'momentum'
-    super().conversions[source] = __class__
 
 class total_energy_program(_ring_program):
     source = 'energy'
-    super().conversions[source] = __class__
 
 class kinetic_energy_program(_ring_program):
     source = 'kin_energy'
-    super().conversions[source] = __class__
 
 class bending_field_program(_ring_program):
     source = 'B_field'
-    super().conversions[source] = __class__
 
+for data in [momentum_program, total_energy_program, kinetic_energy_program,
+             bending_field_program]:
+    data.add_to_conversions()
 
 
 class momentum_compaction(_ring_function):
