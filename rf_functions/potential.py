@@ -648,31 +648,29 @@ def synchrotron_frequency_cubic(time_array, potential_array, eta_0, beta_rel,
 
     # Taking every second point, in single RF the consecutive points
     # can be too close to each other for cubic spline interpolation
-    sorted_area = np.argsort(calc_area_scan[::2])
+    sorted_area = np.argsort(calc_area_scan)
 
     sync_freq[::2] = deriv_cubic(
-        calc_area_scan[::2][sorted_area],
-        hamiltonian_scan[::2][sorted_area])[1]
+        calc_area_scan[sorted_area][::2],
+        hamiltonian_scan[sorted_area][::2])[1]
 
-    time_array_fs[::2] = time_array_ham[::2][sorted_area]
-    hamiltonian_scan_fs[::2] = hamiltonian_scan[::2][sorted_area]
-    calc_area_scan_fs[::2] = calc_area_scan[::2][sorted_area]
-    half_energy_height_scan_fs[::2] = half_energy_height_scan[::2][sorted_area]
-    full_length_time_scan_fs[::2] = full_length_time_scan[::2][sorted_area]
+    time_array_fs[::2] = time_array_ham[sorted_area][::2]
+    hamiltonian_scan_fs[::2] = hamiltonian_scan[sorted_area][::2]
+    calc_area_scan_fs[::2] = calc_area_scan[sorted_area][::2]
+    half_energy_height_scan_fs[::2] = half_energy_height_scan[sorted_area][::2]
+    full_length_time_scan_fs[::2] = full_length_time_scan[sorted_area][::2]
 
     # Doing the same with the second set of points
-    sorted_area = np.argsort(calc_area_scan[1::2])
-
+    
     sync_freq[1::2] = deriv_cubic(
-        calc_area_scan[1::2][sorted_area],
-        hamiltonian_scan[1::2][sorted_area])[1]
+        calc_area_scan[sorted_area][1::2],
+        hamiltonian_scan[sorted_area][1::2])[1]
 
-    time_array_fs[1::2] = time_array_ham[1::2][sorted_area]
-    hamiltonian_scan_fs[1::2] = hamiltonian_scan[1::2][sorted_area]
-    calc_area_scan_fs[1::2] = calc_area_scan[1::2][sorted_area]
-    half_energy_height_scan_fs[1::2] = half_energy_height_scan[1::2][
-        sorted_area]
-    full_length_time_scan_fs[1::2] = full_length_time_scan[1::2][sorted_area]
+    time_array_fs[1::2] = time_array_ham[sorted_area][1::2]
+    hamiltonian_scan_fs[1::2] = hamiltonian_scan[sorted_area][1::2]
+    calc_area_scan_fs[1::2] = calc_area_scan[sorted_area][1::2]
+    half_energy_height_scan_fs[1::2] = half_energy_height_scan[sorted_area][1::2]
+    full_length_time_scan_fs[1::2] = full_length_time_scan[sorted_area][1::2]
 
     sorted_time = np.argsort(time_array_fs)
 
