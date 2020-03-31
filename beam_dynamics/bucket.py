@@ -20,6 +20,7 @@ import sys
 import scipy.interpolate as spInterp
 import itertools as itl
 import warnings
+import functools
 
 #BLonD_Common imports
 from ..rf_functions import potential as pot
@@ -28,6 +29,21 @@ from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
 from ..interfaces.beam import matched_distribution as matchDist
 from ..maths import calculus as calc
+
+def recursive_function(func):
+    
+    func_name = func.__name__
+    
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        returnList = [func(self, *args, **kwargs)]
+
+        for b in self.sub_buckets:
+            returnList += getattr(b, func_name)(*args, **kwargs)
+
+        return returnList
+
+    return wrapper
 
 class Bucket:
     
@@ -108,25 +124,11 @@ class Bucket:
             else:
                 bucketDict[i].hasSubs = False
         
-        for r in ['_calc_inner_max', '_calc_inner_start', '_calc_inner_stop']:
-            self.recursive_function(r)
+        self._calc_inner_max()
+        self._calc_inner_start()
+        self._calc_inner_stop()
     
     
-    def recursive_function(self, func, *args, **kwargs):
-        
-        returnList = []
-        
-        try:
-            returnList.append(getattr(self, func)(*args, **kwargs))
-        except TypeError:
-            raise TypeError("recursive_function takes a str")
-
-        for b in self.sub_buckets:
-            returnList += b.recursive_function(func, *args, **kwargs)
-        
-        return returnList
-
-
     def recursive_attribute(self, attr):
         
         returnList = []
@@ -141,21 +143,21 @@ class Bucket:
         
         return returnList
         
-        
+    @recursive_function
     def _calc_inner_max(self):
         if self.hasSubs:
             self.inner_max = np.max([np.max(b.well) for b in self.sub_buckets])
         else:
             self.inner_max = np.NaN
     
-    
+    @recursive_function
     def _calc_inner_start(self):
         if self.hasSubs:
             self.inner_start = np.min([np.min(b.time) for b in self.sub_buckets])
         else:
             self.inner_start = np.NaN
     
-    
+    @recursive_function
     def _calc_inner_stop(self):
         if self.hasSubs:
             self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
@@ -215,6 +217,7 @@ class Bucket:
         self.center = np.mean(self.time)
 
 
+    @recursive_function
     def _frequency_spread(self):
         
         t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
@@ -224,11 +227,18 @@ class Bucket:
                                                            self.energy,
                                 inner_max_potential_well = self.inner_max)
         
+        self.fsTime = t
+        self.fsFreq = f
+        self.fsHamil = h
+        self.fsArea = a
+        
         return t, f, h, a
+
 
     def frequency_spread(self):
         
-        outputList = self.recursive_function('_frequency_spread')
+        # outputList = self.recursive_function('_frequency_spread')
+        outputList = self._frequency_spread()
         
         allTimes = []
         allFreqs = []
@@ -489,4 +499,6 @@ class Bucket:
             J_array[i] = np.trapz(contour, useTime)/np.pi
     
         self.J_array = J_array
+
+
 
