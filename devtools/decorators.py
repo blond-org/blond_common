@@ -1,5 +1,6 @@
 import functools
 
+#decorator for bucket object to call a function for all sub-buckets
 def recursive_function(func):
     
     func_name = func.__name__

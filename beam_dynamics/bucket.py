@@ -226,7 +226,6 @@ class Bucket:
 
     def frequency_spread(self):
         
-        # outputList = self.recursive_function('_frequency_spread')
         outputList = self._frequency_spread()
         
         allTimes = []
