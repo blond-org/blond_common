@@ -220,23 +220,43 @@ class Bucket:
         self.fsFreq = f
         self.fsHamil = h
         self.fsArea = a
-        
-        return t, f, h, a
+
+
+    @deco.recursive_attribute
+    def fsTimes(self):
+        return self.fsTime
+
+
+    @deco.recursive_attribute
+    def fsFreqs(self):
+        return self.fsFreq
+
+
+    @deco.recursive_attribute
+    def fsHamils(self):
+        return self.fsHamil
+
+
+    @deco.recursive_attribute
+    def fsAreas(self):
+        return self.fsArea
 
 
     def frequency_spread(self):
         
-        outputList = self._frequency_spread()
+        self._calc_inner_max()
+        
+        self._frequency_spread()
         
         allTimes = []
         allFreqs = []
-        for o in outputList:
+        for o in zip(self.fsTimes, self.fsFreqs):
             allTimes += o[0].tolist()
             allFreqs += o[1].tolist()
         args = np.argsort(allTimes)
-        self.fsTimes = np.array(allTimes)[args]
-        self.fsFreqs = np.array(allFreqs)[args]
-        self.freqOut = outputList
+        
+        self.sortedTimes = np.array(allTimes)[args]
+        self.sortedFreqs = np.array(allFreqs)[args]
 
 
     ################################################
