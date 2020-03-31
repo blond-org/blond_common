@@ -27,23 +27,11 @@ from ..rf_functions import potential as pot
 from ..maths import interpolation as interp
 from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
+from ..devtools import decorators as deco
 from ..interfaces.beam import matched_distribution as matchDist
 from ..maths import calculus as calc
 
-def recursive_function(func):
-    
-    func_name = func.__name__
-    
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        returnList = [func(self, *args, **kwargs)]
 
-        for b in self.sub_buckets:
-            returnList += getattr(b, func_name)(*args, **kwargs)
-
-        return returnList
-
-    return wrapper
 
 class Bucket:
     
@@ -143,21 +131,22 @@ class Bucket:
         
         return returnList
         
-    @recursive_function
+        
+    @deco.recursive_function
     def _calc_inner_max(self):
         if self.hasSubs:
             self.inner_max = np.max([np.max(b.well) for b in self.sub_buckets])
         else:
             self.inner_max = np.NaN
     
-    @recursive_function
+    @deco.recursive_function
     def _calc_inner_start(self):
         if self.hasSubs:
             self.inner_start = np.min([np.min(b.time) for b in self.sub_buckets])
         else:
             self.inner_start = np.NaN
     
-    @recursive_function
+    @deco.recursive_function
     def _calc_inner_stop(self):
         if self.hasSubs:
             self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
@@ -217,7 +206,7 @@ class Bucket:
         self.center = np.mean(self.time)
 
 
-    @recursive_function
+    @deco.recursive_function
     def _frequency_spread(self):
         
         t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
