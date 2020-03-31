@@ -512,6 +512,9 @@ def sort_potential_wells(time_list, well_list, by = 't_start'):
     elif by == 'size':
         order = [a for a,b in sorted(enumerate(time_list), 
                                  key = lambda itt : itt[1][0] - itt[1][-1])]
+    elif by == 'max':
+        order = [a for a,b in sorted(enumerate(well_list), 
+                                     key = lambda itt : np.max(itt[1]))]
     else:
         raise AttributeError("no sorting option for " + str(by))
     

@@ -59,6 +59,36 @@ class Bucket:
         self.inner_wells = orderedWell[1:]
     
     
+    def _identify_substructure(self):
+        
+        contains = [[] for i in range(len(self.inner_times))]
+        for times, c in zip(self.inner_times, contains):
+            c += [i for i in range(len(self.inner_times)) if self.inner_times[i][0] >= times[0]\
+                                                      and self.inner_times[i][-1] <= times[-1]\
+                                                      and self.inner_times[i] is not times]
+        
+        exclude = [[] for i in range(len(self.inner_times))]
+        for exc, cont in zip(exclude, contains):
+            for c in cont:
+                exc += contains[c]
+        
+        useCont = [[] for i in range(len(self.inner_times))]
+        for i in range(len(self.inner_times)):
+                useCont[i] += [c for c in contains[i] if c not in exclude[i]]
+        
+        print(contains)
+        print(useCont)
+        starts = [t[0] for t in self.inner_times]
+        stops = [t[-1] for t in self.inner_times]
+        nWells = list(range(len(self.inner_times)))
+        for i, (start, stop) in enumerate(zip(starts, stops)):
+            plt.plot([start, stop], [i]*2)
+            for c in useCont[i]:
+                plt.plot([starts[c], starts[c]], [i, c], color='black')
+                plt.plot([stops[c], stops[c]], [i, c], color='black')
+        plt.show()
+    
+    
     def inner_buckets(self):
         
         self.inner_separatrices = []
