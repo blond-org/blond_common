@@ -178,7 +178,7 @@ class Bucket:
                     + (-upper_energy_bound[::-1]).tolist()
         
             self.inner_separatrices.append(np.array([sepTime, sepEnergy]))
-            
+
 
     def smooth_well(self, nPoints = None, reinterp=False):
     
@@ -205,8 +205,8 @@ class Bucket:
                     + (-self.upper_energy_bound[::-1]).tolist()
         
         self.separatrix = np.array([sepTime, sepEnergy])
-    
-    
+
+
     def basic_parameters(self):
         
         self.half_height = np.max(self.separatrix[1])
@@ -215,22 +215,20 @@ class Bucket:
         self.center = np.mean(self.time)
 
 
-    def _frequency_spread(self, nPts = 1000):
+    def _frequency_spread(self):
         
-        self.smooth_well(nPts)
+        t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
+                                                           self.well,
+                                                           self.eta, 
+                                                           self.beta, 
+                                                           self.energy,
+                                inner_max_potential_well = self.inner_max)
         
-        t, s, h1, c, h2, l = pot.synchrotron_frequency_cubic(self.time,
-                                                             self.well,
-                                                             self.eta, 
-                                                             self.beta, 
-                                                             self.energy,
-                                 inner_max_potential_well = self.inner_max)
-        
-        return t, s, h1, c, h2, l
+        return t, f, h, a
 
-    def frequency_spread(self, nPts = 1000):
+    def frequency_spread(self):
         
-        outputList = self.recursive_function('_frequency_spread', nPts)
+        outputList = self.recursive_function('_frequency_spread')
         
         allTimes = []
         allFreqs = []
@@ -238,29 +236,9 @@ class Bucket:
             allTimes += o[0].tolist()
             allFreqs += o[1].tolist()
         args = np.argsort(allTimes)
-        plt.plot(np.array(allTimes)[args], np.array(allFreqs)[args])
-        plt.show()
-        # innerStarts = self.recursive_attribute('inner_start')
-        # innerStops = self.recursive_attribute('inner_stop')
-        # for o, start, stop in zip(outputList, innerStarts, innerStops):
-        #     if not np.isnan(start):
-        #         plt.plot(o[0][o[0] < start], o[1][o[0] < start])
-        #         plt.plot(o[0][o[0] > stop], o[1][o[0] > stop])
-        #     else:
-        #         plt.plot(o[0], o[1])
-        # plt.show()
-        # if not self.hasSubs:
-        #     plt.plot(t, s)
-        # else:
-        #     plt.plot(t[t<self.inner_start], s[t<self.inner_start])
-        #     plt.plot(t[t>self.inner_stop], s[t>self.inner_stop])
-            
-        # for b in self.sub_buckets:
-        #     b.frequency_spread()
-        # if self.isSub:
-        #     return
-        # else:
-        #     plt.show()
+        self.fsTimes = np.array(allTimes)[args]
+        self.fsFreqs = np.array(allFreqs)[args]
+        self.freqOut = outputList
 
 
     ################################################
