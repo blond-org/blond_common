@@ -98,8 +98,6 @@ class Bucket:
             self.hasSubs = True
         else:
             self.hasSubs = False
-            self.sub_buckets = []
-            return
         
         self.sub_buckets = [bucketDict[i] for i in nextLayer]
         
@@ -110,26 +108,59 @@ class Bucket:
             else:
                 bucketDict[i].hasSubs = False
         
+        for r in ['_calc_inner_max', '_calc_inner_start', '_calc_inner_stop']:
+            self.recursive_function(r)
+    
+    
+    def recursive_function(self, func, *args, **kwargs):
         
-    def _inner_max(self):
+        returnList = []
+        
+        try:
+            returnList.append(getattr(self, func)(*args, **kwargs))
+        except TypeError:
+            raise TypeError("recursive_function takes a str")
+
+        for b in self.sub_buckets:
+            returnList += b.recursive_function(func, *args, **kwargs)
+        
+        return returnList
+
+
+    def recursive_attribute(self, attr):
+        
+        returnList = []
+        
+        try:
+            returnList.append(getattr(self, attr))
+        except TypeError:
+            raise TypeError("recursive_function takes a str")
+
+        for b in self.sub_buckets:
+            returnList += b.recursive_attribute(attr)
+        
+        return returnList
+        
+        
+    def _calc_inner_max(self):
         if self.hasSubs:
-            return np.max([np.max(b.well) for b in self.sub_buckets])
+            self.inner_max = np.max([np.max(b.well) for b in self.sub_buckets])
         else:
-            return np.NaN
+            self.inner_max = np.NaN
     
     
-    def _inner_start(self):
+    def _calc_inner_start(self):
         if self.hasSubs:
-            return np.min([np.min(b.time) for b in self.sub_buckets])
+            self.inner_start = np.min([np.min(b.time) for b in self.sub_buckets])
         else:
-            return np.NaN
+            self.inner_start = np.NaN
     
     
-    def _inner_stop(self):
+    def _calc_inner_stop(self):
         if self.hasSubs:
-            return np.max([np.max(b.time) for b in self.sub_buckets])
+            self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
         else:
-            return np.NaN
+            self.inner_stop = np.NaN
     
     
     def inner_buckets(self):
@@ -184,7 +215,7 @@ class Bucket:
         self.center = np.mean(self.time)
 
 
-    def frequency_spread(self, nPts = 5000):
+    def _frequency_spread(self, nPts = 1000):
         
         self.smooth_well(nPts)
         
@@ -193,20 +224,43 @@ class Bucket:
                                                              self.eta, 
                                                              self.beta, 
                                                              self.energy,
-                                 inner_max_potential_well = self._inner_max())
+                                 inner_max_potential_well = self.inner_max)
         
-        if not self.hasSubs:
-            plt.plot(t, s)
-        else:
-            plt.plot(t[t<self._inner_start()], s[t<self._inner_start()])
-            plt.plot(t[t>self._inner_stop()], s[t>self._inner_stop()])
+        return t, s, h1, c, h2, l
+
+    def frequency_spread(self, nPts = 1000):
+        
+        outputList = self.recursive_function('_frequency_spread', nPts)
+        
+        allTimes = []
+        allFreqs = []
+        for o in outputList:
+            allTimes += o[0].tolist()
+            allFreqs += o[1].tolist()
+        args = np.argsort(allTimes)
+        plt.plot(np.array(allTimes)[args], np.array(allFreqs)[args])
+        plt.show()
+        # innerStarts = self.recursive_attribute('inner_start')
+        # innerStops = self.recursive_attribute('inner_stop')
+        # for o, start, stop in zip(outputList, innerStarts, innerStops):
+        #     if not np.isnan(start):
+        #         plt.plot(o[0][o[0] < start], o[1][o[0] < start])
+        #         plt.plot(o[0][o[0] > stop], o[1][o[0] > stop])
+        #     else:
+        #         plt.plot(o[0], o[1])
+        # plt.show()
+        # if not self.hasSubs:
+        #     plt.plot(t, s)
+        # else:
+        #     plt.plot(t[t<self.inner_start], s[t<self.inner_start])
+        #     plt.plot(t[t>self.inner_stop], s[t>self.inner_stop])
             
-        for b in self.sub_buckets:
-            b.frequency_spread()
-        if self.isSub:
-            return
-        else:
-            plt.show()
+        # for b in self.sub_buckets:
+        #     b.frequency_spread()
+        # if self.isSub:
+        #     return
+        # else:
+        #     plt.show()
 
 
     ################################################
