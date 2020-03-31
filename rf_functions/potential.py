@@ -530,12 +530,13 @@ def potential_to_hamiltonian(time_array, potential_array, beta, energy, eta):
     return np.abs((HVal - potential_array)*2*beta**2*energy/eta)
 
 
-def trajectory_area_cubic(time_array, potential_array, eta_0, beta_rel,
+def trajectory_area_cubic(minimList, time_array, potential_array, eta_0, beta_rel,
                           tot_energy, min_potential_well=None):
 
     if min_potential_well is None:
         min_potential_well = np.min(minmax_location_cubic(
             time_array, potential_array)[1][0])
+    minimList.append(min_potential_well)
 
     eom_factor_dE = abs(eta_0) / (2*beta_rel**2.*tot_energy)
 
