@@ -31,7 +31,18 @@ from ..maths import calculus as calc
 
 class Bucket:
     
-    def __init__(self, time, well, beta, energy, eta):
+    def __init__(self, time, well, beta, energy, eta, isSub = False):
+        
+        self.beta = beta
+        self.energy = energy
+        self.eta = eta
+        self.isSub = isSub
+        if self.isSub:
+            self.time_loaded = time
+            self.well_loaded = well
+            self.time = self.time_loaded.copy()
+            self.well = self.well_loaded.copy()
+            return
         
         try:
             assrt.equal_array_lengths(time, well, 
@@ -45,10 +56,6 @@ class Bucket:
         self.time_loaded = np.array(orderedTime[0], dtype=float)
         self.well_loaded = np.array(orderedWell[0], dtype=float)
         
-        self.beta = beta
-        self.energy = energy
-        self.eta = eta
-        
         self.time = self.time_loaded.copy()
         self.well = self.well_loaded.copy()
         
@@ -57,8 +64,10 @@ class Bucket:
         
         self.inner_times = orderedTime[1:]
         self.inner_wells = orderedWell[1:]
-    
-    
+        
+        self._identify_substructure()
+
+
     def _identify_substructure(self):
         
         contains = [[] for i in range(len(self.inner_times))]
@@ -76,17 +85,51 @@ class Bucket:
         for i in range(len(self.inner_times)):
                 useCont[i] += [c for c in contains[i] if c not in exclude[i]]
         
-        print(contains)
-        print(useCont)
-        starts = [t[0] for t in self.inner_times]
-        stops = [t[-1] for t in self.inner_times]
-        nWells = list(range(len(self.inner_times)))
-        for i, (start, stop) in enumerate(zip(starts, stops)):
-            plt.plot([start, stop], [i]*2)
-            for c in useCont[i]:
-                plt.plot([starts[c], starts[c]], [i, c], color='black')
-                plt.plot([stops[c], stops[c]], [i, c], color='black')
-        plt.show()
+        bucketDict = {i: self.__class__(t, w, self.beta, self.energy,
+                                        self.eta, isSub=True) for i, (t, w) in 
+                          enumerate(zip(self.inner_times, self.inner_wells))}
+        
+        nextLayer = []
+        for i in range(len(self.inner_times)):
+            if not any(i in c for c in useCont):
+                nextLayer.append(i)
+        
+        if len(nextLayer) > 0:
+            self.hasSubs = True
+        else:
+            self.hasSubs = False
+            self.sub_buckets = []
+            return
+        
+        self.sub_buckets = [bucketDict[i] for i in nextLayer]
+        
+        for i, u in enumerate(useCont):
+            bucketDict[i].sub_buckets = [bucketDict[c] for c in u]
+            if len(u) > 0:
+                bucketDict[i].hasSubs = True
+            else:
+                bucketDict[i].hasSubs = False
+        
+        
+    def _inner_max(self):
+        if self.hasSubs:
+            return np.max([np.max(b.well) for b in self.sub_buckets])
+        else:
+            return np.NaN
+    
+    
+    def _inner_start(self):
+        if self.hasSubs:
+            return np.min([np.min(b.time) for b in self.sub_buckets])
+        else:
+            return np.NaN
+    
+    
+    def _inner_stop(self):
+        if self.hasSubs:
+            return np.max([np.max(b.time) for b in self.sub_buckets])
+        else:
+            return np.NaN
     
     
     def inner_buckets(self):
@@ -142,6 +185,31 @@ class Bucket:
 
 
     def frequency_spread(self, nPts = 5000):
+        
+        self.smooth_well(nPts)
+        
+        t, s, h1, c, h2, l = pot.synchrotron_frequency_cubic(self.time,
+                                                             self.well,
+                                                             self.eta, 
+                                                             self.beta, 
+                                                             self.energy,
+                                 inner_max_potential_well = self._inner_max())
+        
+        if not self.hasSubs:
+            plt.plot(t, s)
+        else:
+            plt.plot(t[t<self._inner_start()], s[t<self._inner_start()])
+            plt.plot(t[t>self._inner_stop()], s[t>self._inner_stop()])
+            
+        for b in self.sub_buckets:
+            b.frequency_spread()
+        if self.isSub:
+            return
+        else:
+            plt.show()
+
+
+    def _frequency_spread(self, nPts = 5000):
 
         tck_potential_well = spInterp.splrep(self.time, self.well)
         poly = spInterp.PPoly.from_spline(tck_potential_well)
