@@ -205,7 +205,8 @@ class Bucket:
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
 
-
+     #TODO: Test effect with multiple minima of checking if synchronous
+     # particle is within sub_bucket before calculating
     @deco.recursive_function
     def _frequency_spread(self):
         
