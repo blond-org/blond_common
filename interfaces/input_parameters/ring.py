@@ -183,8 +183,9 @@ class Ring:
 
     """
 
+    #TODO: Optional argument to store turn numbers
     def __init__(self, ring_length, alpha, synchronous_data, Particle,
-                 bending_radius=None, **kwargs):
+                 bending_radius=None, store_turns = False, **kwargs):
 
         # Ring length and checks
         self.ring_length = np.array(ring_length, ndmin=1, dtype=float)
@@ -204,8 +205,8 @@ class Ring:
             
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
-        if not isinstance(synchronous_data, dTypes.ring_program):
-                synchronous_data = dTypes.ring_program(synchronous_data)
+        if not isinstance(synchronous_data, dTypes._ring_program):
+                synchronous_data = dTypes.momentum_program(synchronous_data)
 
         if synchronous_data.shape[0] != len(self.ring_length):
             raise excpt.InputDataError("ERROR in Ring: Number of sections "
@@ -230,11 +231,17 @@ class Ring:
         
         self.momentum = synchronous_data.preprocess(self.Particle.mass, 
                                     self.ring_circumference, sample_func, 
-                                    'linear', start, stop)
+                                    'linear', start, stop, 
+                                    store_turns = store_turns)
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
-        self.use_turns = self.momentum[0].astype(int)
+        if store_turns:
+            self.parameters_at_turn = self._parameters_at_turn
+            self.use_turns = self.momentum[0].astype(int)
+        else:
+            self.parameters_at_turn = self._no_parameters_at_turn
+            self.use_turns = self.momentum[0]
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = self.momentum.n_turns
@@ -242,8 +249,8 @@ class Ring:
         # Derived from momentum
         self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
         self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
-        self.energy = rt.mom_to_energy(self.momentum[2:], self.Particle.mass)
-        self.kin_energy = rt.mom_to_kin_energy(self.momentum[2:], 
+        self.energy = rt.momentum_to_energy(self.momentum[2:], self.Particle.mass)
+        self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:], 
                                                self.Particle.mass)
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))            
         self.delta_E = np.diff(self.energy, axis=1)
@@ -378,9 +385,14 @@ class Ring:
         parameters['charge'] = self.Particle.charge
 
         return parameters
-    
-    
-    def parameters_at_turn(self, turn):
+
+
+    def _no_parameters_at_turn(self, turn):
+        raise RuntimeError("parameters_at_turn only available if "\
+                           + "store_turns = True at object declaration")
+
+
+    def _parameters_at_turn(self, turn):
 
         try:
             sample = np.where(self.use_turns == turn)[0][0]
@@ -389,7 +401,8 @@ class Ring:
                                    + "stored for the specified interpolation")
         else:
             return self.parameters_at_sample(sample)
-    
+
+
     def parameters_at_sample(self, sample):
         
         parameters = {}

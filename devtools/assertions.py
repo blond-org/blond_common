@@ -56,3 +56,9 @@ def single_not_none(*args, msg, exception):
 
     if nNone != len(args) - 1:
         raise exception(msg)
+   
+     
+def all_not_none(*args, msg, exception):
+    
+    if any(v is None for v in args):
+        raise exception(msg)

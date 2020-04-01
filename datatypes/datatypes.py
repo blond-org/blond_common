@@ -8,10 +8,12 @@ import matplotlib.pyplot as plt
 
 #Common imports
 from ..devtools import exceptions
+from ..devtools import assertions as assrt
 from ..utilities import rel_transforms as rt
 
 #TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
 #TODO: In derived classes handle passing datatype as input
+#TODO: Make RF System object
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
@@ -234,30 +236,35 @@ class _ring_function(_function):
         self._sectioning = value
 
         
+#TODO: Make super, inherit to different func_types
+class _ring_program(_ring_function):
+    
+    conversions = {}
 
-class ring_program(_ring_function):
-    
-    def __new__(cls, *args, func_type='momentum', time = None, n_turns = None):
-        allowed = ['momentum', 'total energy', 'kinetic energy', 
-                   'bending field']
-        if func_type not in allowed:
-            raise exceptions.InputDataError("func_type must be one of "
-                                            + str(tuple(a for a in allowed)))
+    def __new__(cls, *args, time = None, n_turns = None):
+#        allowed = ['momentum', 'total energy', 'kinetic energy', 
+#                   'bending field']
+#        if func_type not in allowed:
+#            raise exceptions.InputDataError("func_type must be one of "
+#                                            + str(tuple(a for a in allowed)))
         
-        return super().__new__(cls, *args, time = time, n_turns = n_turns, 
-                               func_type = func_type)
+        return super().__new__(cls, *args, time = time, n_turns = n_turns)
     
-    @property
-    def func_type(self):
-        try:
-            return self._func_type
-        except AttributeError:
-            return None
-    
-    @func_type.setter
-    def func_type(self, value):
-        self._check_data_type('func_type', value)
-        self._func_type = value
+    @classmethod
+    def add_to_conversions(cls):
+        cls.conversions[cls.source] = cls
+
+#    @property
+#    def func_type(self):
+#        try:
+#            return self._func_type
+#        except AttributeError:
+#            return None
+#    
+#    @func_type.setter
+#    def func_type(self, value):
+#        self._check_data_type('func_type', value)
+#        self._func_type = value
             
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
@@ -267,25 +274,112 @@ class ring_program(_ring_function):
         else:
             sectionFunction = np.array(self[section])
         
-        if self.func_type == 'momentum':
+        if isinstance(self, momentum_program):
             pass
-        elif self.func_type == 'total energy':
-            sectionFunction = rt.energy_to_mom(sectionFunction, mass)
-            np.sqrt(sectionFunction**2 - mass**2)
-        elif self.func_type == 'kinetic energy':
-            sectionFunction = rt.kin_energy_to_mom(sectionFunction, mass)
-        elif self.func_type == 'bending field':
+        elif isinstance(self, total_energy_program):
+            sectionFunction = rt.energy_to_momentum(sectionFunction, mass)
+#            np.sqrt(sectionFunction**2 - mass**2)
+        elif isinstance(self, kinetic_energy_program):
+            sectionFunction = rt.kin_energy_to_momentum(sectionFunction, mass)
+        elif isinstance(self, bending_field_program):
             if None in (bending_radius, charge):
                 raise exceptions.InputError("Converting from bending field "
                                             + "requires both charge and "
                                             + "bending radius to be defined")
-            sectionFunction = rt.B_to_mom(sectionFunction, bending_radius, 
-                                          charge)
+            sectionFunction = rt.B_field_to_momentum(sectionFunction, 
+                                                     bending_radius, 
+                                                     charge)
     
         else:
             raise RuntimeError("Function type invalid")
 
         return sectionFunction
+    
+    
+    def _convert(self, destination, inPlace, **kwargs):
+        
+        conversion_function = getattr(rt, self.source + '_to_' + destination)
+        newArray = np.zeros(self.shape)
+        
+        arguments = conversion_function.__code__.co_varnames[1:-1]
+        arguments = {arg: kwargs.pop(arg, None) for arg in arguments}        
+
+        massTypes = ['rest_mass', 'n_nuc', 'atomic_mass']
+
+        checkList = tuple(arguments[arg] for arg in arguments \
+                         if arg not in massTypes)
+        
+        checkKwargs = tuple(arg for arg in arguments \
+                        if arg not in massTypes)
+        
+        errorMsg = 'conversion from ' + self.source + ' to ' + destination \
+                   + ' requires all of ' + str(checkKwargs) + ' to be defined'
+        
+        if all(m in arguments for m in massTypes):
+            errorMsg += ' and one of (rest_mass, n_nuc, atomic_mass)'
+            assrt.single_not_none(*(arguments[m] for m in massTypes), 
+                                  msg = errorMsg, 
+                                  exception = exceptions.InputError)
+        
+        assrt.all_not_none(*checkList, msg = errorMsg, 
+                           exception = exceptions.InputError)
+        
+        for s in range(self.shape[0]):
+            if self.timebase == 'by_time':
+                newArray[s, 1] = conversion_function(self[s, 1], **arguments)
+                newArray[s, 0] = self[s, 0]
+            else:
+                newArray[s] = conversion_function(self[s], **arguments)
+
+        if inPlace:
+            for s in range(self.shape[0]):
+                if self.timebase == 'by_time':
+                    self[s, 1] = newArray[s, 1]
+                else:
+                    self[s] = newArray[s]
+            
+            self.__class__ = self.conversions[destination]
+
+        else:
+            return super().__new__(self.conversions[destination], *newArray)
+        
+
+    def _no_convert(self, inPlace):
+        
+        if inPlace:
+            return self
+        else:
+            return super().__new__(self.__class__, *self)
+
+
+    def to_momentum(self, inPlace = True, **kwargs):
+        
+        if self.source == 'momentum':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('momentum', inPlace, **kwargs)
+            
+    def to_total_energy(self, inPlace = True, **kwargs):
+        
+        if self.source == 'energy':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('energy', inPlace, **kwargs)
+
+    def to_B_field(self, inPlace = True, **kwargs):
+        
+        if self.source == 'B_field':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('B_field', inPlace, **kwargs)
+
+    def to_kin_energy(self, inPlace = True, **kwargs):
+        
+        if self.source == 'kin_energy':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('kin_energy', inPlace, **kwargs)                
+                
     
     
     def convert(self, mass, charge = None, bending_radius = None, 
@@ -309,22 +403,23 @@ class ring_program(_ring_function):
                 else:
                     self[s] = newArray[s]
             
-            self.func_type = 'momentum'
+            self.__class__ = momentum_program
         
         else:
-            return super().__new__(self.__class__, *newArray, 
-                        func_type = 'momentum')
+            return super().__new__(momentum_program, *newArray)
         
     #TODO: multi-section
     def preprocess(self, mass, circumference, interp_time = None, 
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
-                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
+                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf,
+                   store_turns = True):
 
-        if self.func_type != 'momentum':
+        if not isinstance(self, momentum_program):
             raise exceptions.DataDefinitionError("Only momentum functions "
                                                  + "can be preprocessed, not "
-                                                 + self.func_type + "first run "
-                                                 + self.__class__.__name__ \
+                                                 + self.__class__.__name__ 
+                                                 + ", first run " 
+                                                 + self.__class__.__name__ 
                                                  + ".convert")
 
         if not hasattr(interp_time, '__call__'):
@@ -346,12 +441,20 @@ class ring_program(_ring_function):
                 t_end = self[0, 0, -1]
         
             for s in range(self.shape[0]):
-                nTurns, useTurns, time, momentum = self._linear_interpolation(
-                                                            mass,
-                                                            circumference, 
-                                                            (interp_time, 
-                                                             t_start, t_end), 
-                                                            targetNTurns, s)
+                if store_turns:
+                    nTurns, useTurns, time, momentum = self._linear_interpolation(
+                                                                mass,
+                                                                circumference, 
+                                                                (interp_time, 
+                                                                 t_start, t_end), 
+                                                                targetNTurns, s)
+                else:
+                    nTurns, useTurns, time, momentum \
+                        = self._linear_interpolation_no_turns(mass, 
+                                                              circumference, 
+                                                              (interp_time,
+                                                               t_start, t_end),
+                                                              s)
         #TODO: Sampling with turn by turn data
         #TODO: nTurns != self.shape[1]
         elif self.timebase == 'by_turn':
@@ -378,7 +481,7 @@ class ring_program(_ring_function):
         for s in range(self.shape[0]):
             newArray[s+2] = momentum
             
-        newArray = newArray.view(self.__class__)
+        newArray = newArray.view(momentum_program)
         
         newArray.n_turns = nTurns
         
@@ -390,6 +493,29 @@ class ring_program(_ring_function):
         trev = rt.mom_to_trev(self[0], mass, circ=circumference)
         return np.cumsum(trev)
         
+    
+    def _linear_interpolation_no_turns(self, mass, circumference, time, 
+                                       section):
+        
+        time_func = time[0]
+        start = time[1]
+        stop = time[2]
+        
+        interp_time = [start]
+        while interp_time[-1] < stop:
+            interp_time.append(time_func(interp_time[-1]))
+        
+        if interp_time[-1] > stop:
+            interp_time = interp_time[:-1]
+        
+        input_time = self[section, 0]
+        input_momentum = self[section, 1]
+        
+        momentum_interp = np.interp(interp_time, input_time, input_momentum)
+        
+        return (np.NaN, np.full(len(interp_time), np.NaN), 
+                np.array(interp_time), momentum_interp)
+                
     
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
                               section):
@@ -457,6 +583,21 @@ class ring_program(_ring_function):
         return time_start_ramp, time_end_ramp
 
 
+class momentum_program(_ring_program):
+    source = 'momentum'
+
+class total_energy_program(_ring_program):
+    source = 'energy'
+
+class kinetic_energy_program(_ring_program):
+    source = 'kin_energy'
+
+class bending_field_program(_ring_program):
+    source = 'B_field'
+
+for data in [momentum_program, total_energy_program, kinetic_energy_program,
+             bending_field_program]:
+    data.add_to_conversions()
 
 
 class momentum_compaction(_ring_function):
