@@ -17,24 +17,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import sys
+import scipy.interpolate as spInterp
+import itertools as itl
+import warnings
+import functools
 
 #BLonD_Common imports
-if __name__ == "__main__":
-    import blond_common.rf_functions.potential as pot
-    import blond_common.maths.interpolation as interp
-    import blond_common.devtools.exceptions as excpt
-    import blond_common.devtools.assertions as assrt
-else:
-    from ..rf_functions import potential as pot
-    from ..maths import interpolation as interp
-    from ..devtools import exceptions as excpt
-    from ..devtools import assertions as assrt
-    from ..interfaces.beam import matched_distribution as matchDist
+from ..rf_functions import potential as pot
+from ..maths import interpolation as interp
+from ..devtools import exceptions as excpt
+from ..devtools import assertions as assrt
+from ..devtools import decorators as deco
+from ..interfaces.beam import matched_distribution as matchDist
+from ..maths import calculus as calc
+
 
 
 class Bucket:
     
-    def __init__(self, time, well, beta, energy, eta):
+    def __init__(self, time, well, beta, energy, eta, isSub = False):
+        
+        self.beta = beta
+        self.energy = energy
+        self.eta = eta
+        self.isSub = isSub
+        if self.isSub:
+            self.time_loaded = time
+            self.well_loaded = well
+            self.time = self.time_loaded.copy()
+            self.well = self.well_loaded.copy()
+            return
         
         try:
             assrt.equal_array_lengths(time, well, 
@@ -48,10 +60,6 @@ class Bucket:
         self.time_loaded = np.array(orderedTime[0], dtype=float)
         self.well_loaded = np.array(orderedWell[0], dtype=float)
         
-        self.beta = beta
-        self.energy = energy
-        self.eta = eta
-        
         self.time = self.time_loaded.copy()
         self.well = self.well_loaded.copy()
         
@@ -60,6 +68,90 @@ class Bucket:
         
         self.inner_times = orderedTime[1:]
         self.inner_wells = orderedWell[1:]
+        
+        self._identify_substructure()
+
+
+    def _identify_substructure(self):
+        
+        contains = [[] for i in range(len(self.inner_times))]
+        for times, c in zip(self.inner_times, contains):
+            c += [i for i in range(len(self.inner_times)) if self.inner_times[i][0] >= times[0]\
+                                                      and self.inner_times[i][-1] <= times[-1]\
+                                                      and self.inner_times[i] is not times]
+        
+        exclude = [[] for i in range(len(self.inner_times))]
+        for exc, cont in zip(exclude, contains):
+            for c in cont:
+                exc += contains[c]
+        
+        useCont = [[] for i in range(len(self.inner_times))]
+        for i in range(len(self.inner_times)):
+                useCont[i] += [c for c in contains[i] if c not in exclude[i]]
+        
+        bucketDict = {i: self.__class__(t, w, self.beta, self.energy,
+                                        self.eta, isSub=True) for i, (t, w) in 
+                          enumerate(zip(self.inner_times, self.inner_wells))}
+        
+        nextLayer = []
+        for i in range(len(self.inner_times)):
+            if not any(i in c for c in useCont):
+                nextLayer.append(i)
+        
+        if len(nextLayer) > 0:
+            self.hasSubs = True
+        else:
+            self.hasSubs = False
+        
+        self.sub_buckets = [bucketDict[i] for i in nextLayer]
+        
+        for i, u in enumerate(useCont):
+            bucketDict[i].sub_buckets = [bucketDict[c] for c in u]
+            if len(u) > 0:
+                bucketDict[i].hasSubs = True
+            else:
+                bucketDict[i].hasSubs = False
+        
+        self._calc_inner_max()
+        self._calc_inner_start()
+        self._calc_inner_stop()
+    
+    
+    def recursive_attribute(self, attr):
+        
+        returnList = []
+        
+        try:
+            returnList.append(getattr(self, attr))
+        except TypeError:
+            raise TypeError("recursive_function takes a str")
+
+        for b in self.sub_buckets:
+            returnList += b.recursive_attribute(attr)
+        
+        return returnList
+        
+        
+    @deco.recursive_function
+    def _calc_inner_max(self):
+        if self.hasSubs:
+            self.inner_max = np.max([np.max(b.well) for b in self.sub_buckets])
+        else:
+            self.inner_max = np.NaN
+    
+    @deco.recursive_function
+    def _calc_inner_start(self):
+        if self.hasSubs:
+            self.inner_start = np.min([np.min(b.time) for b in self.sub_buckets])
+        else:
+            self.inner_start = np.NaN
+    
+    @deco.recursive_function
+    def _calc_inner_stop(self):
+        if self.hasSubs:
+            self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
+        else:
+            self.inner_stop = np.NaN
     
     
     def inner_buckets(self):
@@ -77,7 +169,7 @@ class Bucket:
                     + (-upper_energy_bound[::-1]).tolist()
         
             self.inner_separatrices.append(np.array([sepTime, sepEnergy]))
-            
+
 
     def smooth_well(self, nPoints = None, reinterp=False):
     
@@ -104,8 +196,8 @@ class Bucket:
                     + (-self.upper_energy_bound[::-1]).tolist()
         
         self.separatrix = np.array([sepTime, sepEnergy])
-    
-    
+
+
     def basic_parameters(self):
         
         self.half_height = np.max(self.separatrix[1])
@@ -113,6 +205,58 @@ class Bucket:
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
 
+
+    @deco.recursive_function
+    def _frequency_spread(self):
+        
+        t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
+                                                           self.well,
+                                                           self.eta, 
+                                                           self.beta, 
+                                                           self.energy,
+                                inner_max_potential_well = self.inner_max)
+        
+        self.fsTime = t
+        self.fsFreq = f
+        self.fsHamil = h
+        self.fsArea = a
+
+
+    @deco.recursive_attribute
+    def fsTimes(self):
+        return self.fsTime
+
+
+    @deco.recursive_attribute
+    def fsFreqs(self):
+        return self.fsFreq
+
+
+    @deco.recursive_attribute
+    def fsHamils(self):
+        return self.fsHamil
+
+
+    @deco.recursive_attribute
+    def fsAreas(self):
+        return self.fsArea
+
+
+    def frequency_spread(self):
+        
+        self._calc_inner_max()
+        
+        self._frequency_spread()
+        
+        allTimes = []
+        allFreqs = []
+        for o in zip(self.fsTimes, self.fsFreqs):
+            allTimes += o[0].tolist()
+            allFreqs += o[1].tolist()
+        args = np.argsort(allTimes)
+        
+        self.sortedTimes = np.array(allTimes)[args]
+        self.sortedFreqs = np.array(allFreqs)[args]
 
 
     ################################################
@@ -365,43 +509,4 @@ class Bucket:
         self.J_array = J_array
 
 
-if __name__ == '__main__':
 
-    inTime = np.linspace(0, 2*np.pi, 100)
-    inWell = np.cos(inTime)
-#    inWell += np.cos(inTime*2)
-#    inWell -= np.min(inWell)
-    inWell += np.cos(inTime*3)*2
-    inWell -= np.min(inWell)
-    
-    buck = Bucket(inTime, inWell, 3, 4, 5)
-    buck.smooth_well(1000)
-    buck.calc_separatrix()
-    targetEmit = 30
-    bunch = buck.outline_from_emittance(targetEmit)
-#    targetLength = 5
-#    bunch = buck.outline_from_length(targetLength)
-#    targetHeight = 3
-#    bunch = buck.outline_from_dE(targetHeight)
-    plt.plot(buck.separatrix[0], buck.separatrix[1])
-#    plt.axhline(targetHeight)
-#    plt.axvline(np.pi - targetLength/2)
-#    plt.axvline(np.pi + targetLength/2)
-    plt.plot(bunch[0], bunch[1])
-    plt.xlabel("Phase units")
-    plt.ylabel("Energy units")
-#    plt.savefig("../tripleBucketAndInner.pdf")
-    plt.show()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
