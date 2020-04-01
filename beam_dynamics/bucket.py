@@ -242,21 +242,33 @@ class Bucket:
         return self.fsArea
 
 
-    def frequency_spread(self):
+    def frequency_spread(self, recalculate = False):
         
-        self._calc_inner_max()
-        
-        self._frequency_spread()
-        
-        allTimes = []
-        allFreqs = []
-        for o in zip(self.fsTimes, self.fsFreqs):
-            allTimes += o[0].tolist()
-            allFreqs += o[1].tolist()
-        args = np.argsort(allTimes)
-        
-        self.sortedTimes = np.array(allTimes)[args]
-        self.sortedFreqs = np.array(allFreqs)[args]
+        if recalculate or not hasattr(self, 'sortedTimes'):
+            self._calc_inner_max()
+            self._frequency_spread()
+            
+            allTimes = []
+            allFreqs = []
+            for o in zip(self.fsTimes, self.fsFreqs):
+                allTimes += o[0].tolist()
+                allFreqs += o[1].tolist()
+            args = np.argsort(allTimes)
+            
+            self.sortedTimes = np.array(allTimes)[args]
+            self.sortedFreqs = np.array(allFreqs)[args]
+        else:
+            return
+
+
+    @deco.recursive_function
+    def contains_time(self, time):
+        return (time>self.time[0] and time<self.time[-1])
+
+    @deco.recursive_function
+    def contains_potential(self, potential):
+        return (potential < np.max(self.well) 
+                and potential > np.min(self.well))
 
 
     ################################################
