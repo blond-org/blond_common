@@ -177,7 +177,7 @@ class Beam_Parameters:
         for s in range(self.n_samples):
             bucket_list = self.create_sample_buckets(s)
             for p in range(self.n_particles):
-                self.buckets[(self.ring.use_turns[s], p)] = bucket_list[p]
+                self.buckets[(s, p)] = bucket_list[p]
     
 
     def sample_potential_well(self, sample, volts = None):
