@@ -20,18 +20,33 @@ import sys
 import scipy.interpolate as spInterp
 import itertools as itl
 import warnings
+import functools
 
 #BLonD_Common imports
 from ..rf_functions import potential as pot
 from ..maths import interpolation as interp
 from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
+from ..devtools import decorators as deco
 from ..interfaces.beam import matched_distribution as matchDist
 from ..maths import calculus as calc
 
+
+
 class Bucket:
     
-    def __init__(self, time, well, beta, energy, eta):
+    def __init__(self, time, well, beta, energy, eta, isSub = False):
+        
+        self.beta = beta
+        self.energy = energy
+        self.eta = eta
+        self.isSub = isSub
+        if self.isSub:
+            self.time_loaded = time
+            self.well_loaded = well
+            self.time = self.time_loaded.copy()
+            self.well = self.well_loaded.copy()
+            return
         
         try:
             assrt.equal_array_lengths(time, well, 
@@ -45,10 +60,6 @@ class Bucket:
         self.time_loaded = np.array(orderedTime[0], dtype=float)
         self.well_loaded = np.array(orderedWell[0], dtype=float)
         
-        self.beta = beta
-        self.energy = energy
-        self.eta = eta
-        
         self.time = self.time_loaded.copy()
         self.well = self.well_loaded.copy()
         
@@ -57,6 +68,90 @@ class Bucket:
         
         self.inner_times = orderedTime[1:]
         self.inner_wells = orderedWell[1:]
+        
+        self._identify_substructure()
+
+
+    def _identify_substructure(self):
+        
+        contains = [[] for i in range(len(self.inner_times))]
+        for times, c in zip(self.inner_times, contains):
+            c += [i for i in range(len(self.inner_times)) if self.inner_times[i][0] >= times[0]\
+                                                      and self.inner_times[i][-1] <= times[-1]\
+                                                      and self.inner_times[i] is not times]
+        
+        exclude = [[] for i in range(len(self.inner_times))]
+        for exc, cont in zip(exclude, contains):
+            for c in cont:
+                exc += contains[c]
+        
+        useCont = [[] for i in range(len(self.inner_times))]
+        for i in range(len(self.inner_times)):
+                useCont[i] += [c for c in contains[i] if c not in exclude[i]]
+        
+        bucketDict = {i: self.__class__(t, w, self.beta, self.energy,
+                                        self.eta, isSub=True) for i, (t, w) in 
+                          enumerate(zip(self.inner_times, self.inner_wells))}
+        
+        nextLayer = []
+        for i in range(len(self.inner_times)):
+            if not any(i in c for c in useCont):
+                nextLayer.append(i)
+        
+        if len(nextLayer) > 0:
+            self.hasSubs = True
+        else:
+            self.hasSubs = False
+        
+        self.sub_buckets = [bucketDict[i] for i in nextLayer]
+        
+        for i, u in enumerate(useCont):
+            bucketDict[i].sub_buckets = [bucketDict[c] for c in u]
+            if len(u) > 0:
+                bucketDict[i].hasSubs = True
+            else:
+                bucketDict[i].hasSubs = False
+        
+        self._calc_inner_max()
+        self._calc_inner_start()
+        self._calc_inner_stop()
+    
+    
+    def recursive_attribute(self, attr):
+        
+        returnList = []
+        
+        try:
+            returnList.append(getattr(self, attr))
+        except TypeError:
+            raise TypeError("recursive_function takes a str")
+
+        for b in self.sub_buckets:
+            returnList += b.recursive_attribute(attr)
+        
+        return returnList
+        
+        
+    @deco.recursive_function
+    def _calc_inner_max(self):
+        if self.hasSubs:
+            self.inner_max = np.max([np.max(b.well) for b in self.sub_buckets])
+        else:
+            self.inner_max = np.NaN
+    
+    @deco.recursive_function
+    def _calc_inner_start(self):
+        if self.hasSubs:
+            self.inner_start = np.min([np.min(b.time) for b in self.sub_buckets])
+        else:
+            self.inner_start = np.NaN
+    
+    @deco.recursive_function
+    def _calc_inner_stop(self):
+        if self.hasSubs:
+            self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
+        else:
+            self.inner_stop = np.NaN
     
     
     def inner_buckets(self):
@@ -74,7 +169,7 @@ class Bucket:
                     + (-upper_energy_bound[::-1]).tolist()
         
             self.inner_separatrices.append(np.array([sepTime, sepEnergy]))
-            
+
 
     def smooth_well(self, nPoints = None, reinterp=False):
     
@@ -101,8 +196,8 @@ class Bucket:
                     + (-self.upper_energy_bound[::-1]).tolist()
         
         self.separatrix = np.array([sepTime, sepEnergy])
-    
-    
+
+
     def basic_parameters(self):
         
         self.half_height = np.max(self.separatrix[1])
@@ -111,80 +206,57 @@ class Bucket:
         self.center = np.mean(self.time)
 
 
-    def frequency_spread(self, nPts = 5000):
-
-        self.smooth_well()
-        diffs = np.gradient(self.well)
-        calcTime = np.linspace(self.time[0], self.time[-1], nPts)
-        calcWell = self._well_smooth_func(calcTime)
-        tck_potential_well = spInterp.splrep(calcTime, calcWell)
-
-        hList, aList, tList = [], [], []
-
-        for i in range(1, len(self.well)-1):
-            tck_new = (tck_potential_well[0],
-                                    tck_potential_well[1] - self.well[i],
-                                    tck_potential_well[2])
-            ppol = spInterp.PPoly.from_spline(tck_new)
-            roots_adjusted = ppol.roots()
-
-            if len(roots_adjusted)%2 != 0:
-                warnings.warn("Odd number of roots detected, well may not be "\
-                              + "adequately resolved")
-                plt.plot(self.time, self.well - self.well[i], '.')
-                plt.axhline(0)
-                for r in roots_adjusted:
-                    plt.axvline(r)
-                plt.ylim([-10, 10])
-                plt.axvline(self.time[i], color='red')
-                plt.show()
-                # sys.exit()
-                continue
-
-            diffRoot = self.time[i] - roots_adjusted
-            thisRoot = np.where(diffRoot**2 == np.min(diffRoot**2))[0][0]
-
-            if i == len(diffs):
-                break
-            try:
-                if diffs[i]>0:
-                    otherRoot = thisRoot - 1
-                    leftTime = roots_adjusted[otherRoot]
-                    rightTime = roots_adjusted[thisRoot]
-                elif diffs[i]<0:
-                    otherRoot = thisRoot + 1
-                    leftTime = roots_adjusted[thisRoot]
-                    rightTime = roots_adjusted[otherRoot]
-                else:
-                    continue
-            except:
-                # plt.plot(self.time, self.well - self.well[i])
-                # plt.axhline(0)
-                # for r in roots_adjusted:
-                #     plt.axvline(r)
-                # plt.axvline(self.time[i], color='red')
-                # plt.show()
-                raise
-            
-            fine_time_array = np.linspace(leftTime, rightTime, 1000)
-            fine_potential_well = ppol(fine_time_array) + self.well[i]
-            try:
-                _, _, h, a, _, _ = pot.trajectory_area_cubic(fine_time_array, 
-                                                        fine_potential_well, 
-                                                        self.eta, 
-                                                        self.beta,
-                                                        self.energy)
-            except (ValueError, TypeError):
-                continue
-
-            hList.append(h)
-            aList.append(a)
-            tList.append(self.time[i])
-
-        fs = np.gradient(hList)/np.gradient(aList)
+    @deco.recursive_function
+    def _frequency_spread(self):
         
-        return tList, aList, hList, fs
+        t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
+                                                           self.well,
+                                                           self.eta, 
+                                                           self.beta, 
+                                                           self.energy,
+                                inner_max_potential_well = self.inner_max)
+        
+        self.fsTime = t
+        self.fsFreq = f
+        self.fsHamil = h
+        self.fsArea = a
 
+
+    @deco.recursive_attribute
+    def fsTimes(self):
+        return self.fsTime
+
+
+    @deco.recursive_attribute
+    def fsFreqs(self):
+        return self.fsFreq
+
+
+    @deco.recursive_attribute
+    def fsHamils(self):
+        return self.fsHamil
+
+
+    @deco.recursive_attribute
+    def fsAreas(self):
+        return self.fsArea
+
+
+    def frequency_spread(self):
+        
+        self._calc_inner_max()
+        
+        self._frequency_spread()
+        
+        allTimes = []
+        allFreqs = []
+        for o in zip(self.fsTimes, self.fsFreqs):
+            allTimes += o[0].tolist()
+            allFreqs += o[1].tolist()
+        args = np.argsort(allTimes)
+        
+        self.sortedTimes = np.array(allTimes)[args]
+        self.sortedFreqs = np.array(allFreqs)[args]
 
 
     ################################################
@@ -435,4 +507,6 @@ class Bucket:
             J_array[i] = np.trapz(contour, useTime)/np.pi
     
         self.J_array = J_array
+
+
 
