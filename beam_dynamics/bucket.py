@@ -25,6 +25,7 @@ import functools
 #BLonD_Common imports
 from ..rf_functions import potential as pot
 from ..maths import interpolation as interp
+from ..maths import calculus as calc
 from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
 from ..devtools import decorators as deco
@@ -115,21 +116,22 @@ class Bucket:
         self._calc_inner_max()
         self._calc_inner_start()
         self._calc_inner_stop()
+        self._calc_minimum()
     
     
-    def recursive_attribute(self, attr):
+    # def recursive_attribute(self, attr):
         
-        returnList = []
+    #     returnList = []
         
-        try:
-            returnList.append(getattr(self, attr))
-        except TypeError:
-            raise TypeError("recursive_function takes a str")
+    #     try:
+    #         returnList.append(getattr(self, attr))
+    #     except TypeError:
+    #         raise TypeError("recursive_function takes a str")
 
-        for b in self.sub_buckets:
-            returnList += b.recursive_attribute(attr)
+    #     for b in self.sub_buckets:
+    #         returnList += b.recursive_attribute(attr)
         
-        return returnList
+    #     return returnList
         
         
     @deco.recursive_function
@@ -152,6 +154,11 @@ class Bucket:
             self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
         else:
             self.inner_stop = np.NaN
+    
+    @deco.recursive_function
+    def _calc_minimum(self):
+        self.minimum = np.min(calc.minmax_location_cubic(self.time, 
+                                                         self.well)[1][0])
     
     
     def inner_buckets(self):
@@ -208,14 +215,33 @@ class Bucket:
      #TODO: Test effect with multiple minima of checking if synchronous
      # particle is within sub_bucket before calculating
     @deco.recursive_function
-    def _frequency_spread(self):
+    def _old_frequency_spread(self):
         
         t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
                                                            self.well,
                                                            self.eta, 
                                                            self.beta, 
                                                            self.energy,
+                                      min_potential_well = self.minimum,
                                 inner_max_potential_well = self.inner_max)
+        
+        self.fsTime = t
+        self.fsFreq = f
+        self.fsHamil = h
+        self.fsArea = a
+
+
+    @deco.recursive_function
+    def _frequency_spread(self, trapzThresh = 0):
+        
+        t, f, h, a, _, _ = pot.synchrotron_frequency_hybrid(self.time,
+                                                            self.well,
+                                                            self.eta, 
+                                                            self.beta, 
+                                                            self.energy,
+                                       min_potential_well = self.minimum,
+                                 inner_max_potential_well = self.inner_max,
+                                              trapzThresh = trapzThresh)
         
         self.fsTime = t
         self.fsFreq = f
@@ -243,11 +269,15 @@ class Bucket:
         return self.fsArea
 
 
-    def frequency_spread(self, recalculate = False):
+    def frequency_spread(self, recalculate = False, old = False, 
+                         trapzThresh = 0):
         
         if recalculate or not hasattr(self, 'sortedTimes'):
             self._calc_inner_max()
-            self._frequency_spread()
+            if old:
+                self._old_frequency_spread()
+            else:
+                self._frequency_spread(trapzThresh)
             
             allTimes = []
             allFreqs = []
