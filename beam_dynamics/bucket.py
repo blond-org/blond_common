@@ -117,23 +117,8 @@ class Bucket:
         self._calc_inner_start()
         self._calc_inner_stop()
         self._calc_minimum()
-    
-    
-    # def recursive_attribute(self, attr):
-        
-    #     returnList = []
-        
-    #     try:
-    #         returnList.append(getattr(self, attr))
-    #     except TypeError:
-    #         raise TypeError("recursive_function takes a str")
 
-    #     for b in self.sub_buckets:
-    #         returnList += b.recursive_attribute(attr)
-        
-    #     return returnList
-        
-        
+
     @deco.recursive_function
     def _calc_inner_max(self):
         if self.hasSubs:
@@ -214,22 +199,6 @@ class Bucket:
 
      #TODO: Test effect with multiple minima of checking if synchronous
      # particle is within sub_bucket before calculating
-    @deco.recursive_function
-    def _old_frequency_spread(self):
-        
-        t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
-                                                           self.well,
-                                                           self.eta, 
-                                                           self.beta, 
-                                                           self.energy,
-                                      min_potential_well = self.minimum,
-                                inner_max_potential_well = self.inner_max)
-        
-        self.fsTime = t
-        self.fsFreq = f
-        self.fsHamil = h
-        self.fsArea = a
-
 
     @deco.recursive_function
     def _frequency_spread(self, trapzThresh = 0):
