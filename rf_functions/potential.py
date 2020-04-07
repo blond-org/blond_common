@@ -17,7 +17,11 @@ separatrices, acceptance, emittance, synchrotron frequency**
 # External imports
 import numpy as np
 import scipy.interpolate as interp
-from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic
+from ..maths.calculus import integ_cubic, deriv_cubic, minmax_location_cubic, \
+                             integ_trapz
+import time
+import matplotlib.pyplot as plt
+import sys
 
 # BLonD_Common imports
 from ..devtools import exceptions as excpt
@@ -551,11 +555,133 @@ def trajectory_area_cubic(time_array, potential_array, eta_0, beta_rel,
         full_length_time
 
 
+def trajectory_area_trapz(time_array, potential_array, eta_0, beta_rel,
+                          tot_energy, min_potential_well=None):
+
+    if min_potential_well is None:
+        min_potential_well = np.min(minmax_location_cubic(
+            time_array, potential_array)[1][0])
+
+    eom_factor_dE = abs(eta_0) / (2*beta_rel**2.*tot_energy)
+
+    dEtraj = np.sqrt((potential_array[0]-potential_array) / eom_factor_dE)
+    dEtraj[np.isnan(dEtraj)] = 0
+
+    full_length_time = time_array[-1]-time_array[0]
+    hamiltonian = potential_array[0]-min_potential_well
+    calc_area = 2*integ_trapz(time_array, dEtraj)[1][-1]
+    half_energy_height = np.sqrt((hamiltonian) / eom_factor_dE)
+
+    return time_array, dEtraj, hamiltonian, calc_area, half_energy_height, \
+        full_length_time
+
+
 def area_vs_hamiltonian_cubic(time_array, potential_array, eta_0, beta_rel,
                               tot_energy, min_potential_well=None,
                               inner_max_potential_well=None,
-                              n_points_reinterp=None):
+                              min_n_points=None):
 
+    (calc_area_scan, hamiltonian_scan, half_energy_height_scan,
+    full_length_time_scan, min_potential_well, tck_potential_well,
+    index_above_inner_max, n_points_above_inner_max) \
+            = _area_vs_hamiltonian_pre(time_array, potential_array, 
+                                       eta_0, beta_rel, tot_energy)
+    
+    if min_n_points is None:
+        min_n_points = len(time_array)
+        
+    for counter, indexAmplitude in enumerate(index_above_inner_max):
+
+        timeWell = _area_vs_hamiltonian_fine(tck_potential_well, 
+                                             indexAmplitude, 
+                                             min_n_points)
+        
+        if timeWell is None:
+            continue
+        
+        else:
+            fine_time_array, fine_potential_well = timeWell
+
+        (time_array_traj, dEtraj,
+         hamiltonian, calc_area,
+         half_energy_height,
+         full_length_time) = trajectory_area_cubic(
+             fine_time_array, fine_potential_well, eta_0, beta_rel,
+             tot_energy, min_potential_well=min_potential_well)
+        calc_area_scan[counter] = calc_area
+        hamiltonian_scan[counter] = hamiltonian
+        half_energy_height_scan[counter] = half_energy_height
+        full_length_time_scan[counter] = full_length_time
+    good_indexes = np.isfinite(calc_area_scan)
+
+    return time_array[index_above_inner_max][good_indexes], \
+        hamiltonian_scan[good_indexes], calc_area_scan[good_indexes], \
+        half_energy_height_scan[good_indexes], \
+        full_length_time_scan[good_indexes]
+
+
+def area_vs_hamiltonian_hybrid(time_array, potential_array, eta_0, beta_rel,
+                              tot_energy, min_potential_well=None,
+                              inner_max_potential_well=None,
+                              min_n_points=None,
+                              trapzThresh = 0):
+
+    (calc_area_scan, hamiltonian_scan, half_energy_height_scan,
+    full_length_time_scan, min_potential_well, tck_potential_well,
+    index_above_inner_max, n_points_above_inner_max) \
+            = _area_vs_hamiltonian_pre(time_array, potential_array, 
+                                       eta_0, beta_rel, tot_energy)
+    
+    if min_n_points is None:
+        min_n_points = len(time_array)
+    
+    wellHeight = np.max(potential_array) - min_potential_well
+    
+    for counter, indexAmplitude in enumerate(index_above_inner_max):
+
+        timeWellPts = _area_vs_hamiltonian_fine(tck_potential_well, 
+                                                indexAmplitude, 
+                                                min_n_points)
+        
+        if timeWellPts is None:
+            continue
+        
+        else:
+            fine_time_array, fine_potential_well = timeWellPts
+
+        if min_potential_well + wellHeight*trapzThresh \
+                < tck_potential_well[1][indexAmplitude]:
+            (time_array_traj, dEtraj,
+             hamiltonian, calc_area,
+             half_energy_height,
+             full_length_time) = trajectory_area_trapz(
+                 fine_time_array, fine_potential_well, eta_0, beta_rel,
+                 tot_energy, min_potential_well=min_potential_well)
+
+        else:
+            (time_array_traj, dEtraj,
+             hamiltonian, calc_area,
+             half_energy_height,
+             full_length_time) = trajectory_area_cubic(
+                 fine_time_array, fine_potential_well, eta_0, beta_rel,
+                 tot_energy, min_potential_well=min_potential_well)
+
+        calc_area_scan[counter] = calc_area
+        hamiltonian_scan[counter] = hamiltonian
+        half_energy_height_scan[counter] = half_energy_height
+        full_length_time_scan[counter] = full_length_time
+    good_indexes = np.isfinite(calc_area_scan)
+
+    return time_array[index_above_inner_max][good_indexes], \
+        hamiltonian_scan[good_indexes], calc_area_scan[good_indexes], \
+        half_energy_height_scan[good_indexes], \
+        full_length_time_scan[good_indexes]
+
+
+def _area_vs_hamiltonian_pre(time_array, potential_array, eta_0, beta_rel,
+                              tot_energy, min_potential_well=None,
+                              inner_max_potential_well=None):
+    
     if (inner_max_potential_well is not None) and \
             np.isfinite(inner_max_potential_well):
         n_points_above_inner_max = len(potential_array[1:-1][
@@ -580,56 +706,47 @@ def area_vs_hamiltonian_cubic(time_array, potential_array, eta_0, beta_rel,
     half_energy_height_scan[:] = np.nan
     full_length_time_scan = np.empty(n_points_above_inner_max)
     full_length_time_scan[:] = np.nan
+    
+    return (calc_area_scan, hamiltonian_scan, half_energy_height_scan,
+            full_length_time_scan, min_potential_well, tck_potential_well,
+            index_above_inner_max, n_points_above_inner_max)
 
-    for counter, indexAmplitude in enumerate(index_above_inner_max):
 
-        tck_adjusted = (
+def _area_vs_hamiltonian_fine(tck_potential_well, indexAmplitude, 
+                              min_n_points):
+
+    tck_adjusted = (
             tck_potential_well[0],
             tck_potential_well[1]-tck_potential_well[1][indexAmplitude],
             tck_potential_well[2])
 
-        roots_adjusted = interp.sproot(tck_adjusted)
+    roots_adjusted = interp.sproot(tck_adjusted)
 
-        if len(roots_adjusted) != 2:
-            continue
+    if len(roots_adjusted) != 2:
+        return
 
-        left_position = np.min(roots_adjusted)
-        right_position = np.max(roots_adjusted)
+    left_position = np.min(roots_adjusted)
+    right_position = np.max(roots_adjusted)
 
-        if n_points_reinterp is None:
-            n_points_reinterp = len(np.where(
-                (tck_potential_well[0] >= left_position) *
-                (tck_potential_well[0] <= right_position))[0])
+    n_points_reinterp = len(np.where(
+        (tck_potential_well[0] >= left_position) *
+        (tck_potential_well[0] <= right_position))[0])
+    if n_points_reinterp < min_n_points:
+        n_points_reinterp = min_n_points
 
-        fine_time_array = np.linspace(left_position, right_position,
-                                      n_points_reinterp)
-        fine_potential_well = interp.splev(fine_time_array, tck_adjusted) + \
-            tck_potential_well[1][indexAmplitude]
+    fine_time_array = np.linspace(left_position, right_position,
+                                  n_points_reinterp)
 
-        (time_array_traj, dEtraj,
-         hamiltonian, calc_area,
-         half_energy_height,
-         full_length_time) = trajectory_area_cubic(
-             fine_time_array, fine_potential_well, eta_0, beta_rel,
-             tot_energy, min_potential_well=min_potential_well)
-
-        calc_area_scan[counter] = calc_area
-        hamiltonian_scan[counter] = hamiltonian
-        half_energy_height_scan[counter] = half_energy_height
-        full_length_time_scan[counter] = full_length_time
-
-    good_indexes = np.isfinite(calc_area_scan)
-
-    return time_array[index_above_inner_max][good_indexes], \
-        hamiltonian_scan[good_indexes], calc_area_scan[good_indexes], \
-        half_energy_height_scan[good_indexes], \
-        full_length_time_scan[good_indexes]
+    fine_potential_well = interp.splev(fine_time_array, tck_adjusted) + \
+        tck_potential_well[1][indexAmplitude]
+        
+    return fine_time_array, fine_potential_well
 
 
 def synchrotron_frequency_cubic(time_array, potential_array, eta_0, beta_rel,
                                 tot_energy, min_potential_well=None,
                                 inner_max_potential_well=None,
-                                n_points_reinterp=None):
+                                min_n_points=None):
 
     (time_array_ham, hamiltonian_scan,
      calc_area_scan, half_energy_height_scan,
@@ -637,7 +754,37 @@ def synchrotron_frequency_cubic(time_array, potential_array, eta_0, beta_rel,
         time_array, potential_array, eta_0, beta_rel,
         tot_energy, min_potential_well=min_potential_well,
         inner_max_potential_well=inner_max_potential_well,
-        n_points_reinterp=n_points_reinterp)
+        min_n_points=min_n_points)
+         
+    return _synchrotron_frequency_result(time_array_ham, hamiltonian_scan,
+                                         calc_area_scan, 
+                                         half_energy_height_scan,
+                                         full_length_time_scan)
+
+
+def synchrotron_frequency_hybrid(time_array, potential_array, eta_0, beta_rel,
+                                 tot_energy, min_potential_well=None,
+                                 inner_max_potential_well=None,
+                                 min_n_points=None,
+                                 trapzThresh = 0):
+
+    (time_array_ham, hamiltonian_scan,
+     calc_area_scan, half_energy_height_scan,
+     full_length_time_scan) = area_vs_hamiltonian_hybrid(
+        time_array, potential_array, eta_0, beta_rel,
+        tot_energy, min_potential_well=min_potential_well,
+        inner_max_potential_well=inner_max_potential_well,
+        min_n_points=min_n_points, trapzThresh=trapzThresh)
+         
+    return _synchrotron_frequency_result(time_array_ham, hamiltonian_scan,
+                                         calc_area_scan, 
+                                         half_energy_height_scan,
+                                         full_length_time_scan)
+
+
+def _synchrotron_frequency_result(time_array_ham, hamiltonian_scan,
+                                  calc_area_scan, half_energy_height_scan,
+                                  full_length_time_scan):
 
     sync_freq = np.zeros(len(calc_area_scan))
     time_array_fs = np.zeros(len(calc_area_scan))

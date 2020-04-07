@@ -25,6 +25,7 @@ import functools
 #BLonD_Common imports
 from ..rf_functions import potential as pot
 from ..maths import interpolation as interp
+from ..maths import calculus as calc
 from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
 from ..devtools import decorators as deco
@@ -115,23 +116,9 @@ class Bucket:
         self._calc_inner_max()
         self._calc_inner_start()
         self._calc_inner_stop()
-    
-    
-    def recursive_attribute(self, attr):
-        
-        returnList = []
-        
-        try:
-            returnList.append(getattr(self, attr))
-        except TypeError:
-            raise TypeError("recursive_function takes a str")
+        self._calc_minimum()
 
-        for b in self.sub_buckets:
-            returnList += b.recursive_attribute(attr)
-        
-        return returnList
-        
-        
+
     @deco.recursive_function
     def _calc_inner_max(self):
         if self.hasSubs:
@@ -152,6 +139,11 @@ class Bucket:
             self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
         else:
             self.inner_stop = np.NaN
+    
+    @deco.recursive_function
+    def _calc_minimum(self):
+        self.minimum = np.min(calc.minmax_location_cubic(self.time, 
+                                                         self.well)[1][0])
     
     
     def inner_buckets(self):
@@ -205,16 +197,20 @@ class Bucket:
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
 
+     #TODO: Test effect with multiple minima of checking if synchronous
+     # particle is within sub_bucket before calculating
 
     @deco.recursive_function
-    def _frequency_spread(self):
+    def _frequency_spread(self, trapzThresh = 0):
         
-        t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
-                                                           self.well,
-                                                           self.eta, 
-                                                           self.beta, 
-                                                           self.energy,
-                                inner_max_potential_well = self.inner_max)
+        t, f, h, a, _, _ = pot.synchrotron_frequency_hybrid(self.time,
+                                                            self.well,
+                                                            self.eta, 
+                                                            self.beta, 
+                                                            self.energy,
+                                       min_potential_well = self.minimum,
+                                 inner_max_potential_well = self.inner_max,
+                                              trapzThresh = trapzThresh)
         
         self.fsTime = t
         self.fsFreq = f
@@ -242,21 +238,37 @@ class Bucket:
         return self.fsArea
 
 
-    def frequency_spread(self):
+    def frequency_spread(self, recalculate = False, old = False, 
+                         trapzThresh = 1):
         
-        self._calc_inner_max()
-        
-        self._frequency_spread()
-        
-        allTimes = []
-        allFreqs = []
-        for o in zip(self.fsTimes, self.fsFreqs):
-            allTimes += o[0].tolist()
-            allFreqs += o[1].tolist()
-        args = np.argsort(allTimes)
-        
-        self.sortedTimes = np.array(allTimes)[args]
-        self.sortedFreqs = np.array(allFreqs)[args]
+        if recalculate or not hasattr(self, 'sortedTimes'):
+            self._calc_inner_max()
+            if old:
+                self._old_frequency_spread()
+            else:
+                self._frequency_spread(trapzThresh)
+            
+            allTimes = []
+            allFreqs = []
+            for o in zip(self.fsTimes, self.fsFreqs):
+                allTimes += o[0].tolist()
+                allFreqs += o[1].tolist()
+            args = np.argsort(allTimes)
+            
+            self.sortedTimes = np.array(allTimes)[args]
+            self.sortedFreqs = np.array(allFreqs)[args]
+        else:
+            return
+
+
+    @deco.recursive_function
+    def contains_time(self, time):
+        return (time>self.time[0] and time<self.time[-1])
+
+    @deco.recursive_function
+    def contains_potential(self, potential):
+        return (potential < np.max(self.well) 
+                and potential > np.min(self.well))
 
 
     ################################################
