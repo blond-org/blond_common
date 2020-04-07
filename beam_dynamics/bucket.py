@@ -239,7 +239,7 @@ class Bucket:
 
 
     def frequency_spread(self, recalculate = False, old = False, 
-                         trapzThresh = 0):
+                         trapzThresh = 1):
         
         if recalculate or not hasattr(self, 'sortedTimes'):
             self._calc_inner_max()
