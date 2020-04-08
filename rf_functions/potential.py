@@ -827,3 +827,23 @@ def _synchrotron_frequency_result(time_array_ham, hamiltonian_scan,
         calc_area_scan_fs[sorted_time], \
         half_energy_height_scan_fs[sorted_time], \
         full_length_time_scan_fs[sorted_time]
+
+
+def  single_h_tune_analytical(energy, beta, delta_E, eta, charge, harmonic, 
+                              voltage):
+
+    hev = harmonic*charge*voltage
+    synchPhase = np.arcsin(delta_E/voltage)
+    phaseslipPhase = np.abs(eta*np.cos(synchPhase))
+    energyTerm = 2*np.pi*beta**2*energy
+    
+    return np.sqrt(hev*phaseslipPhase/energyTerm)
+    
+
+def voltage_from_single_h_tune(energy, beta, delta_E, eta, charge, harmonic, 
+                               tune):
+
+    twoPiBetaE = 2*np.pi*beta**2*energy
+    heeta = harmonic*charge*np.abs(eta)
+        
+    return np.sqrt(delta_E**2 + (twoPiBetaE*tune**2/heeta)**2)
