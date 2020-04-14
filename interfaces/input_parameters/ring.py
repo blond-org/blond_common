@@ -373,9 +373,10 @@ class Ring:
         parameters['eta_0'] = np.interp(cycle_moments, self.cycle_time,
                                         self.eta_0[0])
         parameters['delta_E'] = np.interp(cycle_moments,
-                                          self.cycle_time[1:],
+                                          self.cycle_time,
                                           self.delta_E[0])
         parameters['charge'] = self.Particle.charge
+        parameters['cycle_time'] = cycle_moments
 
         return parameters
     
@@ -404,6 +405,7 @@ class Ring:
         parameters['eta_0'] = self.eta_0[0, sample]
         parameters['delta_E'] = self.delta_E[0, sample]
         parameters['charge'] = self.Particle.charge
+        parameters['cycle_time'] = self.cycle_time[sample]
 
         return parameters
 
