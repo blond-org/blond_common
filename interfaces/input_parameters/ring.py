@@ -228,9 +228,11 @@ class Ring:
         synchronous_data.convert(self.Particle.mass, self.Particle.charge, 
                                  self.bending_radius)
         
+        interpolation = kwargs.pop("interpolation", 'linear')
+        
         self.momentum = synchronous_data.preprocess(self.Particle.mass, 
                                     self.ring_circumference, sample_func, 
-                                    'linear', start, stop)
+                                    interpolation, start, stop)
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
