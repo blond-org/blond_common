@@ -331,7 +331,7 @@ class ring_program(_ring_function):
         interp_funcs = {'linear': self._linear_interpolation,
                             'derivative': self._derivative_interpolation}
         
-        if interpolation not in interp_functions:
+        if interpolation not in interp_funcs:
             raise exceptions.InputError(f"Available interpolation options are:\
                                         {tuple(interp_funcs.keys())}")
 
