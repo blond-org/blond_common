@@ -328,6 +328,13 @@ class ring_program(_ring_function):
                                                  + self.__class__.__name__ \
                                                  + ".convert")
 
+        interp_funcs = {'linear': self._linear_interpolation,
+                            'derivative': self._derivative_interpolation}
+        
+        if interpolation not in interp_functions:
+            raise exceptions.InputError(f"Available interpolation options are:\
+                                        {tuple(interp_funcs.keys())}")
+
         if not hasattr(interp_time, '__call__'):
             if interp_time is None:
                 _interp_time = 0
@@ -347,7 +354,7 @@ class ring_program(_ring_function):
                 t_end = self[0, 0, -1]
         
             for s in range(self.shape[0]):
-                nTurns, useTurns, time, momentum = self._linear_interpolation(
+                nTurns, useTurns, time, momentum = interp_funcs[interpolation](
                                                             mass,
                                                             circumference, 
                                                             (interp_time, 
