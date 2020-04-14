@@ -329,7 +329,7 @@ class ring_program(_ring_function):
                                                  + ".convert")
 
         interp_funcs = {'linear': self._linear_interpolation,
-                            'derivative': self._derivative_interpolation}
+                        'derivative': self._derivative_interpolation}
         
         if interpolation not in interp_funcs:
             raise exceptions.InputError(f"Available interpolation options are:\
@@ -488,7 +488,7 @@ class ring_program(_ring_function):
 
         momentum_derivative_interp = [momentum_derivative[0]]
         next_momentum = momentum_initial
-
+        next_beta = rt.mom_to_beta(next_momentum, mass)
         while next_time < stop:
             while next_time > input_time[k]:
                 k += 1
@@ -500,11 +500,12 @@ class ring_program(_ring_function):
                              / (input_time[k] - input_time[k-1])
                              
             momentum_derivative_interp.append(derivative_point)
-            next_momentum += (time_interp[k+1] - time_interp[k]) \
+            future_time = next_time + rt.beta_to_trev(next_beta, circumference)
+            next_momentum += (future_time - next_time) \
                 * derivative_point
 
             next_beta = rt.mom_to_beta(next_momentum, mass)
-            next_time = next_time + rt.beta_to_trev(next_beta, circumference)
+            next_time = future_time
             nTurns += 1
 
             if next_time >= next_store_time:
@@ -512,6 +513,13 @@ class ring_program(_ring_function):
                 momentum_interp.append(next_momentum)
                 use_turns.append(nTurns)
                 next_store_time = time_func(time_interp[-1])
+
+            if nTurns >= targetNTurns-1:
+                break
+
+        else:
+            if targetNTurns != np.inf:
+                warnings.warn("Maximum time reached before number of turns")
 
         # Adjust result to get flat top energy correct as derivation and
         # integration leads to ~10^-8 error in flat top momentum
@@ -521,6 +529,8 @@ class ring_program(_ring_function):
         momentum_interp *= input_momentum[-1] - input_momentum[0]
 
         momentum_interp += input_momentum[0]
+
+        return nTurns, use_turns, time_interp, momentum_interp
         
         
     def _ramp_start_stop(self):
