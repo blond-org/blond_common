@@ -264,6 +264,7 @@ class Beam_Parameters:
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
 
+        #TODO: revisit relative_max_val_precision
         try:
             maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
                                      mest = int(3*np.max(self.rf.harmonic)), 
