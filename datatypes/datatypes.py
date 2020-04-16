@@ -316,6 +316,7 @@ class ring_program(_ring_function):
                         func_type = 'momentum')
         
     #TODO: multi-section
+    #TODO: handle flat_bottom and flat_top
     def preprocess(self, mass, circumference, interp_time = None, 
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf):
@@ -326,6 +327,13 @@ class ring_program(_ring_function):
                                                  + self.func_type + "first run "
                                                  + self.__class__.__name__ \
                                                  + ".convert")
+
+        interp_funcs = {'linear': self._linear_interpolation,
+                        'derivative': self._derivative_interpolation}
+        
+        if interpolation not in interp_funcs:
+            raise exceptions.InputError(f"Available interpolation options are:\
+                                        {tuple(interp_funcs.keys())}")
 
         if not hasattr(interp_time, '__call__'):
             if interp_time is None:
@@ -346,7 +354,7 @@ class ring_program(_ring_function):
                 t_end = self[0, 0, -1]
         
             for s in range(self.shape[0]):
-                nTurns, useTurns, time, momentum = self._linear_interpolation(
+                nTurns, useTurns, time, momentum = interp_funcs[interpolation](
                                                             mass,
                                                             circumference, 
                                                             (interp_time, 
@@ -445,7 +453,86 @@ class ring_program(_ring_function):
 
         return nTurns, use_turns, time_interp, momentum_interp
         
+    
+    def _derivative_interpolation(self, mass, circumference, time, 
+                                  targetNTurns, section):
 
+        time_func = time[0]
+        start = time[1]
+        stop = time[2]
+        
+        #TODO: Is it acceptable to have linear interp here?
+        pInit = np.interp(start, self[section, 0], self[section, 1])
+        beta_0 = rt.mom_to_beta(pInit, mass)
+        T0 = rt.beta_to_trev(beta_0, circumference)
+
+        nTurns = 0
+        time_interp = [start]
+        momentum_interp = [pInit]
+        use_turns = [0]
+
+        next_time = time_interp[0] + T0
+        
+        next_store_time = time_func(time_interp[0])
+
+        input_time = self[section, 0].tolist()
+        input_momentum = self[section, 1].tolist()
+
+        k = 0
+
+        
+        momentum_initial = momentum_interp[0]
+        #TODO: Compare gradients with other methods of derivative calculation
+        momentum_derivative = np.gradient(input_momentum)\
+                                /np.gradient(input_time)
+
+        momentum_derivative_interp = [momentum_derivative[0]]
+        next_momentum = momentum_initial
+        next_beta = rt.mom_to_beta(next_momentum, mass)
+        while next_time < stop:
+            while next_time > input_time[k]:
+                k += 1
+
+            derivative_point = momentum_derivative[k-1] \
+                            + (momentum_derivative[k] \
+                               - momentum_derivative[k-1]) \
+                             * (next_time - input_time[k-1]) \
+                             / (input_time[k] - input_time[k-1])
+                             
+            momentum_derivative_interp.append(derivative_point)
+            future_time = next_time + rt.beta_to_trev(next_beta, circumference)
+            next_momentum += (future_time - next_time) \
+                * derivative_point
+
+            next_beta = rt.mom_to_beta(next_momentum, mass)
+            next_time = future_time
+            nTurns += 1
+
+            if next_time >= next_store_time:
+                time_interp.append(next_time)
+                momentum_interp.append(next_momentum)
+                use_turns.append(nTurns)
+                next_store_time = time_func(time_interp[-1])
+
+            if nTurns >= targetNTurns-1:
+                break
+
+        else:
+            if targetNTurns != np.inf:
+                warnings.warn("Maximum time reached before number of turns")
+
+        # Adjust result to get flat top energy correct as derivation and
+        # integration leads to ~10^-8 error in flat top momentum
+        momentum_interp = np.asarray(momentum_interp)
+        momentum_interp -= momentum_interp[0]
+        momentum_interp /= momentum_interp[-1]
+        momentum_interp *= input_momentum[-1] - input_momentum[0]
+
+        momentum_interp += input_momentum[0]
+
+        return nTurns, use_turns, time_interp, momentum_interp
+        
+        
     def _ramp_start_stop(self):
         
         if self.timebase != 'by_time':
