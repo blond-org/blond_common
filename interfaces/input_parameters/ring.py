@@ -25,6 +25,7 @@ from ..beam import beam
 from ...datatypes import datatypes as dTypes
 from ...utilities import timing as tmng
 from ...utilities import rel_transforms as rt
+from ...maths import calculus as calc
 
 
 class Ring:
@@ -421,12 +422,7 @@ class Ring:
         """
 
         for section in range(self.n_sections):
-            ENow = self.energy[section]
-            ENext = np.interp(self.cycle_time + self.t_rev, self.cycle_time, 
-                              ENow)
-            
-            self.delta_E[section][:] = ENext - ENow
-            EThen = np.interp(self.cycle_time[-1] - self.t_rev[-1], 
-                              self.cycle_time, ENow)
-            self.delta_E[section][-1] = ENow[-1] - EThen
+            derivative = calc.deriv_cubic(self.cycle_time, 
+                                          self.energy[section])[1]
+            self.delta_E[section] = derivative*self.t_rev
 
