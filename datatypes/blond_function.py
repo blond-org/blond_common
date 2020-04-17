@@ -76,5 +76,7 @@ class machine_program(np.ndarray):
                 finalArray[s] = np.interp(use_points, self[s,0], self[s,1])
             elif self.timebase == 'by_turn':
                 finalArray[s] = self[s, use_points]
+            elif self.timebase == 'single':
+                finalArray[s] = self[s]
         
         return finalArray.view(self.__class__)
