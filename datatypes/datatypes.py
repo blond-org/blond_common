@@ -155,15 +155,15 @@ class _function(np.ndarray):
             return self._interpolate_linear(section, use_time)
         else:
             raise RuntimeError("Invalid interpolation requested")
-            
+
 
     def _interpolate_linear(self, section, use_time):
         if self.shape[0] == 1:
             return np.interp(use_time, self[0, 0], self[0, 1])
         else:
             return np.interp(use_time, self[section, 0], self[section, 1])
-   
-    
+
+
     def reshape(self, n_sections = 1, use_time = None, use_turns = None):
         
         self._comp_definition_reshape(n_sections, use_time, use_turns)        
@@ -188,38 +188,6 @@ class _function(np.ndarray):
                     newArray[s] = self._interpolate(s, use_time)
         
         return newArray.view(self.__class__)
-
-
-class BLonD_function(_function):
-    
-    def __new__(cls, *args, time = None, n_turns = None, 
-                interpolation = 'linear'):
-        
-        _check_time_turns(time, n_turns)
-
-        data_points, data_types = _get_dats_types(*args, time = time, \
-                                                  n_turns = n_turns)
-        
-        _check_data_types(data_types, allow_single = True)
-
-        data_types, data_points = _expand_singletons(data_types, data_points)
-
-        if not 'by_turn' in data_types:
-            data_points = interpolate_input(data_points, data_types, 
-                                            interpolation)
-                
-        data_type = {'timebase': data_types[0]}
-        
-        return super().__new__(cls, data_points, data_type, 
-                               interpolation)
-    
-    def value_at_time(self, time):
-        n_sections = self.shape[0]
-        return self.reshape(n_sections, use_time = time)
-
-    def value_at_turn(self, turn):
-        n_sections = self.shape[0]
-        return self.reshape(n_sections, use_turn = turn)
 
 
 class _ring_function(_function):
@@ -1125,6 +1093,9 @@ def _from_function(inputArray, targetClass, **kwargs):
         for kwarg in kwargs:
             setattr(obj, kwarg, kwargs[kwarg])
         return obj
+    
+    else:
+        return None
 
 ############################################
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
