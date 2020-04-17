@@ -582,7 +582,7 @@ class _ring_program(_ring_function):
         return time_start_ramp, time_end_ramp
 
     @classmethod
-    def add_to_conversions(cls):
+    def _add_to_conversions(cls):
         cls.conversions[cls.source] = cls
 
 
@@ -600,7 +600,7 @@ class bending_field_program(_ring_program):
 
 for data in [momentum_program, total_energy_program, kinetic_energy_program,
              bending_field_program]:
-    data.add_to_conversions()
+    data._add_to_conversions()
 
 
 class momentum_compaction(_ring_function):
@@ -1114,6 +1114,17 @@ def interpolate_input(data_points, data_types, interpolation = 'linear'):
 
     return data_points
 
+
+def _from_function(inputArray, targetClass, **kwargs):
+    
+    if isinstance(inputArray, targetClass):
+        return inputArray
+    
+    elif isinstance(inputArray, BLonD_function):
+        obj = inputArray.view(targetClass)
+        for kwarg in kwargs:
+            setattr(obj, kwarg, kwargs[kwarg])
+        return obj
 
 ############################################
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
