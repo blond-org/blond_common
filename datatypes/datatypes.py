@@ -238,34 +238,134 @@ class _ring_function(_function):
         
 #TODO: Make super, inherit to different func_types
 class _ring_program(_ring_function):
-    
+
     conversions = {}
 
     def __new__(cls, *args, time = None, n_turns = None):
-#        allowed = ['momentum', 'total energy', 'kinetic energy', 
-#                   'bending field']
-#        if func_type not in allowed:
-#            raise exceptions.InputDataError("func_type must be one of "
-#                                            + str(tuple(a for a in allowed)))
-        
         return super().__new__(cls, *args, time = time, n_turns = n_turns)
-    
-    @classmethod
-    def add_to_conversions(cls):
-        cls.conversions[cls.source] = cls
 
-#    @property
-#    def func_type(self):
-#        try:
-#            return self._func_type
-#        except AttributeError:
-#            return None
-#    
-#    @func_type.setter
-#    def func_type(self, value):
-#        self._check_data_type('func_type', value)
-#        self._func_type = value
+    def to_momentum(self, inPlace = True, **kwargs):
+        if self.source == 'momentum':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('momentum', inPlace, **kwargs)
+
+    def to_total_energy(self, inPlace = True, **kwargs):
+        if self.source == 'energy':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('energy', inPlace, **kwargs)
+
+    def to_B_field(self, inPlace = True, **kwargs):
+        if self.source == 'B_field':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('B_field', inPlace, **kwargs)
+
+    def to_kin_energy(self, inPlace = True, **kwargs):
+        if self.source == 'kin_energy':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('kin_energy', inPlace, **kwargs)   
+
+
+    #TODO: multi-section
+    def preprocess(self, mass, circumference, interp_time = None, 
+                   interpolation = 'linear', t_start = 0, t_end = np.inf,
+                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf,
+                   store_turns = True):
+
+        if not isinstance(self, momentum_program):
+            raise exceptions.DataDefinitionError("Only momentum functions "
+                                                 + "can be preprocessed, not "
+                                                 + self.__class__.__name__ 
+                                                 + ", first run " 
+                                                 + self.__class__.__name__ 
+                                                 + ".convert")
+
+        if not hasattr(interp_time, '__call__'):
+            if interp_time is None:
+                _interp_time = 0
+            else:
+                _interp_time = interp_time
+            interp_time = lambda x: x + _interp_time
+        
+        if self.timebase == 'by_time':
+            if t_start < self[0, 0, 0]:
+                warnings.warn("t_start too early, starting from " 
+                              + str(self[0, 0, 0]))
+                t_start = self[0, 0, 0]
+    
+            if t_end > self[0, 0, -1]:
+                warnings.warn("t_stop too late, ending at " 
+                              + str(self[0, 0, -1]))
+                t_end = self[0, 0, -1]
+        
+            for s in range(self.shape[0]):
+                if store_turns:
+                    nTurns, useTurns, time, momentum = self._linear_interpolation(
+                                                                mass,
+                                                                circumference, 
+                                                                (interp_time, 
+                                                                 t_start, t_end), 
+                                                                targetNTurns, s)
+                else:
+                    nTurns, useTurns, time, momentum \
+                        = self._linear_interpolation_no_turns(mass, 
+                                                              circumference, 
+                                                              (interp_time,
+                                                               t_start, t_end),
+                                                              s)
+        #TODO: Sampling with turn by turn data
+        #TODO: nTurns != self.shape[1]
+        elif self.timebase == 'by_turn':
+            if targetNTurns < np.inf:
+                nTurns = targetNTurns
+            else:
+                nTurns = self.shape[1]
+            useTurns = np.arange(nTurns)
+            time = self._time_from_turn(mass, circumference)
+            momentum = self[0]
+        
+        #TODO: Handle passed number of turns
+        elif self.timebase == 'single':
+            time = [0]
+            nTurns = 1
+            useTurns = [0]
+            momentum = self.copy()
+
+        newArray = np.zeros([2+self.shape[0], len(useTurns)])
+        newArray[0, :] = useTurns
+        newArray[1, :] = time
+
+
+    def convert(self, mass, charge = None, bending_radius = None, 
+                inPlace = True):
+        
+        newArray = np.zeros(self.shape)
+
+        for s in range(self.shape[0]):
+            if self.timebase == 'by_time':
+                newArray[s, 1] = self._convert_section(s, mass, charge,
+                                                        bending_radius)
+                newArray[s, 0] = self[s, 0]
+            else:
+                newArray[s] = self._convert_section(s, mass, charge,
+                                                     bending_radius)
+
+        if inPlace:
+            for s in range(self.shape[0]):
+                if self.timebase == 'by_time':
+                    self[s, 1] = newArray[s, 1]
+                else:
+                    self[s] = newArray[s]
             
+            self.__class__ = momentum_program
+        
+        else:
+            return super().__new__(momentum_program, *newArray)
+
+
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
         
@@ -352,130 +452,13 @@ class _ring_program(_ring_function):
             return super().__new__(self.__class__, *self)
 
 
-    def to_momentum(self, inPlace = True, **kwargs):
-        
-        if self.source == 'momentum':
-            return self._no_convert(inPlace)
-        else:
-            return self._convert('momentum', inPlace, **kwargs)
-            
-    def to_total_energy(self, inPlace = True, **kwargs):
-        
-        if self.source == 'energy':
-            return self._no_convert(inPlace)
-        else:
-            return self._convert('energy', inPlace, **kwargs)
-
-    def to_B_field(self, inPlace = True, **kwargs):
-        
-        if self.source == 'B_field':
-            return self._no_convert(inPlace)
-        else:
-            return self._convert('B_field', inPlace, **kwargs)
-
-    def to_kin_energy(self, inPlace = True, **kwargs):
-        
-        if self.source == 'kin_energy':
-            return self._no_convert(inPlace)
-        else:
-            return self._convert('kin_energy', inPlace, **kwargs)                
+             
                 
     
     
-    def convert(self, mass, charge = None, bending_radius = None, 
-                inPlace = True):
-        
-        newArray = np.zeros(self.shape)
 
-        for s in range(self.shape[0]):
-            if self.timebase == 'by_time':
-                newArray[s, 1] = self._convert_section(s, mass, charge,
-                                                        bending_radius)
-                newArray[s, 0] = self[s, 0]
-            else:
-                newArray[s] = self._convert_section(s, mass, charge,
-                                                     bending_radius)
-
-        if inPlace:
-            for s in range(self.shape[0]):
-                if self.timebase == 'by_time':
-                    self[s, 1] = newArray[s, 1]
-                else:
-                    self[s] = newArray[s]
-            
-            self.__class__ = momentum_program
         
-        else:
-            return super().__new__(momentum_program, *newArray)
-        
-    #TODO: multi-section
-    def preprocess(self, mass, circumference, interp_time = None, 
-                   interpolation = 'linear', t_start = 0, t_end = np.inf,
-                   flat_bottom = 0, flat_top = 0, targetNTurns = np.inf,
-                   store_turns = True):
-
-        if not isinstance(self, momentum_program):
-            raise exceptions.DataDefinitionError("Only momentum functions "
-                                                 + "can be preprocessed, not "
-                                                 + self.__class__.__name__ 
-                                                 + ", first run " 
-                                                 + self.__class__.__name__ 
-                                                 + ".convert")
-
-        if not hasattr(interp_time, '__call__'):
-            if interp_time is None:
-                _interp_time = 0
-            else:
-                _interp_time = interp_time
-            interp_time = lambda x: x + _interp_time
-        
-        if self.timebase == 'by_time':
-            if t_start < self[0, 0, 0]:
-                warnings.warn("t_start too early, starting from " 
-                              + str(self[0, 0, 0]))
-                t_start = self[0, 0, 0]
     
-            if t_end > self[0, 0, -1]:
-                warnings.warn("t_stop too late, ending at " 
-                              + str(self[0, 0, -1]))
-                t_end = self[0, 0, -1]
-        
-            for s in range(self.shape[0]):
-                if store_turns:
-                    nTurns, useTurns, time, momentum = self._linear_interpolation(
-                                                                mass,
-                                                                circumference, 
-                                                                (interp_time, 
-                                                                 t_start, t_end), 
-                                                                targetNTurns, s)
-                else:
-                    nTurns, useTurns, time, momentum \
-                        = self._linear_interpolation_no_turns(mass, 
-                                                              circumference, 
-                                                              (interp_time,
-                                                               t_start, t_end),
-                                                              s)
-        #TODO: Sampling with turn by turn data
-        #TODO: nTurns != self.shape[1]
-        elif self.timebase == 'by_turn':
-            if targetNTurns < np.inf:
-                nTurns = targetNTurns
-            else:
-                nTurns = self.shape[1]
-            useTurns = np.arange(nTurns)
-            time = self._time_from_turn(mass, circumference)
-            momentum = self[0]
-        
-        #TODO: Handle passed number of turns
-        elif self.timebase == 'single':
-            time = [0]
-            nTurns = 1
-            useTurns = [0]
-            momentum = self.copy()
-
-        newArray = np.zeros([2+self.shape[0], len(useTurns)])
-        newArray[0, :] = useTurns
-        newArray[1, :] = time
 
 
         for s in range(self.shape[0]):
@@ -515,11 +498,11 @@ class _ring_program(_ring_function):
         
         return (np.NaN, np.full(len(interp_time), np.NaN), 
                 np.array(interp_time), momentum_interp)
-                
-    
+
+
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
                               section):
-        
+
         time_func = time[0]
         start = time[1]
         stop = time[2]
@@ -545,8 +528,7 @@ class _ring_program(_ring_function):
         while next_time < stop:
             while next_time > input_time[k]:
                 k += 1
-            # next_momentum = np.interp(next_time, input_time, 
-            #                           input_momentum)
+
             next_momentum = input_momentum[k-1] \
                             + (input_momentum[k] - input_momentum[k-1]) \
                              * (next_time - input_time[k-1]) \
@@ -570,7 +552,7 @@ class _ring_program(_ring_function):
                 warnings.warn("Maximum time reached before number of turns")
 
         return nTurns, use_turns, time_interp, momentum_interp
-        
+
 
     def _ramp_start_stop(self):
         
@@ -581,6 +563,10 @@ class _ring_program(_ring_function):
         time_end_ramp = np.max(self[0, 0][self[0, 1] == self[0, 1, -1]])
 
         return time_start_ramp, time_end_ramp
+
+    @classmethod
+    def add_to_conversions(cls):
+        cls.conversions[cls.source] = cls
 
 
 class momentum_program(_ring_program):
