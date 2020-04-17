@@ -184,8 +184,28 @@ class Ring:
     """
 
     #TODO: Optional argument to store turn numbers
-    def __init__(self, ring_length, alpha, synchronous_data, Particle,
-                 bending_radius=None, store_turns = False, **kwargs):
+    def __init__(self, ring_length, alpha, Particle, momentum = None,
+                 kin_energy = None, energy = None, 
+                 bending_field = None, bending_radius=None, 
+                 store_turns = False, **kwargs):
+        
+        syncDataTypes = ('momentum', 'kin_energy', 'energy', 
+                         'B_field')
+        syncDataInput = (momentum, kin_energy, energy, bending_field)
+        assrt.single_not_none(*syncDataInput, msg = 'Exactly one of '
+                              + str(syncDataTypes) + ' must be declared',
+                              exception = excpt.InputError)
+        
+        if bending_field is not None and bending_radius is None:
+            raise excpt.InputError("If bending_field is used, bending_radius "
+                                   + "must be defined.")
+        
+        for t, i in zip(syncDataTypes, syncDataInput):
+
+            if i is not None:
+                func_type = t
+                synchronous_data = i
+                break
 
         # Ring length and checks
         self.ring_length = np.array(ring_length, ndmin=1, dtype=float)
@@ -206,7 +226,8 @@ class Ring:
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
         if not isinstance(synchronous_data, dTypes._ring_program):
-                synchronous_data = dTypes.momentum_program(synchronous_data)
+                synchronous_data \
+                = dTypes._ring_program.conversions[func_type](synchronous_data)
 
         if synchronous_data.shape[0] != len(self.ring_length):
             raise excpt.InputDataError("ERROR in Ring: Number of sections "
