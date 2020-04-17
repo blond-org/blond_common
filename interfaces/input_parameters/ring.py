@@ -187,7 +187,7 @@ class Ring:
     def __init__(self, ring_length, alpha, Particle, momentum = None,
                  kin_energy = None, energy = None, 
                  bending_field = None, bending_radius=None, 
-                 store_turns = False, **kwargs):
+                 store_turns = True, **kwargs):
         
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 
                          'B_field')
@@ -249,7 +249,7 @@ class Ring:
         
         synchronous_data.convert(self.Particle.mass, self.Particle.charge, 
                                  self.bending_radius)
-        
+
         self.momentum = synchronous_data.preprocess(self.Particle.mass, 
                                     self.ring_circumference, sample_func, 
                                     'linear', start, stop, 

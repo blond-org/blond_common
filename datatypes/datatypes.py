@@ -468,11 +468,17 @@ class _ring_program(_ring_function):
         time_func = time[0]
         start = time[1]
         stop = time[2]
-        
+
         interp_time = [start]
+
         while interp_time[-1] < stop:
-            interp_time.append(time_func(interp_time[-1]))
-        
+            next_time = time_func(interp_time[-1])
+            if not next_time > interp_time[-1]:
+                raise RuntimeError("Attempting to interpolate with 0 "
+                                   + "sample spacing")
+            else:
+                interp_time.append(next_time)
+
         if interp_time[-1] > stop:
             interp_time = interp_time[:-1]
         
