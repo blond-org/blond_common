@@ -13,7 +13,6 @@ from ..utilities import rel_transforms as rt
 
 #TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
 #TODO: In derived classes handle passing datatype as input
-#TODO: Make RF System object
 class _function(np.ndarray):
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
@@ -189,8 +188,38 @@ class _function(np.ndarray):
                     newArray[s] = self._interpolate(s, use_time)
         
         return newArray.view(self.__class__)
+
+
+class BLonD_function(_function):
+    
+    def __new__(cls, *args, time = None, n_turns = None, 
+                interpolation = 'linear'):
         
+        _check_time_turns(time, n_turns)
+
+        data_points, data_types = _get_dats_types(*args, time = time, \
+                                                  n_turns = n_turns)
         
+        _check_data_types(data_types, allow_single = True)
+
+        data_types, data_points = _expand_singletons(data_types, data_points)
+
+        if not 'by_turn' in data_types:
+            data_points = interpolate_input(data_points, data_types, 
+                                            interpolation)
+                
+        data_type = {'timebase': data_types[0]}
+        
+        return super().__new__(cls, data_points, data_type, 
+                               interpolation)
+    
+    def value_at_time(self, time):
+        n_sections = self.shape[0]
+        return self.reshape(n_sections, use_time = time)
+
+    def value_at_turn(self, turn):
+        n_sections = self.shape[0]
+        return self.reshape(n_sections, use_turn = turn)
 
 
 class _ring_function(_function):
@@ -235,8 +264,7 @@ class _ring_function(_function):
         self._check_data_type('sectioning', value)
         self._sectioning = value
 
-        
-#TODO: Make super, inherit to different func_types
+
 class _ring_program(_ring_function):
 
     conversions = {}
@@ -337,6 +365,15 @@ class _ring_program(_ring_function):
         newArray = np.zeros([2+self.shape[0], len(useTurns)])
         newArray[0, :] = useTurns
         newArray[1, :] = time
+        
+        for s in range(self.shape[0]):
+            newArray[s+2] = momentum
+            
+        newArray = newArray.view(momentum_program)
+        
+        newArray.n_turns = nTurns
+        
+        return newArray
 
 
     def convert(self, mass, charge = None, bending_radius = None, 
@@ -378,7 +415,6 @@ class _ring_program(_ring_function):
             pass
         elif isinstance(self, total_energy_program):
             sectionFunction = rt.energy_to_momentum(sectionFunction, mass)
-#            np.sqrt(sectionFunction**2 - mass**2)
         elif isinstance(self, kinetic_energy_program):
             sectionFunction = rt.kin_energy_to_momentum(sectionFunction, mass)
         elif isinstance(self, bending_field_program):
@@ -442,7 +478,7 @@ class _ring_program(_ring_function):
 
         else:
             return super().__new__(self.conversions[destination], *newArray)
-        
+
 
     def _no_convert(self, inPlace):
         
@@ -452,31 +488,12 @@ class _ring_program(_ring_function):
             return super().__new__(self.__class__, *self)
 
 
-             
-                
-    
-    
-
-        
-    
-
-
-        for s in range(self.shape[0]):
-            newArray[s+2] = momentum
-            
-        newArray = newArray.view(momentum_program)
-        
-        newArray.n_turns = nTurns
-        
-        return newArray
-        
-    
     def _time_from_turn(self, mass, circumference):
         
         trev = rt.mom_to_trev(self[0], mass, circ=circumference)
         return np.cumsum(trev)
-        
-    
+
+
     def _linear_interpolation_no_turns(self, mass, circumference, time, 
                                        section):
         
@@ -634,36 +651,12 @@ class _RF_function(_function):
         if not 'by_turn' in data_types:
             data_points = interpolate_input(data_points, data_types, 
                                             interpolation)
-        
-#        elif not (all(t == 'single' for t in data_types) \
-#            or (interpolation is None or len(data_points) == 1)):
-#
-#            if interpolation is not None and data_types[0] != 'by_time':
-#                raise exceptions.DataDefinitionError("Interpolation only "
-#                                                     + "possible if functions "
-#                                                     + "are defined by time")
-#    
-#            if interpolation != 'linear':
-#                raise RuntimeError("Only linear interpolation currently "
-#                                   + "available")
-#            
-#            input_times = []
-#            for d in data_points:
-#                input_times += d[0].tolist()
-#            
-#            interp_times = sorted(set(input_times))
-#    
-#            for i in range(len(data_points)):
-#                 interp_data = np.interp(interp_times, data_points[i][0], \
-#                                         data_points[i][1])
-#                 data_points[i] = np.array([interp_times, interp_data])
-        
+                
         data_type = {'timebase': data_types[0], 'harmonics': harmonics, 
                      **kwargs}
         
         return super().__new__(cls, data_points, data_type, 
                                interpolation)
-
 
 
     @property
