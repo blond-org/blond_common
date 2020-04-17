@@ -1088,12 +1088,6 @@ def _from_function(inputArray, targetClass, **kwargs):
     if isinstance(inputArray, targetClass):
         return inputArray
     
-    elif isinstance(inputArray, BLonD_function):
-        obj = inputArray.view(targetClass)
-        for kwarg in kwargs:
-            setattr(obj, kwarg, kwargs[kwarg])
-        return obj
-    
     else:
         return None
 
