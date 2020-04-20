@@ -647,7 +647,7 @@ class _RF_function(_function):
         self._harmonics = value
 
 
-
+    #TODO: Safe treatment of use_turns > n_turns
     def reshape(self, harmonics = None, use_time = None, use_turns = None):
         
         if harmonics is None:
