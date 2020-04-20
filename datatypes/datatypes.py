@@ -1086,11 +1086,59 @@ def interpolate_input(data_points, data_types, interpolation = 'linear'):
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
 ############################################
     
+def stack(*args):
+
+    if not all(hasattr(a, '__iter__') for a in args):
+        raise exceptions.InputError("All args should be iterable, either as a "
+                                   + "datatype object, or a list or tuple with"
+                                   + " start and/or end times for the stack")
+
+    start_time = []
+    functions = []
+    stop_time = []
+    for a in args:
+        
+        if isinstance(a, _function):
+            start_time.append(None)
+            functions.append(a)
+            stop_time.append(None)
+            continue
+
+        elif len(a) == 3:
+            start_time.append(a[0])
+            functions.append(a[1])
+            stop_time.append(a[2])
+
+        elif len(a) == 2:
+            
+            if isinstance(a[0], _function):
+                start_time.append(None)
+                functions.append(a[0])
+                stop_time.append(a[1])
+
+            elif isinstance(a[1], _function):
+                start_time.append(a[0])
+                functions.append(a[1])
+                stop_time.append(None)
+            else:
+                raise exceptions.InputError("All elements must have a "
+                                       + "datatype included")
+        
+        elif len(a) == 1:
+            start_time.append(None)
+            functions.append(a[0])
+            stop_time.append(None)
+
+        else:
+            raise exceptions.InputError("If passing an iterable it must have "
+                                   + "a maximum length of 3")
     
-    
-    
-    
-    
+    if any(f.timebase == 'single' for f in functions):
+        raise exceptions.InputError("Single valued functions cannot be stacked")
+        
+    if not all(f.timebase == functions[0].timebase for f in functions):
+        raise exceptions.InputError("Only functions with the same timebase can be "
+                               + "stacked")
     
     
     
