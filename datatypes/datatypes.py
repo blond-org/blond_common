@@ -232,40 +232,52 @@ class _ring_function(_function):
                                    + "combined")
 
         timeBases = [a.timebase for a in args]
-        assrt.equal_arrays(*timeBases, msg = 'Attempting to combine sections '
-                                             + 'with different timebases',
-                           exception = excpt.InputError)
+        try:
+            assrt.equal_arrays(*timeBases, msg = 'Attempting to combine '
+                                                 + 'sections with different '
+                                                 + 'timebases',
+                                                 exception = excpt.InputError)
+        except:
+            turns = len([t for t in timeBases if t == 'by_turn']) == 0
+            times = len([t for t in timeBases if t == 'by_time']) == 0
+            if turns == times:
+                raise
 
         if any(a.sectioning != 'single_section' for a in args):
             raise excpt.InputError("Only single section functions can be "
                                    + "combined")
 
         nFuncs = len(args)
-        if timeBases[0] == 'by_time':
+        if 'by_time' in timeBases[0]:
             input_times = []
             for a in args:
-                input_times += a[0,0].tolist()
+                try:
+                    input_times += a[0,0].tolist()
+                except IndexError:
+                    pass
             use_times = sorted(set(input_times))
 
             try:
-                assrt.equal_arrays(*(a[0, 0] for a in args),
-                                   msg='None',
+                assrt.equal_arrays(*(a[0, 0] for a in args 
+                                                 if a.timebase != 'single'),
+                                   msg=None,
                                    exception = excpt.InputError)
             except excpt.InputError:
                 if interpolation is not None:
                     for a in args:
                         a.interpolation = interpolation
-                if any(a.interpolation is None for a in args):
+                if any(a.interpolation is None for a in args 
+                                                   if a.timebase != 'single'):
                     raise excpt.DataDefinitionError("Combining functions with "
                                                     + "different time axes "
                                                     + "requires interpolation "
                                                     + "method to be defined.")
             use_turns = None
             newArray = cls.zeros([nFuncs, 2, len(use_times)])
-        elif timeBases[0] == 'by_turn':
+        elif 'by_turn' in timeBases:
             
             try:
-                assrt.equal_array_lengths(*args, msg = 'None',
+                assrt.equal_array_lengths(*args, msg = None,
                                           exception = excpt.InputError)
             except excpt.InputError:
                 warnings.warn("Arrays cover different numbers of turns, "
@@ -273,7 +285,7 @@ class _ring_function(_function):
             
             shortest = np.inf
             for a in args:
-                if a.shape[1] < shortest:
+                if a.timebase is not 'single' and a.shape[1] < shortest:
                     shortest = a.shape[1]
             use_turns = np.arange(shortest).astype(int)
             use_times = None
