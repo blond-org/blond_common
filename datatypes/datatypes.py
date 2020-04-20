@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from ..devtools import exceptions
 from ..devtools import assertions as assrt
 from ..utilities import rel_transforms as rt
+from . import blond_function as bf
 
 #TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
 #TODO: In derived classes handle passing datatype as input
@@ -687,6 +688,8 @@ class voltage_program(_RF_function):
     
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
                 interpolation = 'linear'):
+        
+        args = _expand_function(*args)
 
         return super().__new__(cls, *args, harmonics = harmonics, time = time,
                                 n_turns = n_turns, 
@@ -1096,6 +1099,16 @@ def _from_function(inputArray, targetClass, **kwargs):
     
     else:
         return None
+
+
+def _expand_function(*args):
+    newArgs = []
+    for a in args:
+        if isinstance(a, _function) or isinstance(a, bf.machine_program):
+            newArgs.append(*a)
+        else:
+            newArgs.append(a)
+    return tuple(newArgs)
 
 ############################################
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
