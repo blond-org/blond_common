@@ -324,7 +324,7 @@ class Ring:
         # Slippage factor derived from alpha, beta, gamma
         self.eta_generation()
 
-
+    #TODO: different interpollation for different components (e.g. alpha and momentum)
     @classmethod
     def from_ring_sections(cls, *args, Particle, interpolation = 'linear', 
                            **kwargs):
