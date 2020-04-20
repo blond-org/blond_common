@@ -1132,14 +1132,45 @@ def stack(*args):
         else:
             raise exceptions.InputError("If passing an iterable it must have "
                                    + "a maximum length of 3")
-    
-    if any(f.timebase == 'single' for f in functions):
+
+    if not all(isinstance(f, _function) for f in functions):
+        raise exceptions.InputError("All functions should be datatype objects")
+
+    timebases = [f.timebase for f in functions]
+
+    if 'single' in timebases:
         raise exceptions.InputError("Single valued functions cannot be stacked")
-        
-    if not all(f.timebase == functions[0].timebase for f in functions):
-        raise exceptions.InputError("Only functions with the same timebase can be "
-                               + "stacked")
+
+    if not all(t == timebases[0] for t in timebases):
+        raise exceptions.InputError("Only functions with the same timebase "
+                                    +"can be stacked")
+
+    if not all(type(f) == type(functions[0]) for f in functions):
+        raise exceptions.InputError("All functions should be the same type")
+
+    if not all(f.data_type == functions[0].data_type for f in functions):
+        raise exceptions.InputError("All function should have the same "
+                                    + "data_type")
+
+    if timebases[0] == 'by_time':
+        useTimes = []
+        subFunctions = []
+        for start, f, stop in zip(start_time, functions, stop_time):
+
+            if start is None:
+                start = f[0, 0, 0]
+            if stop is None:
+                stop = f[0, 0, -1]
+
+            usePts = np.where((f[0, 0] > start) * (f[0, 0] < stop))[0]
+            if start == stop:
+                interp_time = [start]
+            else:
+                interp_time = [start] + f[0, 0, usePts].tolist() + [stop]
+            
+            useTimes.append(interp_time)
+            subFunctions.append(f.reshape(use_time = interp_time))
     
-    
-    
-    
+    for u, f in zip(useTimes, subFunctions):
+        plt.plot(u, f[0])
+    plt.show()
