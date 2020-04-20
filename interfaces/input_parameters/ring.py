@@ -183,7 +183,6 @@ class Ring:
 
     """
 
-    #TODO: Optional argument to store turn numbers
     def __init__(self, ring_length, alpha, Particle, momentum = None,
                  kin_energy = None, energy = None, 
                  bending_field = None, bending_radius=None, 
@@ -306,6 +305,7 @@ class Ring:
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
                 a = dTypes.momentum_compaction(a, order = i)
+
             setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections, 
                                                     self.cycle_time, 
                                                     self.use_turns))
@@ -323,6 +323,35 @@ class Ring:
 
         # Slippage factor derived from alpha, beta, gamma
         self.eta_generation()
+
+
+    @classmethod
+    def from_ring_sections(cls, *args, Particle, interpolation = 'linear', 
+                           **kwargs):
+        
+        # Primary particle mass and charge used for energy calculations
+        if not isinstance(Particle, beam.Particle):
+            Particle = beam.make_particle(Particle)
+        
+        synchronous_data = dTypes.momentum_program.combine_single_sections(
+                                *(a.synchronous_data for a in args),
+                                charge = Particle.charge, 
+                                rest_mass = Particle.mass,
+                                bending_radius = (a.bending_radius for 
+                                                  a in args),
+                                interpolation = interpolation)
+        
+        ring_length = np.array([a.section_length for a in args])
+        
+        alpha = {}
+        for i in range(3):
+            alpha[i] = dTypes.momentum_compaction.combine_single_sections(
+                            *(getattr(a, f'alpha_{i}') for a in args),
+                            interpolation = interpolation)
+
+        return cls(ring_length, alpha, Particle, 
+                   momentum = synchronous_data)
+
 
 
     def eta_generation(self):
