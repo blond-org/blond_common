@@ -196,7 +196,7 @@ class _ring_function(_function):
 
     def __new__(cls, *args, time = None, n_turns = None, 
                 allow_single = False, interpolation = None, **kwargs):
-        
+        args = _expand_function(*args)
         _check_time_turns(time, n_turns)
             
         data_points, data_types = _get_dats_types(*args, time = time, \
@@ -747,7 +747,9 @@ class _RF_function(_function):
     
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
                 interpolation = 'linear', allow_single = True, **kwargs):
-        
+
+        args = _expand_function(*args)
+
         _check_time_turns(time, n_turns)
         
         data_points, data_types = _get_dats_types(*args, time = time, \
@@ -828,25 +830,11 @@ class _RF_function(_function):
 
 
 class voltage_program(_RF_function):
-    
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
-        
-        args = _expand_function(*args)
-
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
+    pass
 
 
 class phase_program(_RF_function):
-    
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
-
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
+    pass
 
 
 class _freq_phase_off(_RF_function):
@@ -903,23 +891,10 @@ class _freq_phase_off(_RF_function):
 
 
 class phase_offset(_freq_phase_off):
-
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
-
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
-
+    pass
 
 class omega_offset(_freq_phase_off):
-
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
-
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
+    pass
         
 
 class _beam_data(_function):
