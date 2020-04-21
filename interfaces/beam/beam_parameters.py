@@ -263,7 +263,7 @@ class Beam_Parameters:
 
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
-
+        inWell -= np.min(inWell)
         #TODO: revisit relative_max_val_precision
         try:
             maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
@@ -300,7 +300,8 @@ class Beam_Parameters:
             plt.plot(inTime, inWell)
             plt.show()
             print(maxLocs)
-            np.save('easyBrokenWell', [inTime, inWell])
+            print(f"Sample: {sample}")
+            # np.save('easyBrokenWell', [inTime, inWell])
             sys.exit()
 
         #check which subwells are within the bounds of the largest well 

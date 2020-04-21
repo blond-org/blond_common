@@ -1086,12 +1086,112 @@ def interpolate_input(data_points, data_types, interpolation = 'linear'):
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
 ############################################
     
+def stack(*args, interpolation = 'linear'):
+
+    if not all(hasattr(a, '__iter__') for a in args):
+        raise exceptions.InputError("All args should be iterable, either as a "
+                                   + "datatype object, or a list or tuple with"
+                                   + " start and/or end times for the stack")
+
+    start_time = []
+    functions = []
+    stop_time = []
+    for a in args:
+        
+        if isinstance(a, _function):
+            start_time.append(None)
+            functions.append(a)
+            stop_time.append(None)
+            continue
+
+        elif len(a) == 3:
+            start_time.append(a[0])
+            functions.append(a[1])
+            stop_time.append(a[2])
+
+        elif len(a) == 2:
+            
+            if isinstance(a[0], _function):
+                start_time.append(None)
+                functions.append(a[0])
+                stop_time.append(a[1])
+
+            elif isinstance(a[1], _function):
+                start_time.append(a[0])
+                functions.append(a[1])
+                stop_time.append(None)
+            else:
+                raise exceptions.InputError("All elements must have a "
+                                       + "datatype included")
+        
+        elif len(a) == 1:
+            start_time.append(None)
+            functions.append(a[0])
+            stop_time.append(None)
+
+        else:
+            raise exceptions.InputError("If passing an iterable it must have "
+                                   + "a maximum length of 3")
+
+    if not all(isinstance(f, _function) for f in functions):
+        raise exceptions.InputError("All functions should be datatype objects")
+
+    timebases = [f.timebase for f in functions]
+
+    if 'single' in timebases:
+        raise exceptions.InputError("Single valued functions cannot be stacked")
+
+    if not all(t == timebases[0] for t in timebases):
+        raise exceptions.InputError("Only functions with the same timebase "
+                                    +"can be stacked")
+
+    if not all(type(f) == type(functions[0]) for f in functions):
+        raise exceptions.InputError("All functions should be the same type")
+
+    if not all(f.data_type == functions[0].data_type for f in functions):
+        raise exceptions.InputError("All function should have the same "
+                                    + "data_type")
+
+    nSections = functions[0].shape[0]
+
+    if timebases[0] == 'by_time':
+        useTimes = []
+        subFunctions = [[] for n in range(nSections)]
+        
+        for start, f, stop in zip(start_time, functions, stop_time):
+
+            if start is None:
+                start = f[0, 0, 0]
+            if stop is None:
+                stop = f[0, 0, -1]
+
+            usePts = np.where((f[0, 0] > start) * (f[0, 0] < stop))[0]
+            if start == stop:
+                interp_time = [start]
+            else:
+                interp_time = [start] + f[0, 0, usePts].tolist() + [stop]
+            
+            useTimes += interp_time
+            
+            reshaped = f.reshape(use_time = interp_time)
+        
+            for n in range(nSections):
+                subFunctions[n] += reshaped[n].tolist()
+        
+        newArray = functions[0].__class__.zeros([nSections, 2, len(useTimes)])
+        for i, f in enumerate(subFunctions):
+            newArray[i] = [useTimes, f]
+        
+        newArray.data_type = functions[0].data_type
+        newArray.interpolation = interpolation
+        
+        return newArray
     
+    for f in subFunctions:
+        print(f)
+        plt.plot(useTimes, f)
+    plt.show()
     
-    
-    
-    
-    
-    
-    
-    
+#    for u, f in zip(useTimes, subFunctions):
+#        plt.plot(u, f[0])
+#    plt.show()
