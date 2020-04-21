@@ -1086,7 +1086,7 @@ def interpolate_input(data_points, data_types, interpolation = 'linear'):
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
 ############################################
     
-def stack(*args):
+def stack(*args, interpolation = 'linear'):
 
     if not all(hasattr(a, '__iter__') for a in args):
         raise exceptions.InputError("All args should be iterable, either as a "
@@ -1183,6 +1183,7 @@ def stack(*args):
             newArray[i] = [useTimes, f]
         
         newArray.data_type = functions[0].data_type
+        newArray.interpolation = interpolation
         
         return newArray
     
