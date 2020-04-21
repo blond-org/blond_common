@@ -1152,9 +1152,12 @@ def stack(*args):
         raise exceptions.InputError("All function should have the same "
                                     + "data_type")
 
+    nSections = functions[0].shape[0]
+
     if timebases[0] == 'by_time':
         useTimes = []
-        subFunctions = []
+        subFunctions = [[] for n in range(nSections)]
+        
         for start, f, stop in zip(start_time, functions, stop_time):
 
             if start is None:
@@ -1168,9 +1171,26 @@ def stack(*args):
             else:
                 interp_time = [start] + f[0, 0, usePts].tolist() + [stop]
             
-            useTimes.append(interp_time)
-            subFunctions.append(f.reshape(use_time = interp_time))
+            useTimes += interp_time
+            
+            reshaped = f.reshape(use_time = interp_time)
+        
+            for n in range(nSections):
+                subFunctions[n] += reshaped[n].tolist()
+        
+        newArray = functions[0].__class__.zeros([nSections, 2, len(useTimes)])
+        for i, f in enumerate(subFunctions):
+            newArray[i] = [useTimes, f]
+        
+        newArray.data_type = functions[0].data_type
+        
+        return newArray
     
-    for u, f in zip(useTimes, subFunctions):
-        plt.plot(u, f[0])
+    for f in subFunctions:
+        print(f)
+        plt.plot(useTimes, f)
     plt.show()
+    
+#    for u, f in zip(useTimes, subFunctions):
+#        plt.plot(u, f[0])
+#    plt.show()
