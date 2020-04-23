@@ -419,6 +419,33 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])    
 
 
+    def outline_from_coordinate(self, dt = None, dE = None):
+        
+        dE_array = np.linspace(np.min(self.separatrix[1]), 
+                               np.max(self.separatrix[1]),
+                               len(self.time))
+        
+        t_grid, dE_grid = np.meshgrid(self.time, dE_array)
+        
+        H_grid = (np.abs(self.eta)*dE_grid**2/(2*self.beta**2*self.energy)
+                  + np.repeat(np.array([self.well]), len(dE_array), axis=0))
+        
+        interpFunc = spInterp.interp2d(t_grid[0], dE_grid[:,0], H_grid)
+        hamVal = interpFunc(dt, dE)
+        contour = np.sqrt((hamVal - self.well) * 2*self.beta**2 
+                          * self.energy/np.abs(self.eta))
+        
+        outlineTime = self.time[np.isnan(contour) != True]
+        outlineEnergy = contour[np.isnan(contour) != True]
+        
+        outlineTime = outlineTime.tolist() + outlineTime[::-1].tolist()
+        outlineEnergy = outlineEnergy.tolist() \
+                        + (-outlineEnergy[::-1]).tolist()
+        
+        return np.array([outlineTime, outlineEnergy])
+
+
+
     ##################################################
     ####Functions for calculating bunch parameters####
     ##################################################
