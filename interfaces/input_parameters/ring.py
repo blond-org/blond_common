@@ -375,9 +375,14 @@ class Ring:
                                             self.omega_rev)
         parameters['eta_0'] = np.interp(cycle_moments, self.cycle_time,
                                         self.eta_0[0])
-        parameters['delta_E'] = np.interp(cycle_moments,
-                                          self.cycle_time,
-                                          self.delta_E[0])
+        if len(self.cycle_time) == len(self.delta_E[0]):
+            parameters['delta_E'] = np.interp(cycle_moments,
+                                              self.cycle_time,
+                                              self.delta_E[0])
+        else:
+            parameters['delta_E'] = np.interp(cycle_moments,
+                                              self.cycle_time[:-1],
+                                              self.delta_E[0])
         parameters['charge'] = self.Particle.charge
         parameters['cycle_time'] = cycle_moments
 
