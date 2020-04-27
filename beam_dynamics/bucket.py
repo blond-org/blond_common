@@ -73,6 +73,39 @@ class Bucket:
         self._identify_substructure()
 
 
+    @classmethod
+    def from_dicts(cls, rfDict, machDict, tLeft = None, tRight = None,
+                   potential_resolution = 1000):
+        
+        if tRight is None:
+            tRight = 1.05*machDict['t_rev']
+        if tLeft is None:
+            tLeft = 0 - 0.05*tRight
+        
+        timeBounds = (tLeft, tRight)
+        
+        vTime, vWave = pot.rf_voltage_generation(potential_resolution,
+                                                 machDict['t_rev'],
+                                                 rfDict['voltage'],
+                                                 rfDict['harmonic'],
+                                                 rfDict['phi_rf_d'],
+                                                 time_bounds = timeBounds)
+        
+        time, well, _ = pot.rf_potential_generation_cubic(vTime, vWave, 
+                                                          machDict['eta_0'], 
+                                                          machDict['charge'],
+                                                          machDict['t_rev'], 
+                                                          machDict['delta_E'])
+        
+        well -= np.min(well)
+        maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(time, well,
+                                 relative_max_val_precision_limit=1E-4)
+
+        times, wells = pot.potential_well_cut_cubic(time, well, maxLocs)
+        
+        return cls(times, wells, machDict['beta'], machDict['energy'],
+                   machDict['eta_0'])
+
     def _identify_substructure(self):
         
         contains = [[] for i in range(len(self.inner_times))]
@@ -346,7 +379,8 @@ class Bucket:
         if target_height > self.half_height:
             raise excpt.BunchSizeError("target_height higher than bucket")
 
-        potential = target_height**2*self.eta/(2*self.beta**2*self.energy)
+        potential = target_height**2*np.abs(self.eta)\
+                        /(2*self.beta**2*self.energy)
         
         interpTime = self._interp_time_from_potential(potential, 1000)
         interpWell = self._well_smooth_func(interpTime)
