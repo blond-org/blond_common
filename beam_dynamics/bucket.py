@@ -234,7 +234,7 @@ class Bucket:
      # particle is within sub_bucket before calculating
 
     @deco.recursive_function
-    def _frequency_spread(self, trapzThresh = 0):
+    def _frequency_distribution(self, trapzThresh = 0):
         
         t, f, h, a, _, _ = pot.synchrotron_frequency_hybrid(self.time,
                                                             self.well,
@@ -271,15 +271,12 @@ class Bucket:
         return self.fsArea
 
 
-    def frequency_spread(self, recalculate = False, old = False, 
+    def frequency_distribution(self, recalculate = False, old = False, 
                          trapzThresh = 1):
         
         if recalculate or not hasattr(self, 'sortedTimes'):
             self._calc_inner_max()
-            if old:
-                self._old_frequency_spread()
-            else:
-                self._frequency_spread(trapzThresh)
+            self._frequency_distribution(trapzThresh)
             
             allTimes = []
             allFreqs = []
