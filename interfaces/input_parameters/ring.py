@@ -25,6 +25,7 @@ from ..beam import beam
 from ...datatypes import datatypes as dTypes
 from ...utilities import timing as tmng
 from ...utilities import rel_transforms as rt
+from ...maths import calculus as calc
 
 
 class Ring:
@@ -228,9 +229,11 @@ class Ring:
         synchronous_data.convert(self.Particle.mass, self.Particle.charge, 
                                  self.bending_radius)
         
+        interpolation = kwargs.pop("interpolation", 'linear')
+        
         self.momentum = synchronous_data.preprocess(self.Particle.mass, 
                                     self.ring_circumference, sample_func, 
-                                    'linear', start, stop)
+                                    interpolation, start, stop)
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
@@ -372,10 +375,16 @@ class Ring:
                                             self.omega_rev)
         parameters['eta_0'] = np.interp(cycle_moments, self.cycle_time,
                                         self.eta_0[0])
-        parameters['delta_E'] = np.interp(cycle_moments,
-                                          self.cycle_time[1:],
-                                          self.delta_E[0])
+        if len(self.cycle_time) == len(self.delta_E[0]):
+            parameters['delta_E'] = np.interp(cycle_moments,
+                                              self.cycle_time,
+                                              self.delta_E[0])
+        else:
+            parameters['delta_E'] = np.interp(cycle_moments,
+                                              self.cycle_time[:-1],
+                                              self.delta_E[0])
         parameters['charge'] = self.Particle.charge
+        parameters['cycle_time'] = cycle_moments
 
         return parameters
     
@@ -404,6 +413,7 @@ class Ring:
         parameters['eta_0'] = self.eta_0[0, sample]
         parameters['delta_E'] = self.delta_E[0, sample]
         parameters['charge'] = self.Particle.charge
+        parameters['cycle_time'] = self.cycle_time[sample]
 
         return parameters
 
@@ -417,12 +427,7 @@ class Ring:
         """
 
         for section in range(self.n_sections):
-            ENow = self.energy[section]
-            ENext = np.interp(self.cycle_time + self.t_rev, self.cycle_time, 
-                              ENow)
-            
-            self.delta_E[section][:] = ENext - ENow
-            EThen = np.interp(self.cycle_time[-1] - self.t_rev[-1], 
-                              self.cycle_time, ENow)
-            self.delta_E[section][-1] = ENow[-1] - EThen
+            derivative = calc.deriv_cubic(self.cycle_time, 
+                                          self.energy[section])[1]
+            self.delta_E[section] = derivative*self.t_rev
 
