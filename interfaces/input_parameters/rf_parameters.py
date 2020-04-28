@@ -364,22 +364,21 @@ class RFStation:
         self.phi_rf_offset = phi_rf_offset.reshape(self.harmonic[:,0],
                                                    Ring.cycle_time, 
                                                    Ring.use_turns)
-            
         
-        self.phi_rf_offset += self.omega_rf_offset.calc_delta_phase(
+        deltaPhaseFromOmega = self.omega_rf_offset.calc_delta_phase(
                                                     Ring.omega_rev)
-
-        self.omega_rf_offset += self.phi_rf_offset.calc_delta_omega(
+        deltaOmegaFromPhase = self.phi_rf_offset.calc_delta_omega(
                                                     Ring.omega_rev)        
         
-        self.phi_rf_d += self.phi_rf_offset
-        self.omega_rf_d += self.omega_rf_offset
+        self.phi_rf = np.array(self.phi_rf_d)
+        self.omega_rf = np.array(self.omega_rf_d)
+        
+        self.phi_rf += deltaPhaseFromOmega + self.phi_rf_offset
+        self.omega_rf += deltaOmegaFromPhase + self.omega_rf_offset
         
         # Copy of the desing rf programs in the one used for tracking
         # and that can be changed by feedbacks
-        self.phi_rf = np.array(self.phi_rf_d)
         self.dphi_rf = np.zeros(self.n_rf)
-        self.omega_rf = np.array(self.omega_rf_d)
         self.t_rf = 2*np.pi / self.omega_rf
 
         # From helper functions

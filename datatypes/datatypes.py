@@ -858,20 +858,25 @@ class _freq_phase_off(_RF_function):
                                 + "phase modulation function")
         
         if len(design_omega_rev.shape) == 2:
-            if self.timebase != 'by_time':
+            if self.timebase not in ('by_time', 'interpolated'):
                 raise RuntimeError("Time dependent design frequency requires" 
-                                    + " time dependent offset frequency")
-            delta_phase = self.reshape(use_time = design_omega_rev[0])
+                                    + " time dependent offset frequency"
+                                    + "or interpolated")
+
+            if self.timebase == 'by_time':
+                delta_phase = self.reshape(use_time = design_omega_rev[0])
+            else:
+                delta_phase = self.copy()
 
         else:
-            if self.timebase != 'by_turn':
+            if self.timebase not in ('by_turn', 'interpolated'):
                 raise RuntimeError("Turn dependent design frequency requires" 
-                                    + " turn dependent offset frequency")
+                                    + " turn dependent offset frequency" 
+                                    + "or interpolated")
             delta_phase = self.copy()
-        
-        if self.timebase not in ('by_turn', 'by_time'):
-            raise RuntimeError("Only turn or time based functions can be "
-                               + "treated")
+
+        if delta_phase.shape[-1] != design_omega_rev.shape[-1]:
+            raise excpt.InputError("design_omega_rev shape not correct")
         
         
         delta_omega = omega_offset.zeros(delta_phase.shape, self.data_type)
@@ -895,21 +900,25 @@ class _freq_phase_off(_RF_function):
                                + "phase modulation function")
         
         if len(design_omega_rev.shape) == 2:
-            if self.timebase != 'by_time':
+            if self.timebase not in ('by_time', 'interpolated'):
                 raise RuntimeError("Time dependent design frequency requires" 
-                                    + " time dependent offset frequency")
-            delta_omega = self.reshape(use_time = design_omega_rev[0])
+                                    + " time dependent offset frequency"
+                                    + "or interpolated")
+
+            if self.timebase == 'by_time':
+                delta_omega = self.reshape(use_time = design_omega_rev[0])
+            else:
+                delta_omega = self.copy()
 
         else:
-            if self.timebase != 'by_turn':
+            if self.timebase not in ('by_turn', 'interpolated'):
                 raise RuntimeError("Turn dependent design frequency requires" 
-                                    + " turn dependent offset frequency")
+                                    + " turn dependent offset frequency" 
+                                    + "or interpolated")
             delta_omega = self.copy()
-        
-        if self.timebase not in ('by_turn', 'by_time'):
-            raise RuntimeError("Only turn or time based functions can be "
-                               + "treated")
-            
+
+        if delta_omega.shape[-1] != design_omega_rev.shape[-1]:
+            raise excpt.InputError("design_omega_rev shape not correct")
 
         delta_phase = phase_offset.zeros(delta_omega.shape, self.data_type)
         delta_phase.timebase = 'interpolated'
