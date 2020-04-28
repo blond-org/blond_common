@@ -25,6 +25,7 @@ import functools
 #BLonD_Common imports
 from ..rf_functions import potential as pot
 from ..maths import interpolation as interp
+from ..maths import calculus as calc
 from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
 from ..devtools import decorators as deco
@@ -72,6 +73,39 @@ class Bucket:
         self._identify_substructure()
 
 
+    @classmethod
+    def from_dicts(cls, rfDict, machDict, tLeft = None, tRight = None,
+                   potential_resolution = 1000):
+        
+        if tRight is None:
+            tRight = 1.05*machDict['t_rev']
+        if tLeft is None:
+            tLeft = 0 - 0.05*tRight
+        
+        timeBounds = (tLeft, tRight)
+        
+        vTime, vWave = pot.rf_voltage_generation(potential_resolution,
+                                                 machDict['t_rev'],
+                                                 rfDict['voltage'],
+                                                 rfDict['harmonic'],
+                                                 rfDict['phi_rf_d'],
+                                                 time_bounds = timeBounds)
+        
+        time, well, _ = pot.rf_potential_generation_cubic(vTime, vWave, 
+                                                          machDict['eta_0'], 
+                                                          machDict['charge'],
+                                                          machDict['t_rev'], 
+                                                          machDict['delta_E'])
+        
+        well -= np.min(well)
+        maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(time, well,
+                                 relative_max_val_precision_limit=1E-4)
+
+        times, wells = pot.potential_well_cut_cubic(time, well, maxLocs)
+        
+        return cls(times, wells, machDict['beta'], machDict['energy'],
+                   machDict['eta_0'])
+
     def _identify_substructure(self):
         
         contains = [[] for i in range(len(self.inner_times))]
@@ -115,23 +149,9 @@ class Bucket:
         self._calc_inner_max()
         self._calc_inner_start()
         self._calc_inner_stop()
-    
-    
-    def recursive_attribute(self, attr):
-        
-        returnList = []
-        
-        try:
-            returnList.append(getattr(self, attr))
-        except TypeError:
-            raise TypeError("recursive_function takes a str")
+        self._calc_minimum()
 
-        for b in self.sub_buckets:
-            returnList += b.recursive_attribute(attr)
-        
-        return returnList
-        
-        
+
     @deco.recursive_function
     def _calc_inner_max(self):
         if self.hasSubs:
@@ -152,6 +172,11 @@ class Bucket:
             self.inner_stop = np.max([np.max(b.time) for b in self.sub_buckets])
         else:
             self.inner_stop = np.NaN
+    
+    @deco.recursive_function
+    def _calc_minimum(self):
+        self.minimum = np.min(calc.minmax_location_cubic(self.time, 
+                                                         self.well)[1][0])
     
     
     def inner_buckets(self):
@@ -205,16 +230,20 @@ class Bucket:
         self.length = self.time[-1] - self.time[0]
         self.center = np.mean(self.time)
 
+     #TODO: Test effect with multiple minima of checking if synchronous
+     # particle is within sub_bucket before calculating
 
     @deco.recursive_function
-    def _frequency_spread(self):
+    def _frequency_distribution(self, trapzThresh = 0):
         
-        t, f, h, a, _, _ = pot.synchrotron_frequency_cubic(self.time,
-                                                           self.well,
-                                                           self.eta, 
-                                                           self.beta, 
-                                                           self.energy,
-                                inner_max_potential_well = self.inner_max)
+        t, f, h, a, _, _ = pot.synchrotron_frequency_hybrid(self.time,
+                                                            self.well,
+                                                            self.eta, 
+                                                            self.beta, 
+                                                            self.energy,
+                                       min_potential_well = self.minimum,
+                                 inner_max_potential_well = self.inner_max,
+                                              trapzThresh = trapzThresh)
         
         self.fsTime = t
         self.fsFreq = f
@@ -242,21 +271,34 @@ class Bucket:
         return self.fsArea
 
 
-    def frequency_spread(self):
+    def frequency_distribution(self, recalculate = False, old = False, 
+                         trapzThresh = 1):
         
-        self._calc_inner_max()
-        
-        self._frequency_spread()
-        
-        allTimes = []
-        allFreqs = []
-        for o in zip(self.fsTimes, self.fsFreqs):
-            allTimes += o[0].tolist()
-            allFreqs += o[1].tolist()
-        args = np.argsort(allTimes)
-        
-        self.sortedTimes = np.array(allTimes)[args]
-        self.sortedFreqs = np.array(allFreqs)[args]
+        if recalculate or not hasattr(self, 'sortedTimes'):
+            self._calc_inner_max()
+            self._frequency_distribution(trapzThresh)
+            
+            allTimes = []
+            allFreqs = []
+            for o in zip(self.fsTimes, self.fsFreqs):
+                allTimes += o[0].tolist()
+                allFreqs += o[1].tolist()
+            args = np.argsort(allTimes)
+            
+            self.sortedTimes = np.array(allTimes)[args]
+            self.sortedFreqs = np.array(allFreqs)[args]
+        else:
+            return
+
+
+    @deco.recursive_function
+    def contains_time(self, time):
+        return (time>self.time[0] and time<self.time[-1])
+
+    @deco.recursive_function
+    def contains_potential(self, potential):
+        return (potential < np.max(self.well) 
+                and potential > np.min(self.well))
 
 
     ################################################
@@ -334,7 +376,8 @@ class Bucket:
         if target_height > self.half_height:
             raise excpt.BunchSizeError("target_height higher than bucket")
 
-        potential = target_height**2*self.eta/(2*self.beta**2*self.energy)
+        potential = target_height**2*np.abs(self.eta)\
+                        /(2*self.beta**2*self.energy)
         
         interpTime = self._interp_time_from_potential(potential, 1000)
         interpWell = self._well_smooth_func(interpTime)
@@ -405,6 +448,33 @@ class Bucket:
                         + (-energyContour[::-1]).tolist()
     
         return np.array([outlineTime, outlineEnergy])    
+
+
+    def outline_from_coordinate(self, dt = None, dE = None):
+        
+        dE_array = np.linspace(np.min(self.separatrix[1]), 
+                               np.max(self.separatrix[1]),
+                               len(self.time))
+        
+        t_grid, dE_grid = np.meshgrid(self.time, dE_array)
+        
+        H_grid = (np.abs(self.eta)*dE_grid**2/(2*self.beta**2*self.energy)
+                  + np.repeat(np.array([self.well]), len(dE_array), axis=0))
+        
+        interpFunc = spInterp.interp2d(t_grid[0], dE_grid[:,0], H_grid)
+        hamVal = interpFunc(dt, dE)
+        contour = np.sqrt((hamVal - self.well) * 2*self.beta**2 
+                          * self.energy/np.abs(self.eta))
+        
+        outlineTime = self.time[np.isnan(contour) != True]
+        outlineEnergy = contour[np.isnan(contour) != True]
+        
+        outlineTime = outlineTime.tolist() + outlineTime[::-1].tolist()
+        outlineEnergy = outlineEnergy.tolist() \
+                        + (-outlineEnergy[::-1]).tolist()
+        
+        return np.array([outlineTime, outlineEnergy])
+
 
 
     ##################################################
