@@ -208,7 +208,7 @@ class RFStation:
     >>> rf_station = RFStation(ring, [35640, 71280], [6e6, 6e5], [0, 0], 2)
 
     """
-
+    #TODO: move offsets to tracking only version
     def __init__(self, Ring, harmonic, voltage, phi_rf_d,
                  section_index=1, omega_rf_offset=None, phi_rf_offset=None):
 
