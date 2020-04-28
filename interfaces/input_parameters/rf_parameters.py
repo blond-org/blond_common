@@ -337,7 +337,7 @@ class RFStation:
         self.omega_rf_offset = omega_rf_offset.reshape(self.harmonic[:,0],
                                                        Ring.cycle_time, 
                                                        Ring.use_turns)
-            
+
         if phi_rf_offset is None:
             useoff = (0,)*self.harmonic.shape[0]
             phi_rf_offset = dTypes.phase_offset(*useoff, 

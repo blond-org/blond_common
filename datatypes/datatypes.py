@@ -1012,11 +1012,11 @@ class _freq_phase_off(_RF_function):
             if self.timebase in ('by_turn', 'interpolated'):
                 delta_phase[i] = np.cumsum(2*np.pi\
                                            *(delta_omega[i]\
-                                             /(design_omega_rev)))
+                                             /(h*design_omega_rev)))
             else:
                 delta_phase[i] = np.cumsum(2*np.pi\
                                                *(delta_omega[i]\
-                                                 /(design_omega_rev[1]))) \
+                                                 /(h*design_omega_rev[1]))) \
                                     * np.gradient(design_omega_rev[0])
             
         return delta_phase
