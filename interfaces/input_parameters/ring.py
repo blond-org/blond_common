@@ -184,8 +184,28 @@ class Ring:
 
     """
 
-    def __init__(self, ring_length, alpha, synchronous_data, Particle,
-                 bending_radius=None, **kwargs):
+    def __init__(self, ring_length, alpha, Particle, momentum = None,
+                 kin_energy = None, energy = None, 
+                 bending_field = None, bending_radius=None, 
+                 store_turns = True, **kwargs):
+        
+        syncDataTypes = ('momentum', 'kin_energy', 'energy', 
+                         'B_field')
+        syncDataInput = (momentum, kin_energy, energy, bending_field)
+        assrt.single_not_none(*syncDataInput, msg = 'Exactly one of '
+                              + str(syncDataTypes) + ' must be declared',
+                              exception = excpt.InputError)
+        
+        if bending_field is not None and bending_radius is None:
+            raise excpt.InputError("If bending_field is used, bending_radius "
+                                   + "must be defined.")
+        
+        for t, i in zip(syncDataTypes, syncDataInput):
+
+            if i is not None:
+                func_type = t
+                synchronous_data = i
+                break
 
         # Ring length and checks
         self.ring_length = np.array(ring_length, ndmin=1, dtype=float)
@@ -205,8 +225,9 @@ class Ring:
             
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
-        if not isinstance(synchronous_data, dTypes.ring_program):
-                synchronous_data = dTypes.ring_program(synchronous_data)
+        if not isinstance(synchronous_data, dTypes._ring_program):
+                synchronous_data \
+                = dTypes._ring_program.conversions[func_type](synchronous_data)
 
         if synchronous_data.shape[0] != len(self.ring_length):
             raise excpt.InputDataError("ERROR in Ring: Number of sections "
@@ -233,11 +254,18 @@ class Ring:
         
         self.momentum = synchronous_data.preprocess(self.Particle.mass, 
                                     self.ring_circumference, sample_func, 
-                                    interpolation, start, stop)
+                                    interpolation, start, stop,
+                                    store_turns = store_turns)
+
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
-        self.use_turns = self.momentum[0].astype(int)
+        if store_turns:
+            self.parameters_at_turn = self._parameters_at_turn
+            self.use_turns = self.momentum[0].astype(int)
+        else:
+            self.parameters_at_turn = self._no_parameters_at_turn
+            self.use_turns = self.momentum[0]
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = self.momentum.n_turns
@@ -245,8 +273,8 @@ class Ring:
         # Derived from momentum
         self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
         self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
-        self.energy = rt.mom_to_energy(self.momentum[2:], self.Particle.mass)
-        self.kin_energy = rt.mom_to_kin_energy(self.momentum[2:], 
+        self.energy = rt.momentum_to_energy(self.momentum[2:], self.Particle.mass)
+        self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:], 
                                                self.Particle.mass)
         self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))            
         self.delta_E = np.diff(self.energy, axis=1)
@@ -281,6 +309,7 @@ class Ring:
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
                 a = dTypes.momentum_compaction(a, order = i)
+
             setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections, 
                                                     self.cycle_time, 
                                                     self.use_turns))
@@ -298,6 +327,35 @@ class Ring:
 
         # Slippage factor derived from alpha, beta, gamma
         self.eta_generation()
+
+    #TODO: different interpollation for different components (e.g. alpha and momentum)
+    @classmethod
+    def from_ring_sections(cls, *args, Particle, interpolation = 'linear', 
+                           **kwargs):
+        
+        # Primary particle mass and charge used for energy calculations
+        if not isinstance(Particle, beam.Particle):
+            Particle = beam.make_particle(Particle)
+        
+        synchronous_data = dTypes.momentum_program.combine_single_sections(
+                                *(a.synchronous_data for a in args),
+                                charge = Particle.charge, 
+                                rest_mass = Particle.mass,
+                                bending_radius = (a.bending_radius for 
+                                                  a in args),
+                                interpolation = interpolation)
+        
+        ring_length = np.array([a.section_length for a in args])
+        
+        alpha = {}
+        for i in range(3):
+            alpha[i] = dTypes.momentum_compaction.combine_single_sections(
+                            *(getattr(a, f'alpha_{i}') for a in args),
+                            interpolation = interpolation)
+
+        return cls(ring_length, alpha, Particle, 
+                   momentum = synchronous_data)
+
 
 
     def eta_generation(self):
@@ -387,9 +445,14 @@ class Ring:
         parameters['cycle_time'] = cycle_moments
 
         return parameters
-    
-    
-    def parameters_at_turn(self, turn):
+
+
+    def _no_parameters_at_turn(self, turn):
+        raise RuntimeError("parameters_at_turn only available if "\
+                           + "store_turns = True at object declaration")
+
+
+    def _parameters_at_turn(self, turn):
 
         try:
             sample = np.where(self.use_turns == turn)[0][0]
@@ -398,7 +461,8 @@ class Ring:
                                    + "stored for the specified interpolation")
         else:
             return self.parameters_at_sample(sample)
-    
+
+
     def parameters_at_sample(self, sample):
         
         parameters = {}
