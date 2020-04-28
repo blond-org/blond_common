@@ -177,7 +177,7 @@ class Beam_Parameters:
         for s in range(self.n_samples):
             bucket_list = self.create_sample_buckets(s)
             for p in range(self.n_particles):
-                self.buckets[(self.ring.use_turns[s], p)] = bucket_list[p]
+                self.buckets[(s, p)] = bucket_list[p]
     
 
     def sample_potential_well(self, sample, volts = None):
@@ -263,10 +263,12 @@ class Beam_Parameters:
 
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
-
+        inWell -= np.min(inWell)
+        #TODO: revisit relative_max_val_precision
         try:
             maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
-                                     mest = int(3*np.max(self.rf.harmonic)))
+                                     mest = int(3*np.max(self.rf.harmonic)), 
+                                     relative_max_val_precision_limit=1E-4)
         except:
             plt.plot(inTime, inWell)
             plt.show()
@@ -292,8 +294,15 @@ class Beam_Parameters:
 
         subTime = [times[r] for r in relevant]
         subWell = [wells[r] for r in relevant]
-        
-        biggest = pot.sort_potential_wells(subTime, subWell, by='size')[0][0]
+        try:
+            biggest = pot.sort_potential_wells(subTime, subWell, by='size')[0][0]
+        except:
+            plt.plot(inTime, inWell)
+            plt.show()
+            print(maxLocs)
+            print(f"Sample: {sample}")
+            # np.save('easyBrokenWell', [inTime, inWell])
+            sys.exit()
 
         #check which subwells are within the bounds of the largest well 
         #containing the current particle
