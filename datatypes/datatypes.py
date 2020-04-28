@@ -969,10 +969,10 @@ class _freq_phase_off(_RF_function):
         delta_omega.timebase = 'interpolated'
         for i, h in enumerate(self.harmonics):
             if self.timebase in ('by_turn', 'interpolated'):
-                delta_omega[i] = (design_omega_rev/(2*np.pi)) \
+                delta_omega[i] = h*(design_omega_rev/(2*np.pi)) \
                                     * np.gradient(delta_phase[i])
             else:
-                delta_omega[i] = (design_omega_rev[1]/(2*np.pi)) \
+                delta_omega[i] = h*(design_omega_rev[1]/(2*np.pi)) \
                                     * np.gradient(delta_phase[i])\
                                         /np.gradient(design_omega_rev[0])
         
