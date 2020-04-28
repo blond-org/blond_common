@@ -851,55 +851,80 @@ class phase_program(_RF_function):
 
 class _freq_phase_off(_RF_function):
     
-    def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear'):
-
-        return super().__new__(cls, *args, harmonics = harmonics, time = time,
-                                n_turns = n_turns, 
-                                interpolation = interpolation)
-    
-    
-    def calc_delta_omega(self, design_omega):
+    def calc_delta_omega(self, design_omega_rev):
         
         if not isinstance(self, phase_offset):
             raise RuntimeError("calc_delta_omega can only be used with a "
-                               + "phase modulation function")
+                                + "phase modulation function")
         
-        delta_omega = np.zeros(self.shape)
-        for i, h in enumerate(self.harmonics):
-            delta_omega[i] = np.gradient(self[i]) * design_omega \
-                          / (2*np.pi * h)
-        
-        delta_omega = delta_omega.view(omega_offset)
+        if len(design_omega_rev.shape) == 2:
+            if self.timebase != 'by_time':
+                raise RuntimeError("Time dependent design frequency requires" 
+                                    + " time dependent offset frequency")
+            delta_phase = self.reshape(use_time = design_omega_rev[0])
 
-        delta_omega.data_type = {'timebase': self.timebase,
-                                 'harmonics': self.harmonics}
+        else:
+            if self.timebase != 'by_turn':
+                raise RuntimeError("Turn dependent design frequency requires" 
+                                    + " turn dependent offset frequency")
+            delta_phase = self.copy()
+        
+        if self.timebase not in ('by_turn', 'by_time'):
+            raise RuntimeError("Only turn or time based functions can be "
+                               + "treated")
+        
+        
+        delta_omega = omega_offset.zeros(delta_phase.shape, self.data_type)
+        delta_omega.timebase = 'interpolated'
+        for i, h in enumerate(self.harmonics):
+            if self.timebase in ('by_turn', 'interpolated'):
+                delta_omega[i] = (design_omega_rev/(2*np.pi)) \
+                                    * np.gradient(delta_phase[i])
+            else:
+                delta_omega[i] = (design_omega_rev[1]/(2*np.pi)) \
+                                    * np.gradient(delta_phase[i])\
+                                        /np.gradient(design_omega_rev[0])
         
         return delta_omega
     
     
-    def calc_delta_phase(self, design_omega, wrap=False):
-        
+    def calc_delta_phase(self, design_omega_rev, wrap=False):
+
         if not isinstance(self, omega_offset):
             raise RuntimeError("calc_delta_omega can only be used with a "
                                + "phase modulation function")
         
-        delta_phase = np.zeros(self.shape)
+        if len(design_omega_rev.shape) == 2:
+            if self.timebase != 'by_time':
+                raise RuntimeError("Time dependent design frequency requires" 
+                                    + " time dependent offset frequency")
+            delta_omega = self.reshape(use_time = design_omega_rev[0])
+
+        else:
+            if self.timebase != 'by_turn':
+                raise RuntimeError("Turn dependent design frequency requires" 
+                                    + " turn dependent offset frequency")
+            delta_omega = self.copy()
+        
+        if self.timebase not in ('by_turn', 'by_time'):
+            raise RuntimeError("Only turn or time based functions can be "
+                               + "treated")
+            
+
+        delta_phase = phase_offset.zeros(delta_omega.shape, self.data_type)
+        delta_phase.timebase = 'interpolated'
         for i, h in enumerate(self.harmonics):
-            delta_phase[i] = np.cumsum(h*(h*self[i])/design_omega)
-            if wrap:
-                while np.max(delta_phase[i]) > np.pi:
-                    delta_phase[i, delta_phase[i] > np.pi] -= 2*np.pi
-                while np.min(delta_phase[i]) < -np.pi:
-                    delta_phase[i, delta_phase[i] < -np.pi] += 2*np.pi
-        
-        delta_phase = delta_phase.view(phase_offset)
-
-        delta_phase.data_type = {'timebase': self.timebase,
-                                 'harmonics': self.harmonics}
-
+            if self.timebase in ('by_turn', 'interpolated'):
+                delta_phase[i] = np.cumsum(2*np.pi\
+                                           *(delta_omega[i]\
+                                             /(design_omega_rev)))
+            else:
+                delta_phase[i] = np.cumsum(2*np.pi\
+                                               *(delta_omega[i]\
+                                                 /(design_omega_rev[1]))) \
+                                    * np.gradient(design_omega_rev[0])
+            
         return delta_phase
-        
 
 
 class phase_offset(_freq_phase_off):
@@ -907,7 +932,7 @@ class phase_offset(_freq_phase_off):
 
 class omega_offset(_freq_phase_off):
     pass
-        
+
 
 class _beam_data(_function):
     
