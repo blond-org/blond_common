@@ -426,15 +426,15 @@ class _ring_program(_ring_function):
                 warnings.warn("t_stop too late, ending at " 
                               + str(self[0, 0, -1]))
                 t_end = self[0, 0, -1]
-        #TODO: Treat derivative interpolation
+        #TODO: Treat derivative interpolation without storing turns
             for s in range(self.shape[0]):
                 if store_turns:
-                    nTurns, useTurns, time, momentum = self._linear_interpolation(
-                                                                mass,
-                                                                circumference, 
-                                                                (interp_time, 
-                                                                 t_start, t_end), 
-                                                                targetNTurns, s)
+                    nTurns, useTurns, time, momentum \
+                                = interp_funcs[interpolation](mass,
+                                                              circumference, 
+                                                              (interp_time, 
+                                                               t_start, t_end), 
+                                                              targetNTurns, s)
                 else:
                     nTurns, useTurns, time, momentum \
                         = self._linear_interpolation_no_turns(mass, 
