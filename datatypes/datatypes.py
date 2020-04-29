@@ -406,7 +406,7 @@ class _ring_program(_ring_function):
                         'derivative': self._derivative_interpolation}
         
         if interpolation not in interp_funcs:
-            raise exceptions.InputError(f"Available interpolation options are:\
+            raise excpt.InputError(f"Available interpolation options are:\
                                         {tuple(interp_funcs.keys())}")
 
         if not hasattr(interp_time, '__call__'):
@@ -426,7 +426,7 @@ class _ring_program(_ring_function):
                 warnings.warn("t_stop too late, ending at " 
                               + str(self[0, 0, -1]))
                 t_end = self[0, 0, -1]
-        
+        #TODO: Treat derivative interpolation
             for s in range(self.shape[0]):
                 if store_turns:
                     nTurns, useTurns, time, momentum = self._linear_interpolation(
@@ -969,10 +969,10 @@ class _freq_phase_off(_RF_function):
         delta_omega.timebase = 'interpolated'
         for i, h in enumerate(self.harmonics):
             if self.timebase in ('by_turn', 'interpolated'):
-                delta_omega[i] = (design_omega_rev/(2*np.pi)) \
+                delta_omega[i] = h*(design_omega_rev/(2*np.pi)) \
                                     * np.gradient(delta_phase[i])
             else:
-                delta_omega[i] = (design_omega_rev[1]/(2*np.pi)) \
+                delta_omega[i] = h*(design_omega_rev[1]/(2*np.pi)) \
                                     * np.gradient(delta_phase[i])\
                                         /np.gradient(design_omega_rev[0])
         
@@ -1012,11 +1012,11 @@ class _freq_phase_off(_RF_function):
             if self.timebase in ('by_turn', 'interpolated'):
                 delta_phase[i] = np.cumsum(2*np.pi\
                                            *(delta_omega[i]\
-                                             /(design_omega_rev)))
+                                             /(h*design_omega_rev)))
             else:
                 delta_phase[i] = np.cumsum(2*np.pi\
                                                *(delta_omega[i]\
-                                                 /(design_omega_rev[1]))) \
+                                                 /(h*design_omega_rev[1]))) \
                                     * np.gradient(design_omega_rev[0])
             
         return delta_phase
@@ -1367,7 +1367,7 @@ def _expand_function(*args):
 def stack(*args, interpolation = 'linear'):
 
     if not all(hasattr(a, '__iter__') for a in args):
-        raise exceptions.InputError("All args should be iterable, either as a "
+        raise excpt.InputError("All args should be iterable, either as a "
                                    + "datatype object, or a list or tuple with"
                                    + " start and/or end times for the stack")
 
@@ -1399,7 +1399,7 @@ def stack(*args, interpolation = 'linear'):
                 functions.append(a[1])
                 stop_time.append(None)
             else:
-                raise exceptions.InputError("All elements must have a "
+                raise excpt.InputError("All elements must have a "
                                        + "datatype included")
         
         elif len(a) == 1:
@@ -1408,26 +1408,26 @@ def stack(*args, interpolation = 'linear'):
             stop_time.append(None)
 
         else:
-            raise exceptions.InputError("If passing an iterable it must have "
+            raise excpt.InputError("If passing an iterable it must have "
                                    + "a maximum length of 3")
 
     if not all(isinstance(f, _function) for f in functions):
-        raise exceptions.InputError("All functions should be datatype objects")
+        raise excpt.InputError("All functions should be datatype objects")
 
     timebases = [f.timebase for f in functions]
 
     if 'single' in timebases:
-        raise exceptions.InputError("Single valued functions cannot be stacked")
+        raise excpt.InputError("Single valued functions cannot be stacked")
 
     if not all(t == timebases[0] for t in timebases):
-        raise exceptions.InputError("Only functions with the same timebase "
+        raise excpt.InputError("Only functions with the same timebase "
                                     +"can be stacked")
 
     if not all(type(f) == type(functions[0]) for f in functions):
-        raise exceptions.InputError("All functions should be the same type")
+        raise excpt.InputError("All functions should be the same type")
 
     if not all(f.data_type == functions[0].data_type for f in functions):
-        raise exceptions.InputError("All function should have the same "
+        raise excpt.InputError("All function should have the same "
                                     + "data_type")
 
     nSections = functions[0].shape[0]
