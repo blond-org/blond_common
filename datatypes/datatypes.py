@@ -1090,7 +1090,8 @@ class acceptance(_beam_data):
     def __new__(cls, *args, units = 'eVs', time = None, n_turns = None, 
                 interpolation = 'linear'):
         
-        return super().__new__(cls, *args, time = time, n_turns = n_turns,
+        return super().__new__(cls, *args, units = units, time = time, 
+                               n_turns = n_turns, 
                                interpolation = interpolation)
 
 
