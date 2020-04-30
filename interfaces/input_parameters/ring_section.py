@@ -239,22 +239,22 @@ class Section:
 
         setattr(self, 'alpha_'+str(order), alpha)
 
-        if self.synchronous_data.ndim == 2:
+        if (self.synchronous_data.timebase == 'by_turn') and \
+                (alpha.timebase == 'by_turn'):
 
-            try:
-                setattr(self, 'alpha_'+str(order), alpha.reshape(
-                    1, use_turns=np.arange(self.synchronous_data.shape[1])))
-            except excpt.DataDefinitionError:
+            if (alpha.shape[-1] > 1) and \
+                    (self.synchronous_data.shape[-1] > alpha.shape[-1]):
+
                 raise excpt.InputError(
-                        'The momentum compaction alpha_'+str(order) +
-                        ' was passed as a turn based program but with ' +
-                        'different length than the synchronous data. ' +
-                        'Turn based programs should have the same length.')
+                            'The momentum compaction alpha_'+str(order) +
+                            ' was passed as a turn based program but with ' +
+                            'different length than the synchronous data. ' +
+                            'Turn based programs should have the same length.')
 
-        elif self.synchronous_data.ndim == 3:
+        elif (self.synchronous_data.timebase == 'by_time') and \
+                (alpha.timebase == 'by_turn'):
 
-            if alpha.ndim == 2:
-                warn_message = 'The synchronous data was defined time based while the ' + \
-                    'momentum compaction was defined turn base, this may' + \
-                    'lead to errors in the Ring object after interpolation'
-                warnings.warn(warn_message)
+            warn_message = 'The synchronous data was defined time based while the ' + \
+                'momentum compaction was defined turn base, this may' + \
+                'lead to errors in the Ring object after interpolation'
+            warnings.warn(warn_message)
