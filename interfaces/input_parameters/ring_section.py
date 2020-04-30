@@ -17,13 +17,10 @@ import numpy as np
 import warnings
 
 # BLonD_Common imports
-if __name__ == '__main__':
-    pass
-else:
-    from ...datatypes import datatypes as dTypes
-    from ...datatypes.blond_function import machine_program
-    from ...devtools import exceptions as excpt
-    from ...devtools import assertions as assrt
+from ...datatypes import datatypes as dTypes
+from ...datatypes.blond_function import machine_program
+from ...devtools import exceptions as excpt
+from ...devtools import assertions as assrt
 
 
 class Section:
@@ -210,7 +207,7 @@ class Section:
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
-        self.alpha_defined = [0]
+        self.alpha_orders_defined = [0]
         for order in range(1, self.alpha_order+1):
             alpha = alpha_n.pop(order, None)
 
@@ -219,7 +216,7 @@ class Section:
                 # This condition can be replaced by 'continue' to avoid
                 # populating the object with 0 programs
             else:
-                self.alpha_defined.append(order)
+                self.alpha_orders_defined.append(order)
 
             if not isinstance(alpha, dTypes.momentum_compaction):
                 alpha = dTypes.momentum_compaction(alpha, order=order)
@@ -261,98 +258,3 @@ class Section:
                     'momentum compaction was defined turn base, this may' + \
                     'lead to errors in the Ring object after interpolation'
                 warnings.warn(warn_message)
-
-
-if __name__ == '__main__':
-
-    from blond_common.datatypes import datatypes as dTypes
-    from blond_common.datatypes.blond_function import machine_program
-    from blond_common.devtools import exceptions as excpt
-    from blond_common.devtools import assertions as assrt
-
-    # To declare a Section with simple input
-    section_length = 300
-    alpha_0 = 1e-3
-    momentum = 26e9
-
-    section = Section(section_length, alpha_0, momentum)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0)
-
-    # To declare a Section using other type of synchronous data
-    section_length = 300
-    alpha_0 = 1e-3
-    energy = 26e9
-
-    section = Section(section_length, alpha_0, energy=energy)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0)
-
-    # Turn-by-turn input
-    section_length = 300
-    alpha_0 = [1e-3, 1e-3, 1e-3]
-    momentum = [26e9, 27e9, 28e9]
-
-    section = Section(section_length, alpha_0, momentum)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0)
-
-    # Time based input
-    section_length = 300
-    alpha_0 = 1e-3
-    momentum = [[0, 1, 2],
-                [26e9, 27e9, 28e9]]
-
-    section = Section(section_length, alpha_0, momentum)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0)
-
-    # Using the input program function, turn based
-    section_length = 300
-    alpha_0 = 1e-3
-    momentum = machine_program(26e9, n_turns=5)
-
-    section = Section(section_length, alpha_0, momentum)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0)
-
-    # Using the input program function, time based
-    section_length = 300
-    alpha_0 = 1e-3
-    momentum = machine_program([[0, 1, 2],
-                                [26e9, 27e9, 28e9]],
-                               interpolation='linear')
-
-    section = Section(section_length, alpha_0, momentum)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0)
-
-    # Passing non-linear momentum compaction factors
-    section_length = 300
-    alpha_0 = 1e-3
-    alpha_1 = 1e-4
-    alpha_2 = 1e-5
-    alpha_5 = 1e-9
-    momentum = [26e9, 26e9, 26e9]
-
-    section = Section(section_length, alpha_0, momentum)
-
-    print(section.section_length,
-          section.synchronous_data,
-          section.alpha_0,)
-#           section.alpha_1,
-#           section.alpha_2,
-#           section.alpha_5,
-#           section.alpha_defined)
