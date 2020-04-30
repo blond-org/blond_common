@@ -52,7 +52,7 @@ install:
   #       make install > /dev/null;
   #   fi
   - cd $TRAVIS_BUILD_DIR
-  - python -m pip install --upgrade pip setuptools wheel coveralls pytest cpp-coveralls
+  - python -m pip install --upgrade pip setuptools wheel coveralls pytest coverage # cpp-coveralls
   - pip install -r requirements.txt
 before_script:
   # - python setup.py compile install
@@ -60,6 +60,7 @@ before_script:
 script:
   - coverage run -m pytest -v __TESTS/unittests/*/test*.py __TESTS/unittests/*/*/test*.py
 after_success:
+  - coverage report
   - test $TRAVIS_PYTHON_VERSION = "3.6" && coveralls
 
 # branches:
