@@ -543,7 +543,10 @@ class Bucket:
         
     
     def make_profiles(self, dist_type, length = None, emittance = None, 
-                      dE = None, use_action = False):
+                      dE = None, use_action = False, recalculate = False):
+        
+        if not recalculate and hasattr(self, 'time_profile'):
+            return
         
         if not all(par is None for par in (length, emittance, dE)):
             self._set_bunch(length, emittance, dE)

@@ -41,7 +41,6 @@ class InducedVoltage:
         self.interp_frequency_array = None
         self.interp_time_array = None
 
-
     def sum_impedance_sources(self):
         
         self._induced_calcs = []

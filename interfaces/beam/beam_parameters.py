@@ -65,7 +65,7 @@ class Beam_Parameters:
             self.bunch_emittance = bunch_emittance.reshape(len(self.init_coord),
                                                            use_time = self.ring.cycle_time, 
                                                use_turns = self.ring.use_turns)
-    
+        
         self.calc_potential_wells()
         self.track_synchronous()
         self.buckets = {}
@@ -205,9 +205,7 @@ class Beam_Parameters:
             returned if volts is None
         '''        
         
-        
-        ringPars = self.ring.parameters_at_sample(sample)
-        rfPars = self.rf.parameters_at_sample(sample)
+        ringPars, rfPars = self.get_pars(sample)
         
         tRight = ringPars['t_rev']/self.harmonic_divide
         tLeft = -0.05*tRight
@@ -217,29 +215,43 @@ class Beam_Parameters:
         
         if volts is None:
              vTime, vWave = pot.rf_voltage_generation(self.potential_resolution,
-                                                      ringPars['t_rev'],
-                                                      rfPars['voltage'],
-                                                      rfPars['harmonic'],
-                                                      rfPars['phi_rf_d'],
-                                                      time_bounds = timeBounds)
+                                                    ringPars['t_rev'],
+                                                    rfPars['voltage'],
+                                                    rfPars['harmonic'],
+                                                    rfPars['phi_rf_d'],
+                                                    time_bounds = timeBounds)
         else:
             vWave = volts
             vTime = np.linspace(timeBounds[0], timeBounds[1], 
                                 self.potential_resolution)
 
-        time, well, _ = pot.rf_potential_generation_cubic(vTime, vWave, 
-                                                          ringPars['eta_0'], 
-                                                          ringPars['charge'],
-                                                          ringPars['t_rev'], 
-                                                          ringPars['delta_E'])
-
+        time, well = self.calc_well(vTime, vWave, ringPars)
+        
+        plt.plot(vTime, vWave)
         if volts is None:
             return time, well, vWave
         else:
             return time, well
     
     
-
+    def get_pars(self, sample):
+        
+        ringPars = self.ring.parameters_at_sample(sample)
+        rfPars = self.rf.parameters_at_sample(sample)
+        
+        return ringPars, rfPars
+    
+    
+    def calc_well(self, time, volts, ringPars):
+    
+        time, well, _ = pot.rf_potential_generation_cubic(time, volts, 
+                                                          ringPars['eta_0'], 
+                                                          ringPars['charge'],
+                                                          ringPars['t_rev'], 
+                                                          ringPars['delta_E'])
+        return time, well
+    
+    
     def cut_well(self, sample, particle):
         
         '''
