@@ -92,7 +92,7 @@ def equal_arrays(*args, msg, exception):
 
 
 def not_none(*args, msg, exception):
-    r""" Checks in the passed arguments that not all of them are None, raises an
+    r""" Checks in the passed arguments that all of them are not None, raises an
      exception otherwise.
 
     Parameters
