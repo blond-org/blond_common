@@ -17,16 +17,12 @@ import numpy as np
 
 # BLonD_Common imports
 if __name__ == '__main__':
-    from blond_common.datatypes import datatypes as dTypes
-    from blond_common.datatypes import blond_function as bf
-    from blond_common.devtools import exceptions as excpt
-    from blond_common.devtools import assertions as assrt
-else:
     pass
-#     from ...datatypes import datatypes as dTypes
-#     from ...datatypes import blond_function as bf
-#     from ...devtools import exceptions as excpt
-#     from ...devtools import assertions as assrt
+else:
+    from ...datatypes import datatypes as dTypes
+    from ...datatypes import blond_function as bf
+    from ...devtools import exceptions as excpt
+    from ...devtools import assertions as assrt
 
 
 class Section:
@@ -205,11 +201,17 @@ class Section:
             else:
                 if alpha.order != order:
                     raise excpt.InputError(
-                        "The order of datatype the passed in ")
+                        "The order of the datatype passed as keyword " +
+                        "argument alpha_%s do not match" % (order))
             setattr(self, 'alpha_'+str(order), alpha)
 
 
 if __name__ == '__main__':
+
+    from blond_common.datatypes import datatypes as dTypes
+    from blond_common.datatypes import blond_function as bf
+    from blond_common.devtools import exceptions as excpt
+    from blond_common.devtools import assertions as assrt
 
     # Simple input
     section_length = 300
