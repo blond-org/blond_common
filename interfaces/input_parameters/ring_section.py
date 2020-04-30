@@ -173,6 +173,9 @@ class Section:
         self.synchronous_data = synchronous_data
 
         # Setting the linear momentum compaction factor
+        # Checking that the synchronous data and the momentum compaction
+        # have the same length if defined turn-by-turn, raise a warning if one
+        # is defined by turn and the other time based
         self.alpha_order = 0
         if not isinstance(alpha_0, dTypes.momentum_compaction):
             alpha_0 = dTypes.momentum_compaction(alpha_0, order=0)
@@ -182,20 +185,7 @@ class Section:
                     "The order of the datatype passed as keyword " +
                     "argument alpha_%s do not match" % (0))
 
-        # Checking that the synchronous data and the momentum compaction
-        # have the same length if defined turn-by-turn, raise a warning if one
-        # is defined by turn and the other time based
-        self.alpha_0 = alpha_0
-
-        if self.synchronous_data.ndim == 2:
-            self.alpha_0 = alpha_0.reshape(
-                1, use_turns=np.arange(self.synchronous_data.shape[1]))
-        elif self.synchronous_data.ndim == 3:
-            if alpha_0.ndim == 2:
-                warn_message = 'The synchronous data was defined time based while the ' + \
-                    'momentum compaction was defined turn base, this may' + \
-                    'lead to errors in the Ring object after interpolation'
-                warnings.warn(warn_message)
+        self._check_and_set_momentum_compaction(alpha_0, 0)
 
         # Treating non-linear momentum compaction factor if declared
         # Listing all the declared alpha first
@@ -226,6 +216,8 @@ class Section:
 
             if alpha is None:
                 alpha = 0
+                # This condition can be replaced by 'continue' to avoid
+                # populating the object with 0 programs
             else:
                 self.alpha_defined.append(order)
 
@@ -237,7 +229,38 @@ class Section:
                         "The order of the datatype passed as keyword " +
                         "argument alpha_%s do not match" % (order))
 
-            setattr(self, 'alpha_'+str(order), alpha)
+            self._check_and_set_momentum_compaction(alpha, order)
+
+    def _check_and_set_momentum_compaction(self, alpha, order):
+        '''
+        Internal function to check that the input momentum compaction is
+        coherent with the synchronous data. If the synchronous data is turn
+        based, the momentum compaction should have the same length. If the
+        synchronous is time based while the momentum compaction is turn based,
+        raises a warning.
+        '''
+
+        setattr(self, 'alpha_'+str(order), alpha)
+
+        if self.synchronous_data.ndim == 2:
+
+            try:
+                setattr(self, 'alpha_'+str(order), alpha.reshape(
+                    1, use_turns=np.arange(self.synchronous_data.shape[1])))
+            except excpt.DataDefinitionError:
+                raise excpt.InputError(
+                        'The momentum compaction alpha_'+str(order) +
+                        ' was passed as a turn based program but with ' +
+                        'different length than the synchronous data. ' +
+                        'Turn based programs should have the same length.')
+
+        elif self.synchronous_data.ndim == 3:
+
+            if alpha.ndim == 2:
+                warn_message = 'The synchronous data was defined time based while the ' + \
+                    'momentum compaction was defined turn base, this may' + \
+                    'lead to errors in the Ring object after interpolation'
+                warnings.warn(warn_message)
 
 
 if __name__ == '__main__':
@@ -322,16 +345,14 @@ if __name__ == '__main__':
     alpha_1 = 1e-4
     alpha_2 = 1e-5
     alpha_5 = 1e-9
-    momentum = 26e9
+    momentum = [26e9, 26e9, 26e9]
 
-    section = Section(section_length, alpha_0, momentum,
-                      alpha_1=alpha_1, alpha_2=alpha_2,
-                      alpha_5=alpha_5)
+    section = Section(section_length, alpha_0, momentum)
 
     print(section.section_length,
           section.synchronous_data,
-          section.alpha_0,
-          section.alpha_1,
-          section.alpha_2,
-          section.alpha_5,
-          section.alpha_defined)
+          section.alpha_0,)
+#           section.alpha_1,
+#           section.alpha_2,
+#           section.alpha_5,
+#           section.alpha_defined)
