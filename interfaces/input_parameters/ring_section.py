@@ -14,13 +14,14 @@
 
 # General imports
 import numpy as np
+import warnings
 
 # BLonD_Common imports
 if __name__ == '__main__':
     pass
 else:
     from ...datatypes import datatypes as dTypes
-    from ...datatypes import blond_function as bf
+    from ...datatypes.blond_function import machine_program
     from ...devtools import exceptions as excpt
     from ...devtools import assertions as assrt
 
@@ -157,10 +158,6 @@ class Section:
         else:
             self.bending_radius = dTypes._ring_function(bending_radius)
 
-        # Setting the linear momentum compaction factor
-        self.alpha_order = 0
-        self.alpha_0 = dTypes.momentum_compaction(alpha_0)
-
         # Taking the first synchronous_data input not declared as None
         # The assertion above ensures that only one is declared
         for func_type, synchronous_data in zip(syncDataTypes, syncDataInput):
@@ -175,6 +172,31 @@ class Section:
 
         self.synchronous_data = synchronous_data
 
+        # Setting the linear momentum compaction factor
+        self.alpha_order = 0
+        if not isinstance(alpha_0, dTypes.momentum_compaction):
+            alpha_0 = dTypes.momentum_compaction(alpha_0, order=0)
+        else:
+            if alpha_0.order != 0:
+                raise excpt.InputError(
+                    "The order of the datatype passed as keyword " +
+                    "argument alpha_%s do not match" % (0))
+
+        # Checking that the synchronous data and the momentum compaction
+        # have the same length if defined turn-by-turn, raise a warning if one
+        # is defined by turn and the other time based
+        self.alpha_0 = alpha_0
+
+        if self.synchronous_data.ndim == 2:
+            self.alpha_0 = alpha_0.reshape(
+                1, use_turns=np.arange(self.synchronous_data.shape[1]))
+        elif self.synchronous_data.ndim == 3:
+            if alpha_0.ndim == 2:
+                warn_message = 'The synchronous data was defined time based while the ' + \
+                    'momentum compaction was defined turn base, this may' + \
+                    'lead to errors in the Ring object after interpolation'
+                warnings.warn(warn_message)
+
         # Treating non-linear momentum compaction factor if declared
         # Listing all the declared alpha first
         alpha_n = {1: alpha_1, 2: alpha_2}
@@ -183,19 +205,30 @@ class Section:
             self.alpha_order = 1
         if alpha_2 is not None:
             self.alpha_order = 2
+
         for argument in kwargs:
             if 'alpha' in argument:
-                order = int(argument.split('_')[-1])
-                self.alpha_order = np.max([self.alpha_order, order])
-                alpha_n[order] = kwargs[argument]
+                try:
+                    order = int(argument.split('_')[-1])
+                    self.alpha_order = np.max([self.alpha_order, order])
+                    alpha_n[order] = kwargs[argument]
+                except Exception:
+                    raise excpt.InputError(
+                        'The keyword argument '+argument+' was interpreted ' +
+                        'as non-linear momentum compaction factor. ' +
+                        'The correct syntax is alpha_n.')
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
+        self.alpha_defined = [0]
         for order in range(1, self.alpha_order+1):
             alpha = alpha_n.pop(order, None)
 
             if alpha is None:
                 alpha = 0
+            else:
+                self.alpha_defined.append(order)
+
             if not isinstance(alpha, dTypes.momentum_compaction):
                 alpha = dTypes.momentum_compaction(alpha, order=order)
             else:
@@ -203,17 +236,18 @@ class Section:
                     raise excpt.InputError(
                         "The order of the datatype passed as keyword " +
                         "argument alpha_%s do not match" % (order))
+
             setattr(self, 'alpha_'+str(order), alpha)
 
 
 if __name__ == '__main__':
 
     from blond_common.datatypes import datatypes as dTypes
-    from blond_common.datatypes import blond_function as bf
+    from blond_common.datatypes.blond_function import machine_program
     from blond_common.devtools import exceptions as excpt
     from blond_common.devtools import assertions as assrt
 
-    # Simple input
+    # To declare a Section with simple input
     section_length = 300
     alpha_0 = 1e-3
     momentum = 26e9
@@ -223,3 +257,81 @@ if __name__ == '__main__':
     print(section.section_length,
           section.synchronous_data,
           section.alpha_0)
+
+    # To declare a Section using other type of synchronous data
+    section_length = 300
+    alpha_0 = 1e-3
+    energy = 26e9
+
+    section = Section(section_length, alpha_0, energy=energy)
+
+    print(section.section_length,
+          section.synchronous_data,
+          section.alpha_0)
+
+    # Turn-by-turn input
+    section_length = 300
+    alpha_0 = [1e-3, 1e-3, 1e-3]
+    momentum = [26e9, 27e9, 28e9]
+
+    section = Section(section_length, alpha_0, momentum)
+
+    print(section.section_length,
+          section.synchronous_data,
+          section.alpha_0)
+
+    # Time based input
+    section_length = 300
+    alpha_0 = 1e-3
+    momentum = [[0, 1, 2],
+                [26e9, 27e9, 28e9]]
+
+    section = Section(section_length, alpha_0, momentum)
+
+    print(section.section_length,
+          section.synchronous_data,
+          section.alpha_0)
+
+    # Using the input program function, turn based
+    section_length = 300
+    alpha_0 = 1e-3
+    momentum = machine_program(26e9, n_turns=5)
+
+    section = Section(section_length, alpha_0, momentum)
+
+    print(section.section_length,
+          section.synchronous_data,
+          section.alpha_0)
+
+    # Using the input program function, time based
+    section_length = 300
+    alpha_0 = 1e-3
+    momentum = machine_program([[0, 1, 2],
+                                [26e9, 27e9, 28e9]],
+                               interpolation='linear')
+
+    section = Section(section_length, alpha_0, momentum)
+
+    print(section.section_length,
+          section.synchronous_data,
+          section.alpha_0)
+
+    # Passing non-linear momentum compaction factors
+    section_length = 300
+    alpha_0 = 1e-3
+    alpha_1 = 1e-4
+    alpha_2 = 1e-5
+    alpha_5 = 1e-9
+    momentum = 26e9
+
+    section = Section(section_length, alpha_0, momentum,
+                      alpha_1=alpha_1, alpha_2=alpha_2,
+                      alpha_5=alpha_5)
+
+    print(section.section_length,
+          section.synchronous_data,
+          section.alpha_0,
+          section.alpha_1,
+          section.alpha_2,
+          section.alpha_5,
+          section.alpha_defined)
