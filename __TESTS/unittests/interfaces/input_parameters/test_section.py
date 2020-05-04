@@ -29,6 +29,7 @@ if os.path.abspath(this_directory + '../../../../../') not in sys.path:
 
 from blond_common.interfaces.input_parameters.ring_section import Section
 from blond_common.devtools import exceptions as excpt
+from blond_common.datatypes import datatypes as dTypes
 
 
 class TestSection(unittest.TestCase):
@@ -266,18 +267,16 @@ class TestSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
-            
+
     def test_non_linear_alpha(self):
         # Passing non-linear momentum compaction factors
-        
+
         section_length = 300  # m
         alpha_0 = 1e-3
         momentum = 26e9  # eV
         alpha_1 = 1e-6
         alpha_2 = 1e-9
         alpha_5 = 1e-12
-
-        section = Section(section_length, alpha_0, momentum)
 
         with self.subTest('Non-linear momentum compaction - alpha_1'):
             section = Section(section_length, alpha_0, momentum,
@@ -356,8 +355,9 @@ class TestSection(unittest.TestCase):
         with self.assertRaisesRegex(excpt.InputError, error_message):
             Section(section_length, alpha_0, bending_field=bending_field)
 
-    def test_assert_wrong_turn_by_turn_alpha_size(self):
-        # Test the excecption that an alpha_n is incorrectly passed
+    def test_assert_wrong_turn_by_turn_alpha_length(self):
+        # Test the exception that an alpha_n and synchronous data are turn
+        # based and have different lengths
 
         section_length = 300  # m
         alpha_0 = [1e-3, 1e-3]
@@ -367,37 +367,41 @@ class TestSection(unittest.TestCase):
         with self.subTest('Wrong turn-by-turn momentum compaction - alpha_0'):
             order = 0
 
-            error_message = ('The momentum compaction alpha_'+str(order) +
-                             ' was passed as a turn based program but with ' +
-                             'different length than the synchronous data. ' +
-                             'Turn based programs should have the same length.')
-    
+            error_message = (
+                'The momentum compaction alpha_'+str(order) +
+                ' was passed as a turn based program but with ' +
+                'different length than the synchronous data. ' +
+                'Turn based programs should have the same length.')
+
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 Section(section_length, alpha_0, momentum)
 
         with self.subTest('Wrong turn-by-turn momentum compaction - alpha_1'):
             order = 1
 
-            error_message = ('The momentum compaction alpha_'+str(order) +
-                             ' was passed as a turn based program but with ' +
-                             'different length than the synchronous data. ' +
-                             'Turn based programs should have the same length.')
-    
+            error_message = (
+                'The momentum compaction alpha_'+str(order) +
+                ' was passed as a turn based program but with ' +
+                'different length than the synchronous data. ' +
+                'Turn based programs should have the same length.')
+
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 Section(section_length, alpha_0[0], momentum, alpha_1=alpha_1)
 
     def test_warning_turn_time_mix(self):
-        # Test the excecption that an alpha_n is incorrectly passed
+        # Test the warning that time based programs and turn based
+        # were mixed
 
         section_length = 300  # m
-        momentum = [[0, 1 ,2], [26e9, 27e9, 28e9]]  # eV
+        momentum = [[0, 1, 2], [26e9, 27e9, 28e9]]  # eV
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
 
-        warn_message = 'The synchronous data was defined time based while the ' + \
-                        'momentum compaction was defined turn base, this may' + \
-                        'lead to errors in the Ring object after interpolation'
-                
+        warn_message = (
+            'The synchronous data was defined time based while the ' +
+            'momentum compaction was defined turn base, this may' +
+            'lead to errors in the Ring object after interpolation')
+
         with self.subTest('Turn/time program mix - alpha_0'):
             with self.assertWarnsRegex(Warning, warn_message):
                 Section(section_length, alpha_0, momentum)
@@ -407,7 +411,7 @@ class TestSection(unittest.TestCase):
                 Section(section_length, alpha_0[0], momentum, alpha_1=alpha_1)
 
     def test_assert_wrong_alpha_n(self):
-        # Test the excecption that an alpha_n is incorrectly passed
+        # Test the exception that an alpha_n is incorrectly passed
 
         section_length = 300  # m
         alpha_0 = 1e-3
@@ -420,6 +424,31 @@ class TestSection(unittest.TestCase):
 
         with self.assertRaisesRegex(excpt.InputError, error_message):
             Section(section_length, alpha_0, momentum, alpha5=alpha5)
+
+    def test_assert_wrong_alpha_order_datatype(self):
+        # Test the exception that the user defined momentum compaction
+        # with a different order than the kwarg passed
+
+        section_length = 300  # m
+        alpha_0 = dTypes.momentum_compaction(1e-3, order=0)
+        momentum = 26e9  # eV
+        alpha_1 = dTypes.momentum_compaction(1e-6, order=1)
+
+        with self.subTest('Wrong datatype order - alpha_0'):
+            order = 0
+            error_message = ("The order of the datatype passed as keyword " +
+                             "argument alpha_%s do not match" % (order))
+
+            with self.assertRaisesRegex(excpt.InputError, error_message):
+                Section(section_length, alpha_1, momentum)
+
+        with self.subTest('Wrong datatype order - alpha_1'):
+            order = 1
+            error_message = ("The order of the datatype passed as keyword " +
+                             "argument alpha_%s do not match" % (order))
+
+            with self.assertRaisesRegex(excpt.InputError, error_message):
+                Section(section_length, alpha_0, momentum, alpha_1=alpha_0)
 
 
 if __name__ == '__main__':
