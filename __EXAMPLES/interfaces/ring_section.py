@@ -25,6 +25,8 @@ print(section.section_length,
       section.alpha_0)
 
 # To declare a Section using other type of synchronous data
+# Note that to pass bending_field, bending_radius should be
+# passed as well
 section_length = 300
 alpha_0 = 1e-3
 energy = 26e9

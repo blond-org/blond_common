@@ -50,7 +50,7 @@ class TestSection(unittest.TestCase):
     # Input test --------------------------------------------------------------
 
     def test_simple_input(self):
-        # Test the simple input
+        # Test the simplest input
 
         section_length = 300  # m
         alpha_0 = 1e-3
@@ -72,6 +72,7 @@ class TestSection(unittest.TestCase):
 
     def test_other_sychronous_data(self):
         # Test other synchronous data
+        # kinetic energy, total energy, bending field
 
         section_length = 6900  # m
         alpha_0 = 1e-3
@@ -80,17 +81,17 @@ class TestSection(unittest.TestCase):
         bending_field = 1.  # T
         bending_radius = 749  # m
 
-        with self.subTest('Simple input - section_length'):
+        with self.subTest('Other sychronous data - Total energy'):
             section = Section(section_length, alpha_0, energy=energy)
             np.testing.assert_equal(
                 energy, section.synchronous_data)
 
-        with self.subTest('Simple input - momentum'):
+        with self.subTest('Other sychronous data - Kinetic energy'):
             section = Section(section_length, alpha_0, kin_energy=kin_energy)
             np.testing.assert_equal(
                 kin_energy, section.synchronous_data)
 
-        with self.subTest('Simple input - alpha_0'):
+        with self.subTest('Other sychronous data - Bending field'):
             section = Section(section_length, alpha_0,
                               bending_field=bending_field,
                               bending_radius=bending_radius)
@@ -98,6 +99,66 @@ class TestSection(unittest.TestCase):
                 bending_field, section.synchronous_data)
             np.testing.assert_equal(
                 bending_radius, section.bending_radius)
+
+    def test_turn_by_turn_prog(self):
+        # Test turn by turn program
+        # Note that shape is defined by the datatype shaping
+        # inside the Section object
+        # -> (n_sections, n_turns)
+
+        section_length = 6900  # m
+        alpha_0 = [1e-3, 1e-3, 1e-3]
+        momentum = [26e9, 27e9, 28e9]
+        energy = [26e9, 27e9, 28e9]  # eV
+        kin_energy = [25e9, 26e9, 27e9]  # eV
+        bending_field = [1.0, 1.1, 1.2]  # T
+        bending_radius = 749  # m
+
+        with self.subTest('Turn by turn program - Only momentum'):
+            section = Section(section_length, alpha_0[0], momentum)
+            np.testing.assert_equal(
+                momentum, section.synchronous_data[0, :])
+            np.testing.assert_equal(
+                alpha_0[0], section.alpha_0)
+
+        with self.subTest('Turn by turn program - Only total energy'):
+            section = Section(section_length, alpha_0[0], energy=energy)
+            np.testing.assert_equal(
+                energy, section.synchronous_data[0, :])
+            np.testing.assert_equal(
+                alpha_0[0], section.alpha_0)
+
+        with self.subTest('Turn by turn program - Only kinetic energy'):
+            section = Section(section_length, alpha_0[0],
+                              kin_energy=kin_energy)
+            np.testing.assert_equal(
+                kin_energy, section.synchronous_data[0, :])
+            np.testing.assert_equal(
+                alpha_0[0], section.alpha_0)
+
+        with self.subTest('Turn by turn program - Only bending field'):
+            section = Section(section_length, alpha_0[0],
+                              bending_field=bending_field,
+                              bending_radius=bending_radius)
+            np.testing.assert_equal(
+                bending_field, section.synchronous_data[0, :])
+            np.testing.assert_equal(
+                alpha_0[0], section.alpha_0)
+
+        with self.subTest('Turn by turn program - Only momentum compation'):
+            section = Section(section_length, alpha_0, momentum[0])
+            np.testing.assert_equal(
+                momentum[0], section.synchronous_data)
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0[0, :])
+
+        with self.subTest(
+                'Turn by turn program - Both momentum and compaction'):
+            section = Section(section_length, alpha_0, momentum)
+            np.testing.assert_equal(
+                momentum, section.synchronous_data[0, :])
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0[0, :])
 
 
 if __name__ == '__main__':
