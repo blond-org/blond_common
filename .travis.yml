@@ -67,7 +67,14 @@ after_success:
   - make html
   - git config --global user.name ${USER_LOGIN}
   - git config --global user.email ${USER_EMAIL}
-  - git clone https://${USER_LOGIN}:${GITHUB_TOKEN_DOCS}@github.com/alasheen/blond_common.git blond_common
+  - git clone https://${USER_LOGIN}:${GITHUB_TOKEN_DOCS}@github.com/${USER_LOGIN}/blond_common.git blond_common
+  - cd blond_common
+  - git checkout gh-pages
+  - rm -r *
+  - cp -r ../build/* .
+  - git add -A
+  - git status
+  - git diff-index --quiet HEAD || git commit -m "Updated documentation"
 
 # branches:
 #   only:
