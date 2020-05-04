@@ -50,27 +50,55 @@ class TestSection(unittest.TestCase):
     # Input test --------------------------------------------------------------
 
     def test_simple_input(self):
-        # Test if 'ring length size' RuntimeError gets thrown for wrong number
-        # of rf sections
-        num_sections = 1    # only one rf-section!
-        
-        section_length = 300
+        # Test the simple input
+
+        section_length = 300  # m
         alpha_0 = 1e-3
-        momentum = 26e9
+        momentum = 26e9  # eV
 
         section = Section(section_length, alpha_0, momentum)
 
-        with self.subTest('Simple input - section_length'):    
-                np.testing.assert_equal(
-                    section_length, section.section_length)
+        with self.subTest('Simple input - section_length'):
+            np.testing.assert_equal(
+                section_length, section.section_length)
 
-        with self.subTest('Simple input - momentum'):    
-                np.testing.assert_equal(
-                    momentum, section.synchronous_data)
+        with self.subTest('Simple input - momentum'):
+            np.testing.assert_equal(
+                momentum, section.synchronous_data)
 
-        with self.subTest('Simple input - alpha_0'):    
-                np.testing.assert_equal(
-                    alpha_0, section.alpha_0)
+        with self.subTest('Simple input - alpha_0'):
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0)
+
+    def test_other_sychronous_data(self):
+        # Test other synchronous data
+
+        section_length = 6900  # m
+        alpha_0 = 1e-3
+        energy = 26e9  # eV
+        kin_energy = 25e9  # eV
+        bending_field = 1.  # T
+        bending_radius = 749  # m
+
+        with self.subTest('Simple input - section_length'):
+            section = Section(section_length, alpha_0, energy=energy)
+            np.testing.assert_equal(
+                energy, section.synchronous_data)
+
+        with self.subTest('Simple input - momentum'):
+            section = Section(section_length, alpha_0, kin_energy=kin_energy)
+            np.testing.assert_equal(
+                kin_energy, section.synchronous_data)
+
+        with self.subTest('Simple input - alpha_0'):
+            section = Section(section_length, alpha_0,
+                              bending_field=bending_field,
+                              bending_radius=bending_radius)
+            np.testing.assert_equal(
+                bending_field, section.synchronous_data)
+            np.testing.assert_equal(
+                bending_radius, section.bending_radius)
+
 
 if __name__ == '__main__':
 
