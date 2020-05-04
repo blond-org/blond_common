@@ -63,11 +63,17 @@ after_success:
   - coverage report
   - test $TRAVIS_PYTHON_VERSION = "3.6" && coveralls
   - python -m pip install --upgrade sphinx sphinxcontrib-napoleon
-  - cd __doc
-  - make html
+  - mkdir -p ~/.ssh
+  - echo "$GITHUB_SSH_DOCS" | tr -d '\r' > ~/.ssh/id_rsa
+  - chmod 700 ~/.ssh/id_rsa
+  - eval "$(ssh-agent -s)"
+  - ssh-add ~/.ssh/id_rsa > ~/.ssh/added.txt
+  - ssh-keyscan -t rsa 'github.com' >> ~/.ssh/known_hosts 
   - git config --global user.name ${USER_LOGIN}
   - git config --global user.email ${USER_EMAIL}
-  - git clone https://${GITHUB_TOKEN_DOCS}:x-oauth-basic@github.com/${USER_LOGIN}/blond_common.git blond_common
+  - cd __doc
+  - make html
+  - git clone ssh://git@github.com:${USER_LOGIN}/blond_common.git blond_common
   - cd blond_common
   - git checkout gh-pages
   - rm -r *
