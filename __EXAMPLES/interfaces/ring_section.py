@@ -90,9 +90,10 @@ alpha_0 = 1e-3
 alpha_1 = 1e-4
 alpha_2 = 1e-5
 alpha_5 = 1e-9
-momentum = [26e9, 26e9, 26e9]
+energy = machine_program([[0, 1, 2],
+                          [26e9, 27e9, 28e9]])
 
-section = Section(section_length, alpha_0, momentum,
+section = Section(section_length, alpha_0, energy=energy,
                   alpha_1=alpha_1, alpha_2=alpha_2, alpha_5=alpha_5)
 
 print(section.section_length,

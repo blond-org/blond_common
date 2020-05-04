@@ -27,107 +27,122 @@ class Section:
     r""" Class containing the general properties of a section of the
     accelerator that are independent of the RF system or the beam.
 
+    The user has to input the synchronous data with at least but no more
+    than one of the following: momentum, kin_energy, energy, bending_field.
+
+    If bending_field is passed, bending_radius should be passed as well.
+
     Parameters
     ----------
     section_length : float (opt: list or np.ndarray)
         Length [m] accelerator section;
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
+        If a turn-by-turn program is passed, should be of the same size
+        as the synchronous data.
     alpha_0 : float (opt: list or np.ndarray)
-        Momentum compaction factor of zeroth order :math:`\alpha_{0,k,i}` [1];
+        Momentum compaction factor of zeroth order :math:`\alpha_{0}` [1];
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
-    synchronous_data : float (opt: list or np.ndarray)
-        Design synchronous particle momentum (default) [eV], kinetic or
-        total energy [eV] or bending field [T] on the design orbit.
-        Input for each RF section :math:`p_{s,k,n}`.
-        Can be input as a single constant float, or as a
-        program of (n_turns + 1) turns. In case of several sections without
-        acceleration, input: [[momentum_section_1], [momentum_section_2],
-        etc.]. In case of several sections with acceleration, input:
-        [momentum_program_section_1, momentum_program_section_2, etc.]. Can
-        be input also as a tuple of time and momentum, see also
-        'cycle_time' and 'PreprocessRamp'
+        If a turn-by-turn program is passed, should be of the same size
+        as the synchronous data.
+    momentum : float (opt: list or np.ndarray)
+        Design particle momentum [eV]
+        on the design orbit :math:`p_{s}`;
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+    kin_energy : float (opt: list or np.ndarray)
+        Design particle kinetic energy [eV]
+        on the design orbit :math:`E_{k,s}`;
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+    energy : float (opt: list or np.ndarray)
+        Design particle total energy [eV]
+        on the design orbit :math:`E_{s}`;
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+    bending_field : float (opt: list or np.ndarray)
+        Design bending field [T] on the design orbit :math:`B_{s}`,
+        this is used to defined the design particle momentum;
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
     bending_radius : float
         Optional: Radius [m] of the bending magnets,
         required if 'bending field' is set for the synchronous_data_type
     alpha_1 : float (opt: list or np.ndarray)
         Optional : Momentum compaction factor of first order
-        :math:`\alpha_{1,k,i}` [1]; can be input as single float or as a
-        program of (n_turns + 1) turns (should be of the same size as
-        synchronous_data and alpha_0).
+        :math:`\alpha_{1}` [1];
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+        If a turn-by-turn program is passed, should be of the same size
+        as the synchronous data.
     alpha_2 : float (opt: list or np.ndarray)
         Optional : Momentum compaction factor of second order
-        :math:`\alpha_{2,k,i}` [1]; can be input as single float or as a
-        program of (n_turns + 1) turns (should be of the same size as
-        synchronous_data and alpha_0).
+        :math:`\alpha_{2}` [1];
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+        If a turn-by-turn program is passed, should be of the same size
+        as the synchronous data.
     alpha_n : float (opt: list or np.ndarray)
         Optional : Higher order momentum compaction can also be passed through
-        extra keyword arguments.
+        extra keyword arguments;
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+        If a turn-by-turn program is passed, should be of the same size
+        as the synchronous data.
 
     Attributes
     ----------
-    section_length : float
-        Circumference of the synchrotron. Sum of ring segment lengths,
-        :math:`C = \sum_k L_k` [m]
-    bending_radius : float
+    section_length : datatype._ring_function
+        Length of the section [m]
+    synchronous_data : datatype._ring_program
+        The user input synchronous data, with no conversion applied.
+        The datatype depends on the user input and can be
+        momentum_program, kinetic_energy_program, total_energy_program,
+        bending_field_program
+    bending_radius : float (or None)
         Bending radius in dipole magnets, :math:`\rho` [m]
+    alpha_0 : datatype.momentum_compaction
+        Momentum compaction factor of zeroth order
+    alpha_1 : datatype.momentum_compaction (or None)
+        Momentum compaction factor of first order
+    alpha_2 : datatype.momentum_compaction (or None)
+        Momentum compaction factor of second order
+    alpha_n : datatype.momentum_compaction (or undefined)
+        Momentum compaction factor of higer orders
     alpha_order : int
-        Number of orders of the momentum compaction factor (from 0 to 2)
-    eta_0 : float matrix [n_sections, n_turns+1]
-        Zeroth order slippage factor :math:`\eta_{0,k,n} = \alpha_{0,k,n} -
-        \frac{1}{\gamma_{s,k,n}^2}` [1]
-    eta_1 : float matrix [n_sections, n_turns+1]
-        First order slippage factor :math:`\eta_{1,k,n} =
-        \frac{3\beta_{s,k,n}^2}{2\gamma_{s,k,n}^2} + \alpha_{1,k,n} -
-        \alpha_{0,k,n}\eta_{0,k,n}` [1]
-    eta_2 : float matrix [n_sections, n_turns+1]
-        Second order slippage factor :math:`\eta_{2,k,n} =
-        -\frac{\beta_{s,k,n}^2\left(5\beta_{s,k,n}^2-1\right)}
-        {2\gamma_{s,k,n}^2} + \alpha_{2,k,n} - 2\alpha_{0,k,n}\alpha_{1,k,n}
-        + \frac{\alpha_{1,k,n}}{\gamma_{s,k,n}^2} + \alpha_{0,k}^2\eta_{0,k,n}
-        - \frac{3\beta_{s,k,n}^2\alpha_{0,k,n}}{2\gamma_{s,k,n}^2}` [1]
-    momentum : float matrix [n_sections, n_turns+1]
-        Synchronous relativistic momentum on the design orbit :math:`p_{s,k,n}`
-    beta : float matrix [n_sections, n_turns+1]
-        Synchronous relativistic beta program for each segment of the
-        ring :math:`\beta_{s,k}^n = \frac{1}{\sqrt{1
-        + \left(\frac{m}{p_{s,k,n}}\right)^2} }` [1]
-    gamma : float matrix [n_sections, n_turns+1]
-        Synchronous relativistic gamma program for each segment of the ring
-        :math:`\gamma_{s,k,n} = \sqrt{ 1
-        + \left(\frac{p_{s,k,n}}{m}\right)^2 }` [1]
-    energy : float matrix [n_sections, n_turns+1]
-        Synchronous total energy program for each segment of the ring
-        :math:`E_{s,k,n} = \sqrt{ p_{s,k,n}^2 + m^2 }` [eV]
-    kin_energy : float matrix [n_sections, n_turns+1]
-        Synchronous kinetic energy program for each segment of the ring
-        :math:`E_{s,kin} = \sqrt{ p_{s,k,n}^2 + m^2 } - m` [eV]
-    delta_E : float matrix [n_sections, n_turns]
-        Gain in synchronous total energy from one point to another,
-        for all sections,
-        :math:`: \quad E_{s,k,n+1}- E_{s,k,n}` [eV]
-    cycle_time : float array [n_turns+1]
-        Cumulative cycle time, turn by turn, :math:`t_n = \sum_n T_{0,n}` [s].
-        Possibility to extract cycle parameters at these moments using
-        'parameters_at_time'.
-    alpha_order : int
-        Highest order of momentum compaction (as defined by the input). Can
-        be 0,1,2.
+        Maximum order of momentum compaction
+    alpha_orders_defined : int
+        Orders of momentum compaction defined by the user
 
     Examples
     --------
-    >>> # To declare a single-section synchrotron at constant energy:
-    >>> # Particle type Proton
-    >>> from beam.beam import Proton
-    >>> from input_parameters.ring import Ring
+    >>> # To declare a section of a synchrotron with very simple
+    >>> # parameters
+    >>> from blond_common.interfaces.input_parameters.ring_section import \
+    >>>     Section
     >>>
-    >>> n_turns = 10
-    >>> C = 26659
-    >>> alpha_0 = 3.21e-4
-    >>> momentum = 450e9
-    >>> ring = Ring(C, alpha_0, momentum, Proton(), n_turns)
+    >>> section_length = 300
+    >>> alpha_0 = 1e-3
+    >>> momentum = 26e9
+    >>>
+    >>> section = Section(section_length, alpha_0, momentum)
 
+    >>> # To declare a section of a synchrotron with very complex
+    >>> # parameters and programs
+    >>> from blond_common.interfaces.input_parameters.ring_section import \
+    >>>     Section
+    >>>
+    >>> section_length = 300
+    >>> alpha_0 = 1e-3
+    >>> alpha_1 = 1e-4
+    >>> alpha_2 = 1e-5
+    >>> alpha_5 = 1e-9
+    >>> energy = machine_program([[0, 1, 2],
+    >>>                           [26e9, 27e9, 28e9]])
+    >>>
+    >>> section = Section(section_length, alpha_0, energy=energy,
+    >>>                   alpha_1=alpha_1, alpha_2=alpha_2, alpha_5=alpha_5)
     """
 
     def __init__(self, section_length, alpha_0,
