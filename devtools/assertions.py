@@ -192,7 +192,7 @@ def single_none(*args, msg, exception):
 
 
 def single_not_none(*args, msg, exception):
-    r""" Checks in the passed arguments that more than one argument is not
+    r""" Checks in the passed arguments that exactly one argument is not
     None, raises an exception otherwise.
 
     Parameters
@@ -227,7 +227,7 @@ def single_not_none(*args, msg, exception):
 
 
 def all_not_none(*args, msg, exception):
-    r""" Checks in the passed arguments that all of them or not None, raises an
+    r""" Checks in the passed arguments that all of them are not None, raises an
     exception otherwise.
 
     Parameters
