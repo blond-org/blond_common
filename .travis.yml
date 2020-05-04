@@ -68,13 +68,13 @@ after_success:
   - (echo "$GITHUB_TOKEN_DOCS" | base64 -d) > ~/.ssh/id_rsa
   - chmod 700 ~/.ssh/id_rsa
   - eval "$(ssh-agent -s)"
-  - ssh-add ~/.ssh/id_rsa > ~/.ssh/added.txt
+  - ssh-add ~/.ssh/id_rsa
   - ssh-keyscan -t rsa 'github.com' >> ~/.ssh/known_hosts 
   - git config --global user.name ${USER_LOGIN}
   - git config --global user.email ${USER_EMAIL}
   - cd __doc
   - make html
-  - git clone ssh://git@github.com:${USER_LOGIN}/blond_common.git blond_common
+  - git clone git@github.com:${USER_LOGIN}/blond_common.git blond_common
   - cd blond_common
   - git checkout gh-pages
   - rm -r *
