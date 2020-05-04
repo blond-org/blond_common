@@ -27,6 +27,7 @@ if os.path.abspath(this_directory + '../../../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../../../'))
 
 from blond_common.interfaces.input_parameters.ring_section import Section
+from blond_common.devtools import exceptions as excpt
 
 
 class TestSection(unittest.TestCase):
@@ -264,6 +265,17 @@ class TestSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
+
+    # Exception raising test --------------------------------------------------
+
+    def test_assert_synchronous_data_input(self):
+        # Test the assertion that at least one synchronous data is passed
+
+        section_length = 300  # m
+        alpha_0 = 1e-3
+
+        with self.assertRaises(excpt.InputError):
+            Section(section_length, alpha_0)
 
 
 if __name__ == '__main__':
