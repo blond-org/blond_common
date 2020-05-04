@@ -62,6 +62,9 @@ script:
 after_success:
   - coverage report
   - test $TRAVIS_PYTHON_VERSION = "3.6" && coveralls
+  - python -m pip install --upgrade sphinxcontrib-napoleon
+  - cd docs
+  - make html
 
 # branches:
 #   only:
