@@ -122,17 +122,15 @@ class InducedVoltage:
             self.interp_time_array = value.time_array
             self._profile = value
 
-        elif hasattr(iter, value):
+        elif hasattr(value, '__iter__'):
             if len(value) == 2:
                 self.profile = prof.Profile(value[0], value[1])
 
                 
 def calc_induced_freq(spectrum, impedance):
-    
     return -fft.irfft(spectrum*impedance)
 
 def calc_induced_time(profile, wake):
-    
     return np.convolve(profile, wake)
         
         
