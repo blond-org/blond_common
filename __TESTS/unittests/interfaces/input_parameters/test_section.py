@@ -274,8 +274,24 @@ class TestSection(unittest.TestCase):
         section_length = 300  # m
         alpha_0 = 1e-3
 
-        with self.assertRaises(excpt.InputError):
+        error_message = "Exactly one of \('momentum', 'kin_energy', " +\
+            "'energy', 'B_field'\) must be declared"
+
+        with self.assertRaisesRegex(excpt.InputError, error_message):
             Section(section_length, alpha_0)
+
+    def test_assert_missing_bending_radius(self):
+        # Test the assertion that the bending radius is not passed
+
+        section_length = 300  # m
+        alpha_0 = 1e-3
+        bending_field = 1.  # T
+
+        error_message = "If bending_field is used, bending_radius must " +\
+            "be defined."
+
+        with self.assertRaisesRegex(excpt.InputError, error_message):
+            Section(section_length, alpha_0, bending_field=bending_field)
 
 
 if __name__ == '__main__':
