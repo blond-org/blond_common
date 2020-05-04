@@ -67,7 +67,7 @@ after_success:
   - make html
   - git config --global user.name ${USER_LOGIN}
   - git config --global user.email ${USER_EMAIL}
-  - git clone https://${GITHUB_TOKEN_DOCS}@github.com/${USER_LOGIN}/blond_common.git blond_common
+  - git clone https://${GITHUB_TOKEN_DOCS}:x-oauth-basic@github.com/${USER_LOGIN}/blond_common.git blond_common
   - cd blond_common
   - git checkout gh-pages
   - rm -r *
