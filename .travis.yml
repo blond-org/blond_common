@@ -62,9 +62,12 @@ script:
 after_success:
   - coverage report
   - test $TRAVIS_PYTHON_VERSION = "3.6" && coveralls
-  - python -m pip install --upgrade sphinxcontrib-napoleon
+  - python -m pip install --upgrade sphinx sphinxcontrib-napoleon
   - cd __doc
   - make html
+  - git config --global user.name ${USER_LOGIN}
+  - git config --global user.email ${USER_EMAIL}
+  - git clone https://${USER_LOGIN}:${GITHUB_TOKEN_DOCS}@github.com/alasheen/blond_common.git blond_common
 
 # branches:
 #   only:
