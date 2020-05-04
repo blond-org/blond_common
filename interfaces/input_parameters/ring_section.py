@@ -41,7 +41,7 @@ class Section:
         If a turn-by-turn program is passed, should be of the same size
         as the synchronous data.
     alpha_0 : float (opt: list or np.ndarray)
-        Momentum compaction factor of zeroth order :math:`\alpha_{0}` [1];
+        Momentum compaction factor of zeroth order :math:`\alpha_{0}`;
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
         If a turn-by-turn program is passed, should be of the same size
@@ -71,14 +71,14 @@ class Section:
         required if 'bending field' is set for the synchronous_data_type
     alpha_1 : float (opt: list or np.ndarray)
         Optional : Momentum compaction factor of first order
-        :math:`\alpha_{1}` [1];
+        :math:`\alpha_{1}`;
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
         If a turn-by-turn program is passed, should be of the same size
         as the synchronous data.
     alpha_2 : float (opt: list or np.ndarray)
         Optional : Momentum compaction factor of second order
-        :math:`\alpha_{2}` [1];
+        :math:`\alpha_{2}`;
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
         If a turn-by-turn program is passed, should be of the same size

@@ -8,11 +8,11 @@ interfaces.input\_parameters.ring module
     :members:
     :undoc-members:
     :show-inheritance:
+    
+interfaces.input\_parameters.ring\_section module
+------------------------------------------------------------
 
-interfaces.input\_parameters.ring\_options module
----------------------------------------------------------------------
-
-.. automodule:: blond_common.interfaces.input_parameters.ring_options
+.. automodule:: blond_common.interfaces.input_parameters.ring_section
     :members:
     :undoc-members:
     :show-inheritance:

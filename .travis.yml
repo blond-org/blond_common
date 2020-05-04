@@ -75,6 +75,7 @@ after_success:
   - git add -A
   - git status
   - git diff-index --quiet HEAD || git commit -m "Updated documentation"
+  - git push
 
 # branches:
 #   only:
