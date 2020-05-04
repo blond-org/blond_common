@@ -65,7 +65,7 @@ after_success:
   - test $TRAVIS_PYTHON_VERSION != "3.6" && exit 0
   - python -m pip install --upgrade sphinx sphinxcontrib-napoleon
   - mkdir -p ~/.ssh
-  - echo "$GITHUB_SSH_DOCS" | sed 's/- /-\\n/g' | sed 's/ -/\\n-/g' > ~/.ssh/id_rsa
+  - echo "$GITHUB_SSH_DOCS" > ~/.ssh/id_rsa
   - chmod 700 ~/.ssh/id_rsa
   - eval "$(ssh-agent -s)"
   - ssh-add ~/.ssh/id_rsa > ~/.ssh/added.txt
