@@ -48,7 +48,7 @@ class Section:
         [momentum_program_section_1, momentum_program_section_2, etc.]. Can
         be input also as a tuple of time and momentum, see also
         'cycle_time' and 'PreprocessRamp'
-    bending_radius : float (opt: list or np.ndarray)
+    bending_radius : float
         Optional: Radius [m] of the bending magnets,
         required if 'bending field' is set for the synchronous_data_type
     alpha_1 : float (opt: list or np.ndarray)
@@ -148,12 +148,11 @@ class Section:
 
         # Checking that the bending_radius is passed with the bending_field
         # and setting the bending_radius if defined
-        self.bending_radius = None
         if bending_field is not None and bending_radius is None:
             raise excpt.InputError("If bending_field is used, " +
                                    "bending_radius must be defined.")
         else:
-            self.bending_radius = dTypes._ring_function(bending_radius)
+            self.bending_radius = bending_radius
 
         # Taking the first synchronous_data input not declared as None
         # The assertion above ensures that only one is declared
