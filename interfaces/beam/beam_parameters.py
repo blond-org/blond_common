@@ -15,7 +15,7 @@ class Beam_Parameters:
     
     def __init__(self, ring, rf, use_samples = None, init_coord = None, 
                  harmonic_divide = 1, potential_resolution = 1000,
-                 bunch_emittance = 0):
+                 bunch_emittance = 0, calc_params = True):
         
         self.ring = ring
         self.rf = rf
@@ -50,15 +50,9 @@ class Beam_Parameters:
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
 
-
-        try:
-            n_parts = len(init_coord)
-        except TypeError:
-            n_parts = 1
-
         if not isinstance(bunch_emittance, dt.emittance):
             self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
-                                               n_sections = len(init_coord), 
+                                               n_sections = len(self.init_coord), 
                                                use_time = self.ring.cycle_time, 
                                                use_turns = self.ring.use_turns)
         else:
@@ -66,11 +60,12 @@ class Beam_Parameters:
                                                            use_time = self.ring.cycle_time, 
                                                use_turns = self.ring.use_turns)
         
-        self.calc_potential_wells()
-        self.track_synchronous()
-        self.buckets = {}
-        self.calc_buckets()
-        self.bucket_parameters(True)
+        if calc_params:
+            self.calc_potential_wells()
+            self.track_synchronous()
+            self.buckets = {}
+            self.calc_buckets()
+            self.bucket_parameters(True)
     
     
     def full_update(self):
@@ -205,14 +200,21 @@ class Beam_Parameters:
             returned if volts is None
         '''        
         
-        ringPars, rfPars = self.get_pars(sample)
+        ringPars, rfPars = self._get_pars(sample)
+        timeBounds = self._time_bounds(ringPars['t_rev'])
+        vTime, vWave = self._calc_volts(ringPars, rfPars, timeBounds, volts)
         
-        tRight = ringPars['t_rev']/self.harmonic_divide
-        tLeft = -0.05*tRight
-        tRight *= 1.05
+        time, well = self.calc_well(vTime, vWave, ringPars)
         
-        timeBounds = (tLeft, tRight)
-        
+        if volts is None:
+            return time, well, vWave
+        else:
+            return time, well
+
+
+
+    def _calc_volts(self, ringPars, rfPars, timeBounds, volts):
+
         if volts is None:
              vTime, vWave = pot.rf_voltage_generation(self.potential_resolution,
                                                     ringPars['t_rev'],
@@ -224,17 +226,22 @@ class Beam_Parameters:
             vWave = volts
             vTime = np.linspace(timeBounds[0], timeBounds[1], 
                                 self.potential_resolution)
-
-        time, well = self.calc_well(vTime, vWave, ringPars)
         
-        plt.plot(vTime, vWave)
-        if volts is None:
-            return time, well, vWave
-        else:
-            return time, well
+        return vTime, vWave
+
+
     
     
-    def get_pars(self, sample):
+    def _time_bounds(self, t_rev):
+        
+        tRight = t_rev/self.harmonic_divide
+        tLeft = -0.05*tRight
+        tRight *= 1.05
+        
+        return (tLeft, tRight)
+    
+    
+    def _get_pars(self, sample):
         
         ringPars = self.ring.parameters_at_sample(sample)
         rfPars = self.rf.parameters_at_sample(sample)
@@ -276,6 +283,7 @@ class Beam_Parameters:
         inTime = self.time_window_array[sample]
         inWell = self.potential_well_array[sample]
         inWell -= np.min(inWell)
+
         #TODO: revisit relative_max_val_precision
         try:
             maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
@@ -309,12 +317,13 @@ class Beam_Parameters:
         try:
             biggest = pot.sort_potential_wells(subTime, subWell, by='size')[0][0]
         except:
+            plt.clf()
             plt.plot(inTime, inWell)
             plt.show()
             print(maxLocs)
             print(f"Sample: {sample}")
             # np.save('easyBrokenWell', [inTime, inWell])
-            sys.exit()
+            raise
 
         #check which subwells are within the bounds of the largest well 
         #containing the current particle
