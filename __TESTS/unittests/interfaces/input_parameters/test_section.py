@@ -265,6 +265,68 @@ class TestSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
+            
+    def test_non_linear_alpha(self):
+        # Passing non-linear momentum compaction factors
+        
+        section_length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV
+        alpha_1 = 1e-6
+        alpha_2 = 1e-9
+        alpha_5 = 1e-12
+
+        section = Section(section_length, alpha_0, momentum)
+
+        with self.subTest('Non-linear momentum compaction - alpha_1'):
+            section = Section(section_length, alpha_0, momentum,
+                              alpha_1=alpha_1)
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0)
+            np.testing.assert_equal(
+                alpha_1, section.alpha_1)
+            np.testing.assert_equal(
+                1, section.alpha_order)
+
+        with self.subTest('Non-linear momentum compaction - alpha_2'):
+            section = Section(section_length, alpha_0, momentum,
+                              alpha_2=alpha_2)
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0)
+            np.testing.assert_equal(
+                alpha_2, section.alpha_2)
+            np.testing.assert_equal(
+                2, section.alpha_order)
+
+        with self.subTest('Non-linear momentum compaction - alpha_n'):
+            section = Section(section_length, alpha_0, momentum,
+                              alpha_5=alpha_5)
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0)
+            np.testing.assert_equal(
+                alpha_5, section.alpha_5)
+            np.testing.assert_equal(
+                5, section.alpha_order)
+
+        with self.subTest('Non-linear momentum compaction - multiple alpha_n'):
+            section = Section(section_length, alpha_0, momentum,
+                              alpha_1=alpha_1,
+                              alpha_2=alpha_2,
+                              alpha_5=alpha_5)
+            np.testing.assert_equal(
+                alpha_0, section.alpha_0)
+            np.testing.assert_equal(
+                alpha_1, section.alpha_1)
+            np.testing.assert_equal(
+                alpha_2, section.alpha_2)
+            np.testing.assert_equal(
+                0, section.alpha_3)
+            np.testing.assert_equal(
+                0, section.alpha_4)
+            np.testing.assert_equal(
+                alpha_5, section.alpha_5)
+            np.testing.assert_equal(
+                5, section.alpha_order)
 
     # Exception raising test --------------------------------------------------
 
