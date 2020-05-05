@@ -21,9 +21,11 @@ from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 from ..beam import beam
 from ...datatypes import datatypes as dTypes
+from ...datatypes.blond_function import machine_program
 from ...utilities import timing as tmng
 from ...utilities import rel_transforms as rt
 from ...maths import calculus as calc
+from .ring_section import Section
 
 
 class Ring:
