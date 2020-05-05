@@ -184,24 +184,139 @@ class Ring:
 
     """
 
-    def __init__(self, ring_length, alpha, Particle,
+    def __init__(self, circumference, alpha, Particle,
                  momentum=None, kin_energy=None, energy=None,
                  bending_field=None, bending_radius=None,
                  **kwargs):
 
-        self.from_original_input(ring_length, alpha, Particle,
-                                 momentum, kin_energy, energy,
-                                 bending_field, bending_radius,
-                                 **kwargs)
+        # Default behaviour, generating a Ring with a single Section
+        if not hasattr(self, '_skip_default') or (
+                hasattr(self, '_skip_default') and not self._skip_default):
+            self.from_simple_input(circumference, alpha, Particle,
+                                   momentum, kin_energy, energy,
+                                   bending_field, bending_radius,
+                                   **kwargs)
+
+        # Setting ring circumerence and radius
+        self.ring_circumference = np.sum(self.ring_length)
+        self.ring_radius = self.ring_circumference/(2*np.pi)
+
+        # Processing the momentum program
+        # Getting all options first
+        t_start = kwargs.pop('t_start', 0)
+        t_stop = kwargs.pop('t_stop', np.inf)
+        interp_time = kwargs.pop('interp_time', 0)
+
+        if not hasattr(interp_time, '__iter__'):
+            interp_time = (interp_time, )
+
+        sample_func, start, stop = tmng.time_from_sampling(*interp_time)
+
+        if t_start > start:
+            start = t_start
+        if t_stop < stop:
+            stop = t_stop
+
+        interpolation = kwargs.pop("interpolation", 'linear')
+        store_turns = kwargs.pop('store_turns', True)
+
+        self.momentum = self.synchronous_data.preprocess(
+            self.Particle.mass,
+            self.ring_circumference, sample_func,
+            interpolation, start, stop,
+            store_turns=store_turns)
+
+        self.n_sections = self.momentum.shape[0]-2
+        self.cycle_time = self.momentum[1]
+        if store_turns:
+            self.parameters_at_turn = self._parameters_at_turn
+            self.use_turns = self.momentum[0].astype(int)
+        else:
+            self.parameters_at_turn = self._no_parameters_at_turn
+            self.use_turns = self.momentum[0]
+        # Updating the number of turns in case it was changed after ramp
+        # interpolation
+        self.n_turns = self.momentum.n_turns
+
+        # Derived from momentum
+        self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
+        self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
+        self.energy = rt.momentum_to_energy(self.momentum[2:],
+                                            self.Particle.mass)
+        self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:],
+                                                    self.Particle.mass)
+        self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))
+        self.delta_E = np.diff(self.energy, axis=1)
+        if self.n_turns > len(self.use_turns):
+            self.delta_E = np.zeros(self.energy.shape)
+            self._recalc_delta_E()
+
+        self.momentum = self.momentum[2:]
+
+        self.f_rev = 1/self.t_rev
+        self.omega_rev = 2*np.pi*self.f_rev
 
         # Slippage factor derived from alpha, beta, gamma
+        for order in range(3):
+            setattr(self, 'eta_%d' % (order), np.zeros(self.momentum.shape))
         self.eta_generation()
 
+        # Add final validation function
+
     @classmethod
-    def from_original_input(self, ring_length, alpha, Particle,
-                            momentum=None, kin_energy=None, energy=None,
-                            bending_field=None, bending_radius=None,
-                            **kwargs):
+    def from_simple_input(self, circumference, alpha, Particle,
+                          momentum=None, kin_energy=None, energy=None,
+                          bending_field=None, bending_radius=None,
+                          **kwargs):
+        '''
+        Method to build the Ring object using simple direct input.
+        '''
+
+        # Ensuring that the default function is not called within the
+        # __init__
+        self._skip_default = True
+
+        # Generating a single Section and adding it to the list of sections
+        # within the Ring
+        section = Section(
+            circumference, alpha,
+            momentum=momentum, kin_energy=kin_energy, energy=energy,
+            ng_field=bending_field, bending_radius=bending_radius,
+            **kwargs)
+
+        self.section_list = [section]
+        self.n_sections = 1
+
+        # Primary particle mass and charge used for energy calculations
+        # If a string is passed, will generate the relevant Particle object
+        # based on the name
+        if isinstance(Particle, beam.Particle):
+            self.Particle = Particle
+        else:
+            self.Particle = beam.make_particle(Particle)
+
+        # Setting ring length and bending radius
+        self.ring_length = np.array(section.section_length, ndmin=1,
+                                    dtype=float)
+        self.bending_radius = section.bending_radius
+
+        # Setting the momentum compaction
+        self.alpha_order = section.alpha_order
+        self.alpha_orders_defined = section.alpha_orders_defined
+        for order in range(np.min([self.alpha_order+1, 3])):
+            alpha_attr = 'alpha_%d' % (order)
+            setattr(self, alpha_attr, getattr(section, alpha_attr))
+
+        # Getting the synchronous data and converting to momentum
+        self.synchronous_data = section.synchronous_data
+        self.synchronous_data.convert(self.Particle.mass, self.Particle.charge,
+                                      self.bending_radius)
+
+    @classmethod
+    def from_datatypes(self, ring_length, alpha, Particle,
+                       momentum=None, kin_energy=None, energy=None,
+                       bending_field=None, bending_radius=None,
+                       **kwargs):
 
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
@@ -381,8 +496,7 @@ class Ring:
                 Third Edition, 2012.
         """
 
-        # TODO: Safe handling of alpha_order > 2
-        for i in range(self.alpha_order+1):
+        for i in range(np.min([self.alpha_order+1, 3])):
             getattr(self, '_eta' + str(i))()
 
     def _eta0(self):

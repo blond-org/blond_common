@@ -27,8 +27,13 @@ alpha_0 = 1e-3
 momentum = 26e9
 
 ring = Ring(circumference, alpha_0, 'proton', momentum)
-ring.eta_generation()
 
-print(ring.ring_circumference,
-      ring.momentum,
-      ring.alpha_0)
+print(ring.ring_circumference)
+
+ring.from_datatypes(circumference, alpha_0, 'proton', momentum)
+
+print(ring.ring_circumference)
+
+# print(ring.ring_circumference,
+#       ring.momentum,
+#       ring.alpha_0)
