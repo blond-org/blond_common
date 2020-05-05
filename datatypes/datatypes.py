@@ -141,7 +141,7 @@ class _function(np.ndarray):
                 raise excpt.DataDefinitionError("Function is defined by "
                                                      + "turn but use_turns has"
                                                      + " not been given")
-            if np.max(use_turns) > self.shape[1]:
+            if np.max(use_turns) >= self.shape[1]:
                 raise excpt.DataDefinitionError("Function does not have "
                                                      + "enough turns defined "
                                                      + "for maximum requested "
