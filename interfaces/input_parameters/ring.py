@@ -189,6 +189,20 @@ class Ring:
                  bending_field=None, bending_radius=None,
                  **kwargs):
 
+        self.from_original_input(ring_length, alpha, Particle,
+                                 momentum, kin_energy, energy,
+                                 bending_field, bending_radius,
+                                 **kwargs)
+
+        # Slippage factor derived from alpha, beta, gamma
+        self.eta_generation()
+
+    @classmethod
+    def from_original_input(self, ring_length, alpha, Particle,
+                            momentum=None, kin_energy=None, energy=None,
+                            bending_field=None, bending_radius=None,
+                            **kwargs):
+
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
@@ -328,9 +342,6 @@ class Ring:
                                                          len(self.use_turns)]))
                 setattr(self, 'eta_'+str(i), np.zeros([self.n_sections,
                                                        len(self.use_turns)]))
-
-        # Slippage factor derived from alpha, beta, gamma
-        self.eta_generation()
 
     # TODO: different interpollation for different components
     # (e.g. alpha and momentum)
