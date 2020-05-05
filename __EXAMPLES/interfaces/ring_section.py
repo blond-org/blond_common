@@ -1,7 +1,15 @@
-'''
-Created on 30 avr. 2020
+# coding: utf8
+# Copyright 2014-2020 CERN. This software is distributed under the
+# terms of the GNU General Public Licence version 3 (GPL Version 3),
+# copied verbatim in the file LICENCE.md.
+# In applying this licence, CERN does not waive the privileges and immunities
+# granted to it by virtue of its status as an Intergovernmental Organization or
+# submit itself to any jurisdiction.
+# Project website: http://blond.web.cern.ch/
 
-@author: Alexandre
+'''
+**Examples of usage of the Section object.**
+    :Authors: **Simon Albright**, **Alexandre Lasheen**
 '''
 
 # General import
@@ -37,7 +45,7 @@ print(section.section_length,
       section.synchronous_data,
       section.alpha_0)
 
-# Turn-by-turn input
+# To declare a Section with turn-by-turn program as input
 section_length = 300
 alpha_0 = [1e-3, 1e-3, 1e-3]
 momentum = [26e9, 27e9, 28e9]
@@ -48,7 +56,7 @@ print(section.section_length,
       section.synchronous_data,
       section.alpha_0)
 
-# Time based input
+# To declare a Section with time based program as input
 section_length = 300
 alpha_0 = 1e-3
 momentum = [[0, 1, 2],
@@ -60,7 +68,7 @@ print(section.section_length,
       section.synchronous_data,
       section.alpha_0)
 
-# Using the input program function, turn based
+# To declare a Section using the input program function, turn based
 section_length = 300
 alpha_0 = 1e-3
 momentum = machine_program(26e9, n_turns=5)
@@ -71,7 +79,7 @@ print(section.section_length,
       section.synchronous_data,
       section.alpha_0)
 
-# Using the input program function, time based
+# To declare a Section using the input program function, time based
 section_length = 300
 alpha_0 = 1e-3
 momentum = machine_program([[0, 1, 2],
@@ -84,7 +92,7 @@ print(section.section_length,
       section.synchronous_data,
       section.alpha_0)
 
-# Passing non-linear momentum compaction factors
+# To declare a Section passing non-linear momentum compaction factors
 section_length = 300
 alpha_0 = 1e-3
 alpha_1 = 1e-4
