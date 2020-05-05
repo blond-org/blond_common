@@ -28,12 +28,12 @@ momentum = 26e9
 
 ring = Ring(circumference, alpha_0, 'proton', momentum)
 
-print(ring.ring_circumference)
+print(ring.ring_circumference,
+      ring.momentum,
+      ring.alpha_0)
 
-ring.from_datatypes(circumference, alpha_0, 'proton', momentum)
+ring = Ring.from_simple_input(circumference, alpha_0, 'proton', momentum)
 
-print(ring.ring_circumference)
-
-# print(ring.ring_circumference,
-#       ring.momentum,
-#       ring.alpha_0)
+print(ring.ring_circumference,
+      ring.momentum,
+      ring.alpha_0)

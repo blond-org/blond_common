@@ -6,6 +6,7 @@
 # granted to it by virtue of its status as an Intergovernmental Organization or
 # submit itself to any jurisdiction.
 # Project website: http://blond.web.cern.ch/
+from builtins import getattr
 
 '''
 **Module gathering all general input parameters used for the simulation.**
@@ -190,12 +191,18 @@ class Ring:
                  **kwargs):
 
         # Default behaviour, generating a Ring with a single Section
-        if not hasattr(self, '_skip_default') or (
-                hasattr(self, '_skip_default') and not self._skip_default):
-            self.from_simple_input(circumference, alpha, Particle,
-                                   momentum, kin_energy, energy,
-                                   bending_field, bending_radius,
-                                   **kwargs)
+        if not hasattr(Ring, '_input_buffer'):
+            Ring.from_simple_input(
+                circumference, alpha, Particle,
+                momentum, kin_energy, energy,
+                bending_field, bending_radius,
+                **kwargs, call_init=False)
+
+        for attribute in dir(Ring._input_buffer):
+            if attribute[0] != '_':
+                setattr(self, attribute,
+                        getattr(Ring._input_buffer, attribute))
+        del(Ring._input_buffer)
 
         # Setting ring circumerence and radius
         self.ring_circumference = np.sum(self.ring_length)
@@ -264,7 +271,7 @@ class Ring:
         # Add final validation function
 
     @classmethod
-    def from_simple_input(self, circumference, alpha, Particle,
+    def from_simple_input(cls, circumference, alpha, Particle,
                           momentum=None, kin_energy=None, energy=None,
                           bending_field=None, bending_radius=None,
                           **kwargs):
@@ -272,9 +279,10 @@ class Ring:
         Method to build the Ring object using simple direct input.
         '''
 
-        # Ensuring that the default function is not called within the
-        # __init__
-        self._skip_default = True
+        # Creating a buffer
+        def buffer():
+            None
+        cls._input_buffer = buffer
 
         # Generating a single Section and adding it to the list of sections
         # within the Ring
@@ -284,33 +292,38 @@ class Ring:
             ng_field=bending_field, bending_radius=bending_radius,
             **kwargs)
 
-        self.section_list = [section]
-        self.n_sections = 1
+        buffer.section_list = [section]
+        buffer.n_sections = 1
 
         # Primary particle mass and charge used for energy calculations
         # If a string is passed, will generate the relevant Particle object
         # based on the name
         if isinstance(Particle, beam.Particle):
-            self.Particle = Particle
+            buffer.Particle = Particle
         else:
-            self.Particle = beam.make_particle(Particle)
+            buffer.Particle = beam.make_particle(Particle)
 
         # Setting ring length and bending radius
-        self.ring_length = np.array(section.section_length, ndmin=1,
-                                    dtype=float)
-        self.bending_radius = section.bending_radius
+        buffer.ring_length = np.array(section.section_length, ndmin=1,
+                                      dtype=float)
+        buffer.bending_radius = section.bending_radius
 
         # Setting the momentum compaction
-        self.alpha_order = section.alpha_order
-        self.alpha_orders_defined = section.alpha_orders_defined
-        for order in range(np.min([self.alpha_order+1, 3])):
+        buffer.alpha_order = section.alpha_order
+        buffer.alpha_orders_defined = section.alpha_orders_defined
+        for order in range(np.min([buffer.alpha_order+1, 3])):
             alpha_attr = 'alpha_%d' % (order)
-            setattr(self, alpha_attr, getattr(section, alpha_attr))
+            setattr(buffer, alpha_attr, getattr(section, alpha_attr))
 
         # Getting the synchronous data and converting to momentum
-        self.synchronous_data = section.synchronous_data
-        self.synchronous_data.convert(self.Particle.mass, self.Particle.charge,
-                                      self.bending_radius)
+        buffer.synchronous_data = section.synchronous_data
+        buffer.synchronous_data.convert(buffer.Particle.mass,
+                                        buffer.Particle.charge,
+                                        buffer.bending_radius)
+
+        if ('call_init' not in kwargs) or (
+                ('call_init' in kwargs) and kwargs['call_init']):
+            return cls(None, None, None)
 
     @classmethod
     def from_datatypes(self, ring_length, alpha, Particle,
