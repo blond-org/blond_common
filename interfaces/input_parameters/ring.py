@@ -198,10 +198,8 @@ class Ring:
                 bending_field, bending_radius,
                 **kwargs, call_init=False)
 
-        for attribute in dir(Ring._input_buffer):
-            if attribute[0] != '_':
-                setattr(self, attribute,
-                        getattr(Ring._input_buffer, attribute))
+        for key in Ring._input_buffer:
+                setattr(self, key, Ring._input_buffer[key])
         del(Ring._input_buffer)
 
         # Setting ring circumerence and radius
@@ -280,8 +278,7 @@ class Ring:
         '''
 
         # Creating a buffer
-        def buffer():
-            None
+        buffer = {}
         cls._input_buffer = buffer
 
         # Generating a single Section and adding it to the list of sections
@@ -289,37 +286,37 @@ class Ring:
         section = Section(
             circumference, alpha,
             momentum=momentum, kin_energy=kin_energy, energy=energy,
-            ng_field=bending_field, bending_radius=bending_radius,
+            bending_field=bending_field, bending_radius=bending_radius,
             **kwargs)
 
-        buffer.section_list = [section]
-        buffer.n_sections = 1
+        buffer['section_list'] = [section]
+        buffer['n_sections'] = 1
 
         # Primary particle mass and charge used for energy calculations
         # If a string is passed, will generate the relevant Particle object
         # based on the name
         if isinstance(Particle, beam.Particle):
-            buffer.Particle = Particle
+            buffer['Particle'] = Particle
         else:
-            buffer.Particle = beam.make_particle(Particle)
+            buffer['Particle'] = beam.make_particle(Particle)
 
         # Setting ring length and bending radius
-        buffer.ring_length = np.array(section.section_length, ndmin=1,
-                                      dtype=float)
-        buffer.bending_radius = section.bending_radius
+        buffer['ring_length'] = np.array(section.section_length, ndmin=1,
+                                         dtype=float)
+        buffer['bending_radius'] = section.bending_radius
 
         # Setting the momentum compaction
-        buffer.alpha_order = section.alpha_order
-        buffer.alpha_orders_defined = section.alpha_orders_defined
-        for order in range(np.min([buffer.alpha_order+1, 3])):
+        buffer['alpha_order'] = section.alpha_order
+        buffer['alpha_orders_defined'] = section.alpha_orders_defined
+        for order in range(np.min([buffer['alpha_order']+1, 3])):
             alpha_attr = 'alpha_%d' % (order)
-            setattr(buffer, alpha_attr, getattr(section, alpha_attr))
+            buffer[alpha_attr] = getattr(section, alpha_attr)
 
         # Getting the synchronous data and converting to momentum
-        buffer.synchronous_data = section.synchronous_data
-        buffer.synchronous_data.convert(buffer.Particle.mass,
-                                        buffer.Particle.charge,
-                                        buffer.bending_radius)
+        buffer['synchronous_data'] = section.synchronous_data
+        buffer['synchronous_data'].convert(buffer['Particle'].mass,
+                                           buffer['Particle'].charge,
+                                           buffer['bending_radius'])
 
         if ('call_init' not in kwargs) or (
                 ('call_init' in kwargs) and kwargs['call_init']):
