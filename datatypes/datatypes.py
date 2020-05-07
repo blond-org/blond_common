@@ -5,6 +5,7 @@ import os
 import warnings
 import scipy.constants as cont
 import matplotlib.pyplot as plt
+import functools
 
 #Common imports
 from ..devtools import exceptions as excpt
@@ -16,6 +17,34 @@ from . import blond_function as bf
 #TODO: In derived classes handle passing datatype as input
 #TODO: Check for ragged array
 class _function(np.ndarray):
+    r"""
+    Base class defining the functionality common to all datatypes objects.  
+    Inherits from np.ndarray.
+    
+    Parameters
+    ----------
+    input_array : float, list, list of lists
+        Data to be cast as a numpy array
+    data_type : dict
+        Dictionary of relevant information to define the content of the 
+        datatype object, always includes 'timebase' key as well as those
+        needed by different subclasses
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    
+    Attributes
+    ----------
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    """
     
     def __new__(cls, input_array, data_type=None, interpolation = None):
         
@@ -45,6 +74,9 @@ class _function(np.ndarray):
 
     @classmethod
     def zeros(cls, shape, data_type = None):
+        r"""
+        Function to create empty arrays
+        """
         newArray = np.zeros(shape).view(cls)
         newArray.data_type = data_type
         return newArray

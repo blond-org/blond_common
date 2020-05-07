@@ -27,6 +27,7 @@ Modules
    _modules/fitting.rst
    _modules/maths.rst
    _modules/rf_functions.rst
+   _modules/datatypes.rst
 
 Indices and tables
 ==================
