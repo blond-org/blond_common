@@ -33,19 +33,34 @@ else:
 
 class InducedVoltage:
     
-    def __init__(self, impedance_list = [], wake_list = []):
+    def __init__(self, impedance_list = [], wake_list = [], 
+                 inductive_list = [], var_impedance_list = [],
+                 var_wake_list = [], var_inductive_list = []):
         
         self.impedances_loaded = impedance_list
         self.wakes_loaded = wake_list
+        self.inductive_loaded = inductive_list
+
+        self.var_impedances_loaded = var_impedance_list
+        self.var_wakes_loaded = var_wake_list
+        self.var_inductive_loaded = var_inductive_list
         
         self.interp_frequency_array = None
         self.interp_time_array = None
 
-    def sum_impedance_sources(self):
+
+    def sum_impedance_sources(self, f_rev = None, sample = None):
         
         self._induced_calcs = []
         
-        if len(self.impedances_loaded) > 0:
+        impedances = [i for i in self.impedances_loaded]
+
+        for i in self.var_impedances_loaded:
+            i.update(f_rev)
+
+        impedances += [i for i in self.var_impedances_loaded]
+        
+        if len(impedances) > 0:
             try:
                 self.total_impedance = np.zeros(len(self.interp_frequency_array), \
                                                 dtype='complex')
@@ -55,41 +70,93 @@ class InducedVoltage:
                         "interp_frequency_array has not been correctly defined")
                 else:
                     raise
-                
-            for imp in self.impedances_loaded:
+
+            for imp in impedances:
                 imp.imped_calc(self.interp_frequency_array)
                 self.total_impedance += imp.impedance
             self._induced_calcs.append(self._calc_induced_freq)
-            
+
+
         if len(self.wakes_loaded) > 0:
             try:
                 self.total_wake = np.zeros(len(self.interp_time_array))
             except TypeError:
                 raise exceptions.MissingParameterError(
                         "interp_time_array has not been correctly defined")
-                
+
             for wake in self.wakes_loaded:
+
                 wake.wake_calc(self.interp_time_array)
                 self.total_wake += wake.wake
-            self._induced_calcs.append(self._calc_induced_time)    
+            self._induced_calcs.append(self._calc_induced_time)
+
+        inductives = [i for i in self.inductive_loaded]
+
+        for i in self.var_inductive_loaded:
+            i.update(f_rev)
+
+        inductives += [i for i in self.var_inductive_loaded]
+
+        if len(inductives) > 0:
+            self.total_inductive = 0
+
+            for induct in inductives:
+
+                induct.induct_calc(f_rev)
+                self.total_inductive += induct.inductive
+
+            self._induced_calcs.append(self._calc_induced_inductive)
 
 
     def calc_induced_by_source(self, spectrum = None, profile = None, 
-                               normalisation = 1):
+                               normalisation = 1, f_rev = None, sample = None):
 
         self.imped_induced = []
+        self.var_imped_induced = []
         
-        for i in self.impedances_loaded:
+        impedances = [i for i in self.impedances_loaded]
+        varImpedances = [i for i in self.var_impedances_loaded]
+        
+        for i in impedances:
+            i.update(f_rev)
             i.imped_calc(self.interp_frequency_array)
             self.imped_induced.append(calc_induced_freq(self.beam_spectrum, 
+                                                   i.impedance*normalisation))
+        
+        for i in varImpedances:
+            i.imped_calc(self.interp_frequency_array)
+            self.var_imped_induced.append(calc_induced_freq(self.beam_spectrum, 
                                                    i.impedance*normalisation))
         
         
         self.wake_induced = []
         
         for w in self.wakes_loaded:
+            if isinstance(w, impSource.VariableImpedance):
+                w = w.update(sample)
+                
             w.wake_calc(self.interp_time_array)
-            self.wake_induced.append(calc_induced_time(self.beam_profile, w.wake))
+            self.wake_induced.append(calc_induced_time(self.beam_profile, 
+                                                       w.wake))
+        
+        
+        self.inductive_induced = []
+        self.var_inductive_induced = []
+        
+        inductives = [i for i in self.inductive_loaded]
+        varInductives = [i for i in self.var_inductive_loaded]
+        
+        for i in inductives:
+            i.induct_calc(f_rev)
+            self.inductive_induced.append(calc_induced_inductive(
+                                                self.beam_derivative, 
+                                                 i.inductive*normalisation))
+        
+        for i in varInductives:
+            i.update(f_rev)
+            i.induct_calc(f_rev)
+            self.var_inductive_induced.append(calc_induced_inductive(self.beam_derivative, 
+                                                   i.inductive*normalisation))
 
 
     def calc_induced(self, normalisation=1):
@@ -107,6 +174,10 @@ class InducedVoltage:
         return calc_induced_freq(self.beam_spectrum, 
                                  self.total_impedance*normalisation)
     
+    def _calc_induced_inductive(self, normalisation):
+        return calc_induced_inductive(self.beam_derivative,
+                                      self.total_inductive*normalisation)
+    
     
     @property
     def profile(self):
@@ -118,6 +189,7 @@ class InducedVoltage:
         if type(value) is prof.Profile:
             self.beam_profile = value.profile_array
             self.beam_spectrum = value.beam_spectrum
+            self.beam_derivative = value.beam_derivative
             self.interp_frequency_array = value.beam_spectrum_freq
             self.interp_time_array = value.time_array
             self._profile = value
@@ -132,6 +204,9 @@ def calc_induced_freq(spectrum, impedance):
 
 def calc_induced_time(profile, wake):
     return np.convolve(profile, wake)
+
+def calc_induced_inductive(derivative, inductive):
+    return -derivative*inductive
         
         
 
