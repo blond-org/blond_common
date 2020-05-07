@@ -151,14 +151,14 @@ class Beam_Parameters:
         #particle location is nearest minimum in potential well
         for p in range(self.n_particles):
             for t in range(start_sample+1, self.n_samples):
-               locs, values \
-                   = calc.minmax_location_cubic(self.time_window_array[t], 
+                locs, values \
+                        = calc.minmax_location_cubic(self.time_window_array[t],
                                                 self.potential_well_array[t],
-                                                mest = int(3*np.max(self.rf.harmonic)))
-               locs = locs[0]
-               offsets = np.abs(self.particle_tracks[p][t-1] - locs)
-               newLoc = np.where(offsets == np.min(offsets))[0][0]
-               self.particle_tracks[p][t] = locs[newLoc]
+                                        mest = int(3*np.max(self.rf.harmonic)))
+                locs = locs[0]
+                offsets = np.abs(self.particle_tracks[p][t-1] - locs)
+                newLoc = np.where(offsets == np.min(offsets))[0][0]
+                self.particle_tracks[p][t] = locs[newLoc]
 
 
     
