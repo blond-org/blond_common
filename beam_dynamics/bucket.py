@@ -397,12 +397,17 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])
     
     
-    def outline_from_emittance(self, target_emittance, nPts = 1000):
+    def outline_from_emittance(self, target_emittance, nPts = 1000,
+                               over_fill = False):
 
         self.smooth_well()
 
         if target_emittance > self.area:
-            raise excpt.BunchSizeError("target_emittance exceeds bucket area")
+            if not over_fill:
+                raise excpt.BunchSizeError("target_emittance exceeds "
+                                           + "bucket area")
+            else:
+                target_emittance = self.area
         
         def emit_func(potential, *args):
 
@@ -482,7 +487,7 @@ class Bucket:
     ##################################################
 
     def _set_bunch(self, bunch_length = None, bunch_emittance = None,
-                           bunch_height = None):
+                           bunch_height = None, over_fill = False):
         
         allowed = ('bunch_length', 'bunch_emittance', 'bunch_height')
         assrt.single_not_none(bunch_length, bunch_emittance, bunch_height,
@@ -499,7 +504,8 @@ class Bucket:
             if bunch_emittance == 0:
                 outline = [[0, 0], [0,0]]
             else:
-                outline = self.outline_from_emittance(bunch_emittance)
+                outline = self.outline_from_emittance(bunch_emittance, 
+                                                      over_fill = over_fill)
         elif bunch_height is not None:
             if bunch_height == 0:
                 outline = [[0, 0], [0,0]]
@@ -543,10 +549,14 @@ class Bucket:
         
     
     def make_profiles(self, dist_type, length = None, emittance = None, 
-                      dE = None, use_action = False):
+                      dE = None, use_action = False, recalculate = False,
+                      over_fill = False):
+        
+        if not recalculate and hasattr(self, 'time_profile'):
+            return
         
         if not all(par is None for par in (length, emittance, dE)):
-            self._set_bunch(length, emittance, dE)
+            self._set_bunch(length, emittance, dE, over_fill)
         
         self.dE_array = np.linspace(np.min(self.separatrix[1]), 
                                     np.max(self.separatrix[1]), len(self.time))

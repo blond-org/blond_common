@@ -744,11 +744,11 @@ class _ring_program(_ring_function):
 
         # Adjust result to get flat top energy correct as derivation and
         # integration leads to ~10^-8 error in flat top momentum
-        momentum_interp = np.asarray(momentum_interp)
-        momentum_interp -= momentum_interp[0]
-        momentum_interp /= momentum_interp[-1]
-        momentum_interp *= input_momentum[-1] - input_momentum[0]
-        momentum_interp += input_momentum[0]
+        # momentum_interp = np.asarray(momentum_interp)
+        # momentum_interp -= momentum_interp[0]
+        # momentum_interp /= momentum_interp[-1]
+        # momentum_interp *= input_momentum[-1] - input_momentum[0]
+        # momentum_interp += input_momentum[0]
 
         return nTurns, use_turns, time_interp, momentum_interp
         
