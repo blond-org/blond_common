@@ -159,6 +159,22 @@ def energy_to_B_field(energy, bending_radius, charge, rest_mass=None,
     return B_field
 
 
+def energy_to_beta(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+    
+    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+    beta = 1/np.sqrt(1+rest_mass**2/(energy**2 - rest_mass**2))
+
+    return beta
+
+
+def energy_to_gamma(energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+    
+    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+    gamma = np.sqrt((energy**2 - rest_mass**2)/rest_mass**2 + 1)
+
+    return gamma
+
+
 def kin_energy_to_momentum(kin_energy, rest_mass=None, n_nuc=None, 
                            atomic_mass=None):
 
