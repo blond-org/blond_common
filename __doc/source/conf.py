@@ -47,7 +47,11 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.graphviz',
     'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.autosummary',
+    'sphinx_autopackagesummary',
     'sphinxcontrib.napoleon']
+
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

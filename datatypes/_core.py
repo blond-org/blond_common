@@ -65,17 +65,9 @@ class _function(np.ndarray):
     
     def __array_finalize__(self, obj):
         """
-        
-
         Parameters
         ----------
-        obj : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
+        obj : datatype
         """
         if obj is None:
             return
@@ -86,22 +78,18 @@ class _function(np.ndarray):
     @classmethod
     def zeros(cls, shape, data_type = None):
         """
-        
-
         Parameters
         ----------
-        cls : TYPE
-            DESCRIPTION.
-        shape : TYPE
-            DESCRIPTION.
-        data_type : TYPE, optional
-            DESCRIPTION. The default is None.
+        shape : iterable 
+            The shape of the new array
+        data_type : dict, optional
+            The dict defining the data_type attribute of the new array.
+            The default is None.
 
         Returns
         -------
-        newArray : TYPE
-            DESCRIPTION.
-
+        newArray : datatype
+            The new datatype array
         """
         newArray = np.zeros(shape).view(cls)
         newArray.data_type = data_type
@@ -112,7 +100,7 @@ class _function(np.ndarray):
     def data_type(self):
         """
         Get or set the data_type.  Setting the data_type will update all
-        attributes of the object.
+        attributes of the object identified in the dict.
         """
         return self._data_type
 
@@ -143,65 +131,58 @@ class _function(np.ndarray):
             return self._timebase
         except AttributeError:
             return None
-    
+
     @timebase.setter
     def timebase(self, value):
         self._check_data_type('timebase', value)
         self._timebase = value
 
-    
+
     def _check_data_type(self, element, value):
         """
-        
-
         Parameters
         ----------
-        element : TYPE
-            DESCRIPTION.
-        value : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
+        element : str
+            str identifying the element of the data_type dict to be updated.
+        value : any
+            The new element to be added to the data_type dict.
         """
         self._data_type[element] = value
-        
-    
+
+
     def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
         """
-        
-
         Parameters
         ----------
-        n_sections : TYPE, optional
-            DESCRIPTION. The default is 1.
-        use_time : TYPE, optional
-            DESCRIPTION. The default is None.
-        use_turns : TYPE, optional
-            DESCRIPTION. The default is None.
+        n_sections : int, optional
+            The number of sections described by the array. The default is 1.
+        use_time : iterable of float, optional
+            The times that the array will be interpolated onto.
+            The default is None.
+        use_turns : iterable of int, optional
+            The turn numberss to be extracted from the array. 
+            The default is None.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.InputError
+            If neither use_turns nor use_time is defined an exception is
+            raised.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        np.ndarray
+            The new array to be populated when reshaping the data.
         """
         if use_turns is None and use_time is None:
             raise excpt.InputError("At least one of use_turns and "
                                         + "use_time should be defined")
-            
+
         if use_time is not None:
             nPts = len(use_time)
         else:
             nPts = len(use_turns)
-            
+
         if self.timebase == 'by_turn' and use_turns is None:
             raise excpt.InputError("If function is defined by_turn "
                                         + "use_turns must be given")
@@ -211,30 +192,24 @@ class _function(np.ndarray):
                                         + "use_time must be given")
 
         return np.zeros([n_sections, nPts])
-    
-    
+
+
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
         """
-        
-
         Parameters
         ----------
-        n_sections : TYPE
-            DESCRIPTION.
-        use_time : TYPE
-            DESCRIPTION.
-        use_turns : TYPE
-            DESCRIPTION.
+        n_sections : int
+            Number of sections required for the new array.
+        use_time : iterable of floats
+            Times to be used for the interpolation.
+        use_turns : iterable of ints
+            Turn numbers to be used for new array.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
+        excpt.DataDefinitionError
+            If a function self has multiple sections and n_sections does not
+            match the number of sections a DataDefintionError is raised.
         """
         if n_sections > 1 and self.shape[0] == 1:
             warnings.warn("multi-section required, but "
@@ -270,29 +245,30 @@ class _function(np.ndarray):
                                                      + "enough turns defined "
                                                      + "for maximum requested "
                                                      + "turn number")
-    
+
+
     def _interpolate(self, section, use_time):
         """
-        
-
         Parameters
         ----------
-        section : TYPE
-            DESCRIPTION.
-        use_time : TYPE
-            DESCRIPTION.
+        section : int
+            Section number to be interpolated.
+        use_time : iterable of floats
+            The times the array will be interpolated onto.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.InputDataError
+            If use_time is not monotonically increase an InputDataError is
+            raised.
         RuntimeError
-            DESCRIPTION.
+            At present only linear interpolation is available, if another
+            type is requested a RuntimeError is raised.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        np.ndarray
+            The interpolated array.
 
         """
         if not np.all(np.diff(use_time) > 0):
@@ -307,20 +283,17 @@ class _function(np.ndarray):
 
     def _interpolate_linear(self, section, use_time):
         """
-        
-
         Parameters
         ----------
-        section : TYPE
-            DESCRIPTION.
-        use_time : TYPE
-            DESCRIPTION.
+        section : int
+            Section number to be interpolated.
+        use_time : iterable of floats
+            The times the array will be interpolated onto.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        np.ndarray
+            The newly interpolated array.
         """
         if self.shape[0] == 1:
             return np.interp(use_time, self[0, 0], self[0, 1])
@@ -330,22 +303,21 @@ class _function(np.ndarray):
 
     def reshape(self, n_sections = 1, use_time = None, use_turns = None):
         """
-        
-
         Parameters
         ----------
-        n_sections : TYPE, optional
-            DESCRIPTION. The default is 1.
-        use_time : TYPE, optional
-            DESCRIPTION. The default is None.
-        use_turns : TYPE, optional
-            DESCRIPTION. The default is None.
+        n_sections : int, optional
+            The number of sections required for the new array.
+            The default is 1.
+        use_time : iterable of floats, optional
+            The times that the array will be interpolated on to.
+            The default is None.
+        use_turns : iterable of ints, optional
+            The turn numbers to be used for the new array. The default is None.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        datatype
+            The newly interpolated array.
         """
         self._comp_definition_reshape(n_sections, use_time, use_turns)        
         newArray = self._prep_reshape(n_sections, use_time, use_turns)
@@ -372,25 +344,25 @@ class _function(np.ndarray):
 ###############################################
 ####FUNCTIONS TO HELP IN DATA TYPE CREATION####
 ###############################################
-    
+
 def _expand_singletons(data_types, data_points):
     """
-    
+    Function to expand single points of data to the required shape for the
+    new array.
 
     Parameters
     ----------
-    data_types : TYPE
-        DESCRIPTION.
-    data_points : TYPE
-        DESCRIPTION.
+    data_types : list of str
+        The preliminary data_type for each data_point.
+    data_points : list of floats and/or iterables
+        The data to be checked for compatability.
 
     Returns
     -------
-    data_types : TYPE
-        DESCRIPTION.
-    data_points : TYPE
-        DESCRIPTION.
-
+    data_types : list of str
+        The updated data_types.
+    data_points : 
+        The updated data_points.
     """
     if 'by_turn' in data_types:
         n_turns = _check_turn_numbers(data_points, data_types, \
@@ -417,30 +389,33 @@ def _expand_singletons(data_types, data_points):
 
     return data_types, data_points
 
-#For functions defined by turn number, check all have same number of turns
+
 def _check_turn_numbers(data_points, data_types, allow_single=False):
     """
-    
+    Function to check that all given data covers the same number of turns
 
     Parameters
     ----------
-    data_points : TYPE
-        DESCRIPTION.
-    data_types : TYPE
-        DESCRIPTION.
-    allow_single : TYPE, optional
-        DESCRIPTION. The default is False.
+    data_points : iterable
+        The data_points to be used in the datatype array.
+    data_types : iterable of str
+        The timebase for each member of data_points.
+    allow_single : bool, optional
+        Identify if single values are allowed. The default is False.
 
     Raises
     ------
-    excpt
-        DESCRIPTION.
+    excpt.InputError
+        If allow_single is False and both by_turn and single valued data is
+        given an InputError is raised.
+    except.DataDefinitionError
+        If the given arrays are not of equal length a DataDefintionError is
+        raised.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
-
+    int
+        The number of turns of data.
     """
     lengths = []
     for datPt, datType in zip(data_points, data_types):
@@ -462,24 +437,22 @@ def _check_turn_numbers(data_points, data_types, allow_single=False):
 
 def _check_data_types(data_types, allow_single = False):
     """
-    
+    Function to check that all data has the same type, allows singles if 
+    flagged
 
     Parameters
     ----------
-    data_types : TYPE
-        DESCRIPTION.
-    allow_single : TYPE, optional
-        DESCRIPTION. The default is False.
+    data_types : iterable of str
+        The preliminary timebases for the data.
+    allow_single : bool, optional
+        Define if single valued data can be mixed with time dependent data.
+        The default is False.
 
     Raises
     ------
-    excpt
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
-
+    excpt.DataDefinitionError
+        If the input data is a mix of timebase conventions a
+        DataDefinitionError is raised.
     """
     comparator = []
     for t in data_types:
@@ -498,55 +471,52 @@ def _check_data_types(data_types, allow_single = False):
     if not all(gen):
         raise excpt.DataDefinitionError("Input programs " \
                                      + "follow different conventions")
-            
-#Raise excpt if both time and n_turns are not None
+
+
+#TODO: Where used replace with SingleNotNone assertion
 def _check_time_turns(time, n_turns):
     """
-    
+    Function to check if time and n_turns are both defined
 
     Parameters
     ----------
-    time : TYPE
-        DESCRIPTION.
-    n_turns : TYPE
-        DESCRIPTION.
+    time : iterable of float
+        The time for the data.
+    n_turns : int
+        The number of turns for the data.
 
     Raises
     ------
-    excpt
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
-
+    excpt.InputError
+        Raises an InputError if both time and n_turns are not None.
     """
     if time is not None and n_turns is not None:
             raise excpt.InputError("time and n_turns cannot both be "
                                         + "specified")
 
+
 #Loop over _check_dims for all *args and return corresponding data_points 
 #and data_types
 def _get_dats_types(*args, time, n_turns):
     """
-    
+    Function to take the given arguments and compare their dimensions
+    with the given time and n_turns
 
     Parameters
     ----------
-    *args : TYPE
-        DESCRIPTION.
-    time : TYPE
-        DESCRIPTION.
-    n_turns : TYPE
-        DESCRIPTION.
+    *args : iterable of float and/or iterables
+        The data to be used to construct the new array.
+    time : iterable of float
+        The times used for the new array.
+    n_turns : int
+        The number of turns of data.
 
     Returns
     -------
-    data_points : TYPE
-        DESCRIPTION.
-    data_types : TYPE
-        DESCRIPTION.
-
+    data_points : iterable of floats and/or iterables
+        The data to be used for the new array.
+    data_types : list
+        The preliminary timebases for the data.
     """
     data_points = []
     data_types = []
@@ -559,43 +529,50 @@ def _get_dats_types(*args, time, n_turns):
     return data_points, data_types
 
 
-#Identify if data is single valued, by_turn, or by_time
 def _check_dims(data, time = None, n_turns = None):
     """
-    
+    Function to check the timebase of data
 
     Parameters
     ----------
-    data : TYPE
-        DESCRIPTION.
-    time : TYPE, optional
-        DESCRIPTION. The default is None.
-    n_turns : TYPE, optional
-        DESCRIPTION. The default is None.
+    data : iterable or float
+        The data to be checked.
+    time : iterable of floats or None, optional
+        The time to be used for the array. The default is None.
+    n_turns : int or None, optional
+        The number of turns to be used for the array. The default is None.
 
     Raises
     ------
-    excpt
-        DESCRIPTION.
+    excpt.InputError
+        If the data appears to be turn based and the length does not match
+        n_turns an InputError is raised.
+        If the time parameter is passed and the data is a 2D array an
+        InputError is raised
+        If the time parameters is passed and the data is a 1D array of
+        different length an InputError is raised
+        If the functions reaches the end, the data is not understandable and
+        an InputError is raised
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    float or iterable of floats
+        The data to be used for the new array.
     str
-        DESCRIPTION.
+        The timebase of the data.
 
     """
     #Check and handle single valued data
     #if not single valued coerce to numpy array and continue
     try:
         iter(data)
-        data = np.array(data)
     except TypeError:
         if n_turns is None:
             return data, 'single'
         else:
             return [data]*n_turns, 'by_turn'
+    else:
+        data = np.array(data)
 
     #If n_turns specified and data is not single valued it should be 
     #of len(n_turns)
@@ -628,15 +605,14 @@ def _check_dims(data, time = None, n_turns = None):
     raise excpt.InputError("Input data not understood")
 
 
-
 def _interpolate_input(data_points, data_types, interpolation = 'linear'):
     """
     
 
     Parameters
     ----------
-    data_points : TYPE
-        DESCRIPTION.
+    data_points : float or iterable of floats
+        .
     data_types : TYPE
         DESCRIPTION.
     interpolation : TYPE, optional
@@ -655,36 +631,18 @@ def _interpolate_input(data_points, data_types, interpolation = 'linear'):
     """
     if interpolation != 'linear':
         raise RuntimeError("Only linear interpolation defined")
-    
+
     if all(t == 'single' for t in data_types):
         return data_points
-    """
-    Class defining the length of the beam
-    Parameters
-    ----------
-    *args : float, 1D iterable of floats, 2D iterable of floats
-    length_type : str
-    units : str
-    time : iterable of floats
-    n_turns : int
-    interpolation : str
-    
-    Attributes
-    ----------
-    As _function plus
-    units : str
-    bunching : str
-    length_type : str
-    """
-    
+
     if data_types[0] != 'by_time':
         excpt.DataDefinitionError("Interpolation only possible if functions "
                                        + "are defined by time")
-    
+
     input_times = []
     for d in data_points:
         input_times += d[0].tolist()
-    
+
     interp_times = sorted(set(input_times))
 
     for i in range(len(data_points)):
