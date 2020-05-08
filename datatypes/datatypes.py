@@ -5,7 +5,7 @@ import os
 import warnings
 import scipy.constants as cont
 import matplotlib.pyplot as plt
-import functools
+import inspect
 
 #Common imports
 from ..devtools import exceptions as excpt
@@ -65,7 +65,19 @@ class _function(np.ndarray):
         return obj
     
     def __array_finalize__(self, obj):
+        """
+        
 
+        Parameters
+        ----------
+        obj : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
         if obj is None:
             return
 
@@ -74,8 +86,23 @@ class _function(np.ndarray):
 
     @classmethod
     def zeros(cls, shape, data_type = None):
-        r"""
-        Function to create empty arrays
+        """
+        
+
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+        shape : TYPE
+            DESCRIPTION.
+        data_type : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        newArray : TYPE
+            DESCRIPTION.
+
         """
         newArray = np.zeros(shape).view(cls)
         newArray.data_type = data_type
@@ -84,6 +111,10 @@ class _function(np.ndarray):
 
     @property
     def data_type(self):
+        """
+        Get or set the data_type.  Setting the data_type will update all
+        attributes of the object.
+        """
         return self._data_type
 
     @data_type.setter
@@ -105,6 +136,10 @@ class _function(np.ndarray):
 
     @property
     def timebase(self):
+        """
+        Get or set the timebase.  Setting the timebase will update the
+        data_type dict.
+        """
         try:
             return self._timebase
         except AttributeError:
@@ -117,11 +152,48 @@ class _function(np.ndarray):
 
     
     def _check_data_type(self, element, value):
+        """
+        
+
+        Parameters
+        ----------
+        element : TYPE
+            DESCRIPTION.
+        value : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
         self._data_type[element] = value
         
     
     def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
+        """
         
+
+        Parameters
+        ----------
+        n_sections : TYPE, optional
+            DESCRIPTION. The default is 1.
+        use_time : TYPE, optional
+            DESCRIPTION. The default is None.
+        use_turns : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if use_turns is None and use_time is None:
             raise excpt.InputError("At least one of use_turns and "
                                         + "use_time should be defined")
@@ -143,7 +215,28 @@ class _function(np.ndarray):
     
     
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
+        """
+        
 
+        Parameters
+        ----------
+        n_sections : TYPE
+            DESCRIPTION.
+        use_time : TYPE
+            DESCRIPTION.
+        use_turns : TYPE
+            DESCRIPTION.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
         if n_sections > 1 and self.shape[0] == 1:
             warnings.warn("multi-section required, but "
                           + str(self.__class__.__name__) + " function is single"
@@ -180,7 +273,29 @@ class _function(np.ndarray):
                                                      + "turn number")
     
     def _interpolate(self, section, use_time):
+        """
+        
 
+        Parameters
+        ----------
+        section : TYPE
+            DESCRIPTION.
+        use_time : TYPE
+            DESCRIPTION.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+        RuntimeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if not np.all(np.diff(use_time) > 0):
             raise excpt.InputDataError("use_time is not monotonically "
                                             + "increasing")
@@ -192,6 +307,22 @@ class _function(np.ndarray):
 
 
     def _interpolate_linear(self, section, use_time):
+        """
+        
+
+        Parameters
+        ----------
+        section : TYPE
+            DESCRIPTION.
+        use_time : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if self.shape[0] == 1:
             return np.interp(use_time, self[0, 0], self[0, 1])
         else:
@@ -199,7 +330,24 @@ class _function(np.ndarray):
 
 
     def reshape(self, n_sections = 1, use_time = None, use_turns = None):
+        """
         
+
+        Parameters
+        ----------
+        n_sections : TYPE, optional
+            DESCRIPTION. The default is 1.
+        use_time : TYPE, optional
+            DESCRIPTION. The default is None.
+        use_turns : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         self._comp_definition_reshape(n_sections, use_time, use_turns)        
         newArray = self._prep_reshape(n_sections, use_time, use_turns)
         
@@ -225,7 +373,23 @@ class _function(np.ndarray):
 
 
 class _ring_function(_function):
-
+    """
+    
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    time : iterable of floats
+    n_turns : int
+    allow_single : bool
+    interpolation : str
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function class plus:
+        _sectioning : str
+        
+    """
     def __new__(cls, *args, time = None, n_turns = None, 
                 allow_single = False, interpolation = None, **kwargs):
         args = _expand_function(*args)
@@ -258,7 +422,37 @@ class _ring_function(_function):
     @classmethod
     def _combine_single_sections(cls, *args,
                                 interpolation = None, **kwargs):
+        """
+        
 
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+        *args : TYPE
+            DESCRIPTION.
+        interpolation : TYPE, optional
+            DESCRIPTION. The default is None.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        newArray : TYPE
+            DESCRIPTION.
+        timeBases : TYPE
+            DESCRIPTION.
+        use_times : TYPE
+            DESCRIPTION.
+        use_turns : TYPE
+            DESCRIPTION.
+
+        """
         if not all(isinstance(a, _ring_function) for a in args):
             raise excpt.InputError("Only _ring_function objects can be "
                                    + "combined")
@@ -336,6 +530,10 @@ class _ring_function(_function):
     
     @property
     def sectioning(self):
+        """
+        Get or set the sectioning.  Setting the sectioning will also update
+        the data_type dict.
+        """
         try:
             return self._sectioning
         except AttributeError:
@@ -348,6 +546,21 @@ class _ring_function(_function):
 
 
 class _ring_program(_ring_function):
+    """
+    Base class for momentum-like ring programs (momentum, B-field, etc).
+
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _ring_function class plus
+    _sectioning : str
+    """
 
     conversions = {}
 
@@ -356,24 +569,88 @@ class _ring_program(_ring_function):
                                interpolation = interpolation)
 
     def to_momentum(self, inPlace = True, **kwargs):
+        """
+        
+
+        Parameters
+        ----------
+        inPlace : TYPE, optional
+            DESCRIPTION. The default is True.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if self.source == 'momentum':
             return self._no_convert(inPlace)
         else:
             return self._convert('momentum', inPlace, **kwargs)
 
     def to_total_energy(self, inPlace = True, **kwargs):
+        """
+        
+
+        Parameters
+        ----------
+        inPlace : TYPE, optional
+            DESCRIPTION. The default is True.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if self.source == 'energy':
             return self._no_convert(inPlace)
         else:
             return self._convert('energy', inPlace, **kwargs)
 
     def to_B_field(self, inPlace = True, **kwargs):
+        """
+        
+
+        Parameters
+        ----------
+        inPlace : TYPE, optional
+            DESCRIPTION. The default is True.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if self.source == 'B_field':
             return self._no_convert(inPlace)
         else:
             return self._convert('B_field', inPlace, **kwargs)
 
     def to_kin_energy(self, inPlace = True, **kwargs):
+        """
+        
+
+        Parameters
+        ----------
+        inPlace : TYPE, optional
+            DESCRIPTION. The default is True.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if self.source == 'kin_energy':
             return self._no_convert(inPlace)
         else:
@@ -384,7 +661,31 @@ class _ring_program(_ring_function):
     @classmethod
     def combine_single_sections(cls, *args,
                                 interpolation = None, **kwargs):
+        """
+        
 
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+        *args : TYPE
+            DESCRIPTION.
+        interpolation : TYPE, optional
+            DESCRIPTION. The default is None.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        newArray : TYPE
+            DESCRIPTION.
+
+        """
         if not all(isinstance(a, _ring_program) for a in args):
             raise excpt.InputError("Only _ring_function objects can be "
                                    + "combined")
@@ -425,7 +726,43 @@ class _ring_program(_ring_function):
                    interpolation = 'linear', t_start = 0, t_end = np.inf,
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf,
                    store_turns = True):
+        """
+        
 
+        Parameters
+        ----------
+        mass : TYPE
+            DESCRIPTION.
+        circumference : TYPE
+            DESCRIPTION.
+        interp_time : TYPE, optional
+            DESCRIPTION. The default is None.
+        interpolation : TYPE, optional
+            DESCRIPTION. The default is 'linear'.
+        t_start : TYPE, optional
+            DESCRIPTION. The default is 0.
+        t_end : TYPE, optional
+            DESCRIPTION. The default is np.inf.
+        flat_bottom : TYPE, optional
+            DESCRIPTION. The default is 0.
+        flat_top : TYPE, optional
+            DESCRIPTION. The default is 0.
+        targetNTurns : TYPE, optional
+            DESCRIPTION. The default is np.inf.
+        store_turns : TYPE, optional
+            DESCRIPTION. The default is True.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        newArray : TYPE
+            DESCRIPTION.
+
+        """
         if not isinstance(self, momentum_program):
             raise excpt.DataDefinitionError("Only momentum functions "
                                                  + "can be preprocessed, not "
@@ -509,7 +846,26 @@ class _ring_program(_ring_function):
 
     def convert(self, mass, charge = None, bending_radius = None, 
                 inPlace = True):
+        """
         
+
+        Parameters
+        ----------
+        mass : TYPE
+            DESCRIPTION.
+        charge : TYPE, optional
+            DESCRIPTION. The default is None.
+        bending_radius : TYPE, optional
+            DESCRIPTION. The default is None.
+        inPlace : TYPE, optional
+            DESCRIPTION. The default is True.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         newArray = np.zeros(self.shape)
 
         for s in range(self.shape[0]):
@@ -536,7 +892,33 @@ class _ring_program(_ring_function):
 
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
+        """
         
+
+        Parameters
+        ----------
+        section : TYPE
+            DESCRIPTION.
+        mass : TYPE
+            DESCRIPTION.
+        charge : TYPE, optional
+            DESCRIPTION. The default is None.
+        bending_radius : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+        RuntimeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        sectionFunction : TYPE
+            DESCRIPTION.
+
+        """
         if self.timebase == 'by_time':
             sectionFunction = np.array(self[section, 1])
         else:
@@ -564,7 +946,24 @@ class _ring_program(_ring_function):
     
     
     def _convert(self, destination, inPlace, **kwargs):
+        """
         
+
+        Parameters
+        ----------
+        destination : TYPE
+            DESCRIPTION.
+        inPlace : TYPE
+            DESCRIPTION.
+        **kwargs : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         conversion_function = getattr(rt, self.source + '_to_' + destination)
         newArray = np.zeros(self.shape)
         
@@ -612,7 +1011,20 @@ class _ring_program(_ring_function):
 
 
     def _no_convert(self, inPlace):
+        """
         
+
+        Parameters
+        ----------
+        inPlace : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         if inPlace:
             return self
         else:
@@ -620,14 +1032,59 @@ class _ring_program(_ring_function):
 
 
     def _time_from_turn(self, mass, circumference):
+        """
         
+
+        Parameters
+        ----------
+        mass : TYPE
+            DESCRIPTION.
+        circumference : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
         trev = rt.mom_to_trev(self[0], mass, circ=circumference)
         return np.cumsum(trev)
 
 
     def _linear_interpolation_no_turns(self, mass, circumference, time, 
                                        section):
+        """
         
+
+        Parameters
+        ----------
+        mass : TYPE
+            DESCRIPTION.
+        circumference : TYPE
+            DESCRIPTION.
+        time : TYPE
+            DESCRIPTION.
+        section : TYPE
+            DESCRIPTION.
+
+        Raises
+        ------
+        RuntimeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+        TYPE
+            DESCRIPTION.
+        momentum_interp : TYPE
+            DESCRIPTION.
+
+        """
         time_func = time[0]
         start = time[1]
         stop = time[2]
@@ -656,7 +1113,34 @@ class _ring_program(_ring_function):
 
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
                               section):
+        """
+        
 
+        Parameters
+        ----------
+        mass : TYPE
+            DESCRIPTION.
+        circumference : TYPE
+            DESCRIPTION.
+        time : TYPE
+            DESCRIPTION.
+        targetNTurns : TYPE
+            DESCRIPTION.
+        section : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        nTurns : TYPE
+            DESCRIPTION.
+        use_turns : TYPE
+            DESCRIPTION.
+        time_interp : TYPE
+            DESCRIPTION.
+        momentum_interp : TYPE
+            DESCRIPTION.
+
+        """
         time_func = time[0]
         start = time[1]
         stop = time[2]
@@ -709,7 +1193,34 @@ class _ring_program(_ring_function):
 
     def _derivative_interpolation(self, mass, circumference, time, 
                                   targetNTurns, section):
+        """
+        
 
+        Parameters
+        ----------
+        mass : TYPE
+            DESCRIPTION.
+        circumference : TYPE
+            DESCRIPTION.
+        time : TYPE
+            DESCRIPTION.
+        targetNTurns : TYPE
+            DESCRIPTION.
+        section : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        nTurns : TYPE
+            DESCRIPTION.
+        use_turns : TYPE
+            DESCRIPTION.
+        time_interp : TYPE
+            DESCRIPTION.
+        momentum_interp : TYPE
+            DESCRIPTION.
+
+        """
         time_func = time[0]
         start = time[1]
         stop = time[2]
@@ -786,7 +1297,22 @@ class _ring_program(_ring_function):
         
         
     def _ramp_start_stop(self):
+        """
         
+
+        Raises
+        ------
+        RuntimeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        time_start_ramp : TYPE
+            DESCRIPTION.
+        time_end_ramp : TYPE
+            DESCRIPTION.
+
+        """
         if self.timebase != 'by_time':
             raise RuntimeError("Only implemented for by_time functions")
         
@@ -797,20 +1323,37 @@ class _ring_program(_ring_function):
 
     @classmethod
     def _add_to_conversions(cls):
+        """
+        
+
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
         cls.conversions[cls.source] = cls
 
 
 class momentum_program(_ring_program):
     source = 'momentum'
+    """A str identifying the data"""
 
 class total_energy_program(_ring_program):
     source = 'energy'
+    """A str identifying the data"""
 
 class kinetic_energy_program(_ring_program):
     source = 'kin_energy'
+    """A str identifying the data"""
 
 class bending_field_program(_ring_program):
     source = 'B_field'
+    """A str identifying the data"""
 
 for data in [momentum_program, total_energy_program, kinetic_energy_program,
              bending_field_program]:
@@ -818,7 +1361,22 @@ for data in [momentum_program, total_energy_program, kinetic_energy_program,
 
 
 class momentum_compaction(_ring_function):
+    """
+    Class dedicated to momentum_compaction factors
     
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    order : int
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _ring_function plus
+    order : int
+    """
     def __new__(cls, *args, order = 0, time = None, n_turns = None, 
                 interpolation = 'linear'):
 
@@ -828,7 +1386,29 @@ class momentum_compaction(_ring_function):
 
     @classmethod
     def combine_single_sections(cls, *args, interpolation = None):
+        """
+        
 
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+        *args : TYPE
+            DESCRIPTION.
+        interpolation : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Raises
+        ------
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        newArray : TYPE
+            DESCRIPTION.
+
+        """
         if not all(isinstance(a, momentum_compaction) for a in args):
             raise excpt.InputError("Only momentum_compaction objects can be "
                                    + "combined")
@@ -862,6 +1442,10 @@ class momentum_compaction(_ring_function):
 
     @property
     def order(self):
+        """
+        Get or set the order.  Setting the order will also update
+        the data_type dict.
+        """
         try:
             return self._order
         except AttributeError:
@@ -874,7 +1458,23 @@ class momentum_compaction(_ring_function):
 
 
 class _RF_function(_function):
+    """
+    Base class for defining functions used for the RFStation
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    harmonics : iterable of ints
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    allow_single : bool
+    **kwargs : keyword arguments
     
+    Attributes
+    ----------
+    As _function plus
+    harmonics : iterable of ints
+    """
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
                 interpolation = 'linear', allow_single = True, **kwargs):
 
@@ -911,6 +1511,10 @@ class _RF_function(_function):
 
     @property
     def harmonics(self):
+        """
+        Get or set the harmonics attribute.  Setting the harmonics will also
+        update the data_type dict.
+        """
         try:
             return self._harmonics
         except AttributeError:
@@ -924,7 +1528,24 @@ class _RF_function(_function):
 
     #TODO: Safe treatment of use_turns > n_turns
     def reshape(self, harmonics = None, use_time = None, use_turns = None):
+        """
         
+
+        Parameters
+        ----------
+        harmonics : TYPE, optional
+            DESCRIPTION. The default is None.
+        use_time : TYPE, optional
+            DESCRIPTION. The default is None.
+        use_turns : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        newArray : TYPE
+            DESCRIPTION.
+
+        """
         if harmonics is None:
             harmonics = self.harmonics
 
@@ -960,14 +1581,65 @@ class _RF_function(_function):
 
 
 class voltage_program(_RF_function):
+    """
+    Class for defining voltage functions
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    harmonics : iterable of ints
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    allow_single : bool
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function plus
+    harmonics : iterable of ints
+    """
     pass
 
 
 class phase_program(_RF_function):
+    """
+    Class for defining phase functions
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    harmonics : iterable of ints
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    allow_single : bool
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function plus
+    harmonics : iterable of ints
+    """
     pass
 
 
 class _freq_phase_off(_RF_function):
+    """
+    Base class for defining offsets to the phase and frequency of the RF
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    harmonics : iterable of ints
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    allow_single : bool
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function plus
+    harmonics : iterable of ints
+    """
     
     def calc_delta_omega(self, design_omega_rev):
         
