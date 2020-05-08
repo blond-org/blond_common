@@ -45,6 +45,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinx.ext.graphviz',
+    'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon']
 
 # Add any paths that contain templates here, relative to this directory.

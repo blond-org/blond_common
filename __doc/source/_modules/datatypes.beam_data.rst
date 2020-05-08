@@ -1,7 +1,7 @@
-datatypes.datatypes module
+datatypes.beam_data module
 ========================================================
 
-.. automodule:: blond_common.datatypes.datatypes
+.. automodule:: blond_common.datatypes.beam_data
     :members:
     :show-inheritance:
     :inherited-members: ndarray

@@ -5,7 +5,6 @@ import os
 import warnings
 import scipy.constants as cont
 import matplotlib.pyplot as plt
-import inspect
 
 #Common imports
 from ..devtools import exceptions as excpt
