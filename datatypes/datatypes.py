@@ -1642,6 +1642,27 @@ class _freq_phase_off(_RF_function):
     """
     
     def calc_delta_omega(self, design_omega_rev):
+        """
+        
+
+        Parameters
+        ----------
+        design_omega_rev : TYPE
+            DESCRIPTION.
+
+        Raises
+        ------
+        RuntimeError
+            DESCRIPTION.
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        delta_omega : TYPE
+            DESCRIPTION.
+
+        """
         
         if not isinstance(self, phase_offset):
             raise RuntimeError("calc_delta_omega can only be used with a "
@@ -1684,6 +1705,29 @@ class _freq_phase_off(_RF_function):
     
     
     def calc_delta_phase(self, design_omega_rev, wrap=False):
+        """
+        
+
+        Parameters
+        ----------
+        design_omega_rev : TYPE
+            DESCRIPTION.
+        wrap : TYPE, optional
+            DESCRIPTION. The default is False.
+
+        Raises
+        ------
+        RuntimeError
+            DESCRIPTION.
+        excpt
+            DESCRIPTION.
+
+        Returns
+        -------
+        delta_phase : TYPE
+            DESCRIPTION.
+
+        """
 
         if not isinstance(self, omega_offset):
             raise RuntimeError("calc_delta_omega can only be used with a "
@@ -1727,13 +1771,64 @@ class _freq_phase_off(_RF_function):
 
 
 class phase_offset(_freq_phase_off):
+    """
+    Class for defining offsets to the design RF phase
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    harmonics : iterable of ints
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    allow_single : bool
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function plus
+    harmonics : iterable of ints
+    """
     pass
 
 class omega_offset(_freq_phase_off):
+    """
+    Class for defining offsets to the design RF phase
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    harmonics : iterable of ints
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    allow_single : bool
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function plus
+    harmonics : iterable of ints
+    """
     pass
 
 
 class _beam_data(_function):
+    """
+    Base class for defining beam data functions
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    **kwargs : keyword arguments
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    """
     
     def __new__(cls, *args, units, time = None, n_turns = None, 
                 interpolation = 'linear', **kwargs):
@@ -1765,6 +1860,10 @@ class _beam_data(_function):
 
     @property
     def bunching(self):
+        """
+        Get and set bunching attribute.  The data_type dict will be updated
+        when the attribute is set.
+        """
         try:
             return self._bunching
         except AttributeError:
@@ -1778,6 +1877,10 @@ class _beam_data(_function):
         
     @property
     def units(self):
+        """
+        Get and set units attribute.  The data_type dict will be updated
+        when the attribute is set.
+        """
         try:
             return self._units
         except AttributeError:
@@ -1790,6 +1893,22 @@ class _beam_data(_function):
 
 
 class acceptance(_beam_data):
+    """
+    Class defining the acceptance of the RF bucket
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    """
     
     def __new__(cls, *args, units = 'eVs', time = None, n_turns = None, 
                 interpolation = 'linear'):
@@ -1800,6 +1919,24 @@ class acceptance(_beam_data):
 
 
 class emittance(_beam_data):
+    """
+    Class defining the longitudinal emittance of the beam
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    emittance_type : str
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    emittance_type : str
+    """
     
     def __new__(cls, *args, emittance_type = 'matched_area', units = 'eVs', 
                 time = None, n_turns = None, interpolation = 'linear'):
@@ -1813,6 +1950,10 @@ class emittance(_beam_data):
 
     @property
     def emittance_type(self):
+        """
+        Get and set emittance_type.  When set the data_type dict is also 
+        updated
+        """
         try:
             return self._emittance_type
         except AttributeError:
@@ -1825,6 +1966,24 @@ class emittance(_beam_data):
 
 
 class length(_beam_data):
+    """
+    Class defining the length of the beam
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    length_type : str
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    length_type : str
+    """
     
     def __new__(cls, *args, length_type = 'full_length', units = 's',
                 time = None, n_turns = None, interpolation = 'linear'):
@@ -1837,6 +1996,10 @@ class length(_beam_data):
 
     @property
     def length_type(self):
+        """
+        Get and set length_type attribute.  On set the data_type dict will
+        also be updated
+        """
         try:
             return self._length_type
         except AttributeError:
@@ -1849,6 +2012,24 @@ class length(_beam_data):
         
 
 class height(_beam_data):
+    """
+    Class defining the height of the beam
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    height_type : str
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    height_type : str
+    """
     
     def __new__(cls, *args, height_type = 'half_height', units = 'eV',
                 time = None, n_turns = None, interpolation = 'linear'):
@@ -1860,6 +2041,10 @@ class height(_beam_data):
 
     @property
     def height_type(self):
+        """
+        Get and set emittance_type.  When set the data_type dict is also 
+        updated
+        """
         try:
             return self._height_type
         except AttributeError:
@@ -1872,6 +2057,22 @@ class height(_beam_data):
 
 
 class synchronous_phase(_beam_data):
+    """
+    Class defining the length of the beam
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    """
     
     def __new__(cls, *args, units = 's', time = None, n_turns = None, 
                 interpolation = 'linear'):
@@ -1887,35 +2088,74 @@ class synchronous_phase(_beam_data):
 ###############################################
     
 def _expand_singletons(data_types, data_points):
+    """
     
-        if 'by_turn' in data_types:
-            n_turns = _check_turn_numbers(data_points, data_types, \
-                                          allow_single=True)
 
-            if 'single' in data_types:
-                for i, t in enumerate(data_types):
-                    if t == 'single':
-                        data_types[i] = 'by_turn'
-                        data_points[i] = [data_points[i]]*n_turns
+    Parameters
+    ----------
+    data_types : TYPE
+        DESCRIPTION.
+    data_points : TYPE
+        DESCRIPTION.
 
-        if 'by_time' in data_types and 'single' in data_types:
+    Returns
+    -------
+    data_types : TYPE
+        DESCRIPTION.
+    data_points : TYPE
+        DESCRIPTION.
 
-            for i, t in enumerate(data_types):
-                if t == 'by_time':
-                    useTime = data_points[i][0]
-                    break
+    """
+    if 'by_turn' in data_types:
+        n_turns = _check_turn_numbers(data_points, data_types, \
+                                      allow_single=True)
 
+        if 'single' in data_types:
             for i, t in enumerate(data_types):
                 if t == 'single':
-                    data_types[i] = 'by_time'
-                    data_points[i] = np.array([useTime, \
-                                               [data_points[i]]*len(useTime)])
-    
-        return data_types, data_points
+                    data_types[i] = 'by_turn'
+                    data_points[i] = [data_points[i]]*n_turns
+
+    if 'by_time' in data_types and 'single' in data_types:
+
+        for i, t in enumerate(data_types):
+            if t == 'by_time':
+                useTime = data_points[i][0]
+                break
+
+        for i, t in enumerate(data_types):
+            if t == 'single':
+                data_types[i] = 'by_time'
+                data_points[i] = np.array([useTime, \
+                                           [data_points[i]]*len(useTime)])
+
+    return data_types, data_points
 
 #For functions defined by turn number, check all have same number of turns
 def _check_turn_numbers(data_points, data_types, allow_single=False):
+    """
+    
 
+    Parameters
+    ----------
+    data_points : TYPE
+        DESCRIPTION.
+    data_types : TYPE
+        DESCRIPTION.
+    allow_single : TYPE, optional
+        DESCRIPTION. The default is False.
+
+    Raises
+    ------
+    excpt
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     lengths = []
     for datPt, datType in zip(data_points, data_types):
         if datType == 'by_turn':
@@ -1935,7 +2175,26 @@ def _check_turn_numbers(data_points, data_types, allow_single=False):
 
 
 def _check_data_types(data_types, allow_single = False):
+    """
+    
 
+    Parameters
+    ----------
+    data_types : TYPE
+        DESCRIPTION.
+    allow_single : TYPE, optional
+        DESCRIPTION. The default is False.
+
+    Raises
+    ------
+    excpt
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     comparator = []
     for t in data_types:
         if t != 'single':
@@ -1956,6 +2215,26 @@ def _check_data_types(data_types, allow_single = False):
             
 #Raise excpt if both time and n_turns are not None
 def _check_time_turns(time, n_turns):
+    """
+    
+
+    Parameters
+    ----------
+    time : TYPE
+        DESCRIPTION.
+    n_turns : TYPE
+        DESCRIPTION.
+
+    Raises
+    ------
+    excpt
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     if time is not None and n_turns is not None:
             raise excpt.InputError("time and n_turns cannot both be "
                                         + "specified")
@@ -1963,7 +2242,26 @@ def _check_time_turns(time, n_turns):
 #Loop over _check_dims for all *args and return corresponding data_points 
 #and data_types
 def _get_dats_types(*args, time, n_turns):
+    """
     
+
+    Parameters
+    ----------
+    *args : TYPE
+        DESCRIPTION.
+    time : TYPE
+        DESCRIPTION.
+    n_turns : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    data_points : TYPE
+        DESCRIPTION.
+    data_types : TYPE
+        DESCRIPTION.
+
+    """
     data_points = []
     data_types = []
     
@@ -1977,7 +2275,31 @@ def _get_dats_types(*args, time, n_turns):
 
 #Identify if data is single valued, by_turn, or by_time
 def _check_dims(data, time = None, n_turns = None):
+    """
+    
 
+    Parameters
+    ----------
+    data : TYPE
+        DESCRIPTION.
+    time : TYPE, optional
+        DESCRIPTION. The default is None.
+    n_turns : TYPE, optional
+        DESCRIPTION. The default is None.
+
+    Raises
+    ------
+    excpt
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+    str
+        DESCRIPTION.
+
+    """
     #Check and handle single valued data
     #if not single valued coerce to numpy array and continue
     try:
@@ -2022,12 +2344,52 @@ def _check_dims(data, time = None, n_turns = None):
 
 
 def interpolate_input(data_points, data_types, interpolation = 'linear'):
+    """
     
+
+    Parameters
+    ----------
+    data_points : TYPE
+        DESCRIPTION.
+    data_types : TYPE
+        DESCRIPTION.
+    interpolation : TYPE, optional
+        DESCRIPTION. The default is 'linear'.
+
+    Raises
+    ------
+    RuntimeError
+        DESCRIPTION.
+
+    Returns
+    -------
+    data_points : TYPE
+        DESCRIPTION.
+
+    """
     if interpolation != 'linear':
         raise RuntimeError("Only linear interpolation defined")
     
     if all(t == 'single' for t in data_types):
         return data_points
+    """
+    Class defining the length of the beam
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+    length_type : str
+    units : str
+    time : iterable of floats
+    n_turns : int
+    interpolation : str
+    
+    Attributes
+    ----------
+    As _function plus
+    units : str
+    bunching : str
+    length_type : str
+    """
     
     if data_types[0] != 'by_time':
         excpt.DataDefinitionError("Interpolation only possible if functions "
@@ -2048,7 +2410,24 @@ def interpolate_input(data_points, data_types, interpolation = 'linear'):
 
 
 def _from_function(inputArray, targetClass, **kwargs):
+    """
     
+
+    Parameters
+    ----------
+    inputArray : TYPE
+        DESCRIPTION.
+    targetClass : TYPE
+        DESCRIPTION.
+    **kwargs : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    inputArray : TYPE
+        DESCRIPTION.
+
+    """
     if isinstance(inputArray, targetClass):
         return inputArray
     
@@ -2057,6 +2436,20 @@ def _from_function(inputArray, targetClass, **kwargs):
 
 
 def _expand_function(*args):
+    """
+    
+
+    Parameters
+    ----------
+    *args : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     newArgs = []
     for a in args:
         if isinstance(a, _function) or isinstance(a, bf.machine_program):
@@ -2070,7 +2463,27 @@ def _expand_function(*args):
 ############################################
     
 def stack(*args, interpolation = 'linear'):
+    """
+    
 
+    Parameters
+    ----------
+    *args : TYPE
+        DESCRIPTION.
+    interpolation : TYPE, optional
+        DESCRIPTION. The default is 'linear'.
+
+    Raises
+    ------
+    excpt
+        DESCRIPTION.
+
+    Returns
+    -------
+    newArray : TYPE
+        DESCRIPTION.
+
+    """
     if not all(hasattr(a, '__iter__') for a in args):
         raise excpt.InputError("All args should be iterable, either as a "
                                    + "datatype object, or a list or tuple with"
