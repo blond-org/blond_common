@@ -607,26 +607,31 @@ def _check_dims(data, time = None, n_turns = None):
 
 def _interpolate_input(data_points, data_types, interpolation = 'linear'):
     """
-    
+    Interpolate time dependant data so all have the same number of points.
+    Currently only linear interpolation is available.
 
     Parameters
     ----------
     data_points : float or iterable of floats
-        .
-    data_types : TYPE
-        DESCRIPTION.
-    interpolation : TYPE, optional
-        DESCRIPTION. The default is 'linear'.
+        The data to be interpolated.
+    data_types : iterable of str
+        The str identifying the timebase of the data.
+    interpolation : str, optional
+        The interpolation style to be used. The default is 'linear'.
 
     Raises
     ------
     RuntimeError
-        DESCRIPTION.
+        If an interpolation other than linear is requested a RuntimeError is
+        raised.
+    DataDefinitionError
+        If data is passed with timebase other than 'by_time' a 
+        DataDefinitionError is raised.
 
     Returns
     -------
-    data_points : TYPE
-        DESCRIPTION.
+    data_points : List of arrays
+        The newly interpolated data.
 
     """
     if interpolation != 'linear':
@@ -655,20 +660,21 @@ def _interpolate_input(data_points, data_types, interpolation = 'linear'):
 
 def _from_function(inputArray, targetClass, **kwargs):
     """
-    
+    WIP
+    Function to construct a datatype array from an existing array.
 
     Parameters
     ----------
-    inputArray : TYPE
-        DESCRIPTION.
-    targetClass : TYPE
-        DESCRIPTION.
-    **kwargs : TYPE
-        DESCRIPTION.
+    inputArray : Float or iterable
+        The data to be checked.
+    targetClass : class
+        The class to be compared with.
+    **kwargs : keyword arguments
+        .
 
     Returns
     -------
-    inputArray : TYPE
+    inputArray : The newArray
         DESCRIPTION.
 
     """
@@ -681,17 +687,18 @@ def _from_function(inputArray, targetClass, **kwargs):
 
 def _expand_function(*args):
     """
-    
+    Function to expand input functions of the _function or machine_program
+    type to remove the extra dimension.
 
     Parameters
     ----------
-    *args : TYPE
-        DESCRIPTION.
+    *args : Tuple of functions
+        The functions to be checked for type and expanded if necessary.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    tuple
+        Tuple of data to be used for the new datatype array.
 
     """
     newArgs = []
@@ -706,26 +713,38 @@ def _expand_function(*args):
 ####LOCAL EQUIVALENTS TO NUMPY FUNCTIONS####
 ############################################
     
-def stack(*args, interpolation = 'linear'):
+def vstack(*args, interpolation = 'linear'):
     """
-    
+    Vertically stack the datatype arrays.  The input can include the start
+    and stop time of each datatype.
 
     Parameters
     ----------
-    *args : TYPE
-        DESCRIPTION.
-    interpolation : TYPE, optional
-        DESCRIPTION. The default is 'linear'.
+    *args : tuples or datatypes
+        The arrays to be stacked.
+    interpolation : str, optional
+        The type of interpolation to be used for the new datatype array.
+        The default is 'linear'.
 
     Raises
     ------
-    excpt
-        DESCRIPTION.
-
+    excpt.InputError
+        If the inputs are not all iterable an InputError is raised.
+        If the inputs is a tuple and does not include a datatype array an
+        InputError is raised.
+        If a tuple is passed and it has length of more than 3 an InputError is
+        raised.
+        If the functions are not all datatype arrays an InputError is raised.
+        If a single valued datatype is passed an InputError is raised.
+        If the datatype arrays have different timebases an InputError is 
+        raised.
+        If the datatypes do not have the same data_type dict an InputError 
+        is raised.
+        
     Returns
     -------
-    newArray : TYPE
-        DESCRIPTION.
+    newArray : datatype
+        The stacked array.
 
     """
     if not all(hasattr(a, '__iter__') for a in args):
