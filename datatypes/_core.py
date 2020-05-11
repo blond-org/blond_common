@@ -78,6 +78,8 @@ class _function(np.ndarray):
     @classmethod
     def zeros(cls, shape, data_type = None):
         """
+        Create an empty array of given shape, with required data_type dict.
+
         Parameters
         ----------
         shape : iterable 
@@ -140,6 +142,8 @@ class _function(np.ndarray):
 
     def _check_data_type(self, element, value):
         """
+        Attempt to assign a value to the data_type dict
+
         Parameters
         ----------
         element : str
@@ -152,6 +156,9 @@ class _function(np.ndarray):
 
     def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
         """
+        Construct an empty numpy array of the required shape for the reshaped
+        array to populate
+
         Parameters
         ----------
         n_sections : int, optional
@@ -196,6 +203,9 @@ class _function(np.ndarray):
 
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
         """
+        Compare the required reshaping data with the contents of the datatype
+        to confirm it is suitable.
+
         Parameters
         ----------
         n_sections : int
@@ -210,6 +220,10 @@ class _function(np.ndarray):
         excpt.DataDefinitionError
             If a function self has multiple sections and n_sections does not
             match the number of sections a DataDefintionError is raised.
+            If a function is defined by_time (by_turn) and the reshaping 
+            requires by_turn (by_time) a DataDefinitionError is raised.
+            If the funtion has fewer turns of data available than required
+            for the use_turns bassed, a DataDefinitionError is raised.
         """
         if n_sections > 1 and self.shape[0] == 1:
             warnings.warn("multi-section required, but "
@@ -249,6 +263,8 @@ class _function(np.ndarray):
 
     def _interpolate(self, section, use_time):
         """
+        Control the interpolation of the data
+
         Parameters
         ----------
         section : int
@@ -283,6 +299,8 @@ class _function(np.ndarray):
 
     def _interpolate_linear(self, section, use_time):
         """
+        Make a linear interpolation
+
         Parameters
         ----------
         section : int
@@ -303,6 +321,9 @@ class _function(np.ndarray):
 
     def reshape(self, n_sections = 1, use_time = None, use_turns = None):
         """
+        Reshape the datatype array to the given number of sections and either
+        the given use_time or given use_turns.
+
         Parameters
         ----------
         n_sections : int, optional
