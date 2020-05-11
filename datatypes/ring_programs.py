@@ -18,10 +18,13 @@ from ._core import _function, _expand_function, _check_time_turns,\
 
 class _ring_function(_function):
     """
-    
+    Base class for functions that are used to define ring parameters 
+    (e.g. momentum, alpha)
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        
     time : iterable of floats
     n_turns : int
     allow_single : bool
@@ -30,9 +33,19 @@ class _ring_function(_function):
     
     Attributes
     ----------
-    As _function class plus:
-        _sectioning : str
-        
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
+
     """
     def __new__(cls, *args, time = None, n_turns = None, 
                 allow_single = False, interpolation = None, **kwargs):
@@ -67,35 +80,44 @@ class _ring_function(_function):
     def _combine_single_sections(cls, *args,
                                 interpolation = None, **kwargs):
         """
-        
+        Prepare to combine multiple single sections datatype functions into a 
+        single array.
 
         Parameters
         ----------
-        cls : TYPE
-            DESCRIPTION.
-        *args : TYPE
-            DESCRIPTION.
-        interpolation : TYPE, optional
-            DESCRIPTION. The default is None.
-        **kwargs : TYPE
-            DESCRIPTION.
+        cls : class
+            The class of the final datatype.
+        *args : datatypes
+            The datatype arrays to be combined.
+        interpolation : str, optional
+            The interpolation method to be used for time dependent data, only
+            used if not already defined in the data.  The default is None.
+        **kwargs : keyword arguments
+            None.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.InputError
+            If the passed data are not _ring_function type an InputError is
+            raised.
+            If the arrays are not defining a single section an InputError is
+            raised.
+        excpt.DataDefinitionError
+            If the times of the input data are different and no interpolation
+            type is available and DataDefinitionError is raised.
+            If the function timebase attributes are not recognised a 
+            DataDefinitionError is raised.
 
         Returns
         -------
-        newArray : TYPE
-            DESCRIPTION.
-        timeBases : TYPE
-            DESCRIPTION.
-        use_times : TYPE
-            DESCRIPTION.
-        use_turns : TYPE
-            DESCRIPTION.
-
+        newArray : datatype
+            An empty array to be populated with the combined data.
+        timeBases : list of str
+            The timebase identifiers of the data to be combined.
+        use_times : list of int
+            The times to be used for the combined data.
+        use_turns : list of float
+            The turn numbers to be used for the combined data.
         """
         if not all(isinstance(a, _ring_function) for a in args):
             raise excpt.InputError("Only _ring_function objects can be "
@@ -155,7 +177,7 @@ class _ring_function(_function):
             
             shortest = np.inf
             for a in args:
-                if a.timebase is not 'single' and a.shape[1] < shortest:
+                if a.timebase != 'single' and a.shape[1] < shortest:
                     shortest = a.shape[1]
             use_turns = np.arange(shortest).astype(int)
             use_times = None
@@ -196,17 +218,38 @@ class _synchronous_data_program(_ring_function):
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
     interpolation : str
+        The type of interpolation to be used
     
     Attributes
     ----------
-    As _ring_function class plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
     """
 
-    conversions = {}
+    _conversions = {}
+    """
+    A dictionary storing the available classes for converting to.  Each
+    key corresponds to the 'source' class attribute of the different 
+    synchronous programs, and the value is the corresponding class.
+    """
 
     def __new__(cls, *args, time = None, n_turns = None, interpolation = None):
         return super().__new__(cls, *args, time = time, n_turns = n_turns,
@@ -214,20 +257,23 @@ class _synchronous_data_program(_ring_function):
 
     def to_momentum(self, inPlace = True, **kwargs):
         """
-        
+        Convert from any synchronous data to momentum either in place or as
+        a new array.
 
         Parameters
         ----------
-        inPlace : TYPE, optional
-            DESCRIPTION. The default is True.
-        **kwargs : TYPE
-            DESCRIPTION.
+        inPlace : bool, optional
+            If True the array will be changed in place, if False a new array
+            is created and returned. The default is True.
+        **kwargs : keyword arguments
+            The keyword argumens requred for the conversion.  Requirements 
+            depend on the data to be converted, but will include some of: 
+                (bending_radius, rest_mass, charge).
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        datatype
+            If inPlace is False a new datatype array is returned.
         """
         if self.source == 'momentum':
             return self._no_convert(inPlace)
@@ -236,20 +282,23 @@ class _synchronous_data_program(_ring_function):
 
     def to_total_energy(self, inPlace = True, **kwargs):
         """
-        
+        Convert from any synchronous data to total energy either in place or
+        as a new array.
 
         Parameters
         ----------
-        inPlace : TYPE, optional
-            DESCRIPTION. The default is True.
-        **kwargs : TYPE
-            DESCRIPTION.
+        inPlace : bool, optional
+            If True the array will be changed in place, if False a new array
+            is created and returned. The default is True.
+        **kwargs : keyword arguments
+            The keyword argumens requred for the conversion.  Requirements 
+            depend on the data to be converted, but will include some of: 
+                (bending_radius, rest_mass, charge).
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        datatype
+            If inPlace is False a new datatype array is returned.
         """
         if self.source == 'energy':
             return self._no_convert(inPlace)
@@ -258,42 +307,44 @@ class _synchronous_data_program(_ring_function):
 
     def to_B_field(self, inPlace = True, **kwargs):
         """
-        
+        Convert from any synchronous data to magnetic field either in place or
+        as a new array.
 
         Parameters
         ----------
-        inPlace : TYPE, optional
-            DESCRIPTION. The default is True.
-        **kwargs : TYPE
-            DESCRIPTION.
+        inPlace : bool, optional
+            If True the array will be changed in place, if False a new array
+            is created and returned. The default is True.
+        **kwargs : keyword arguments
+            The keyword argumens requred for the conversion.  Requirements 
+            depend on the data to be converted, but will include some of: 
+                (bending_radius, rest_mass, charge).
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        datatype
+            If inPlace is False a new datatype array is returned.
         """
-        if self.source == 'B_field':
-            return self._no_convert(inPlace)
-        else:
-            return self._convert('B_field', inPlace, **kwargs)
 
     def to_kin_energy(self, inPlace = True, **kwargs):
         """
-        
+        Convert from any synchronous data to kinetic energy either in place or
+        as a new array.
 
         Parameters
         ----------
-        inPlace : TYPE, optional
-            DESCRIPTION. The default is True.
-        **kwargs : TYPE
-            DESCRIPTION.
+        inPlace : bool, optional
+            If True the array will be changed in place, if False a new array
+            is created and returned. The default is True.
+        **kwargs : keyword arguments
+            The keyword argumens requred for the conversion.  Requirements 
+            depend on the data to be converted, but will include some of: 
+                (bending_radius, rest_mass, charge).
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        datatype
+            If inPlace is False a new datatype array is returned.
         """
         if self.source == 'kin_energy':
             return self._no_convert(inPlace)
@@ -306,38 +357,40 @@ class _synchronous_data_program(_ring_function):
     def combine_single_sections(cls, *args,
                                 interpolation = None, **kwargs):
         """
-        
+        Combine multiple single sections datatype functions into a 
+        single array.
 
         Parameters
         ----------
-        cls : TYPE
-            DESCRIPTION.
-        *args : TYPE
-            DESCRIPTION.
-        interpolation : TYPE, optional
-            DESCRIPTION. The default is None.
-        **kwargs : TYPE
-            DESCRIPTION.
+        cls : class
+            The class of the final datatype.
+        *args : datatypes
+            The datatype arrays to be combined.
+        interpolation : str, optional
+            The interpolation method to be used for time dependent data, only
+            used if not already defined in the data.  The default is None.
+        **kwargs : keyword arguments
+            None.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.InputError
+            If the passed data are not _ring_function type an InputError is
+            raised.
 
         Returns
         -------
-        newArray : TYPE
-            DESCRIPTION.
-
+        newArray : datatype
+            The array containing the combined data.
         """
         if not all(isinstance(a, _synchronous_data_program) for a in args):
             raise excpt.InputError("Only _ring_function objects can be "
                                    + "combined")
 
         newArray, timeBases, use_times, use_turns \
-            = super()._combine_single_sections(*args, 
-                                               interpolation = interpolation, 
-                                               **kwargs)
+            = cls._combine_single_sections(*args, 
+                                            interpolation = interpolation, 
+                                            **kwargs)
             
         bending_radius = kwargs.pop('bending_radius', None)
         if not hasattr(bending_radius, '__iter__'):
@@ -371,41 +424,56 @@ class _synchronous_data_program(_ring_function):
                    flat_bottom = 0, flat_top = 0, targetNTurns = np.inf,
                    store_turns = True):
         """
-        
+        Preprocess the synchronous data to a full program for simulations or 
+        calculations
 
         Parameters
         ----------
-        mass : TYPE
-            DESCRIPTION.
-        circumference : TYPE
-            DESCRIPTION.
-        interp_time : TYPE, optional
-            DESCRIPTION. The default is None.
-        interpolation : TYPE, optional
-            DESCRIPTION. The default is 'linear'.
-        t_start : TYPE, optional
-            DESCRIPTION. The default is 0.
-        t_end : TYPE, optional
-            DESCRIPTION. The default is np.inf.
-        flat_bottom : TYPE, optional
-            DESCRIPTION. The default is 0.
-        flat_top : TYPE, optional
-            DESCRIPTION. The default is 0.
-        targetNTurns : TYPE, optional
-            DESCRIPTION. The default is np.inf.
-        store_turns : TYPE, optional
-            DESCRIPTION. The default is True.
+        mass : float
+            Particle mass.
+        circumference : float
+            Ring circumference.
+        interp_time : float or function, optional
+            Defines the separation in time between points saved by the 
+            interpolation. The default is None.
+        interpolation : str, optional
+            The type of interpolation to be used. The default is 'linear'.
+        t_start : float, optional
+            The earliest desired start time of the interpolation. The default 
+            is 0.
+        t_end : float, optional
+            The latest desired end time of the interpolation. The default is 
+            np.inf.
+        flat_bottom : int, optional
+            Number of turns of flat bottom.  Not yet implemented. The default 
+            is 0.
+        flat_top : int, optional
+            Number of turns of flat top.  Not yet implemented. The default is 
+            0.
+        targetNTurns : int, optional
+            The maximum desired number of turns. The default is np.inf.
+        store_turns : bool, optional
+            Flag to determine if the turn numbers will be included.  If True
+            the program is interpolated turn by turn and the turn numbers are
+            stored, if not no turn information is available.  Interpolation 
+            without turn numbers is faster. The default is True.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.DataDefinitionError
+            If the data is not a momentum_program a DataDefinitionError is 
+            raised.
+        excpt.InputError
+            If the requested type of interpolation is not available an 
+            InputError is raised.
 
         Returns
         -------
-        newArray : TYPE
-            DESCRIPTION.
-
+        newArray : datatype
+            The newly preprocessed array.  The data is of the form
+            [turn numbers, time, synchronous data].  If multiple sections are
+            defined additional synchronous data members are added for each 
+            section.
         """
         if not isinstance(self, momentum_program):
             raise excpt.DataDefinitionError("Only momentum functions "
@@ -491,23 +559,25 @@ class _synchronous_data_program(_ring_function):
     def convert(self, mass, charge = None, bending_radius = None, 
                 inPlace = True):
         """
-        
+        Convert from any synchronous data to momentum.
 
         Parameters
         ----------
-        mass : TYPE
-            DESCRIPTION.
-        charge : TYPE, optional
-            DESCRIPTION. The default is None.
-        bending_radius : TYPE, optional
-            DESCRIPTION. The default is None.
-        inPlace : TYPE, optional
-            DESCRIPTION. The default is True.
+        mass : float
+            Particle mass in eV/c^2.
+        charge : int, optional
+            Charge in multiples of electron charge. The default is None.
+        bending_radius : float, optional
+            Bending radius of the machine. The default is None.
+        inPlace : bool, optional
+            Indicate of the array should be updated or a new array should be 
+            returned. The default is True.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        None or momentum_program
+            If inPlace is True nothing is returned, if it is false a new
+            momentum_program array is returned.
 
         """
         newArray = np.zeros(self.shape)
@@ -529,6 +599,7 @@ class _synchronous_data_program(_ring_function):
                     self[s] = newArray[s]
             
             self.__class__ = momentum_program
+            return None
         
         else:
             return super().__new__(momentum_program, *newArray)
@@ -537,31 +608,31 @@ class _synchronous_data_program(_ring_function):
     def _convert_section(self, section, mass, charge = None, 
                          bending_radius = None):
         """
-        
+        Convert a single machine section to momentum.
 
         Parameters
         ----------
-        section : TYPE
-            DESCRIPTION.
-        mass : TYPE
-            DESCRIPTION.
-        charge : TYPE, optional
-            DESCRIPTION. The default is None.
-        bending_radius : TYPE, optional
-            DESCRIPTION. The default is None.
+        section : int
+            The section number to be converted.
+        mass : float
+            Particle mass in eV/c^2.
+        charge : int, optional
+            Charge in multiples of electron charge. The default is None.
+        bending_radius : float, optional
+            Bending radius of the machine. The default is None.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.InputError
+            If converting from magnetic field and bending_radius is not 
+            supplied an InputError is raised.
         RuntimeError
-            DESCRIPTION.
+            If the program is not convertible a RuntimeError is raised.
 
         Returns
         -------
-        sectionFunction : TYPE
-            DESCRIPTION.
-
+        sectionFunction : array
+            The converted data.
         """
         if self.timebase == 'by_time':
             sectionFunction = np.array(self[section, 1])
@@ -591,22 +662,26 @@ class _synchronous_data_program(_ring_function):
     
     def _convert(self, destination, inPlace, **kwargs):
         """
-        
+        Convert between different types of synchronous data, called by the
+        to_momentum and equivalent functions if a conversion is necessary.
 
         Parameters
         ----------
-        destination : TYPE
-            DESCRIPTION.
-        inPlace : TYPE
-            DESCRIPTION.
-        **kwargs : TYPE
-            DESCRIPTION.
+        destination : str
+            Identifies what the data will be converted to.
+        inPlace : bool
+            If True the data will be modified directly, if False a new array
+            is created and returned.
+        **kwargs : keyword arguments
+            Keyword arguments needed for the conversion.  Requirements 
+            depend on the data to be converted, but will include some of: 
+                (bending_radius, rest_mass, charge).
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        None or _synchronous_data_program
+            If inPlace is True nothing is returned.  If inPlace is false a new
+            _synchronous_data_program is created and returned.
         """
         conversion_function = getattr(rt, self.source + '_to_' + destination)
         newArray = np.zeros(self.shape)
@@ -648,48 +723,51 @@ class _synchronous_data_program(_ring_function):
                 else:
                     self[s] = newArray[s]
             
-            self.__class__ = self.conversions[destination]
+            self.__class__ = self._conversions[destination]
+            return None
 
         else:
-            return super().__new__(self.conversions[destination], *newArray)
+            return super().__new__(self._conversions[destination], *newArray)
 
 
     def _no_convert(self, inPlace):
         """
-        
+        Used by to_momentum and equivalents if the destination is the same as
+        the source.
 
         Parameters
         ----------
-        inPlace : TYPE
-            DESCRIPTION.
+        inPlace : bool
+            If True nothing is done, if False a new duplicate array is created.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-
+        None or _sycnchronous_data_program
+            If inPlace is True nothing is returned, if False a new duplicate
+            array is created and returned.
         """
         if inPlace:
-            return self
+            return None
         else:
             return super().__new__(self.__class__, *self)
 
 
     def _time_from_turn(self, mass, circumference):
         """
-        
+        Used to acquire cumulative cycle time for data that has been defined
+        by turn.
 
         Parameters
         ----------
-        mass : TYPE
-            DESCRIPTION.
-        circumference : TYPE
-            DESCRIPTION.
+        mass : float
+            Particle mass in ev/c^2.
+        circumference : float
+            Machine circumference.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        array of floats
+            Cycle times of each turn.
 
         """
         trev = rt.mom_to_trev(self[0], mass, circ=circumference)
@@ -699,35 +777,36 @@ class _synchronous_data_program(_ring_function):
     def _linear_interpolation_no_turns(self, mass, circumference, time, 
                                        section):
         """
-        
+        Linearly interpolate the cycle without considering turn numbers.
 
         Parameters
         ----------
-        mass : TYPE
-            DESCRIPTION.
-        circumference : TYPE
-            DESCRIPTION.
-        time : TYPE
-            DESCRIPTION.
-        section : TYPE
-            DESCRIPTION.
+        mass : float
+            Particle mass in ev/c^2.
+        circumference : float
+            Machine circumference.
+        time : tuple of (function, float, float)
+            (interp_time function, start time, stop time) used for the 
+            interpolation.
+        section : int
+            Section number.
 
         Raises
         ------
         RuntimeError
-            DESCRIPTION.
+            If interp_time function returns 0 an infinite loop would be 
+            entered and a RuntimeError is raised.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
-        TYPE
-            DESCRIPTION.
-        TYPE
-            DESCRIPTION.
-        momentum_interp : TYPE
-            DESCRIPTION.
-
+        np.NaN
+            In place of the total number of turns, np.NaN is returned.
+        array of np.NaN
+            In place of the turn numbers an array of np.NaN is returned.
+        array of floats
+            The times of the interpolated points.
+        array of floats
+            The momentum at the interpolated points.
         """
         time_func = time[0]
         start = time[1]
@@ -758,32 +837,32 @@ class _synchronous_data_program(_ring_function):
     def _linear_interpolation(self, mass, circumference, time, targetNTurns,
                               section):
         """
-        
+        Linearly interpolate the synchronous data including the turn numbers.
 
         Parameters
         ----------
-        mass : TYPE
-            DESCRIPTION.
-        circumference : TYPE
-            DESCRIPTION.
-        time : TYPE
-            DESCRIPTION.
-        targetNTurns : TYPE
-            DESCRIPTION.
-        section : TYPE
-            DESCRIPTION.
+        mass : float
+            Particle mass.
+        circumference : float
+            Ring circumference.
+        time : tuple of (function, float, float)
+            (interp_time function, start time, stop time) used for the 
+            interpolation.
+        targetNTurns : int, optional
+            The maximum desired number of turns. The default is np.inf.
+        section : int
+            Section number.
 
         Returns
         -------
-        nTurns : TYPE
-            DESCRIPTION.
-        use_turns : TYPE
-            DESCRIPTION.
-        time_interp : TYPE
-            DESCRIPTION.
-        momentum_interp : TYPE
-            DESCRIPTION.
-
+        int
+            The total number of turns.
+        array of int
+            The turn numbers.
+        array of floats
+            The times of the interpolated points.
+        array of floats
+            The momentum at the interpolated points.
         """
         time_func = time[0]
         start = time[1]
@@ -838,32 +917,33 @@ class _synchronous_data_program(_ring_function):
     def _derivative_interpolation(self, mass, circumference, time, 
                                   targetNTurns, section):
         """
-        
+        Interpolate the synchronous data maintaining a linearly varying first
+        derivative.
 
         Parameters
         ----------
-        mass : TYPE
-            DESCRIPTION.
-        circumference : TYPE
-            DESCRIPTION.
-        time : TYPE
-            DESCRIPTION.
-        targetNTurns : TYPE
-            DESCRIPTION.
-        section : TYPE
-            DESCRIPTION.
+        mass : float
+            Particle mass.
+        circumference : float
+            Ring circumference.
+        time : tuple of (function, float, float)
+            (interp_time function, start time, stop time) used for the 
+            interpolation.
+        targetNTurns : int, optional
+            The maximum desired number of turns. The default is np.inf.
+        section : int
+            Section number.
 
         Returns
         -------
-        nTurns : TYPE
-            DESCRIPTION.
-        use_turns : TYPE
-            DESCRIPTION.
-        time_interp : TYPE
-            DESCRIPTION.
-        momentum_interp : TYPE
-            DESCRIPTION.
-
+        int
+            The total number of turns.
+        array of int
+            The turn numbers.
+        array of floats
+            The times of the interpolated points.
+        array of floats
+            The momentum at the interpolated points.
         """
         time_func = time[0]
         start = time[1]
@@ -929,6 +1009,7 @@ class _synchronous_data_program(_ring_function):
             if targetNTurns != np.inf:
                 warnings.warn("Maximum time reached before number of turns")
 
+        #TODO: adjust respecting the correct boundaries
         # Adjust result to get flat top energy correct as derivation and
         # integration leads to ~10^-8 error in flat top momentum
         # momentum_interp = np.asarray(momentum_interp)
@@ -942,20 +1023,20 @@ class _synchronous_data_program(_ring_function):
         
     def _ramp_start_stop(self):
         """
-        
+        Get the start and end times of the ramp.
 
         Raises
         ------
         RuntimeError
-            DESCRIPTION.
+            If the synchronous data is not defined by time a RuntimeError is
+            raised.
 
         Returns
         -------
-        time_start_ramp : TYPE
-            DESCRIPTION.
-        time_end_ramp : TYPE
-            DESCRIPTION.
-
+        time_start_ramp : float
+            The time that the ramp starts.
+        time_end_ramp : float
+            The time that the ramp stops.
         """
         if self.timebase != 'by_time':
             raise RuntimeError("Only implemented for by_time functions")
@@ -968,34 +1049,153 @@ class _synchronous_data_program(_ring_function):
     @classmethod
     def _add_to_conversions(cls):
         """
-        
+        Add the class to the _conversions class attribute dict.
 
         Parameters
         ----------
-        cls : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
+        cls : class
+            The available class.
         """
-        cls.conversions[cls.source] = cls
+        cls._conversions[cls.source] = cls
 
 
 class momentum_program(_synchronous_data_program):
+    """
+    Class for  defining synchronous data as momentum.
+
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
+    time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
+    n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
+    interpolation : str
+        The type of interpolation to be used
+    
+    Attributes
+    ----------
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
+    """
     source = 'momentum'
     """A str identifying the data"""
 
 class total_energy_program(_synchronous_data_program):
+    """
+    Class for  defining synchronous data as total energy.
+
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
+    time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
+    n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
+    interpolation : str
+        The type of interpolation to be used
+    
+    Attributes
+    ----------
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
+    """
     source = 'energy'
     """A str identifying the data"""
 
 class kinetic_energy_program(_synchronous_data_program):
+    """
+    Class for  defining synchronous data as kinetic energy.
+
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
+    time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
+    n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
+    interpolation : str
+        The type of interpolation to be used
+    
+    Attributes
+    ----------
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
+    """
     source = 'kin_energy'
     """A str identifying the data"""
 
 class bending_field_program(_synchronous_data_program):
+    """
+    Class for  defining synchronous data as magnetic field.
+
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
+    time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
+    n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
+    interpolation : str
+        The type of interpolation to be used
+    
+    Attributes
+    ----------
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
+    """
     source = 'B_field'
     """A str identifying the data"""
 
@@ -1006,20 +1206,39 @@ for data in [momentum_program, total_energy_program, kinetic_energy_program,
 
 class momentum_compaction(_ring_function):
     """
-    Class dedicated to momentum_compaction factors
+    Class defining momentum_compaction factors
     
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
     order : int
+        The order of the momentum compaction factor program
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
     interpolation : str
+        The type of interpolation to be used
     
     Attributes
     ----------
-    As _ring_function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    _sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
     order : int
+        The order of the momentum compaction factor program
     """
     def __new__(cls, *args, order = 0, time = None, n_turns = None, 
                 interpolation = 'linear'):
@@ -1031,27 +1250,30 @@ class momentum_compaction(_ring_function):
     @classmethod
     def combine_single_sections(cls, *args, interpolation = None):
         """
-        
+        Combine multiple single sections into a single array.
 
         Parameters
         ----------
-        cls : TYPE
-            DESCRIPTION.
-        *args : TYPE
-            DESCRIPTION.
-        interpolation : TYPE, optional
-            DESCRIPTION. The default is None.
+        cls : class
+            The class of the final datatype.
+        *args : datatypes
+            The datatype arrays to be combined.
+        interpolation : str, optional
+            The interpolation method to be used for time dependent data, only
+            used if not already defined in the data.  The default is None.
 
         Raises
         ------
-        excpt
-            DESCRIPTION.
+        excpt.InputError
+            If the passed data are not momentum_compaction type an InputError 
+            is raised.
+            If the passed data do not all have the same order an InputError is
+            raised.
 
         Returns
         -------
-        newArray : TYPE
-            DESCRIPTION.
-
+        newArray : datatype
+            The new array combining all of the passed sections.
         """
         if not all(isinstance(a, momentum_compaction) for a in args):
             raise excpt.InputError("Only momentum_compaction objects can be "
@@ -1062,8 +1284,8 @@ class momentum_compaction(_ring_function):
                                    + "combined")
 
         newArray, timeBases, use_times, use_turns \
-            = super()._combine_single_sections(*args, 
-                                               interpolation = interpolation)
+            = cls._combine_single_sections(*args, 
+                                           interpolation = interpolation)
             
         for i, a in enumerate(args):
             if timeBases[0] != 'single':
