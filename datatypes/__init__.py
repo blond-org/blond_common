@@ -1,2 +1,2 @@
 
-from ._core import stack
+from .functions import vstack

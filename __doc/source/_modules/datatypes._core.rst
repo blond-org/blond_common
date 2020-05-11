@@ -1,4 +1,4 @@
-datatypes.beam_data module
+datatypes._core module
 ========================================================
 
 .. automodule:: blond_common.datatypes._core

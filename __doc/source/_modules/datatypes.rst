@@ -10,6 +10,7 @@ Modules
     datatypes.ring_programs
     datatypes.rf_programs
     datatypes.beam_data
+    datatypes.functions
 
 
 Examples
