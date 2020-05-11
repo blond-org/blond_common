@@ -19,20 +19,37 @@ from ._core import _function, _expand_function, _check_time_turns,\
 class _RF_function(_function):
     """
     Base class for defining functions used for the RFStation
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs.
     harmonics : iterable of ints
+        The harmonics covered by the data.
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array.
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length.
     interpolation : str
-    allow_single : bool
+        The type of interpolation to be used.
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
-    As _function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     harmonics : iterable of ints
+        The harmonics covered by the function.
     """
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
                 interpolation = 'linear', allow_single = True, **kwargs):
@@ -88,22 +105,26 @@ class _RF_function(_function):
     #TODO: Safe treatment of use_turns > n_turns
     def reshape(self, harmonics = None, use_time = None, use_turns = None):
         """
-        
+        Reshape the datatype array to the given number of sections and either
+        the given use_time or given use_turns.
 
         Parameters
         ----------
-        harmonics : TYPE, optional
-            DESCRIPTION. The default is None.
-        use_time : TYPE, optional
-            DESCRIPTION. The default is None.
-        use_turns : TYPE, optional
-            DESCRIPTION. The default is None.
+        harmonics : iterable of ints, optional
+            The harmonics to be returned in the new array.  If none all 
+            defined harmonics will be returned.  All specified harmonics will
+            be returned, if not defined in the function they will be 0.
+            The default is None.
+        use_time : iterable of floats, optional
+            The times that the array will be interpolated on to.
+            The default is None.
+        use_turns : iterable of ints, optional
+            The turn numbers to be used for the new array. The default is None.
 
         Returns
         -------
-        newArray : TYPE
-            DESCRIPTION.
-
+        datatype
+            The newly interpolated array.
         """
         if harmonics is None:
             harmonics = self.harmonics
@@ -141,86 +162,142 @@ class _RF_function(_function):
 
 class voltage_program(_RF_function):
     """
-    Class for defining voltage functions
+    Class for defining voltage functions.
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs.
     harmonics : iterable of ints
+        The harmonics covered by the data.
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array.
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length.
     interpolation : str
-    allow_single : bool
+        The type of interpolation to be used.
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
-    As _function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     harmonics : iterable of ints
+        The harmonics covered by the function.
     """
     pass
 
 
 class phase_program(_RF_function):
     """
-    Class for defining phase functions
+    Class for defining phase functions.
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs.
     harmonics : iterable of ints
+        The harmonics covered by the data.
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array.
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length.
     interpolation : str
-    allow_single : bool
+        The type of interpolation to be used.
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
-    As _function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     harmonics : iterable of ints
+        The harmonics covered by the function.
     """
     pass
 
 
 class _freq_phase_off(_RF_function):
     """
-    Base class for defining offsets to the phase and frequency of the RF
+    Class for defining offsets to the design RF phase and frequency.
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs.
     harmonics : iterable of ints
+        The harmonics covered by the data.
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array.
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length.
     interpolation : str
-    allow_single : bool
+        The type of interpolation to be used.
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
-    As _function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     harmonics : iterable of ints
+        The harmonics covered by the function.
     """
     
     def calc_delta_omega(self, design_omega_rev):
-        """
-        
+        r"""
+        Calculare the change in $\Omega_{RF}$ required to give a given phase
+        offset.
 
         Parameters
         ----------
-        design_omega_rev : TYPE
-            DESCRIPTION.
+        design_omega_rev : 1D or 2D array.
+            The design $\Omega_{0}$ used to compute the $\Delta\Omega_{RF}$.  
+            Taken as turn dependent if 1D or time dependent if 2D.
 
         Raises
         ------
         RuntimeError
-            DESCRIPTION.
-        excpt
-            DESCRIPTION.
+            If this function is called with an omega_offset function a 
+            RuntimeError is raised.
+            If timebase == 'by_turn' ('by_time') and design_omega_rev is a 
+            time based (turn based) function a RuntimeError is raised.
+        excpt.InputError
+            If the shape of the data and the design_omega_rev are mismatched
+            and InputError is raised.
 
         Returns
         -------
-        delta_omega : TYPE
-            DESCRIPTION.
-
+        delta_omega : omega_offset
+            The $\Delta\Omega_{RF}$ at each defined harmonic.
         """
         
         if not isinstance(self, phase_offset):
@@ -264,28 +341,33 @@ class _freq_phase_off(_RF_function):
     
     
     def calc_delta_phase(self, design_omega_rev, wrap=False):
-        """
-        
+        r"""
+        Calculare the change in $\Omega_{RF}$ required to give a given phase
+        offset.
 
         Parameters
         ----------
-        design_omega_rev : TYPE
-            DESCRIPTION.
-        wrap : TYPE, optional
-            DESCRIPTION. The default is False.
+        design_omega_rev : 1D or 2D array.
+            The design $\Omega_{0}$ used to compute the $\Delta\varphi_{RF}$.  
+            Taken as turn dependent if 1D or time dependent if 2D.
+        wrap : bool
+            WIP:  To be used to flag the modulus of the phase offset
 
         Raises
         ------
         RuntimeError
-            DESCRIPTION.
-        excpt
-            DESCRIPTION.
+            If this function is called with an omega_offset function a 
+            RuntimeError is raised.
+            If timebase == 'by_turn' ('by_time') and design_omega_rev is a 
+            time based (turn based) function a RuntimeError is raised.
+        excpt.InputError
+            If the shape of the data and the design_omega_rev are mismatched
+            and InputError is raised.
 
         Returns
         -------
-        delta_phase : TYPE
-            DESCRIPTION.
-
+        delta_phase : phase_offset
+            The $\Delta\varphi_{RF}$ at each defined harmonic.
         """
 
         if not isinstance(self, omega_offset):
@@ -331,40 +413,74 @@ class _freq_phase_off(_RF_function):
 
 class phase_offset(_freq_phase_off):
     """
-    Class for defining offsets to the design RF phase
+    Class for defining phase offset functions used for the RFStation
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs.
     harmonics : iterable of ints
+        The harmonics covered by the data.
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array.
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length.
     interpolation : str
-    allow_single : bool
+        The type of interpolation to be used.
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
-    As _function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     harmonics : iterable of ints
+        The harmonics covered by the function.
     """
     pass
 
 class omega_offset(_freq_phase_off):
     """
-    Class for defining offsets to the design RF phase
+    Class for defining phase offset functions used for the RFStation
+
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs.
     harmonics : iterable of ints
+        The harmonics covered by the data.
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array.
     n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length.
     interpolation : str
-    allow_single : bool
+        The type of interpolation to be used.
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
-    As _function plus
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type 
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
     harmonics : iterable of ints
+        The harmonics covered by the function.
     """
     pass
