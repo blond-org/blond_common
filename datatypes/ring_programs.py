@@ -47,7 +47,7 @@ class _ring_function(_function):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
 
@@ -244,7 +244,7 @@ class _synchronous_data_program(_ring_function):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
     """
@@ -1092,7 +1092,7 @@ class momentum_program(_synchronous_data_program):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
     """
@@ -1127,7 +1127,7 @@ class total_energy_program(_synchronous_data_program):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
     """
@@ -1162,7 +1162,7 @@ class kinetic_energy_program(_synchronous_data_program):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
     """
@@ -1197,7 +1197,7 @@ class bending_field_program(_synchronous_data_program):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
     """
@@ -1239,7 +1239,7 @@ class momentum_compaction(_ring_function):
     interpolation : str
         Identifier of the type of interpolation to be used when reshaping
         the array, currently only 'linear' has been implemented
-    _sectioning : str
+    sectioning : str
         identification of if the data defines a single machine section
         or multiple machine sections
     order : int
