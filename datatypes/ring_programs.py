@@ -24,12 +24,17 @@ class _ring_function(_function):
     Parameters
     ----------
     *args : float, 1D iterable of floats, 2D iterable of floats
-        
+        The data defining the programs
     time : iterable of floats
+        The time array to be used for the data, to be used if the time 
+        dependent data is not given as 2D array
     n_turns : int
-    allow_single : bool
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
     interpolation : str
+        The type of interpolation to be used
     **kwargs : keyword arguments
+        Additional kwargs used to define the data_type dict.
     
     Attributes
     ----------
