@@ -28,7 +28,7 @@ from ...devtools import assertions
 # from .. import libblond
 
 
-class _ImpedanceObject(object):
+class _ImpedanceObject:
 
     """
     Parent impedance object to implement required methods and attributes
@@ -370,7 +370,7 @@ class Resonators(_ImpedanceObject):
 
     @property
     def frequency_R(self):
-        return self.__frequency_R
+        return self._frequency_R
 
     @frequency_R.setter
     def frequency_R(self, frequency_R):
@@ -383,13 +383,13 @@ class Resonators(_ImpedanceObject):
                                 +"(" + str(nIn) + ") does not match number of "\
                                 +"resonators (" + str(self.n_resonators) + ")")
 
-        self.__frequency_R = frequency_R
-        self.__omega_R = 2 * np.pi * frequency_R
+        self._frequency_R = frequency_R
+        self._omega_R = 2 * np.pi * frequency_R
 
     # Resonant angular frequency in rad/s
     @property
     def omega_R(self):
-        return self.__omega_R
+        return self._omega_R
 
     @omega_R.setter
     def omega_R(self, omega_R):
@@ -402,8 +402,8 @@ class Resonators(_ImpedanceObject):
                                 +"(" + str(nIn) + ") does not match number of "\
                                 +"resonators (" + str(self.n_resonators) + ")")
         
-        self.__frequency_R = omega_R / 2 / np.pi
-        self.__omega_R = omega_R
+        self._frequency_R = omega_R / 2 / np.pi
+        self._omega_R = omega_R
 
     def wake_calc(self, time_array):
         r"""
@@ -501,6 +501,34 @@ class Resonators(_ImpedanceObject):
 # 
 #         self.impedance.real = realImp
 #         self.impedance.imag = imagImp
+
+
+class VariableResonators(Resonators):
+    
+    def __init__(self, R_S, frequency_R, Q, method='python'):
+        
+        self.RSList = R_S
+        self.freqRList = frequency_R
+        self.QList = Q
+        self.n_resonators = len(self.RSList)
+        
+        super().__init__([0]*self.n_resonators,
+                         [0]*self.n_resonators,
+                         [0]*self.n_resonators, method=method)
+
+
+    def update(self, f_rev):
+
+        for n in range(self.n_resonators):
+
+            self.frequency_R[n] = np.interp(f_rev, self.freqRList[n][0], 
+                                                   self.freqRList[n][1])
+
+            self.R_S[n] = np.interp(f_rev, self.RSList[n][0], 
+                                           self.RSList[n][1])
+
+            self.Q[n] = np.interp(f_rev, self.QList[n][0], self.QList[n][1])
+
 
 
 class TravelingWaveCavity(_ImpedanceObject):
@@ -782,3 +810,64 @@ class ResistiveWall(_ImpedanceObject):
              self.frequency_array))
 
         self.impedance[np.isnan(self.impedance)] = 0.0
+
+
+
+class InductiveImpedance(_ImpedanceObject):
+
+    def __init__(self, Z_over_n):
+
+        self.Z_over_n = Z_over_n
+
+
+    def induct_calc(self, f_rev):
+
+        self.inductive = self.Z_over_n/(2*np.pi*f_rev)
+
+    def wake_calc(self, *args, **kwargs):
+
+        raise exceptions.WrongCalcError(
+            'wake_calc() method not implemented in this class')
+
+    def imped_calc(self, *args, **kwargs):
+
+        raise exceptions.WrongCalcError(
+            'imped_calc() method not implemented in this class')
+
+
+
+class VariableInductiveImpedance(InductiveImpedance):
+    
+    def __init__(self, Z_over_n_Array):
+        
+        super().__init__(None)
+    
+        self.Z_over_n_Array = Z_over_n_Array
+    
+    
+    def update(self, f_rev):
+        
+        self.Z_over_n = np.interp(f_rev, self.Z_over_n_Array[0], 
+                                         self.Z_over_n_Array[1])
+
+
+
+class _VariableImpedance:
+    
+    def __init__(self, impedanceObject, updateFunction, ring, rf, updateKwargs):
+        
+        self.impedanceObject = impedanceObject
+        self.updateFunction = updateFunction
+        self.ring = ring
+        self.rf = rf
+        self.updateKwargs = updateKwargs
+    
+    def update(self, sample = None):
+        
+        ringPars = self.ring.parameters_at_sample(sample)
+        rfPars = self.rf.parameters_at_sample(sample)
+
+        inputDict = self.updateFunction(sample = sample, **ringPars, **rfPars, 
+                                        **self.updateKwargs)
+        
+        return self.impedanceObject(**inputDict)

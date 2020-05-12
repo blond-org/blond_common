@@ -608,7 +608,10 @@ class Ring:
         parameters['t_rev'] = self.t_rev[sample]
         parameters['omega_rev'] = self.omega_rev[sample]
         parameters['eta_0'] = self.eta_0[0, sample]
-        parameters['delta_E'] = self.delta_E[0, sample]
+        try:
+            parameters['delta_E'] = self.delta_E[0, sample]
+        except IndexError:
+            parameters['delta_E'] = self.delta_E[0, sample-1]
         parameters['charge'] = self.Particle.charge
         parameters['cycle_time'] = self.cycle_time[sample]
 
