@@ -63,7 +63,7 @@ after_success:
   - coverage report
   - test $TRAVIS_PYTHON_VERSION = "3.6" && coveralls
   - test $TRAVIS_PYTHON_VERSION != "3.6" && exit 0
-  - python -m pip install --upgrade sphinx sphinxcontrib-napoleon
+  - python -m pip install --upgrade sphinx sphinxcontrib-napoleon sphinx-autopackagesummary
   - mkdir -p ~/.ssh
   # Env variable is private key encoded using "cat privatekey | base64 -w0" to avoid str manipulations
   - (echo "$GITHUB_TOKEN_DOCS" | base64 -d) > ~/.ssh/id_rsa
