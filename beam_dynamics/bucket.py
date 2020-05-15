@@ -315,6 +315,8 @@ class Bucket:
             raise excpt.InputError("Target potential must be positive")
         
         pts = np.where(self.well <= potential)[0]
+        if len(pts) < 2:
+            raise excpt.InputError("Too few points below target potential")
         leftPt = pts[0]
         rightPt = pts[-1]
 
@@ -413,7 +415,8 @@ class Bucket:
 
             nPts = args[0]
             try:
-                interpTime = self._interp_time_from_potential(potential[0], nPts)
+                interpTime = self._interp_time_from_potential(potential[0], 
+                                                              nPts)
             except excpt.InputError:
                 return self.area
             
@@ -429,7 +432,7 @@ class Bucket:
             emittance = 2*np.trapz(energyContour, interpTime)
             
             return np.abs(target_emittance - emittance)
-    
+        
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
 
