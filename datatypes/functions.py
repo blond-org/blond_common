@@ -154,3 +154,6 @@ def vstack(*args, interpolation = 'linear'):
 #    for u, f in zip(useTimes, subFunctions):
 #        plt.plot(u, f[0])
 #    plt.show()
+
+
+#TODO: save/load functions
