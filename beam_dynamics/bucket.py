@@ -440,7 +440,7 @@ class Bucket:
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
 
-        try:        
+        try:
             interpTime = self._interp_time_from_potential(result['x'][0], nPts)
         except excpt.InputError:
             interpTime = self.time.copy()

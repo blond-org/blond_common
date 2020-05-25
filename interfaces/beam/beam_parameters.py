@@ -236,8 +236,8 @@ class Beam_Parameters:
     def _time_bounds(self, t_rev):
         
         tRight = t_rev/self.harmonic_divide
-        tLeft = -0.05*tRight
-        tRight *= 1.05
+        tLeft = -0.1*tRight
+        tRight *= 1.1
         
         return (tLeft, tRight)
     
