@@ -75,7 +75,7 @@ class Bucket:
 
     @classmethod
     def from_dicts(cls, rfDict, machDict, tLeft = None, tRight = None,
-                   potential_resolution = 1000):
+                   potential_resolution = 1000, induced_voltage = None):
         
         if tRight is None:
             tRight = 1.05*machDict['t_rev']
@@ -91,6 +91,9 @@ class Bucket:
                                                  rfDict['phi_rf_d'],
                                                  time_bounds = timeBounds)
         
+        if induced_voltage is not None:
+            vWave += np.interp(vTime, induced_voltage[0], induced_voltage[1])
+        
         time, well, _ = pot.rf_potential_generation_cubic(vTime, vWave, 
                                                           machDict['eta_0'], 
                                                           machDict['charge'],
@@ -105,6 +108,7 @@ class Bucket:
         
         return cls(times, wells, machDict['beta'], machDict['energy'],
                    machDict['eta_0'])
+    
 
     def _identify_substructure(self):
         
@@ -436,7 +440,7 @@ class Bucket:
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
 
-        try:        
+        try:
             interpTime = self._interp_time_from_potential(result['x'][0], nPts)
         except excpt.InputError:
             interpTime = self.time.copy()

@@ -471,6 +471,7 @@ class Ring:
         parameters['t_rev'] = self.t_rev[sample]
         parameters['omega_rev'] = self.omega_rev[sample]
         parameters['eta_0'] = self.eta_0[0, sample]
+        #TODO: Find more robust solution
         try:
             parameters['delta_E'] = self.delta_E[0, sample]
         except IndexError:

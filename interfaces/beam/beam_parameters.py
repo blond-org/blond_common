@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import warnings
 
 # BLonD_Common imports
 from ...rf_functions import potential as pot
@@ -235,8 +236,8 @@ class Beam_Parameters:
     def _time_bounds(self, t_rev):
         
         tRight = t_rev/self.harmonic_divide
-        tLeft = -0.05*tRight
-        tRight *= 1.05
+        tLeft = -0.1*tRight
+        tRight *= 1.1
         
         return (tLeft, tRight)
     
@@ -370,7 +371,8 @@ class Beam_Parameters:
                            pars['eta_0'])
     
     
-    def bucket_parameters(self, update_bunch_parameters = False):
+    def bucket_parameters(self, update_bunch_parameters = False,
+                          over_fill = False):
 
         '''
         Store bucket heights, areas, lengths and centers through the ramp
@@ -411,7 +413,18 @@ class Beam_Parameters:
             buckets = self.buckets_by_particle(n)
             for b in range(len(buckets)):
                 if update_bunch_parameters:
-                    buckets[b].bunch_emittance = self.bunch_emittance[n, b]
+                    try:
+                        buckets[b].bunch_emittance = self.bunch_emittance[n, b]
+                    except excpt.BunchSizeError:
+                        if over_fill:
+                            warnings.warn(f"Requested emittance "
+                                          +f"{self.bunch_emittance[n, b]} "
+                                          +f"exceeds acceptance of bucket "
+                                          +f"{n, b}, using bucket acceptance"
+                                          +f"of {buckets[b].area} instead.")
+                            buckets[b].bunch_emittance = buckets[b].area
+                        else:
+                            raise
                     
                 self.bunch_heights[n, b] = buckets[b].bunch_height
                 self.heights[n, b] = buckets[b].half_height
