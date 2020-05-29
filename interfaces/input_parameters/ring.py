@@ -1,5 +1,5 @@
 # coding: utf8
-# Copyright 2014-2019 CERN. This software is distributed under the
+# Copyright 2014-2020 CERN. This software is distributed under the
 # terms of the GNU General Public Licence version 3 (GPL Version 3),
 # copied verbatim in the file LICENCE.md.
 # In applying this licence, CERN does not waive the privileges and immunities
@@ -12,13 +12,11 @@
     :Authors: **Alexandre Lasheen**, **Danilo Quartullo**, **Helga Timko**
 '''
 
-from __future__ import division
-from builtins import str, range, object
+# General imports
 import numpy as np
-import warnings
 from scipy.constants import c
-import sys
 
+# BLonD_Common imports
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 from ..beam import beam
@@ -184,10 +182,31 @@ class Ring:
 
     """
 
-    def __init__(self, ring_length, alpha, synchronous_data, Particle,
-                 bending_radius=None, **kwargs):
+    def __init__(self, ring_length, alpha, Particle,
+                 momentum=None, kin_energy=None, energy=None,
+                 bending_field=None, bending_radius=None,
+                 **kwargs):
 
-        # Ring length and checks
+        # Checking that at least one synchronous data input is passed
+        syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
+        syncDataInput = (momentum, kin_energy, energy, bending_field)
+        assrt.single_not_none(*syncDataInput,
+                              msg='Exactly one of '+str(syncDataTypes) +
+                              ' must be declared',
+                              exception=excpt.InputError)
+
+        # Checking that the bending_radius is passed with the bending_field
+        if bending_field is not None and bending_radius is None:
+            raise excpt.InputError("If bending_field is used, bending_radius "
+                                   + "must be defined.")
+
+        # Taking the first synchronous_data input not declared as None
+        # The assertion above ensures that only one is declared
+        for func_type, synchronous_data in zip(syncDataTypes, syncDataInput):
+            if synchronous_data is not None:
+                break
+
+        # Setting ring length, circumerence, radius, bending radius if defined
         self.ring_length = np.array(ring_length, ndmin=1, dtype=float)
         self.ring_circumference = np.sum(self.ring_length)
         self.ring_radius = self.ring_circumference/(2*np.pi)
@@ -198,46 +217,57 @@ class Ring:
             self.bending_radius = bending_radius
 
         # Primary particle mass and charge used for energy calculations
+        # If a string is passed, will generate the relevant Particle object
+        # based on the name
         if isinstance(Particle, beam.Particle):
             self.Particle = Particle
         else:
             self.Particle = beam.make_particle(Particle)
-            
+
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program from RingOptions
-        if not isinstance(synchronous_data, dTypes.ring_program):
-                synchronous_data = dTypes.ring_program(synchronous_data)
+        if not isinstance(synchronous_data, dTypes._ring_program):
+            synchronous_data = \
+                dTypes._ring_program.conversions[func_type](synchronous_data)
 
         if synchronous_data.shape[0] != len(self.ring_length):
-            raise excpt.InputDataError("ERROR in Ring: Number of sections "
-                                       +"and ring length size do not match!")
+            raise excpt.InputDataError("ERROR in Ring: Number of sections " +
+                                       "and ring length size do not match!")
 
         t_start = kwargs.pop('t_start', 0)
-        t_stop = kwargs.pop('t_start', np.inf)
+        t_stop = kwargs.pop('t_stop', np.inf)
         interp_time = kwargs.pop('interp_time', 0)
-        
+
         if not hasattr(interp_time, '__iter__'):
             interp_time = (interp_time, )
-        
+
         sample_func, start, stop = tmng.time_from_sampling(*interp_time)
-        
+
         if t_start > start:
             start = t_start
         if t_stop < stop:
             stop = t_stop
-        
-        synchronous_data.convert(self.Particle.mass, self.Particle.charge, 
+
+        synchronous_data.convert(self.Particle.mass, self.Particle.charge,
                                  self.bending_radius)
-        
+
         interpolation = kwargs.pop("interpolation", 'linear')
-        
-        self.momentum = synchronous_data.preprocess(self.Particle.mass, 
-                                    self.ring_circumference, sample_func, 
-                                    interpolation, start, stop)
+        store_turns = kwargs.pop('store_turns', True)
+
+        self.momentum = synchronous_data.preprocess(
+            self.Particle.mass,
+            self.ring_circumference, sample_func,
+            interpolation, start, stop,
+            store_turns=store_turns)
 
         self.n_sections = self.momentum.shape[0]-2
         self.cycle_time = self.momentum[1]
-        self.use_turns = self.momentum[0].astype(int)
+        if store_turns:
+            self.parameters_at_turn = self._parameters_at_turn
+            self.use_turns = self.momentum[0].astype(int)
+        else:
+            self.parameters_at_turn = self._no_parameters_at_turn
+            self.use_turns = self.momentum[0]
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = self.momentum.n_turns
@@ -245,28 +275,29 @@ class Ring:
         # Derived from momentum
         self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
         self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
-        self.energy = rt.mom_to_energy(self.momentum[2:], self.Particle.mass)
-        self.kin_energy = rt.mom_to_kin_energy(self.momentum[2:], 
-                                               self.Particle.mass)
-        self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))            
+        self.energy = rt.momentum_to_energy(self.momentum[2:],
+                                            self.Particle.mass)
+        self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:],
+                                                    self.Particle.mass)
+        self.t_rev = np.dot(self.ring_length, 1/(self.beta*c))
         self.delta_E = np.diff(self.energy, axis=1)
         if self.n_turns > len(self.use_turns):
             self.delta_E = np.zeros(self.energy.shape)
             self._recalc_delta_E()
-        
+
         self.momentum = self.momentum[2:]
-            
+
         self.f_rev = 1/self.t_rev
         self.omega_rev = 2*np.pi*self.f_rev
 
         # Momentum compaction, checks, and derived slippage factors
-        
+
         if not hasattr(alpha, '__iter__'):
             alpha = (alpha, )
-        
+
         if isinstance(alpha, dict):
             try:
-                if not all([k%1 == 0 for k in alpha.keys()]):
+                if not all([k % 1 == 0 for k in alpha.keys()]):
                     raise TypeError
             except TypeError:
                 raise excpt.InputError("If alpha is dict all keys must be "
@@ -274,31 +305,57 @@ class Ring:
 
             maxAlpha = np.max(tuple(alpha.keys())).astype(int)
             alpha = [alpha.pop(i, 0) for i in range(maxAlpha+1)]
-        
+
         if isinstance(alpha, dTypes._function):
             alpha = (alpha,)
 
         for i, a in enumerate(alpha):
             if not isinstance(a, dTypes.momentum_compaction):
-                a = dTypes.momentum_compaction(a, order = i)
-            setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections, 
-                                                    self.cycle_time, 
-                                                    self.use_turns))
-            setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
-                                                    len(self.use_turns)]))
+                a = dTypes.momentum_compaction(a, order=i)
+
+            setattr(self, 'alpha_'+str(i), a.reshape(self.n_sections,
+                                                     self.cycle_time,
+                                                     self.use_turns))
+            setattr(self, 'eta_'+str(i), np.zeros([self.n_sections,
+                                                   len(self.use_turns)]))
         self.alpha_order = i
-        
+
         for i in range(3 - self.alpha_order):
             if not hasattr(self, f'alpha_{i}'):
-                setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections, 
-                                                        len(self.use_turns)]))
-                setattr(self, 'eta_'+str(i), np.zeros([self.n_sections, 
-                                                        len(self.use_turns)]))
-            
+                setattr(self, 'alpha_'+str(i), np.zeros([self.n_sections,
+                                                         len(self.use_turns)]))
+                setattr(self, 'eta_'+str(i), np.zeros([self.n_sections,
+                                                       len(self.use_turns)]))
 
         # Slippage factor derived from alpha, beta, gamma
         self.eta_generation()
 
+    # TODO: different interpollation for different components
+    # (e.g. alpha and momentum)
+    @classmethod
+    def from_ring_sections(cls, *args, Particle, interpolation='linear',
+                           **kwargs):
+
+        # Primary particle mass and charge used for energy calculations
+        if not isinstance(Particle, beam.Particle):
+            Particle = beam.make_particle(Particle)
+
+        synchronous_data = dTypes.momentum_program.combine_single_sections(
+                            *(a.synchronous_data for a in args),
+                            charge=Particle.charge,
+                            rest_mass=Particle.mass,
+                            bending_radius=(a.bending_radius for a in args),
+                            interpolation=interpolation)
+
+        ring_length = np.array([a.section_length for a in args])
+
+        alpha = {}
+        for i in range(3):
+            alpha[i] = dTypes.momentum_compaction.combine_single_sections(
+                            *(getattr(a, f'alpha_{i}') for a in args),
+                            interpolation=interpolation)
+
+        return cls(ring_length, alpha, Particle, momentum=synchronous_data)
 
     def eta_generation(self):
         """ Function to generate the slippage factors (zeroth, first, and
@@ -310,10 +367,10 @@ class Ring:
         .. [1] "Accelerator Physics," S. Y. Lee, World Scientific,
                 Third Edition, 2012.
         """
-        #TODO: Safe handling of alpha_order > 2
+
+        # TODO: Safe handling of alpha_order > 2
         for i in range(self.alpha_order+1):
             getattr(self, '_eta' + str(i))()
-
 
     def _eta0(self):
         """ Function to calculate the zeroth order slippage factor eta_0 """
@@ -387,9 +444,12 @@ class Ring:
         parameters['cycle_time'] = cycle_moments
 
         return parameters
-    
-    
-    def parameters_at_turn(self, turn):
+
+    def _no_parameters_at_turn(self, turn):
+        raise RuntimeError("parameters_at_turn only available if " +
+                           "store_turns = True at object declaration")
+
+    def _parameters_at_turn(self, turn):
 
         try:
             sample = np.where(self.use_turns == turn)[0][0]
@@ -398,9 +458,9 @@ class Ring:
                                    + "stored for the specified interpolation")
         else:
             return self.parameters_at_sample(sample)
-    
+
     def parameters_at_sample(self, sample):
-        
+
         parameters = {}
         parameters['momentum'] = self.momentum[0, sample]
         parameters['beta'] = self.beta[0, sample]
@@ -411,23 +471,25 @@ class Ring:
         parameters['t_rev'] = self.t_rev[sample]
         parameters['omega_rev'] = self.omega_rev[sample]
         parameters['eta_0'] = self.eta_0[0, sample]
-        parameters['delta_E'] = self.delta_E[0, sample]
+        #TODO: Find more robust solution
+        try:
+            parameters['delta_E'] = self.delta_E[0, sample]
+        except IndexError:
+            parameters['delta_E'] = self.delta_E[0, sample-1]
         parameters['charge'] = self.Particle.charge
         parameters['cycle_time'] = self.cycle_time[sample]
 
         return parameters
 
-
     def _recalc_delta_E(self):
         """
         Function to recalculate delta_E.
         If interpolation is not done on a turn-by-turn basis the delta_E will
-        not be correct.  This function recalculates it to give the correct 
+        not be correct.  This function recalculates it to give the correct
         value for each turn.
         """
 
         for section in range(self.n_sections):
-            derivative = calc.deriv_cubic(self.cycle_time, 
+            derivative = calc.deriv_cubic(self.cycle_time,
                                           self.energy[section])[1]
             self.delta_E[section] = derivative*self.t_rev
-
