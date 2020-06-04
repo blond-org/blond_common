@@ -1414,7 +1414,6 @@ class length_function(_ring_function):
             if timeBases[0] != 'single':
                 section = a.reshape(use_time=use_times,
                                     use_turns=use_turns)
-                print(section, section.timebase)
             else:
                 section = a.copy()
             newArray[i] = section
