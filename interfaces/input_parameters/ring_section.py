@@ -17,7 +17,7 @@ import numpy as np
 import warnings
 
 # BLonD_Common imports
-from ...datatypes import datatypes as dTypes
+from ...datatypes import ring_programs
 from ...datatypes.blond_function import machine_program
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
@@ -93,7 +93,7 @@ class Section:
 
     Attributes
     ----------
-    section_length : datatype._ring_function
+    section_length : datatype.length_function
         Length of the section [m]
     synchronous_data : datatype._ring_program
         The user input synchronous data, with no conversion applied.
@@ -151,7 +151,7 @@ class Section:
                  alpha_1=None, alpha_2=None, **kwargs):
 
         # Setting section length
-        self.section_length = dTypes._ring_function(section_length)
+        self.section_length = ring_programs.length_function(section_length)
 
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
@@ -177,9 +177,11 @@ class Section:
 
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program
-        if not isinstance(synchronous_data, dTypes._ring_program):
+        if not isinstance(synchronous_data,
+                          ring_programs._synchronous_data_program):
             synchronous_data \
-                = dTypes._ring_program.conversions[func_type](synchronous_data)
+                = ring_programs._synchronous_data_program._conversions[
+                    func_type](synchronous_data)
 
         self.synchronous_data = synchronous_data
 
@@ -188,8 +190,8 @@ class Section:
         # have the same length if defined turn-by-turn, raise a warning if one
         # is defined by turn and the other time based
         self.alpha_order = 0
-        if not isinstance(alpha_0, dTypes.momentum_compaction):
-            alpha_0 = dTypes.momentum_compaction(alpha_0, order=0)
+        if not isinstance(alpha_0, ring_programs.momentum_compaction):
+            alpha_0 = ring_programs.momentum_compaction(alpha_0, order=0)
         else:
             if alpha_0.order != 0:
                 raise excpt.InputError(
@@ -232,8 +234,8 @@ class Section:
             else:
                 self.alpha_orders_defined.append(order)
 
-            if not isinstance(alpha, dTypes.momentum_compaction):
-                alpha = dTypes.momentum_compaction(alpha, order=order)
+            if not isinstance(alpha, ring_programs.momentum_compaction):
+                alpha = ring_programs.momentum_compaction(alpha, order=order)
             else:
                 if alpha.order != order:
                     raise excpt.InputError(

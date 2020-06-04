@@ -29,7 +29,7 @@ if os.path.abspath(this_directory + '../../../../../') not in sys.path:
 
 from blond_common.interfaces.input_parameters.ring_section import Section
 from blond_common.devtools import exceptions as excpt
-from blond_common.datatypes import datatypes as dTypes
+from blond_common import datatypes as dTypes
 
 
 class TestSection(unittest.TestCase):
@@ -430,9 +430,9 @@ class TestSection(unittest.TestCase):
         # with a different order than the kwarg passed
 
         section_length = 300  # m
-        alpha_0 = dTypes.momentum_compaction(1e-3, order=0)
+        alpha_0 = dTypes.ring_programs.momentum_compaction(1e-3, order=0)
         momentum = 26e9  # eV
-        alpha_1 = dTypes.momentum_compaction(1e-6, order=1)
+        alpha_1 = dTypes.ring_programs.momentum_compaction(1e-6, order=1)
 
         with self.subTest('Wrong datatype order - alpha_0'):
             order = 0
