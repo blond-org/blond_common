@@ -412,6 +412,9 @@ class _synchronous_data_program(_ring_function):
             newArray[i] = section
         
         newArray.timebase = timeBases[0]
+        if newArray.timebase == 'by_time':
+            newArray[:, 0, :] = use_times
+
         if newArray.shape[0] > 1:
             newArray.sectioning = 'multi_section'
         else:
@@ -1301,6 +1304,9 @@ class momentum_compaction(_ring_function):
             newArray[i] = section
         
         newArray.timebase = timeBases[0]
+        if newArray.timebase == 'by_time':
+            newArray[:, 0, :] = use_times
+
         if newArray.shape[0] > 1:
             newArray.sectioning = 'multi_section'
         else:
@@ -1408,11 +1414,15 @@ class length_function(_ring_function):
             if timeBases[0] != 'single':
                 section = a.reshape(use_time=use_times,
                                     use_turns=use_turns)
+                print(section, section.timebase)
             else:
                 section = a.copy()
             newArray[i] = section
 
         newArray.timebase = timeBases[0]
+        if newArray.timebase == 'by_time':
+            newArray[:, 0, :] = use_times
+
         if newArray.shape[0] > 1:
             newArray.sectioning = 'multi_section'
         else:
