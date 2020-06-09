@@ -383,3 +383,8 @@ class Profile:
         except AttributeError:
             self.beam_profile_derivative()
             return self._beam_derivative
+    
+    @property
+    def beam_current(self):
+        
+        return self.profile_array/self.bin_size
