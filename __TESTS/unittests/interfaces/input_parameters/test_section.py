@@ -191,6 +191,9 @@ class TestRingSection(unittest.TestCase):
         with self.subTest('Turn by turn program - Only orbit length'):
             section = RingSection(length, alpha_0[0], momentum[0],
                                   orbit_length=orbit_length)
+            # The warning raised here is expected and treated by a specific
+            # unittest
+
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
@@ -202,6 +205,9 @@ class TestRingSection(unittest.TestCase):
 
         with self.subTest('Turn by turn program - Only momentum compaction'):
             section = RingSection(length, alpha_0, momentum[0])
+            # The warning raised here is expected and treated by a specific
+            # unittest
+
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
@@ -292,6 +298,9 @@ class TestRingSection(unittest.TestCase):
         with self.subTest('Time based program - Only orbit length'):
             section = RingSection(length, alpha_0[1][0], momentum[1][0],
                                   orbit_length=orbit_length)
+            # The warning raised here is expected and treated by a specific
+            # unittest
+
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
@@ -303,6 +312,9 @@ class TestRingSection(unittest.TestCase):
 
         with self.subTest('Time based program - Only momentum compaction'):
             section = RingSection(length, alpha_0, momentum[1][0])
+            # The warning raised here is expected and treated by a specific
+            # unittest
+
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
@@ -465,14 +477,16 @@ class TestRingSection(unittest.TestCase):
         with self.assertRaisesRegex(excpt.InputError, error_message):
             RingSection(length, alpha_0, bending_field=bending_field)
 
-    def test_assert_wrong_turn_by_turn_alpha_length(self):
-        # Test the exception that an alpha_n and synchronous data are turn
+    def test_assert_wrong_turn_by_turn_length(self):
+        # Test the exception that an alpha_n, orbit length and synchronous data
+        # are turn
         # based and have different lengths
 
         length = 300  # m
         alpha_0 = [1e-3, 1e-3]
         momentum = [26e9, 27e9, 28e9]  # eV
         alpha_1 = [1e-6, 1e-6]
+        orbit_length = [300.01, 300.01]  # m
 
         with self.subTest('Wrong turn-by-turn momentum compaction - alpha_0'):
             order = 0
@@ -500,6 +514,21 @@ class TestRingSection(unittest.TestCase):
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
 
+        with self.subTest(
+                'Wrong turn-by-turn momentum compaction - orbit_length'):
+
+            attr_name = 'orbit_length'
+
+            error_message = (
+                'The input ' + attr_name +
+                ' was passed as a turn based program but with ' +
+                'different length than the synchronous data. ' +
+                'Turn based programs should have the same length.')
+
+            with self.assertRaisesRegex(excpt.InputError, error_message):
+                RingSection(length, alpha_0[0], momentum,
+                            orbit_length=orbit_length)
+
     def test_warning_turn_time_mix(self):
         # Test the warning that time based programs and turn based
         # were mixed
@@ -508,6 +537,7 @@ class TestRingSection(unittest.TestCase):
         momentum = [[0, 1, 2], [26e9, 27e9, 28e9]]  # eV
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
+        orbit_length = [300.01, 300.01]  # m
 
         with self.subTest('Turn/time program mix - alpha_0'):
 
@@ -532,6 +562,67 @@ class TestRingSection(unittest.TestCase):
 
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
+
+        with self.subTest('Turn/time program mix - orbit_length'):
+
+            attr_name = 'orbit_length'
+            warn_message = (
+                'The synchronous data was defined time based while the ' +
+                'input ' + attr_name + ' was defined turn base, this may' +
+                'lead to errors in the Ring object after interpolation.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0[0], momentum,
+                            orbit_length=orbit_length)
+
+    def test_warning_single_prog_mix(self):
+        # Test the warning that single value programs and turn/time based
+        # were mixed
+
+        length = 300  # m
+        momentum = 26e9  # eV
+        alpha_0 = [1e-3, 1e-3]
+        alpha_1 = [1e-6, 1e-6]
+        orbit_length = [300.01, 300.01]  # m
+
+        with self.subTest('Single and Turn/time program mix - alpha_0'):
+
+            order = 0
+            attr_name = 'alpha_' + str(order)
+            warn_message = (
+                'The synchronous data was defined as single element while the ' +
+                'input ' + attr_name + ' was defined turn or time based. ' +
+                'Only the first element of the program will be taken in ' +
+                'the Ring object after treatment.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0, momentum)
+
+        with self.subTest('Turn/time program mix - alpha_1'):
+
+            order = 1
+            attr_name = 'alpha_' + str(order)
+            warn_message = (
+                'The synchronous data was defined as single element while the ' +
+                'input ' + attr_name + ' was defined turn or time based. ' +
+                'Only the first element of the program will be taken in ' +
+                'the Ring object after treatment.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
+
+        with self.subTest('Turn/time program mix - orbit_length'):
+
+            attr_name = 'orbit_length'
+            warn_message = (
+                'The synchronous data was defined as single element while the ' +
+                'input ' + attr_name + ' was defined turn or time based. ' +
+                'Only the first element of the program will be taken in ' +
+                'the Ring object after treatment.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0[0], momentum,
+                            orbit_length=orbit_length)
 
     def test_assert_wrong_alpha_n(self):
         # Test the exception that an alpha_n is incorrectly passed

@@ -278,6 +278,15 @@ class RingSection:
 
         setattr(self, attr_name, alpha_or_orbit)
 
+        if (self.synchronous_data.timebase == 'single') and \
+                (alpha_or_orbit.timebase != 'single'):
+
+            warn_message = 'The synchronous data was defined as single element while the ' + \
+                'input ' + attr_name + ' was defined turn or time based. ' + \
+                'Only the first element of the program will be taken in ' + \
+                'the Ring object after treatment.'
+            warnings.warn(warn_message)
+
         if (self.synchronous_data.timebase == 'by_turn') and \
                 (alpha_or_orbit.timebase == 'by_turn'):
 
