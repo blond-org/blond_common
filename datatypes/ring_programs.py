@@ -1402,8 +1402,8 @@ class orbit_length_program(_ring_function):
         newArray : datatype
             The new array combining all of the passed sections.
         """
-        if not all(isinstance(a, orbit_length) for a in args):
-            raise excpt.InputError("Only orbit_length objects can be "
+        if not all(isinstance(a, orbit_length_program) for a in args):
+            raise excpt.InputError("Only orbit_length_program objects can be "
                                    + "combined")
 
         newArray, timeBases, use_times, use_turns \
