@@ -312,6 +312,7 @@ class Ring:
             alpha_prog = []
             alpha_name = 'alpha_%d' % (alpha_order)
             for section in self.Section_list:
+
                 if hasattr(section, alpha_name):
                     alpha_prog.append(getattr(section, alpha_name))
                 else:
@@ -319,9 +320,10 @@ class Ring:
                         0, n_turns=self.n_turns))
                     alpha_prog[-1].order = alpha_order
                     alpha_prog[-1].timebase = 'by_turn'
-            print(alpha_order, alpha_prog)
+
             alpha_prog = ring_programs.momentum_compaction.combine_single_sections(
                 *alpha_prog)
+
             setattr(self, alpha_name, alpha_prog.reshape(
                 self.n_sections, self.cycle_time, self.use_turns))
 
@@ -335,7 +337,7 @@ class Ring:
 #                      momentum=None, kin_energy=None, energy=None,
 #                      bending_field=None, bending_radius=None,
 #                      **kwargs):
-# 
+#
 #         # Checking that at least one synchronous data input is passed
 #         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
 #         syncDataInput = (momentum, kin_energy, energy, bending_field)
@@ -343,28 +345,28 @@ class Ring:
 #                               msg='Exactly one of ' + str(syncDataTypes) +
 #                               ' must be declared',
 #                               exception=excpt.InputError)
-# 
+#
 #         # Checking that the bending_radius is passed with the bending_field
 #         if bending_field is not None and bending_radius is None:
 #             raise excpt.InputError("If bending_field is used, bending_radius "
 #                                    + "must be defined.")
-# 
+#
 #         # Taking the first synchronous_data input not declared as None
 #         # The assertion above ensures that only one is declared
 #         for func_type, synchronous_data in zip(syncDataTypes, syncDataInput):
 #             if synchronous_data is not None:
 #                 break
-# 
+#
 #         # Setting ring length, circumerence, radius, bending radius if defined
 #         self.section_length = np.array(section_length, ndmin=1, dtype=float)
 #         self.circumference = np.sum(self.section_length)
 #         self.radius = self.circumference / (2 * np.pi)
-# 
+#
 #         if bending_radius is not None:
 #             self.bending_radius = float(bending_radius)
 #         else:
 #             self.bending_radius = bending_radius
-# 
+#
 #         # Primary particle mass and charge used for energy calculations
 #         # If a string is passed, will generate the relevant Particle object
 #         # based on the name
@@ -372,43 +374,43 @@ class Ring:
 #             self.Particle = Particle
 #         else:
 #             self.Particle = beam.make_particle(Particle)
-# 
+#
 #         # Reshaping the input synchronous data to the adequate format and
 #         # get back the momentum program from RingOptions
 #         if not isinstance(synchronous_data, dTypes._ring_program):
 #             synchronous_data = \
 #                 dTypes._ring_program.conversions[func_type](synchronous_data)
-# 
+#
 #         if synchronous_data.shape[0] != len(self.section_length):
 #             raise excpt.InputDataError("ERROR in Ring: Number of sections " +
 #                                        "and ring length size do not match!")
-# 
+#
 #         t_start = kwargs.pop('t_start', 0)
 #         t_stop = kwargs.pop('t_stop', np.inf)
 #         interp_time = kwargs.pop('interp_time', 0)
-# 
+#
 #         if not hasattr(interp_time, '__iter__'):
 #             interp_time = (interp_time, )
-# 
+#
 #         sample_func, start, stop = tmng.time_from_sampling(*interp_time)
-# 
+#
 #         if t_start > start:
 #             start = t_start
 #         if t_stop < stop:
 #             stop = t_stop
-# 
+#
 #         synchronous_data.convert(self.Particle.mass, self.Particle.charge,
 #                                  self.bending_radius)
-# 
+#
 #         interpolation = kwargs.pop("interpolation", 'linear')
 #         store_turns = kwargs.pop('store_turns', True)
-# 
+#
 #         self.momentum = synchronous_data.preprocess(
 #             self.Particle.mass,
 #             self.circumference, sample_func,
 #             interpolation, start, stop,
 #             store_turns=store_turns)
-# 
+#
 #         self.n_sections = self.momentum.shape[0] - 2
 #         self.cycle_time = self.momentum[1]
 #         if store_turns:
@@ -420,7 +422,7 @@ class Ring:
 #         # Updating the number of turns in case it was changed after ramp
 #         # interpolation
 #         self.n_turns = self.momentum.n_turns
-# 
+#
 #         # Derived from momentum
 #         self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
 #         self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
@@ -433,17 +435,17 @@ class Ring:
 #         if self.n_turns > len(self.use_turns):
 #             self.delta_E = np.zeros(self.energy.shape)
 #             self._recalc_delta_E()
-# 
+#
 #         self.momentum = self.momentum[2:]
-# 
+#
 #         self.f_rev = 1 / self.t_rev
 #         self.omega_rev = 2 * np.pi * self.f_rev
-# 
+#
 #         # Momentum compaction, checks, and derived slippage factors
-# 
+#
 #         if not hasattr(alpha, '__iter__'):
 #             alpha = (alpha, )
-# 
+#
 #         if isinstance(alpha, dict):
 #             try:
 #                 if not all([k % 1 == 0 for k in alpha.keys()]):
@@ -451,24 +453,24 @@ class Ring:
 #             except TypeError:
 #                 raise excpt.InputError("If alpha is dict all keys must be "
 #                                        + "numeric and integer")
-# 
+#
 #             maxAlpha = np.max(tuple(alpha.keys())).astype(int)
 #             alpha = [alpha.pop(i, 0) for i in range(maxAlpha + 1)]
-# 
+#
 #         if isinstance(alpha, dTypes._function):
 #             alpha = (alpha,)
-# 
+#
 #         for i, a in enumerate(alpha):
 #             if not isinstance(a, dTypes.momentum_compaction):
 #                 a = dTypes.momentum_compaction(a, order=i)
-# 
+#
 #             setattr(self, 'alpha_' + str(i), a.reshape(self.n_sections,
 #                                                        self.cycle_time,
 #                                                        self.use_turns))
 #             setattr(self, 'eta_' + str(i), np.zeros([self.n_sections,
 #                                                      len(self.use_turns)]))
 #         self.alpha_order = i
-# 
+#
 #         for i in range(3 - self.alpha_order):
 #             if not hasattr(self, f'alpha_{i}'):
 #                 setattr(self, 'alpha_' + str(i), np.zeros([self.n_sections,
