@@ -23,7 +23,7 @@ from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 
 
-class Section:
+class RingSection:
     r""" Class containing the general properties of a section of the
     accelerator that are independent of the RF system or the beam.
 
@@ -34,7 +34,7 @@ class Section:
 
     Parameters
     ----------
-    section_length : float (opt: list or np.ndarray)
+    length : float (opt: list or np.ndarray)
         Length [m] accelerator section;
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
@@ -93,7 +93,7 @@ class Section:
 
     Attributes
     ----------
-    section_length : datatype.length_function
+    length : datatype.length_function
         Length of the section [m]
     synchronous_data : datatype._ring_program
         The user input synchronous data, with no conversion applied.
@@ -122,18 +122,18 @@ class Section:
     >>> from blond_common.interfaces.input_parameters.ring_section import \
     >>>     Section
     >>>
-    >>> section_length = 300
+    >>> length = 300
     >>> alpha_0 = 1e-3
     >>> momentum = 26e9
     >>>
-    >>> section = Section(section_length, alpha_0, momentum)
+    >>> section = RingSection(length, alpha_0, momentum)
 
     >>> # To declare a section of a synchrotron with very complex
     >>> # parameters and programs
     >>> from blond_common.interfaces.input_parameters.ring_section import \
     >>>     Section
     >>>
-    >>> section_length = 300
+    >>> length = 300
     >>> alpha_0 = 1e-3
     >>> alpha_1 = 1e-4
     >>> alpha_2 = 1e-5
@@ -141,23 +141,24 @@ class Section:
     >>> energy = machine_program([[0, 1, 2],
     >>>                           [26e9, 27e9, 28e9]])
     >>>
-    >>> section = Section(section_length, alpha_0, energy=energy,
-    >>>                   alpha_1=alpha_1, alpha_2=alpha_2, alpha_5=alpha_5)
+    >>> section = RingSection(length, alpha_0, energy=energy,
+    >>>                       alpha_1=alpha_1, alpha_2=alpha_2,
+    >>>                       alpha_5=alpha_5)
     """
 
-    def __init__(self, section_length, alpha_0,
+    def __init__(self, length, alpha_0,
                  momentum=None, kin_energy=None, energy=None,
                  bending_field=None, bending_radius=None,
                  alpha_1=None, alpha_2=None, **kwargs):
 
         # Setting section length
-        self.section_length = ring_programs.length_function(section_length)
+        self.length = ring_programs.length_function(length)
 
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
         assrt.single_not_none(*syncDataInput,
-                              msg='Exactly one of '+str(syncDataTypes) +
+                              msg='Exactly one of ' + str(syncDataTypes) +
                               ' must be declared',
                               exception=excpt.InputError)
 
@@ -217,14 +218,15 @@ class Section:
                     alpha_n[order] = kwargs[argument]
                 except Exception:
                     raise excpt.InputError(
-                        'The keyword argument '+argument+' was interpreted ' +
-                        'as non-linear momentum compaction factor. ' +
+                        'The keyword argument ' + argument + ' was ' +
+                        'interpreted as non-linear momentum compaction ' +
+                        'factor. ' +
                         'The correct syntax is alpha_n.')
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
         self.alpha_orders_defined = [0]
-        for order in range(1, self.alpha_order+1):
+        for order in range(1, self.alpha_order + 1):
             alpha = alpha_n.pop(order, None)
 
             if alpha is None:
@@ -253,7 +255,7 @@ class Section:
         raises a warning.
         '''
 
-        setattr(self, 'alpha_'+str(order), alpha)
+        setattr(self, 'alpha_' + str(order), alpha)
 
         if (self.synchronous_data.timebase == 'by_turn') and \
                 (alpha.timebase == 'by_turn'):
@@ -262,10 +264,10 @@ class Section:
                     (self.synchronous_data.shape[-1] > alpha.shape[-1]):
 
                 raise excpt.InputError(
-                            'The momentum compaction alpha_'+str(order) +
-                            ' was passed as a turn based program but with ' +
-                            'different length than the synchronous data. ' +
-                            'Turn based programs should have the same length.')
+                    'The momentum compaction alpha_' + str(order) +
+                    ' was passed as a turn based program but with ' +
+                    'different length than the synchronous data. ' +
+                    'Turn based programs should have the same length.')
 
         elif (self.synchronous_data.timebase == 'by_time') and \
                 (alpha.timebase == 'by_turn'):
