@@ -161,12 +161,6 @@ class RingSection:
         # Setting section length
         self.length = float(length)
 
-        # Setting orbit length
-        if orbit_length is None:
-            self.orbit_length = ring_programs.orbit_length(self.length)
-        else:
-            self.orbit_length = ring_programs.orbit_length(orbit_length)
-
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
@@ -199,6 +193,14 @@ class RingSection:
 
         self.synchronous_data = synchronous_data
 
+        # Setting orbit length
+        if orbit_length is None:
+            self.orbit_length = ring_programs.orbit_length(self.length)
+        else:
+            if not isinstance(orbit_length, ring_programs.orbit_length):
+                orbit_length = ring_programs.orbit_length(orbit_length)
+            self._check_and_set_alpha_and_orbit(orbit_length)
+
         # Setting the linear momentum compaction factor
         # Checking that the synchronous data and the momentum compaction
         # have the same length if defined turn-by-turn, raise a warning if one
@@ -212,7 +214,7 @@ class RingSection:
                     "The order of the datatype passed as keyword " +
                     "argument alpha_%s do not match" % (0))
 
-        self._check_and_set_momentum_compaction(alpha_0, 0)
+        self._check_and_set_alpha_and_orbit(alpha_0, 0)
 
         # Treating non-linear momentum compaction factor if declared
         # Listing all the declared alpha first
@@ -257,35 +259,42 @@ class RingSection:
                         "The order of the datatype passed as keyword " +
                         "argument alpha_%s do not match" % (order))
 
-            self._check_and_set_momentum_compaction(alpha, order)
+            self._check_and_set_alpha_and_orbit(alpha, order)
 
-    def _check_and_set_momentum_compaction(self, alpha, order):
+    def _check_and_set_alpha_and_orbit(self, alpha_or_orbit, order=None):
         '''
-        Internal function to check that the input momentum compaction is
-        coherent with the synchronous data. If the synchronous data is turn
-        based, the momentum compaction should have the same length. If the
-        synchronous is time based while the momentum compaction is turn based,
-        raises a warning.
+        Internal function to check that the input momentum compaction or orbit
+        length is coherent with the synchronous data. If the synchronous data
+        is turn based, the momentum compaction or orbit should have the same
+        length.
+        If the synchronous is time based while the momentum compaction or
+        orbit is turn based, raises a warning.
         '''
 
-        setattr(self, 'alpha_' + str(order), alpha)
+        if order is not None:
+            attr_name = 'alpha_' + str(order)
+        else:
+            attr_name = 'orbit_length'
+
+        setattr(self, attr_name, alpha_or_orbit)
 
         if (self.synchronous_data.timebase == 'by_turn') and \
-                (alpha.timebase == 'by_turn'):
+                (alpha_or_orbit.timebase == 'by_turn'):
 
-            if (alpha.shape[-1] > 1) and \
-                    (self.synchronous_data.shape[-1] > alpha.shape[-1]):
+            if (alpha_or_orbit.shape[-1] > 1) and \
+                    (self.synchronous_data.shape[-1]
+                     > alpha_or_orbit.shape[-1]):
 
                 raise excpt.InputError(
-                    'The momentum compaction alpha_' + str(order) +
+                    'The input ' + attr_name +
                     ' was passed as a turn based program but with ' +
                     'different length than the synchronous data. ' +
                     'Turn based programs should have the same length.')
 
         elif (self.synchronous_data.timebase == 'by_time') and \
-                (alpha.timebase == 'by_turn'):
+                (alpha_or_orbit.timebase == 'by_turn'):
 
             warn_message = 'The synchronous data was defined time based while the ' + \
-                'momentum compaction was defined turn base, this may' + \
-                'lead to errors in the Ring object after interpolation'
+                'input ' + attr_name + ' was defined turn base, this may' + \
+                'lead to errors in the Ring object after interpolation.'
             warnings.warn(warn_message)

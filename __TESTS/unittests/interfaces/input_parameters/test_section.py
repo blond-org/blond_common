@@ -476,9 +476,10 @@ class TestRingSection(unittest.TestCase):
 
         with self.subTest('Wrong turn-by-turn momentum compaction - alpha_0'):
             order = 0
+            attr_name = 'alpha_' + str(order)
 
             error_message = (
-                'The momentum compaction alpha_' + str(order) +
+                'The input ' + attr_name +
                 ' was passed as a turn based program but with ' +
                 'different length than the synchronous data. ' +
                 'Turn based programs should have the same length.')
@@ -488,9 +489,10 @@ class TestRingSection(unittest.TestCase):
 
         with self.subTest('Wrong turn-by-turn momentum compaction - alpha_1'):
             order = 1
+            attr_name = 'alpha_' + str(order)
 
             error_message = (
-                'The momentum compaction alpha_' + str(order) +
+                'The input ' + attr_name +
                 ' was passed as a turn based program but with ' +
                 'different length than the synchronous data. ' +
                 'Turn based programs should have the same length.')
@@ -507,16 +509,27 @@ class TestRingSection(unittest.TestCase):
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
 
-        warn_message = (
-            'The synchronous data was defined time based while the ' +
-            'momentum compaction was defined turn base, this may' +
-            'lead to errors in the Ring object after interpolation')
-
         with self.subTest('Turn/time program mix - alpha_0'):
+
+            order = 0
+            attr_name = 'alpha_' + str(order)
+            warn_message = (
+                'The synchronous data was defined time based while the ' +
+                'input ' + attr_name + ' was defined turn base, this may' +
+                'lead to errors in the Ring object after interpolation.')
+
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0, momentum)
 
         with self.subTest('Turn/time program mix - alpha_1'):
+
+            order = 1
+            attr_name = 'alpha_' + str(order)
+            warn_message = (
+                'The synchronous data was defined time based while the ' +
+                'input ' + attr_name + ' was defined turn base, this may' +
+                'lead to errors in the Ring object after interpolation.')
+
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
 
