@@ -27,7 +27,8 @@ this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 if os.path.abspath(this_directory + '../../../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../../../'))
 
-from blond_common.interfaces.input_parameters.ring_section import RingSection
+from blond_common.interfaces.input_parameters.ring_section import RingSection, \
+    machine_program
 from blond_common.devtools import exceptions as excpt
 from blond_common import datatypes as dTypes
 
@@ -383,6 +384,32 @@ class TestRingSection(unittest.TestCase):
                 alpha_5, section.alpha_5)
             np.testing.assert_equal(
                 5, section.alpha_order)
+
+    def test_datatype_input(self):
+        # Passing a synchronous_data_program as input
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum_single = machine_program(26e9)  # eV
+        momentum_turn = machine_program(26e9, n_turns=5)  # eV
+        momentum_time = machine_program([[0, 1, 2],
+                                         [26e9, 27e9, 28e9]],
+                                        interpolation='linear')  # [s, eV]
+
+        with self.subTest('Datatype input - Single value'):
+            section = RingSection(length, alpha_0, momentum_single)
+            np.testing.assert_equal(
+                momentum_single, section.synchronous_data)
+
+        with self.subTest('Datatype input - Turn based'):
+            section = RingSection(length, alpha_0, momentum_turn)
+            np.testing.assert_equal(
+                momentum_turn, section.synchronous_data)
+
+        with self.subTest('Datatype input - Time based'):
+            section = RingSection(length, alpha_0, momentum_time)
+            np.testing.assert_equal(
+                momentum_time, section.synchronous_data)
 
     # Exception raising test --------------------------------------------------
 
