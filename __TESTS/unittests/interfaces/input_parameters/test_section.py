@@ -401,54 +401,101 @@ class TestRingSection(unittest.TestCase):
         # Passing a machine_program as input
 
         length = 300  # m
-        alpha_0 = 1e-3
+        alpha_0_single = machine_program(1e-3)
+        alpha_0_turn = machine_program(1e-3, n_turns=5)
+        alpha_0_time = machine_program([[0, 1, 2],
+                                        [1e-3, 1.1e-3, 1.2e-3]])
         momentum_single = machine_program(26e9)  # eV
         momentum_turn = machine_program(26e9, n_turns=5)  # eV
         momentum_time = machine_program([[0, 1, 2],
-                                         [26e9, 27e9, 28e9]],
-                                        interpolation='linear')  # [s, eV]
+                                         [26e9, 27e9, 28e9]])  # [s, eV]
+        orbit_single = machine_program(300)  # m
+        orbit_turn = machine_program(300, n_turns=5)  # m
+        orbit_time = machine_program([[0, 1, 2],
+                                      [300, 300.001, 300.002]])  # [s, m]
 
         with self.subTest('Machine program input - Single value'):
-            section = RingSection(length, alpha_0, momentum_single)
+            section = RingSection(length, alpha_0_single, momentum_single,
+                                  orbit_length=orbit_single)
+            np.testing.assert_equal(
+                alpha_0_single, section.alpha_0)
             np.testing.assert_equal(
                 momentum_single, section.synchronous_data)
+            np.testing.assert_equal(
+                orbit_single, section.orbit_length)
 
         with self.subTest('Machine program input - Turn based'):
-            section = RingSection(length, alpha_0, momentum_turn)
+            section = RingSection(length, alpha_0_turn, momentum_turn,
+                                  orbit_length=orbit_turn)
+            np.testing.assert_equal(
+                alpha_0_turn, section.alpha_0)
             np.testing.assert_equal(
                 momentum_turn, section.synchronous_data)
+            np.testing.assert_equal(
+                orbit_turn, section.orbit_length)
 
         with self.subTest('Machine program input - Time based'):
-            section = RingSection(length, alpha_0, momentum_time)
+            section = RingSection(length, alpha_0_time, momentum_time,
+                                  orbit_length=orbit_time)
+            np.testing.assert_equal(
+                alpha_0_time, section.alpha_0)
             np.testing.assert_equal(
                 momentum_time, section.synchronous_data)
+            np.testing.assert_equal(
+                orbit_time, section.orbit_length)
 
     def test_datatype_input(self):
         # Passing a momentum_program as input
 
         length = 300  # m
-        alpha_0 = 1e-3
+        alpha_0_single = dTypes.ring_programs.momentum_compaction(1e-3)
+        alpha_0_turn = dTypes.ring_programs.momentum_compaction(
+            1e-3, n_turns=5)
+        alpha_0_time = dTypes.ring_programs.momentum_compaction(
+            [[0, 1, 2],
+             [1e-3, 1.1e-3, 1.2e-3]])
         momentum_single = dTypes.ring_programs.momentum_program(26e9)  # eV
         momentum_turn = dTypes.ring_programs.momentum_program(
             26e9, n_turns=5)  # eV
         momentum_time = dTypes.ring_programs.momentum_program(
             [[0, 1, 2],
-             [26e9, 27e9, 28e9]],)  # [s, eV]
+             [26e9, 27e9, 28e9]])  # [s, eV]
+        orbit_single = dTypes.ring_programs.orbit_length_program(300)  # m
+        orbit_turn = dTypes.ring_programs.orbit_length_program(
+            300, n_turns=5)  # m
+        orbit_time = dTypes.ring_programs.orbit_length_program(
+            [[0, 1, 2],
+             [300, 300.001, 300.002]])  # [s, m]
 
         with self.subTest('Datatype input - Single value'):
-            section = RingSection(length, alpha_0, momentum_single)
+            section = RingSection(length, alpha_0_single, momentum_single,
+                                  orbit_length=orbit_single)
+            np.testing.assert_equal(
+                alpha_0_single, section.alpha_0)
             np.testing.assert_equal(
                 momentum_single, section.synchronous_data)
+            np.testing.assert_equal(
+                orbit_single, section.orbit_length)
 
         with self.subTest('Datatype input - Turn based'):
-            section = RingSection(length, alpha_0, momentum_turn)
+            section = RingSection(length, alpha_0_turn, momentum_turn,
+                                  orbit_length=orbit_turn)
+            np.testing.assert_equal(
+                alpha_0_turn, section.alpha_0)
             np.testing.assert_equal(
                 momentum_turn, section.synchronous_data)
+            np.testing.assert_equal(
+                orbit_turn, section.orbit_length)
 
         with self.subTest('Datatype input - Time based'):
-            section = RingSection(length, alpha_0, momentum_time)
+            section = RingSection(length, alpha_0_time, momentum_time,
+                                  orbit_length=orbit_time)
+            np.testing.assert_equal(
+                alpha_0_time, section.alpha_0)
             np.testing.assert_equal(
                 momentum_time, section.synchronous_data)
+            np.testing.assert_equal(
+                orbit_time, section.orbit_length)
 
     # Exception raising test --------------------------------------------------
 
