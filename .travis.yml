@@ -63,6 +63,7 @@ after_success:
   - coverage report
   - test $TRAVIS_PYTHON_VERSION = "3.6" && coveralls
   - test $TRAVIS_PYTHON_VERSION != "3.6" && exit 0
+  - echo $TRAVIS_PULL_REQUEST
   - if ! [[ "$TRAVIS_PULL_REQUEST" = ^[0-9]+$ ]]; then exit 0 ; fi ;
   - python -m pip install --upgrade sphinx sphinxcontrib-napoleon sphinx-autopackagesummary
   - mkdir -p ~/.ssh
