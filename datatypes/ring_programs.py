@@ -1334,9 +1334,9 @@ class momentum_compaction(_ring_function):
         self._order = value
 
 
-class length_function(_ring_function):
+class orbit_length(_ring_function):
     """
-    Class defining section and ring lengths
+    Class defining section and ring orbit lengths programs
 
     Parameters
     ----------
@@ -1392,7 +1392,7 @@ class length_function(_ring_function):
         Raises
         ------
         excpt.InputError
-            If the passed data are not length_function type an InputError
+            If the passed data are not orbit_length type an InputError
             is raised.
             If the passed data do not all have the same order an InputError is
             raised.
@@ -1402,8 +1402,8 @@ class length_function(_ring_function):
         newArray : datatype
             The new array combining all of the passed sections.
         """
-        if not all(isinstance(a, length_function) for a in args):
-            raise excpt.InputError("Only length_function objects can be "
+        if not all(isinstance(a, orbit_length) for a in args):
+            raise excpt.InputError("Only orbit_length objects can be "
                                    + "combined")
 
         newArray, timeBases, use_times, use_turns \

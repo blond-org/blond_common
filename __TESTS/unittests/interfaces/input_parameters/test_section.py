@@ -69,6 +69,10 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 momentum, section.synchronous_data)
 
+        with self.subTest('Simple input - orbit_length'):
+            np.testing.assert_equal(
+                length, section.orbit_length)
+
         with self.subTest('Simple input - alpha_0'):
             np.testing.assert_equal(
                 alpha_0, section.alpha_0)
@@ -103,13 +107,31 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 bending_radius, section.bending_radius)
 
+    def test_orbit_length(self):
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV
+        orbit_length = 300.001  # m
+
+        section = RingSection(length, alpha_0, momentum,
+                              orbit_length=orbit_length)
+
+        with self.subTest('Orbit length input - section.length'):
+            np.testing.assert_equal(
+                length, section.length)
+
+        with self.subTest('Orbit length input - section.orbit_length'):
+            np.testing.assert_equal(
+                orbit_length, section.orbit_length)
+
     def test_turn_by_turn_prog(self):
         # Test turn by turn program
         # Note that shape is defined by the datatype shaping
         # inside the RingSection object
         # -> (n_sections, n_turns)
 
-        length = [6900.0, 6900.01, 6900.02]  # m
+        length = 6900  # m
         alpha_0 = [1e-3, 1e-3, 1e-3]
         momentum = [26e9, 27e9, 28e9]
         energy = [26e9, 27e9, 28e9]  # eV
@@ -118,39 +140,39 @@ class TestRingSection(unittest.TestCase):
         bending_radius = 749  # m
 
         with self.subTest('Turn by turn program - Only momentum'):
-            section = RingSection(length[0], alpha_0[0], momentum)
+            section = RingSection(length, alpha_0[0], momentum)
             np.testing.assert_equal(
-                length[0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
 
         with self.subTest('Turn by turn program - Only total energy'):
-            section = RingSection(length[0], alpha_0[0], energy=energy)
+            section = RingSection(length, alpha_0[0], energy=energy)
             np.testing.assert_equal(
-                length[0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 energy, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
 
         with self.subTest('Turn by turn program - Only kinetic energy'):
-            section = RingSection(length[0], alpha_0[0],
+            section = RingSection(length, alpha_0[0],
                                   kin_energy=kin_energy)
             np.testing.assert_equal(
-                length[0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 kin_energy, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
 
         with self.subTest('Turn by turn program - Only bending field'):
-            section = RingSection(length[0], alpha_0[0],
+            section = RingSection(length, alpha_0[0],
                                   bending_field=bending_field,
                                   bending_radius=bending_radius)
             np.testing.assert_equal(
-                length[0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 bending_field, section.synchronous_data[0, :])
             np.testing.assert_equal(
@@ -159,16 +181,16 @@ class TestRingSection(unittest.TestCase):
         with self.subTest('Turn by turn program - Only section length'):
             section = RingSection(length, alpha_0[0], momentum[0])
             np.testing.assert_equal(
-                length, section.length[0, :])
+                length, section.length)
             np.testing.assert_equal(
                 momentum[0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
 
         with self.subTest('Turn by turn program - Only momentum compaction'):
-            section = RingSection(length[0], alpha_0, momentum[0])
+            section = RingSection(length, alpha_0, momentum[0])
             np.testing.assert_equal(
-                length[0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 momentum[0], section.synchronous_data)
             np.testing.assert_equal(
@@ -178,7 +200,7 @@ class TestRingSection(unittest.TestCase):
                 'Turn by turn program - All programs'):
             section = RingSection(length, alpha_0, momentum)
             np.testing.assert_equal(
-                length, section.length[0, :])
+                length, section.length)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
@@ -192,7 +214,7 @@ class TestRingSection(unittest.TestCase):
 
         time_base = [0, 1, 2]  # s
 
-        length = [time_base, [6900.0, 6900.01, 6900.02]]  # m
+        length = 6900  # m
         alpha_0 = [time_base, [1e-3, 1e-3, 1e-3]]
         momentum = [time_base, [26e9, 27e9, 28e9]]
         energy = [time_base, [26e9, 27e9, 28e9]]  # eV
@@ -201,40 +223,40 @@ class TestRingSection(unittest.TestCase):
         bending_radius = 749  # m
 
         with self.subTest('Time based program - Only momentum'):
-            section = RingSection(length[1][0], alpha_0[1][0], momentum)
+            section = RingSection(length, alpha_0[1][0], momentum)
             np.testing.assert_equal(
-                length[1][0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
 
         with self.subTest('Time based program - Only total energy'):
-            section = RingSection(length[1][0], alpha_0[1][0],
+            section = RingSection(length, alpha_0[1][0],
                                   energy=energy)
             np.testing.assert_equal(
-                length[1][0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 energy, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
 
         with self.subTest('Time based program - Only kinetic energy'):
-            section = RingSection(length[1][0], alpha_0[1][0],
+            section = RingSection(length, alpha_0[1][0],
                                   kin_energy=kin_energy)
             np.testing.assert_equal(
-                length[1][0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 kin_energy, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
 
         with self.subTest('Time based program - Only bending field'):
-            section = RingSection(length[1][0], alpha_0[1][0],
+            section = RingSection(length, alpha_0[1][0],
                                   bending_field=bending_field,
                                   bending_radius=bending_radius)
             np.testing.assert_equal(
-                length[1][0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 bending_field, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
@@ -243,16 +265,16 @@ class TestRingSection(unittest.TestCase):
         with self.subTest('Time based program - Only section length'):
             section = RingSection(length, alpha_0[1][0], momentum[1][0])
             np.testing.assert_equal(
-                length, section.length[0, :, :])
+                length, section.length)
             np.testing.assert_equal(
                 momentum[1][0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
 
         with self.subTest('Time based program - Only momentum compaction'):
-            section = RingSection(length[1][0], alpha_0, momentum[1][0])
+            section = RingSection(length, alpha_0, momentum[1][0])
             np.testing.assert_equal(
-                length[1][0], section.length)
+                length, section.length)
             np.testing.assert_equal(
                 momentum[1][0], section.synchronous_data)
             np.testing.assert_equal(
@@ -262,7 +284,7 @@ class TestRingSection(unittest.TestCase):
                 'Time based program - All programs'):
             section = RingSection(length, alpha_0, momentum)
             np.testing.assert_equal(
-                length, section.length[0, :, :])
+                length, section.length)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(

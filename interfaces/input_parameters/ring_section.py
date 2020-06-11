@@ -34,12 +34,9 @@ class RingSection:
 
     Parameters
     ----------
-    length : float (opt: list or np.ndarray)
-        Length [m] accelerator section;
-        can be input as single float or as a program (1D array is a
-        turn-by-turn program and 2D array is a time dependent program).
-        If a turn-by-turn program is passed, should be of the same size
-        as the synchronous data.
+    length : float
+        Length [m] of accelerator section on the reference orbit (see
+        orbit_length option).
     alpha_0 : float (opt: list or np.ndarray)
         Momentum compaction factor of zeroth order :math:`\alpha_{0}`;
         can be input as single float or as a program (1D array is a
@@ -69,6 +66,13 @@ class RingSection:
     bending_radius : float
         Optional: Radius [m] of the bending magnets,
         required if 'bending field' is set for the synchronous_data_type
+    orbit_length : float (opt: list or np.ndarray)
+        Length of the trajectory of the beam including potential
+        orbit bumps;
+        can be input as single float or as a program (1D array is a
+        turn-by-turn program and 2D array is a time dependent program).
+        If a turn-by-turn program is passed, should be of the same size
+        as the synchronous data.
     alpha_1 : float (opt: list or np.ndarray)
         Optional : Momentum compaction factor of first order
         :math:`\alpha_{1}`;
@@ -93,22 +97,25 @@ class RingSection:
 
     Attributes
     ----------
-    length : datatype.length_function
-        Length of the section [m]
-    synchronous_data : datatype._ring_program
+    length : float
+        Length of the section on the reference orbit [m]
+    synchronous_data : datatype.machine_program._ring_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
         momentum_program, kinetic_energy_program, total_energy_program,
         bending_field_program
     bending_radius : float (or None)
         Bending radius in dipole magnets, :math:`\rho` [m]
-    alpha_0 : datatype.momentum_compaction
+    orbit_length : datatype.machine_program.orbit_length
+        Length of the beam trajectory, including possible
+        orbit bump programs [m]
+    alpha_0 : datatype.machine_program.momentum_compaction
         Momentum compaction factor of zeroth order
-    alpha_1 : datatype.momentum_compaction (or None)
+    alpha_1 : datatype.machine_program.momentum_compaction (or None)
         Momentum compaction factor of first order
-    alpha_2 : datatype.momentum_compaction (or None)
+    alpha_2 : datatype.machine_program.momentum_compaction (or None)
         Momentum compaction factor of second order
-    alpha_n : datatype.momentum_compaction (or undefined)
+    alpha_n : datatype.machine_program.momentum_compaction (or undefined)
         Momentum compaction factor of higer orders
     alpha_order : int
         Maximum order of momentum compaction
@@ -148,11 +155,17 @@ class RingSection:
 
     def __init__(self, length, alpha_0,
                  momentum=None, kin_energy=None, energy=None,
-                 bending_field=None, bending_radius=None,
+                 bending_field=None, bending_radius=None, orbit_length=None,
                  alpha_1=None, alpha_2=None, **kwargs):
 
         # Setting section length
-        self.length = ring_programs.length_function(length)
+        self.length = float(length)
+
+        # Setting orbit length
+        if orbit_length is None:
+            self.orbit_length = ring_programs.orbit_length(self.length)
+        else:
+            self.orbit_length = ring_programs.orbit_length(orbit_length)
 
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
