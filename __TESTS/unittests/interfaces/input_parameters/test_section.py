@@ -506,6 +506,15 @@ class TestRingSection(unittest.TestCase):
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 RingSection(length, alpha_0, momentum, alpha_1=alpha_0)
 
+        with self.subTest('Wrong datatype order - alpha_n'):
+            order = 3
+            error_message = ("The order of the datatype passed as keyword " +
+                             "argument alpha_%s do not match" % (order))
+
+            with self.assertRaisesRegex(excpt.InputError, error_message):
+                RingSection(length, alpha_0, momentum, alpha_1=alpha_1,
+                            alpha_3=alpha_1)
+
 
 if __name__ == '__main__':
 
