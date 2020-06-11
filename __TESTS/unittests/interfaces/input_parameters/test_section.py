@@ -138,6 +138,7 @@ class TestRingSection(unittest.TestCase):
         kin_energy = [25e9, 26e9, 27e9]  # eV
         bending_field = [1.0, 1.1, 1.2]  # T
         bending_radius = 749  # m
+        orbit_length = [6900.001, 6900.002, 6900.003]  # T
 
         with self.subTest('Turn by turn program - Only momentum'):
             section = RingSection(length, alpha_0[0], momentum)
@@ -147,6 +148,8 @@ class TestRingSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest('Turn by turn program - Only total energy'):
             section = RingSection(length, alpha_0[0], energy=energy)
@@ -156,6 +159,8 @@ class TestRingSection(unittest.TestCase):
                 energy, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest('Turn by turn program - Only kinetic energy'):
             section = RingSection(length, alpha_0[0],
@@ -166,6 +171,8 @@ class TestRingSection(unittest.TestCase):
                 kin_energy, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest('Turn by turn program - Only bending field'):
             section = RingSection(length, alpha_0[0],
@@ -177,15 +184,20 @@ class TestRingSection(unittest.TestCase):
                 bending_field, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
-        with self.subTest('Turn by turn program - Only section length'):
-            section = RingSection(length, alpha_0[0], momentum[0])
+        with self.subTest('Turn by turn program - Only orbit length'):
+            section = RingSection(length, alpha_0[0], momentum[0],
+                                  orbit_length=orbit_length)
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
                 momentum[0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
+            np.testing.assert_equal(
+                orbit_length, section.orbit_length[0, :])
 
         with self.subTest('Turn by turn program - Only momentum compaction'):
             section = RingSection(length, alpha_0, momentum[0])
@@ -195,16 +207,21 @@ class TestRingSection(unittest.TestCase):
                 momentum[0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :])
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest(
                 'Turn by turn program - All programs'):
-            section = RingSection(length, alpha_0, momentum)
+            section = RingSection(length, alpha_0, momentum,
+                                  orbit_length=orbit_length)
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :])
+            np.testing.assert_equal(
+                orbit_length, section.orbit_length[0, :])
 
     def test_time_based_prog(self):
         # Test time based program
@@ -221,6 +238,7 @@ class TestRingSection(unittest.TestCase):
         kin_energy = [time_base, [25e9, 26e9, 27e9]]  # eV
         bending_field = [time_base, [1.0, 1.1, 1.2]]  # T
         bending_radius = 749  # m
+        orbit_length = [time_base, [6900.001, 6900.002, 6900.003]]  # T
 
         with self.subTest('Time based program - Only momentum'):
             section = RingSection(length, alpha_0[1][0], momentum)
@@ -230,6 +248,8 @@ class TestRingSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest('Time based program - Only total energy'):
             section = RingSection(length, alpha_0[1][0],
@@ -240,6 +260,8 @@ class TestRingSection(unittest.TestCase):
                 energy, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest('Time based program - Only kinetic energy'):
             section = RingSection(length, alpha_0[1][0],
@@ -250,6 +272,8 @@ class TestRingSection(unittest.TestCase):
                 kin_energy, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest('Time based program - Only bending field'):
             section = RingSection(length, alpha_0[1][0],
@@ -261,15 +285,20 @@ class TestRingSection(unittest.TestCase):
                 bending_field, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
-        with self.subTest('Time based program - Only section length'):
-            section = RingSection(length, alpha_0[1][0], momentum[1][0])
+        with self.subTest('Time based program - Only orbit length'):
+            section = RingSection(length, alpha_0[1][0], momentum[1][0],
+                                  orbit_length=orbit_length)
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
                 momentum[1][0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
+            np.testing.assert_equal(
+                orbit_length, section.orbit_length[0, :, :])
 
         with self.subTest('Time based program - Only momentum compaction'):
             section = RingSection(length, alpha_0, momentum[1][0])
@@ -279,16 +308,21 @@ class TestRingSection(unittest.TestCase):
                 momentum[1][0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
+            np.testing.assert_equal(
+                length, section.orbit_length)
 
         with self.subTest(
                 'Time based program - All programs'):
-            section = RingSection(length, alpha_0, momentum)
+            section = RingSection(length, alpha_0, momentum,
+                                  orbit_length=orbit_length)
             np.testing.assert_equal(
                 length, section.length)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
+            np.testing.assert_equal(
+                orbit_length, section.orbit_length[0, :, :])
 
     def test_non_linear_alpha(self):
         # Passing non-linear momentum compaction factors
