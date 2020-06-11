@@ -385,8 +385,8 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 5, section.alpha_order)
 
-    def test_datatype_input(self):
-        # Passing a synchronous_data_program as input
+    def test_machine_program_input(self):
+        # Passing a machine_program as input
 
         length = 300  # m
         alpha_0 = 1e-3
@@ -395,6 +395,33 @@ class TestRingSection(unittest.TestCase):
         momentum_time = machine_program([[0, 1, 2],
                                          [26e9, 27e9, 28e9]],
                                         interpolation='linear')  # [s, eV]
+
+        with self.subTest('Machine program input - Single value'):
+            section = RingSection(length, alpha_0, momentum_single)
+            np.testing.assert_equal(
+                momentum_single, section.synchronous_data)
+
+        with self.subTest('Machine program input - Turn based'):
+            section = RingSection(length, alpha_0, momentum_turn)
+            np.testing.assert_equal(
+                momentum_turn, section.synchronous_data)
+
+        with self.subTest('Machine program input - Time based'):
+            section = RingSection(length, alpha_0, momentum_time)
+            np.testing.assert_equal(
+                momentum_time, section.synchronous_data)
+
+    def test_datatype_input(self):
+        # Passing a momentum_program as input
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum_single = dTypes.ring_programs.momentum_program(26e9)  # eV
+        momentum_turn = dTypes.ring_programs.momentum_program(
+            26e9, n_turns=5)  # eV
+        momentum_time = dTypes.ring_programs.momentum_program(
+            [[0, 1, 2],
+             [26e9, 27e9, 28e9]],)  # [s, eV]
 
         with self.subTest('Datatype input - Single value'):
             section = RingSection(length, alpha_0, momentum_single)
