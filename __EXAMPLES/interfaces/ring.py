@@ -18,22 +18,28 @@ import sys
 # BLonD Common import
 sys.path.append('./../../../')
 from blond_common.interfaces.input_parameters.ring import \
-    Ring, Section, machine_program
+    Ring, RingSection, machine_program
 
-
-# To declare a Section with simple input
-circumference = 628
+# To declare a Ring with simple input
+length = 628
 alpha_0 = 1e-3
 momentum = 26e9
 
-ring = Ring(circumference, alpha_0, 'proton', momentum)
+section = RingSection(length, alpha_0, momentum)
+ring = Ring('proton', section)
 
-print(ring.ring_circumference,
-      ring.momentum,
-      ring.alpha_0)
+# To declare a Ring with two simple sections
+length = 628 / 2
+alpha_0 = 1e-3
+momentum = [26e9, 26e9, 26e9]
+orbit_length = length + 1
 
-ring = Ring.from_simple_input(circumference, alpha_0, 'proton', momentum)
+section_1 = RingSection(length, alpha_0, momentum)
+section_2 = RingSection(length, alpha_0, momentum, orbit_length=orbit_length)
+ring = Ring('proton', [section_1, section_2])
 
-print(ring.ring_circumference,
-      ring.momentum,
-      ring.alpha_0)
+print(ring.circumference, ring.section_length, ring.orbit_length,
+      ring.momentum, ring.t_rev)
+
+
+
