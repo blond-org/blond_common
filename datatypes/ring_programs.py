@@ -1334,7 +1334,7 @@ class momentum_compaction(_ring_function):
         self._order = value
 
 
-class orbit_length(_ring_function):
+class orbit_length_program(_ring_function):
     """
     Class defining section and ring orbit lengths programs
 

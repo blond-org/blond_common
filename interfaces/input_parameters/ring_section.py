@@ -195,10 +195,11 @@ class RingSection:
 
         # Setting orbit length
         if orbit_length is None:
-            self.orbit_length = ring_programs.orbit_length(self.length)
+            self.orbit_length = ring_programs.orbit_length_program(self.length)
         else:
-            if not isinstance(orbit_length, ring_programs.orbit_length):
-                orbit_length = ring_programs.orbit_length(orbit_length)
+            if not isinstance(orbit_length,
+                              ring_programs.orbit_length_program):
+                orbit_length = ring_programs.orbit_length_program(orbit_length)
             self._check_and_set_alpha_and_orbit(orbit_length)
 
         # Setting the linear momentum compaction factor
