@@ -53,8 +53,8 @@ class Ring:
         Radius of the synchrotron, :math:`R = C/(2 \pi)` [m]
     bending_radius : float
         Bending radius in dipole magnets, :math:`\rho` [m]
-    alpha_order : int
-        Number of orders of the momentum compaction factor (from 0 to 2)
+    alpha_orders : list
+        Number of orders of the momentum compaction factor
     eta_0 : float matrix [n_sections, n_turns+1]
         Zeroth order slippage factor :math:`\eta_{0,k,n} = \alpha_{0,k,n} -
         \frac{1}{\gamma_{s,k,n}^2}` [1]
@@ -99,12 +99,6 @@ class Ring:
         Cumulative cycle time, turn by turn, :math:`t_n = \sum_n T_{0,n}` [s].
         Possibility to extract cycle parameters at these moments using
         'parameters_at_time'.
-    alpha_order : int
-        Highest order of momentum compaction (as defined by the input). Can
-        be 0,1,2.
-    RingOptions : RingOptions()
-        The RingOptions is kept as an attribute of the Ring object for further
-        usage.
 
     Examples
     --------
@@ -169,9 +163,9 @@ class Ring:
         self.n_sections = len(self.Section_list)
 
         # Extracting the length of sections to get circumference
-        self.section_length = np.array(
-            [section.length for section in self.Section_list])
-        self.circumference = np.sum(self.section_length)
+        self.section_length_design = np.array(
+            [section.length_design for section in self.Section_list])
+        self.circumference = np.sum(self.section_length_design)
 
         # Computing ring radius
         self.radius = self.circumference / (2 * np.pi)
@@ -267,23 +261,24 @@ class Ring:
                 momentum_processed[2:], self.Particle.mass)
 
         # Extracting and combining the orbit length programs
-        self.orbit_length = ring_programs.orbit_length_program.combine_single_sections(
-            *[section.orbit_length for section in self.Section_list])
+        self.section_length = ring_programs.orbit_length_program.combine_single_sections(
+            *[section.length for section in self.Section_list])
 
         # Reshaping to match the dimensions of the synchronous data program
-        self.orbit_length = self.orbit_length.reshape(
+        self.section_length = self.section_length.reshape(
             self.n_sections, self.cycle_time, self.use_turns)
 
         # Computing the revolution period on the design orbit
         # as well as revolution frequency and angular frequency
-        self.t_rev = np.dot(self.section_length, 1 / (self.beta * c))
+        self.t_rev = np.dot(self.section_length_design, 1 / (self.beta * c))
         self.f_rev = 1 / self.t_rev
         self.omega_rev = 2 * np.pi * self.f_rev
 
         # Computing the time of flight in each section
         # and the revolution period on the beam orbit including
         # possible orbit bumps
-        self.tof_section_orbit = np.array(self.orbit_length / (self.beta * c))
+        self.tof_section_orbit = np.array(
+            self.section_length / (self.beta * c))
         self.t_rev_orbit = np.sum(self.tof_section_orbit, axis=0)
         self.f_rev_orbit = 1 / self.t_rev_orbit
         self.omega_rev_orbit = 2 * np.pi * self.f_rev_orbit
@@ -297,18 +292,17 @@ class Ring:
         # Determining the momentum compaction orders defined in all sections
         # The orders 1 and 2 are presently set by default to zeros if
         # not defined in sections for the calculation of all orders of eta
-        self.alpha_orders_defined = [
-            section.alpha_orders_defined
+        self.alpha_orders = [
+            section.alpha_orders
             for section in self.Section_list] + [[1], [2]]
 
-        self.alpha_orders_defined = np.unique(self.alpha_orders_defined)
-        self.alpha_order = np.max(self.alpha_orders_defined)
+        self.alpha_orders = np.unique(self.alpha_orders)
 
         # Getting the momentum compaction programs in all sections
         # and combining the programs (the missing programs are filled
         # with zeros).
         # The programs are reshaped to the size of the momentum program
-        for alpha_order in self.alpha_orders_defined:
+        for alpha_order in self.alpha_orders:
             alpha_prog = []
             alpha_name = 'alpha_%d' % (alpha_order)
             for section in self.Section_list:
@@ -326,7 +320,8 @@ class Ring:
                 self.n_sections, self.cycle_time, self.use_turns))
 
         # Slippage factor derived from alpha, beta, gamma
-        for order in range(3):
+        self.eta_orders = 3
+        for order in range(self.eta_orders):
             setattr(self, 'eta_%d' % (order), np.zeros(self.momentum.shape))
         self._eta_generation()
 
@@ -487,7 +482,7 @@ class Ring:
                 Third Edition, 2012.
         """
 
-        for i in range(np.min([self.alpha_order + 1, 3])):
+        for i in range(self.eta_orders):
             getattr(self, '_eta' + str(i))()
 
     def _eta0(self):

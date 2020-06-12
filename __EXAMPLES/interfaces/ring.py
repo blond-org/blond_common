@@ -19,27 +19,60 @@ import sys
 sys.path.append('./../../../')
 from blond_common.interfaces.input_parameters.ring import \
     Ring, RingSection, machine_program
+from blond_common.interfaces.beam.beam import Proton, Electron, Particle
 
 # To declare a Ring with simple input
 length = 628
 alpha_0 = 1e-3
 momentum = 26e9
+particle = Proton()  # can also be 'proton'
 
 section = RingSection(length, alpha_0, momentum)
-ring = Ring('proton', section)
+ring = Ring(particle, section)
+
+# To declare a Ring with other particle type (electrons)
+length = 80e3
+alpha_0 = 1e-3
+momentum = 120e9
+particle = Electron()  # can also be 'electron'
+
+section = RingSection(length, alpha_0, momentum)
+ring = Ring(particle, section)
+
+# To declare a Ring with other particle type (ions)
+length = 80e3
+alpha_0 = 1e-3
+momentum = 120e9
+user_mass = 208 * Proton().mass
+user_charge = 82
+particle = Particle(user_mass, user_charge)
+
+section = RingSection(length, alpha_0, momentum)
+ring = Ring(particle, section)
+
+# To declare a Ring with multiple sections with same parameters
+length = 628
+alpha_0 = 1e-3
+momentum = 26e9
+particle = Proton()
+
+section_1 = RingSection(length, alpha_0, momentum)
+section_2 = RingSection(length, alpha_0, momentum)
+section_3 = RingSection(length, alpha_0, momentum)
+ring = Ring(particle, [section_1, section_2, section_3])
 
 # To declare a Ring with two simple sections
 length = 628 / 2
 alpha_0 = 1e-3
 momentum = [26e9, 26e9, 26e9]
-orbit_length = length + 1
+orbit_bump = 1e-3
+particle = Proton()  # can also be 'proton'
 
 section_1 = RingSection(length, alpha_0, momentum)
-section_2 = RingSection(length, alpha_0, momentum, orbit_length=orbit_length)
-ring = Ring('proton', [section_1, section_2])
+section_2 = RingSection(length, alpha_0, momentum, orbit_bump=orbit_bump)
+ring = Ring(particle, [section_1, section_2])
 
-print(ring.circumference, ring.section_length, ring.orbit_length,
-      ring.momentum, ring.t_rev)
-
-
-
+print(ring.circumference, ring.section_length,
+      ring.momentum,
+      ring.t_rev,
+      ring.t_rev_orbit)
