@@ -27,8 +27,7 @@ alpha_0 = 1e-3
 momentum = 26e9
 particle = Proton()  # can also be 'proton'
 
-section = RingSection(length, alpha_0, momentum)
-ring = Ring(particle, section)
+ring = Ring(particle, RingSection(length, alpha_0, momentum))
 
 # To declare a Ring with other synchronous data (all possible definitions
 # from the RingSection object)
@@ -60,27 +59,47 @@ particle = Particle(user_mass, user_charge)
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
 
-# To declare a Ring with multiple sections with same parameters
+# To declare a Ring with non-linear momentum compaction factor
 length = 628
 alpha_0 = 1e-3
+alpha_1 = 1e-6
 momentum = 26e9
+particle = Proton()
+
+section = RingSection(length, alpha_0, momentum, alpha_1=alpha_1)
+ring = Ring(particle, section)
+
+print(ring.alpha_1)
+
+# To declare a Ring with a ramp (turn based program)
+length = 628
+alpha_0 = 1e-3
+momentum = [26e9, 27e9, 28e9]
+particle = Proton()
+
+section = RingSection(length, alpha_0, momentum)
+ring = Ring(particle, section)
+
+# To declare a Ring with a ramp (time based program)
+length = 628
+alpha_0 = 1e-3
+momentum = [[0, 0.1, 0.2], [26e9, 27e9, 28e9]]
+particle = Proton()
+
+section = RingSection(length, alpha_0, momentum)
+ring = Ring(particle, section)
+
+# To declare a Ring with multiple sections (parameters can be adjusted
+# section by section)
+length = 628 / 3
+alpha_0 = 1e-3
+momentum = [26e9, 26e9, 26e9]
 particle = Proton()
 
 section_1 = RingSection(length, alpha_0, momentum)
 section_2 = RingSection(length, alpha_0, momentum)
 section_3 = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, [section_1, section_2, section_3])
-
-# To declare a Ring with two simple sections
-length = 628 / 2
-alpha_0 = 1e-3
-momentum = [26e9, 26e9, 26e9]
-orbit_bump = 1e-3
-particle = Proton()  # can also be 'proton'
-
-section_1 = RingSection(length, alpha_0, momentum)
-section_2 = RingSection(length, alpha_0, momentum, orbit_bump=orbit_bump)
-ring = Ring(particle, [section_1, section_2])
 
 print(ring.circumference_design,
       ring.circumference,

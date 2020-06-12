@@ -271,10 +271,11 @@ class Ring:
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = momentum_processed.n_turns
+        print(momentum_processed[2:].shape, self.n_turns)
 
         # Generating the attributes where to store the synchronous data
         # and associated parameters
-        program_shape = (self.n_sections, self.n_turns)
+        program_shape = (self.n_sections, self.n_turns+1)
         self.momentum = ring_programs.momentum_program.zeros(program_shape)
         self.energy = ring_programs.total_energy_program.zeros(program_shape)
         self.kin_energy = ring_programs.kinetic_energy_program.zeros(

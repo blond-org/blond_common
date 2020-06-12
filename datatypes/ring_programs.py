@@ -512,8 +512,9 @@ class _synchronous_data_program(_ring_function):
                 t_start = self[0, 0, 0]
     
             if t_end > self[0, 0, -1]:
-                warnings.warn("t_stop too late, ending at " 
-                              + str(self[0, 0, -1]))
+                if not np.isinf(t_end):
+                    warnings.warn("t_stop too late, ending at " 
+                                  + str(self[0, 0, -1]))
                 t_end = self[0, 0, -1]
         #TODO: Treat derivative interpolation without storing turns
             for s in range(self.shape[0]):
@@ -536,17 +537,17 @@ class _synchronous_data_program(_ring_function):
         #TODO: nTurns != self.shape[1]
         elif self.timebase == 'by_turn':
             if targetNTurns < np.inf:
-                nTurns = targetNTurns
+                nTurns = targetNTurns - 1
             else:
-                nTurns = self.shape[1]
-            useTurns = np.arange(nTurns)
+                nTurns = self.shape[1] - 1
+            useTurns = np.arange(nTurns + 1)
             time = self._time_from_turn(mass, circumference)
             momentum = self[0]
         
         #TODO: Handle passed number of turns
         elif self.timebase == 'single':
             time = [0]
-            nTurns = 1
+            nTurns = 0
             useTurns = [0]
             momentum = self.copy()
 
@@ -779,7 +780,7 @@ class _synchronous_data_program(_ring_function):
 
         """
         trev = rt.mom_to_trev(self[0], mass, circ=circumference)
-        return np.cumsum(trev)
+        return np.insert(np.cumsum(trev[:-1]), 0, 0)
 
 
     def _linear_interpolation_no_turns(self, mass, circumference, time, 
