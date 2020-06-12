@@ -30,6 +30,16 @@ particle = Proton()  # can also be 'proton'
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
 
+# To declare a Ring with other synchronous data (all possible definitions
+# from the RingSection object)
+length = 628
+alpha_0 = 1e-3
+tot_energy = 26e9
+particle = Proton()  # can also be 'proton'
+
+section = RingSection(length, alpha_0, energy=tot_energy)
+ring = Ring(particle, section)
+
 # To declare a Ring with other particle type (electrons)
 length = 80e3
 alpha_0 = 1e-3

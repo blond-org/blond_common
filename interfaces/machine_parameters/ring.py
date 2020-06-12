@@ -43,6 +43,12 @@ class Ring:
         and charge) that is reference for the momentum/energy in the ring.
     Section_list : list
         The list of all the sections to build the Ring.
+    t_start : float (optional, default 0)
+        Starting time from which the time array input should be taken into
+        account.
+    t_end : float (optional, default np,inf)
+        Last time up to which the time array input should be taken into
+        account.
     eta_orders : int (optional, default 0)
         The orders of slippage factor to be computed (alpha_1 and alpha_2,
         will be assumed to be 0 by default if not defined in the sections).
@@ -206,9 +212,7 @@ class Ring:
             if index_section == 0:
                 self.synchronous_data = section.synchronous_data
             else:
-                if (section.synchronous_data == self.synchronous_data).all:
-                    pass
-                else:
+                if not (section.synchronous_data == self.synchronous_data).all:
                     warn_message = 'The synchronous data for all sections ' + \
                         'is not identical. This case is not yet fully ' + \
                         'tested and is under implementation.'
@@ -237,6 +241,12 @@ class Ring:
         # Getting options for the interpolation
         interpolation = kwargs.pop('interpolation', 'linear')
         store_turns = kwargs.pop('store_turns', True)
+
+        # Converting the synchronous data to momentum before processing
+        self.synchronous_data.convert(self.Particle.mass,
+                                      self.Particle.charge,
+                                      self.bending_radius,
+                                      inPlace=True)
 
         # Processing the momentum program and interpolating on the
         # values defined by sample_func
