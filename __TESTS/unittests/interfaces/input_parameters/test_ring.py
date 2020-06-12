@@ -54,20 +54,20 @@ class TestRing(unittest.TestCase):
 
     # Input test --------------------------------------------------------------
 
-    def test_simple_input(self):
-        # Test the simplest input
-
-        length = 300  # m
-        alpha_0 = 1e-3
-        momentum = 26e9  # eV
-        particle = Proton()
-
-        section = RingSection(length, alpha_0, momentum)
-        ring = Ring(particle, section)
-
-        with self.subTest('Simple input - length'):
-            np.testing.assert_equal(
-                length, ring.circumference)
+#     def test_simple_input(self):
+#         # Test the simplest input
+# 
+#         length = 300  # m
+#         alpha_0 = 1e-3
+#         momentum = 26e9  # eV
+#         particle = Proton()
+# 
+#         section = RingSection(length, alpha_0, momentum)
+#         ring = Ring(particle, section)
+# 
+#         with self.subTest('Simple input - length'):
+#             np.testing.assert_equal(
+#                 length, ring.circumference)
 
     # Exception raising test --------------------------------------------------
 
