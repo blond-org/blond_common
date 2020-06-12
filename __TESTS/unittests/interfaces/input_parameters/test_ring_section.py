@@ -357,7 +357,7 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 alpha_1, section.alpha_1)
             np.testing.assert_equal(
-                1, section.alpha_order)
+                [0, 1], section.alpha_orders)
 
         with self.subTest('Non-linear momentum compaction - alpha_2'):
             section = RingSection(length, alpha_0, momentum,
@@ -367,7 +367,7 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 alpha_2, section.alpha_2)
             np.testing.assert_equal(
-                2, section.alpha_order)
+                [0, 2], section.alpha_orders)
 
         with self.subTest('Non-linear momentum compaction - alpha_n'):
             section = RingSection(length, alpha_0, momentum,
@@ -377,7 +377,7 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 alpha_5, section.alpha_5)
             np.testing.assert_equal(
-                5, section.alpha_order)
+                [0, 5], section.alpha_orders)
 
         with self.subTest('Non-linear momentum compaction - multiple alpha_n'):
             section = RingSection(length, alpha_0, momentum,
@@ -397,7 +397,7 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 alpha_5, section.alpha_5)
             np.testing.assert_equal(
-                5, section.alpha_order)
+                [0, 1, 2, 5], section.alpha_orders)
 
     def test_machine_program_input(self):
         # Passing a machine_program as input

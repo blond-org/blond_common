@@ -190,7 +190,8 @@ class RingSection:
         # Checking that the synchronous data and the momentum compaction
         # have the same length if defined turn-by-turn, raise a warning if one
         # is defined by turn and the other time based
-        self.alpha_order = 0
+        self.alpha_orders = [0]
+        alpha_order_max = 0
         if not isinstance(alpha_0, ring_programs.momentum_compaction):
             alpha_0 = ring_programs.momentum_compaction(alpha_0, order=0)
         else:
@@ -206,15 +207,15 @@ class RingSection:
         alpha_n = {1: alpha_1, 2: alpha_2}
 
         if alpha_1 is not None:
-            self.alpha_order = 1
+            alpha_order_max = 1
         if alpha_2 is not None:
-            self.alpha_order = 2
+            alpha_order_max = 2
 
         for argument in kwargs:
             if 'alpha' in argument:
                 try:
                     order = int(argument.split('_')[-1])
-                    self.alpha_order = np.max([self.alpha_order, order])
+                    alpha_order_max = np.max([alpha_order_max, order])
                     alpha_n[order] = kwargs[argument]
                 except Exception:
                     raise excpt.InputError(
@@ -225,8 +226,8 @@ class RingSection:
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
-        self.alpha_orders_defined = [0]
-        for order in range(1, self.alpha_order + 1):
+
+        for order in range(1, alpha_order_max + 1):
             alpha = alpha_n.pop(order, None)
 
             if alpha is None:
@@ -234,7 +235,7 @@ class RingSection:
                 # This condition can be replaced by 'continue' to avoid
                 # populating the object with 0 programs
             else:
-                self.alpha_orders_defined.append(order)
+                self.alpha_orders.append(order)
 
             if not isinstance(alpha, ring_programs.momentum_compaction):
                 alpha = ring_programs.momentum_compaction(alpha, order=order)
