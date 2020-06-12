@@ -271,11 +271,10 @@ class Ring:
         # Updating the number of turns in case it was changed after ramp
         # interpolation
         self.n_turns = momentum_processed.n_turns
-        print(momentum_processed[2:].shape, self.n_turns)
 
         # Generating the attributes where to store the synchronous data
         # and associated parameters
-        program_shape = (self.n_sections, self.n_turns+1)
+        program_shape = (self.n_sections, self.n_turns + 1)
         self.momentum = ring_programs.momentum_program.zeros(program_shape)
         self.energy = ring_programs.total_energy_program.zeros(program_shape)
         self.kin_energy = ring_programs.kinetic_energy_program.zeros(
@@ -300,7 +299,8 @@ class Ring:
 
         # Extracting and combining the orbit length programs
         self.section_length = ring_programs.orbit_length_program.combine_single_sections(
-            *[section.length for section in self.Section_list])
+            *[section.length for section in self.Section_list],
+            interpolation='linear')
 
         # Reshaping to match the dimensions of the synchronous data program
         self.section_length = self.section_length.reshape(
@@ -335,16 +335,16 @@ class Ring:
         # Determining the momentum compaction orders defined in all sections
         # The orders 1 and 2 are presently set by default to zeros if
         # not defined in sections for the calculation of all orders of eta
-        self.alpha_orders = [
-            section.alpha_orders
-            for section in self.Section_list]
+        self.alpha_orders = []
+        for section in self.Section_list:
+            self.alpha_orders += section.alpha_orders
 
         # Add alpha orders if eta_orders is defined
         self.eta_orders = kwargs.pop('eta_orders', 0)
         if self.eta_orders >= 1:
-            self.alpha_orders += [[1]]
+            self.alpha_orders += [1]
         if self.eta_orders >= 2:
-            self.alpha_orders += [[2]]
+            self.alpha_orders += [2]
         if self.eta_orders >= 3:
             warn_message = 'The eta_orders can only be computed up to eta_2!'
             warnings.warn(warn_message)
@@ -355,10 +355,10 @@ class Ring:
         # and combining the programs (the missing programs are filled
         # with zeros).
         # The programs are reshaped to the size of the momentum program
-        for alpha_order in self.alpha_orders:
+        for order in self.alpha_orders:
 
             alpha_prog = []
-            alpha_name = 'alpha_%d' % (alpha_order)
+            alpha_name = 'alpha_%d' % (order)
 
             for section in self.Section_list:
 
@@ -366,10 +366,10 @@ class Ring:
                     alpha_prog.append(getattr(section, alpha_name))
                 else:
                     alpha_prog.append(ring_programs.momentum_compaction(
-                        0, order=alpha_order))
+                        0, order=order))
 
             alpha_prog = ring_programs.momentum_compaction.combine_single_sections(
-                *alpha_prog)
+                *alpha_prog, interpolation='linear')
 
             setattr(self, alpha_name, alpha_prog.reshape(
                 self.n_sections, self.cycle_time, self.use_turns))

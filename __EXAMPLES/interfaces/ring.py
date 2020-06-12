@@ -89,6 +89,18 @@ particle = Proton()
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
 
+# To declare a Ring with time based programs
+length = 628
+alpha_0 = [[0, 0.1, 0.2], [1e-3, 1.1e-3, 1e-3]]
+alpha_1 = [[0, 0.1, 0.2], [1e-6, 0.9e-6, 1e-6]]
+momentum = [[0, 0.1, 0.2], [26e9, 26e9, 26e9]]
+orbit_bump = [[0, 0.1, 0.2], [0., 1e-3, 0.]]
+particle = Proton()
+
+section = RingSection(length, alpha_0, momentum, alpha_1=alpha_1,
+                      orbit_bump=orbit_bump)
+ring = Ring(particle, section, eta_orders=1)
+
 # To declare a Ring with multiple sections (parameters can be adjusted
 # section by section)
 length = 628 / 3
