@@ -106,20 +106,20 @@ print(section.length,
       section.synchronous_data,
       section.alpha_0)
 
-# To declare a RingSection with a 1mm orbit bump
+# To declare a RingSection with a programmed orbit bump
 length = 300  # m
 alpha_0 = 1e-3
-bending_field = 1.  # T
+bending_field = [1.] * 3  # T
 bending_radius = 749  # m
-orbit_length = 300.001  # m
+orbit_bump = [0.001, 0.002, 0.003]  # m
 
 section = RingSection(length, alpha_0,
                       bending_field=bending_field,
                       bending_radius=bending_radius,
-                      orbit_length=orbit_length)
+                      orbit_bump=orbit_bump)
 
-print(section.length,
-      section.orbit_length,
+print(section.length_design,
+      section.length,
       section.synchronous_data,
       section.alpha_0)
 

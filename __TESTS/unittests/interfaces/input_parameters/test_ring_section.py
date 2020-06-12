@@ -64,15 +64,15 @@ class TestRingSection(unittest.TestCase):
 
         with self.subTest('Simple input - length'):
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
 
         with self.subTest('Simple input - momentum'):
             np.testing.assert_equal(
                 momentum, section.synchronous_data)
 
-        with self.subTest('Simple input - orbit_length'):
+        with self.subTest('Simple input - orbit_bump'):
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Simple input - alpha_0'):
             np.testing.assert_equal(
@@ -113,18 +113,18 @@ class TestRingSection(unittest.TestCase):
         length = 300  # m
         alpha_0 = 1e-3
         momentum = 26e9  # eV
-        orbit_length = 300.001  # m
+        orbit_bump = 0.001  # m
 
         section = RingSection(length, alpha_0, momentum,
-                              orbit_length=orbit_length)
+                              orbit_bump=orbit_bump)
+
+        with self.subTest('Orbit length input - section.length_design'):
+            np.testing.assert_equal(
+                length, section.length_design)
 
         with self.subTest('Orbit length input - section.length'):
             np.testing.assert_equal(
-                length, section.length)
-
-        with self.subTest('Orbit length input - section.orbit_length'):
-            np.testing.assert_equal(
-                orbit_length, section.orbit_length)
+                length + orbit_bump, section.length)
 
     def test_turn_by_turn_prog(self):
         # Test turn by turn program
@@ -139,69 +139,69 @@ class TestRingSection(unittest.TestCase):
         kin_energy = [25e9, 26e9, 27e9]  # eV
         bending_field = [1.0, 1.1, 1.2]  # T
         bending_radius = 749  # m
-        orbit_length = [6900.001, 6900.002, 6900.003]  # T
+        orbit_bump = [0.001, 0.002, 0.003]  # m
 
         with self.subTest('Turn by turn program - Only momentum'):
             section = RingSection(length, alpha_0[0], momentum)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Turn by turn program - Only total energy'):
             section = RingSection(length, alpha_0[0], energy=energy)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 energy, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Turn by turn program - Only kinetic energy'):
             section = RingSection(length, alpha_0[0],
                                   kin_energy=kin_energy)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 kin_energy, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Turn by turn program - Only bending field'):
             section = RingSection(length, alpha_0[0],
                                   bending_field=bending_field,
                                   bending_radius=bending_radius)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 bending_field, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
-        with self.subTest('Turn by turn program - Only orbit length'):
+        with self.subTest('Turn by turn program - Only orbit bump'):
             section = RingSection(length, alpha_0[0], momentum[0],
-                                  orbit_length=orbit_length)
+                                  orbit_bump=orbit_bump)
             # The warning raised here is expected and treated by a specific
             # unittest
 
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum[0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
             np.testing.assert_equal(
-                orbit_length, section.orbit_length[0, :])
+                length + np.array(orbit_bump), section.length[0, :])
 
         with self.subTest('Turn by turn program - Only momentum compaction'):
             section = RingSection(length, alpha_0, momentum[0])
@@ -209,26 +209,26 @@ class TestRingSection(unittest.TestCase):
             # unittest
 
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum[0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :])
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest(
                 'Turn by turn program - All programs'):
             section = RingSection(length, alpha_0, momentum,
-                                  orbit_length=orbit_length)
+                                  orbit_bump=orbit_bump)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :])
             np.testing.assert_equal(
-                orbit_length, section.orbit_length[0, :])
+                length + np.array(orbit_bump), section.length[0, :])
 
     def test_time_based_prog(self):
         # Test time based program
@@ -245,70 +245,71 @@ class TestRingSection(unittest.TestCase):
         kin_energy = [time_base, [25e9, 26e9, 27e9]]  # eV
         bending_field = [time_base, [1.0, 1.1, 1.2]]  # T
         bending_radius = 749  # m
-        orbit_length = [time_base, [6900.001, 6900.002, 6900.003]]  # T
+        orbit_bump = [time_base, [0.001, 0.002, 0.003]]  # m
 
         with self.subTest('Time based program - Only momentum'):
             section = RingSection(length, alpha_0[1][0], momentum)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Time based program - Only total energy'):
             section = RingSection(length, alpha_0[1][0],
                                   energy=energy)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 energy, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Time based program - Only kinetic energy'):
             section = RingSection(length, alpha_0[1][0],
                                   kin_energy=kin_energy)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 kin_energy, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Time based program - Only bending field'):
             section = RingSection(length, alpha_0[1][0],
                                   bending_field=bending_field,
                                   bending_radius=bending_radius)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 bending_field, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest('Time based program - Only orbit length'):
             section = RingSection(length, alpha_0[1][0], momentum[1][0],
-                                  orbit_length=orbit_length)
+                                  orbit_bump=orbit_bump)
             # The warning raised here is expected and treated by a specific
             # unittest
 
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum[1][0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
             np.testing.assert_equal(
-                orbit_length, section.orbit_length[0, :, :])
+                [time_base, length + np.array(orbit_bump)[1, :]],
+                section.length[0, :, :])
 
         with self.subTest('Time based program - Only momentum compaction'):
             section = RingSection(length, alpha_0, momentum[1][0])
@@ -316,26 +317,27 @@ class TestRingSection(unittest.TestCase):
             # unittest
 
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum[1][0], section.synchronous_data)
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
             np.testing.assert_equal(
-                length, section.orbit_length)
+                length, section.length)
 
         with self.subTest(
                 'Time based program - All programs'):
             section = RingSection(length, alpha_0, momentum,
-                                  orbit_length=orbit_length)
+                                  orbit_bump=orbit_bump)
             np.testing.assert_equal(
-                length, section.length)
+                length, section.length_design)
             np.testing.assert_equal(
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
             np.testing.assert_equal(
-                orbit_length, section.orbit_length[0, :, :])
+                [time_base, length + np.array(orbit_bump)[1, :]],
+                section.length[0, :, :])
 
     def test_non_linear_alpha(self):
         # Passing non-linear momentum compaction factors
@@ -401,103 +403,133 @@ class TestRingSection(unittest.TestCase):
         # Passing a machine_program as input
 
         length = 300  # m
+
         alpha_0_single = machine_program(1e-3)
         alpha_0_turn = machine_program(1e-3, n_turns=5)
         alpha_0_time = machine_program([[0, 1, 2],
                                         [1e-3, 1.1e-3, 1.2e-3]])
+
         momentum_single = machine_program(26e9)  # eV
         momentum_turn = machine_program(26e9, n_turns=5)  # eV
         momentum_time = machine_program([[0, 1, 2],
                                          [26e9, 27e9, 28e9]])  # [s, eV]
-        orbit_single = machine_program(300)  # m
-        orbit_turn = machine_program(300, n_turns=5)  # m
+
+        orbit_single = machine_program(0.001)  # m
+        orbit_turn = machine_program(0.001, n_turns=5)  # m
         orbit_time = machine_program([[0, 1, 2],
-                                      [300, 300.001, 300.002]])  # [s, m]
+                                      [0., 0.001, 0.002]])  # [s, m]
 
         with self.subTest('Machine program input - Single value'):
             section = RingSection(length, alpha_0_single, momentum_single,
-                                  orbit_length=orbit_single)
+                                  orbit_bump=orbit_single)
+            np.testing.assert_equal(
+                length, section.length_design)
             np.testing.assert_equal(
                 alpha_0_single, section.alpha_0)
             np.testing.assert_equal(
                 momentum_single, section.synchronous_data)
             np.testing.assert_equal(
-                orbit_single, section.orbit_length)
+                length + orbit_single, section.length)
 
         with self.subTest('Machine program input - Turn based'):
             section = RingSection(length, alpha_0_turn, momentum_turn,
-                                  orbit_length=orbit_turn)
+                                  orbit_bump=orbit_turn)
+            np.testing.assert_equal(
+                length, section.length_design)
             np.testing.assert_equal(
                 alpha_0_turn, section.alpha_0)
             np.testing.assert_equal(
                 momentum_turn, section.synchronous_data)
             np.testing.assert_equal(
-                orbit_turn, section.orbit_length)
+                length + np.array(orbit_turn), section.length)
 
         with self.subTest('Machine program input - Time based'):
             section = RingSection(length, alpha_0_time, momentum_time,
-                                  orbit_length=orbit_time)
+                                  orbit_bump=orbit_time)
+            np.testing.assert_equal(
+                length, section.length_design)
             np.testing.assert_equal(
                 alpha_0_time, section.alpha_0)
             np.testing.assert_equal(
                 momentum_time, section.synchronous_data)
             np.testing.assert_equal(
-                orbit_time, section.orbit_length)
+                length + np.array(orbit_time)[:, 1, :],
+                section.length[:, 1, :])
 
     def test_datatype_input(self):
         # Passing a momentum_program as input
 
         length = 300  # m
+
         alpha_0_single = dTypes.ring_programs.momentum_compaction(1e-3)
         alpha_0_turn = dTypes.ring_programs.momentum_compaction(
             1e-3, n_turns=5)
         alpha_0_time = dTypes.ring_programs.momentum_compaction(
             [[0, 1, 2],
              [1e-3, 1.1e-3, 1.2e-3]])
+
         momentum_single = dTypes.ring_programs.momentum_program(26e9)  # eV
         momentum_turn = dTypes.ring_programs.momentum_program(
             26e9, n_turns=5)  # eV
         momentum_time = dTypes.ring_programs.momentum_program(
             [[0, 1, 2],
              [26e9, 27e9, 28e9]])  # [s, eV]
-        orbit_single = dTypes.ring_programs.orbit_length_program(300)  # m
+
+        orbit_single = dTypes.ring_programs.orbit_length_program(0.001)  # m
         orbit_turn = dTypes.ring_programs.orbit_length_program(
-            300, n_turns=5)  # m
+            0.001, n_turns=5)  # m
         orbit_time = dTypes.ring_programs.orbit_length_program(
             [[0, 1, 2],
-             [300, 300.001, 300.002]])  # [s, m]
+             [0., 0.001, 0.002]])  # [s, m]
 
         with self.subTest('Datatype input - Single value'):
             section = RingSection(length, alpha_0_single, momentum_single,
-                                  orbit_length=orbit_single)
+                                  orbit_bump=orbit_single)
+            np.testing.assert_equal(
+                length, section.length_design)
             np.testing.assert_equal(
                 alpha_0_single, section.alpha_0)
             np.testing.assert_equal(
                 momentum_single, section.synchronous_data)
+
+            # WARNING: the user input is being modified (no deep copy
+            # of the datatype)
+
             np.testing.assert_equal(
-                orbit_single, section.orbit_length)
+                orbit_single, section.length)
 
         with self.subTest('Datatype input - Turn based'):
             section = RingSection(length, alpha_0_turn, momentum_turn,
-                                  orbit_length=orbit_turn)
+                                  orbit_bump=orbit_turn)
+            np.testing.assert_equal(
+                length, section.length_design)
             np.testing.assert_equal(
                 alpha_0_turn, section.alpha_0)
             np.testing.assert_equal(
                 momentum_turn, section.synchronous_data)
+
+            # WARNING: the user input is being modified (no deep copy
+            # of the datatype)
+
             np.testing.assert_equal(
-                orbit_turn, section.orbit_length)
+                orbit_turn, section.length)
 
         with self.subTest('Datatype input - Time based'):
             section = RingSection(length, alpha_0_time, momentum_time,
-                                  orbit_length=orbit_time)
+                                  orbit_bump=orbit_time)
+            np.testing.assert_equal(
+                length, section.length_design)
             np.testing.assert_equal(
                 alpha_0_time, section.alpha_0)
             np.testing.assert_equal(
                 momentum_time, section.synchronous_data)
-            np.testing.assert_equal(
-                orbit_time, section.orbit_length)
 
-    # Exception raising test --------------------------------------------------
+            # WARNING: the user input is being modified (no deep copy
+            # of the datatype)
+
+            np.testing.assert_equal(orbit_time, section.length)
+
+    # Exception raising test -------------------------------------------
 
     def test_assert_synchronous_data_input(self):
         # Test the exception that at least one synchronous data is passed
@@ -533,7 +565,7 @@ class TestRingSection(unittest.TestCase):
         alpha_0 = [1e-3, 1e-3]
         momentum = [26e9, 27e9, 28e9]  # eV
         alpha_1 = [1e-6, 1e-6]
-        orbit_length = [300.01, 300.01]  # m
+        orbit_bump = [0.01, 0.01]  # m
 
         with self.subTest('Wrong turn-by-turn momentum compaction - alpha_0'):
             order = 0
@@ -562,9 +594,9 @@ class TestRingSection(unittest.TestCase):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
 
         with self.subTest(
-                'Wrong turn-by-turn momentum compaction - orbit_length'):
+                'Wrong turn-by-turn momentum compaction - orbit_bump'):
 
-            attr_name = 'orbit_length'
+            attr_name = 'orbit_bump'
 
             error_message = (
                 'The input ' + attr_name +
@@ -574,7 +606,7 @@ class TestRingSection(unittest.TestCase):
 
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 RingSection(length, alpha_0[0], momentum,
-                            orbit_length=orbit_length)
+                            orbit_bump=orbit_bump)
 
     def test_warning_turn_time_mix(self):
         # Test the warning that time based programs and turn based
@@ -584,7 +616,7 @@ class TestRingSection(unittest.TestCase):
         momentum = [[0, 1, 2], [26e9, 27e9, 28e9]]  # eV
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
-        orbit_length = [300.01, 300.01]  # m
+        orbit_bump = [0.01, 0.01]  # m
 
         with self.subTest('Turn/time program mix - alpha_0'):
 
@@ -610,9 +642,9 @@ class TestRingSection(unittest.TestCase):
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
 
-        with self.subTest('Turn/time program mix - orbit_length'):
+        with self.subTest('Turn/time program mix - orbit_bump'):
 
-            attr_name = 'orbit_length'
+            attr_name = 'orbit_bump'
             warn_message = (
                 'The synchronous data was defined time based while the ' +
                 'input ' + attr_name + ' was defined turn base, this may' +
@@ -620,7 +652,7 @@ class TestRingSection(unittest.TestCase):
 
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum,
-                            orbit_length=orbit_length)
+                            orbit_bump=orbit_bump)
 
     def test_warning_single_prog_mix(self):
         # Test the warning that single value programs and turn/time based
@@ -630,7 +662,7 @@ class TestRingSection(unittest.TestCase):
         momentum = 26e9  # eV
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
-        orbit_length = [300.01, 300.01]  # m
+        orbit_bump = [0.01, 0.01]  # m
 
         with self.subTest('Single and Turn/time program mix - alpha_0'):
 
@@ -658,9 +690,9 @@ class TestRingSection(unittest.TestCase):
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
 
-        with self.subTest('Turn/time program mix - orbit_length'):
+        with self.subTest('Turn/time program mix - orbit_bump'):
 
-            attr_name = 'orbit_length'
+            attr_name = 'orbit_bump'
             warn_message = (
                 'The synchronous data was defined as single element while the ' +
                 'input ' + attr_name + ' was defined turn or time based. ' +
@@ -669,7 +701,7 @@ class TestRingSection(unittest.TestCase):
 
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum,
-                            orbit_length=orbit_length)
+                            orbit_bump=orbit_bump)
 
     def test_assert_wrong_alpha_n(self):
         # Test the exception that an alpha_n is incorrectly passed
