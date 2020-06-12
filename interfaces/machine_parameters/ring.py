@@ -46,15 +46,26 @@ class Ring:
 
     Attributes
     ----------
+    circumference_design : float
+        Design circumference of the synchrotron. Sum of ring segment design
+        lengths,
+        :math:`C_s = \sum_k L_{s,k}` [m]
     circumference : float
-        Circumference of the synchrotron. Sum of ring segment lengths,
+        Circumference of the synchrotron including possible orbit bumps,
         :math:`C = \sum_k L_k` [m]
+    radius_design : float
+        Design radius of the synchrotron, :math:`R_s = C_s/(2 \pi)` [m]
     radius : float
-        Radius of the synchrotron, :math:`R = C/(2 \pi)` [m]
+        Radius of the synchrotron including possible orbit bumps,
+        :math:`R = C/(2 \pi)` [m]
     bending_radius : float
-        Bending radius in dipole magnets, :math:`\rho` [m]
+        Bending radius in dipole magnets on design orbit, :math:`\rho` [m]
     alpha_orders : list
         Number of orders of the momentum compaction factor
+    alpha_0 : float matrix [n_sections, n_turns+1]
+        Linear momentum compaction factor :math:`\alpha_{0,k,n}`
+    alpha_n : float matrix [n_sections, n_turns+1]
+        Higher order momentum compaction factors
     eta_0 : float matrix [n_sections, n_turns+1]
         Zeroth order slippage factor :math:`\eta_{0,k,n} = \alpha_{0,k,n} -
         \frac{1}{\gamma_{s,k,n}^2}` [1]
@@ -69,34 +80,46 @@ class Ring:
         + \frac{\alpha_{1,k,n}}{\gamma_{s,k,n}^2} + \alpha_{0,k}^2\eta_{0,k,n}
         - \frac{3\beta_{s,k,n}^2\alpha_{0,k,n}}{2\gamma_{s,k,n}^2}` [1]
     momentum : float matrix [n_sections, n_turns+1]
-        Synchronous relativistic momentum on the design orbit :math:`p_{s,k,n}`
+        Design relativistic momentum on the design orbit :math:`p_{s,k,n}`
     beta : float matrix [n_sections, n_turns+1]
-        Synchronous relativistic beta program for each segment of the
+        Design relativistic beta program for each segment of the
         ring :math:`\beta_{s,k}^n = \frac{1}{\sqrt{1
         + \left(\frac{m}{p_{s,k,n}}\right)^2} }` [1]
     gamma : float matrix [n_sections, n_turns+1]
-        Synchronous relativistic gamma program for each segment of the ring
+        Design relativistic gamma program for each segment of the ring
         :math:`\gamma_{s,k,n} = \sqrt{ 1
         + \left(\frac{p_{s,k,n}}{m}\right)^2 }` [1]
     energy : float matrix [n_sections, n_turns+1]
-        Synchronous total energy program for each segment of the ring
+        Design total energy program for each segment of the ring
         :math:`E_{s,k,n} = \sqrt{ p_{s,k,n}^2 + m^2 }` [eV]
     kin_energy : float matrix [n_sections, n_turns+1]
-        Synchronous kinetic energy program for each segment of the ring
+        Design kinetic energy program for each segment of the ring
         :math:`E_{s,kin} = \sqrt{ p_{s,k,n}^2 + m^2 } - m` [eV]
     delta_E : float matrix [n_sections, n_turns]
-        Gain in synchronous total energy from one point to another,
+        Gain in design total energy from one point to another,
         for all sections,
         :math:`: \quad E_{s,k,n+1}- E_{s,k,n}` [eV]
+    t_rev_design : float array [n_turns+1]
+        Revolution period turn by turn on the design orbit.
+        :math:`T_{s,0,n} = \frac{C_s}{\beta_{s,n} c}` [s]
     t_rev : float array [n_turns+1]
-        Revolution period turn by turn.
+        Revolution period turn by turn (including orbit bumps).
         :math:`T_{0,n} = \frac{C}{\beta_{s,n} c}` [s]
+    f_rev_design : float array [n_turns+1]
+        Revolution frequency on the design orbit
+        :math:`f_{s,0,n} = \frac{1}{T_{s,0,n}}` [Hz]
     f_rev : float array [n_turns+1]
-        Revolution frequency :math:`f_{0,n} = \frac{1}{T_{0,n}}` [Hz]
+        Revolution frequency (including orbit bumps)
+        :math:`f_{0,n} = \frac{1}{T_{0,n}}` [Hz]
+    omega_rev_design : float array [n_turns+1]
+        Revolution angular frequency on the design orbit
+        :math:`\omega_{s,0,n} = 2\pi f_{s,0,n}` [1/s]
     omega_rev : float array [n_turns+1]
-        Revolution angular frequency :math:`\omega_{0,n} = 2\pi f_{0,n}` [1/s]
+        Revolution angular frequency (including orbit bumps)
+        :math:`\omega_{0,n} = 2\pi f_{0,n}` [1/s]
     cycle_time : float array [n_turns+1]
-        Cumulative cycle time, turn by turn, :math:`t_n = \sum_n T_{0,n}` [s].
+        Cumulative cycle time, turn by turn,
+        :math:`t_n = \sum_n T_{s,0,n}` [s].
         Possibility to extract cycle parameters at these moments using
         'parameters_at_time'.
 
@@ -162,13 +185,14 @@ class Ring:
         self.Section_list = Section_list
         self.n_sections = len(self.Section_list)
 
-        # Extracting the length of sections to get circumference
+        # Extracting the length of sections to get circumference on design
+        # orbit
         self.section_length_design = np.array(
             [section.length_design for section in self.Section_list])
-        self.circumference = np.sum(self.section_length_design)
+        self.circumference_design = np.sum(self.section_length_design)
 
-        # Computing ring radius
-        self.radius = self.circumference / (2 * np.pi)
+        # Computing ring radius on design orbit
+        self.radius_design = self.circumference_design / (2 * np.pi)
 
         # Extracting the bending radius from all sections
         self.bending_radius = np.array([
@@ -215,7 +239,7 @@ class Ring:
         # values defined by sample_func
         momentum_processed = self.synchronous_data.preprocess(
             self.Particle.mass,
-            self.circumference, sample_func,
+            self.circumference_design, sample_func,
             interpolation, start, stop,
             store_turns=store_turns)
 
@@ -268,20 +292,25 @@ class Ring:
         self.section_length = self.section_length.reshape(
             self.n_sections, self.cycle_time, self.use_turns)
 
+        # Getting the circumference and radius (including potential orbit
+        # bumps)
+        self.circumference = np.sum(self.section_length, axis=0)
+        self.radius = self.circumference / (2 * np.pi)
+
         # Computing the revolution period on the design orbit
         # as well as revolution frequency and angular frequency
-        self.t_rev = np.dot(self.section_length_design, 1 / (self.beta * c))
-        self.f_rev = 1 / self.t_rev
-        self.omega_rev = 2 * np.pi * self.f_rev
+        self.t_rev_design = np.dot(self.section_length_design,
+                                   1 / (self.beta * c))
+        self.f_rev_design = 1 / self.t_rev_design
+        self.omega_rev_design = 2 * np.pi * self.f_rev_design
 
         # Computing the time of flight in each section
         # and the revolution period on the beam orbit including
         # possible orbit bumps
-        self.tof_section_orbit = np.array(
-            self.section_length / (self.beta * c))
-        self.t_rev_orbit = np.sum(self.tof_section_orbit, axis=0)
-        self.f_rev_orbit = 1 / self.t_rev_orbit
-        self.omega_rev_orbit = 2 * np.pi * self.f_rev_orbit
+        self.t_rev = np.sum(np.array(
+            self.section_length / (self.beta * c)), axis=0)
+        self.f_rev = 1 / self.t_rev
+        self.omega_rev = 2 * np.pi * self.f_rev
 
         # Recalculating the delta_E
         self.delta_E = np.diff(self.energy, axis=1)
@@ -352,8 +381,8 @@ class Ring:
 #
 #         # Setting ring length, circumerence, radius, bending radius if defined
 #         self.section_length = np.array(section_length, ndmin=1, dtype=float)
-#         self.circumference = np.sum(self.section_length)
-#         self.radius = self.circumference / (2 * np.pi)
+#         self.circumference_design = np.sum(self.section_length)
+#         self.radius = self.circumference_design / (2 * np.pi)
 #
 #         if bending_radius is not None:
 #             self.bending_radius = float(bending_radius)
@@ -400,7 +429,7 @@ class Ring:
 #
 #         self.momentum = synchronous_data.preprocess(
 #             self.Particle.mass,
-#             self.circumference, sample_func,
+#             self.circumference_design, sample_func,
 #             interpolation, start, stop,
 #             store_turns=store_turns)
 #
@@ -423,7 +452,7 @@ class Ring:
 #                                             self.Particle.mass)
 #         self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:],
 #                                                     self.Particle.mass)
-#         self.t_rev = np.dot(self.section_length, 1 / (self.beta * c))
+#         self.t_rev_design = np.dot(self.section_length, 1 / (self.beta * c))
 #         self.delta_E = np.diff(self.energy, axis=1)
 #         if self.n_turns > len(self.use_turns):
 #             self.delta_E = np.zeros(self.energy.shape)
@@ -431,8 +460,8 @@ class Ring:
 #
 #         self.momentum = self.momentum[2:]
 #
-#         self.f_rev = 1 / self.t_rev
-#         self.omega_rev = 2 * np.pi * self.f_rev
+#         self.f_rev_design = 1 / self.t_rev_design
+#         self.omega_rev_design = 2 * np.pi * self.f_rev_design
 #
 #         # Momentum compaction, checks, and derived slippage factors
 #

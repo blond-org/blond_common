@@ -72,7 +72,9 @@ section_1 = RingSection(length, alpha_0, momentum)
 section_2 = RingSection(length, alpha_0, momentum, orbit_bump=orbit_bump)
 ring = Ring(particle, [section_1, section_2])
 
-print(ring.circumference, ring.section_length,
+print(ring.circumference_design,
+      ring.circumference,
+      ring.section_length,
       ring.momentum,
-      ring.t_rev,
-      ring.t_rev_orbit)
+      ring.t_rev_design,
+      ring.t_rev)
