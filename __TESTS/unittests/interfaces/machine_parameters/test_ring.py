@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 """
-Unit-test for blond_common.interfaces.input_parameters.ring.py
+Unit-test for blond_common.interfaces.machine_parameters.ring.py
 :Authors: **Markus Schwarz**, **Alexandre Lasheen**
 """
 
