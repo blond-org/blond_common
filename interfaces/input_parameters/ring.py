@@ -317,9 +317,7 @@ class Ring:
                     alpha_prog.append(getattr(section, alpha_name))
                 else:
                     alpha_prog.append(ring_programs.momentum_compaction(
-                        0, n_turns=self.n_turns))
-                    alpha_prog[-1].order = alpha_order
-                    alpha_prog[-1].timebase = 'by_turn'
+                        0, order=alpha_order))
 
             alpha_prog = ring_programs.momentum_compaction.combine_single_sections(
                 *alpha_prog)
