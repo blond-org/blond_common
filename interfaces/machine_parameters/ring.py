@@ -43,6 +43,9 @@ class Ring:
         and charge) that is reference for the momentum/energy in the ring.
     Section_list : list
         The list of all the sections to build the Ring.
+    eta_orders : int (optional, default 0)
+        The orders of slippage factor to be computed (alpha_1 and alpha_2,
+        will be assumed to be 0 by default if not defined in the sections).
 
     Attributes
     ----------
@@ -323,7 +326,17 @@ class Ring:
         # not defined in sections for the calculation of all orders of eta
         self.alpha_orders = [
             section.alpha_orders
-            for section in self.Section_list] + [[1], [2]]
+            for section in self.Section_list]
+
+        # Add alpha orders if eta_orders is defined
+        self.eta_orders = kwargs.pop('eta_orders', 0)
+        if self.eta_orders >= 1:
+            self.alpha_orders += [[1]]
+        if self.eta_orders >= 2:
+            self.alpha_orders += [[2]]
+        if self.eta_orders >= 3:
+            warn_message = 'The eta_orders can only be computed up to eta_2!'
+            warnings.warn(warn_message)
 
         self.alpha_orders = np.unique(self.alpha_orders)
 
@@ -332,8 +345,10 @@ class Ring:
         # with zeros).
         # The programs are reshaped to the size of the momentum program
         for alpha_order in self.alpha_orders:
+
             alpha_prog = []
             alpha_name = 'alpha_%d' % (alpha_order)
+
             for section in self.Section_list:
 
                 if hasattr(section, alpha_name):
@@ -349,8 +364,7 @@ class Ring:
                 self.n_sections, self.cycle_time, self.use_turns))
 
         # Slippage factor derived from alpha, beta, gamma
-        self.eta_orders = 3
-        for order in range(self.eta_orders):
+        for order in range(self.eta_orders + 1):
             setattr(self, 'eta_%d' % (order), np.zeros(self.momentum.shape))
         self._eta_generation()
 
@@ -511,7 +525,7 @@ class Ring:
                 Third Edition, 2012.
         """
 
-        for i in range(self.eta_orders):
+        for i in range(self.eta_orders + 1):
             getattr(self, '_eta' + str(i))()
 
     def _eta0(self):
