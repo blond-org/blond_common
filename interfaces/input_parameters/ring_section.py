@@ -74,7 +74,7 @@ class RingSection:
         as the synchronous data.
     alpha_n : float (opt: list or np.ndarray)
         Optional : Higher order momentum compaction can also be passed through
-        extra keyword arguments;
+        keyword arguments (orders not limited, e.g. alpha_3 is recognized);
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
         If a turn-by-turn program is passed, should be of the same size
@@ -226,7 +226,6 @@ class RingSection:
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
-
         for order in range(1, alpha_order_max + 1):
             alpha = alpha_n.pop(order, None)
 
