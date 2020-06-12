@@ -131,28 +131,28 @@ class Ring:
     >>> # To declare a single-section synchrotron at constant energy:
     >>> # Particle type Proton
     >>> from beam.beam import Proton
-    >>> from input_parameters.ring import Ring
+    >>> from input_parameters.ring import Ring, RingSection, machine_program
     >>>
-    >>> n_turns = 10
     >>> C = 26659
     >>> alpha_0 = 3.21e-4
-    >>> momentum = 450e9
-    >>> ring = Ring(C, alpha_0, momentum, Proton(), n_turns)
-    >>>
-    >>>
+    >>> momentum = machine_program(450e9, n_turns=10)
+    >>> ring = Ring(Proton(), RingSection(C, alpha_0, momentum))
+
     >>> # To declare a two section synchrotron at constant energy and
     >>> # higher-order momentum compaction factors; particle Electron:
     >>> from beam.beam import Electron
-    >>> from input_parameters.ring import Ring
+    >>> from input_parameters.ring import Ring, RingSection, machine_program
     >>>
     >>> n_turns = 10
     >>> C = [13000, 13659]
-    >>> alpha_0 = [[3.21e-4], [2.89e-4]]  # or [3.21e-4, 2.89e-4]
-    >>> alpha_1 = [[2.e-5], [1.e-5]]  # or [2.e-5, 1.e-5]
-    >>> alpha_2 = [[5.e-7], [5.e-7]]  # or [5.e-7, 5.e-7]
-    >>> momentum = 450e9
-    >>> ring = Ring(C, alpha_0, momentum, Electron(), n_turns,
-    >>>             alpha_1=alpha_1, alpha_2=alpha_2)
+    >>> alpha_0 = [3.21e-4, 2.89e-4]
+    >>> alpha_1 = [2.e-5, 1.e-5]
+    >>> alpha_2 = [5.e-7, 5.e-7]
+    >>> momentum = machine_program(450e9, n_turns=10)
+    >>>
+    >>> section_1 = RingSection(C[0], alpha_0[0], momentum)
+    >>> section_2 = RingSection(C[1], alpha_0[1], momentum)
+    >>> ring = Ring(Electron(), [section_1, section_2])
 
     """
 
