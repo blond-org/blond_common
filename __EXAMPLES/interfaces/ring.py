@@ -17,7 +17,7 @@ import sys
 
 # BLonD Common import
 sys.path.append('./../../../')
-from blond_common.interfaces.input_parameters.ring import \
+from blond_common.interfaces.machine_parameters.ring import \
     Ring, RingSection, machine_program
 from blond_common.interfaces.beam.beam import Proton, Electron, Particle
 
