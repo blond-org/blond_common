@@ -288,7 +288,7 @@ class Beam_Parameters:
         #TODO: revisit relative_max_val_precision
         try:
             maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
-                                     mest = int(3*np.max(self.rf.harmonic)), 
+                                     mest = int(1E5),
                                      relative_max_val_precision_limit=1E-4)
         except:
             plt.plot(inTime, inWell)
@@ -298,14 +298,14 @@ class Beam_Parameters:
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
         particleLoc = self.particle_tracks[particle][sample]
         
-#        plt.plot(inTime, inWell)
-#        for i, (t, w) in enumerate(zip(times, wells)):
-#            plt.plot(t, w+i*100)
-#        plt.axvline(particleLoc, color='red')
+        # plt.plot(inTime, inWell)
+        # for i, (t, w) in enumerate(zip(times, wells)):
+        #     plt.plot(t, w+i*100)
+        # plt.axvline(particleLoc, color='red')
 #        for locs in maxLocs:
 #            for l in locs:
 #                plt.axvline(l)
-#        plt.show()
+        # plt.show()
 #        
 #        sys.exit()
         
@@ -320,10 +320,11 @@ class Beam_Parameters:
         except:
             plt.clf()
             plt.plot(inTime, inWell)
+            plt.axvline(particleLoc)
             plt.show()
-            print(maxLocs)
+            print(maxLocs, particleLoc)
             print(f"Sample: {sample}")
-            # np.save('easyBrokenWell', [inTime, inWell])
+            # np.save('heavyBeamLoadingWell2', [inTime, inWell])
             raise
 
         #check which subwells are within the bounds of the largest well 
