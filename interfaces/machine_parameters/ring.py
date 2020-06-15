@@ -208,15 +208,48 @@ class Ring:
             section.bending_radius for section in self.Section_list])
 
         # Extracting the synchronous data from the sections
-        for index_section, section in enumerate(self.Section_list):
-            if index_section == 0:
-                self.synchronous_data = section.synchronous_data
-            else:
-                if not (section.synchronous_data == self.synchronous_data).all:
-                    warn_message = 'The synchronous data for all sections ' + \
-                        'is not identical. This case is not yet fully ' + \
-                        'tested and is under implementation.'
-                    warnings.warn(warn_message)
+        # and checking if the synchronous data type and sizes are correct
+        if len(self.Section_list) == 1:
+
+            self.synchronous_data = section.synchronous_data
+
+        else:
+
+            sync_data_list = []
+
+            for index_section, section in enumerate(self.Section_list):
+                sync_data_list.append(section.synchronous_data.convert(
+                    self.Particle.mass,
+                    self.Particle.charge,
+                    self.bending_radius,
+                    inPlace=False))
+
+                if index_section > 0:
+
+                    if (section.synchronous_data.timebase == 'by_time'
+                        and sync_data_list[0].timebase == 'by_turn') or \
+                        (section.synchronous_data.timebase == 'by_turn'
+                         and sync_data_list[0].timebase == 'by_time'):
+                        raise excpt.InputError(
+                            'The synchronous data for' +
+                            'the different sections is mixing time and turn ' +
+                            'based programs which is not supported.')
+
+                    if (sync_data_list[0].timebase == 'by_time') and not \
+                            (section.synchronous_data ==
+                             sync_data_list[0]).all():
+                        warn_message = 'The synchronous data for all sections ' + \
+                            'are defined time based and ' + \
+                            'are not identical. This case is not yet fully ' + \
+                            'tested and is under implementation. Presently, ' + \
+                            'the momentum is assumed constant for one turn over ' + \
+                            'all sections, no increment in delta_E from ' + \
+                            'one section to the next. Please use custom ' + \
+                            'turn based program if needed.'
+                        warnings.warn(warn_message)
+
+            self.synchronous_data = ring_programs.momentum_program.combine_single_sections(
+                *sync_data_list)
 
         # Processing the momentum program
         # Getting the options to get at which time samples the interpolation
@@ -272,30 +305,16 @@ class Ring:
         # interpolation
         self.n_turns = momentum_processed.n_turns
 
-        # Generating the attributes where to store the synchronous data
-        # and associated parameters
-        program_shape = (self.n_sections, self.n_turns + 1)
-        self.momentum = ring_programs.momentum_program.zeros(program_shape)
-        self.energy = ring_programs.total_energy_program.zeros(program_shape)
-        self.kin_energy = ring_programs.kinetic_energy_program.zeros(
-            program_shape)
-        self.beta = ring_programs._synchronous_data_program.zeros(
-            program_shape)
-        self.gamma = ring_programs._synchronous_data_program.zeros(
-            program_shape)
-
-        # Populating the synchronous data attribute each row corresponding
-        # to a section
-        for index_section in range(self.n_sections):
-            self.momentum[index_section, :] = momentum_processed[2:]
-            self.beta[index_section, :] = rt.mom_to_beta(
-                momentum_processed[2:], self.Particle.mass)
-            self.gamma[index_section, :] = rt.mom_to_gamma(
-                momentum_processed[2:], self.Particle.mass)
-            self.energy[index_section, :] = rt.momentum_to_energy(
-                momentum_processed[2:], self.Particle.mass)
-            self.kin_energy[index_section, :] = rt.momentum_to_kin_energy(
-                momentum_processed[2:], self.Particle.mass)
+        # Storing the momentum program and computing all associated values
+        self.momentum = momentum_processed[2:]
+        self.beta = rt.mom_to_beta(
+            momentum_processed[2:], self.Particle.mass)
+        self.gamma = rt.mom_to_gamma(
+            momentum_processed[2:], self.Particle.mass)
+        self.energy = rt.momentum_to_energy(
+            momentum_processed[2:], self.Particle.mass)
+        self.kin_energy = rt.momentum_to_kin_energy(
+            momentum_processed[2:], self.Particle.mass)
 
         # Extracting and combining the orbit length programs
         self.section_length = ring_programs.orbit_length_program.combine_single_sections(

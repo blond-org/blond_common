@@ -119,3 +119,21 @@ print(ring.circumference_design,
       ring.momentum,
       ring.t_rev_design,
       ring.t_rev)
+
+# To declare a Ring with multiple sections and different momentum program
+length = 628 / 3
+alpha_0 = 1e-3
+momentum_1 = [26e9, 27e9, 28e9]
+momentum_2 = [26.5e9, 27.5e9, 28.5e9]
+particle = Proton()
+
+section_1 = RingSection(length, alpha_0, momentum_1)
+section_2 = RingSection(length, alpha_0, momentum_2)
+ring = Ring(particle, [section_1, section_2])
+
+print(ring.circumference_design,
+      ring.circumference,
+      ring.section_length,
+      ring.momentum,
+      ring.t_rev_design,
+      ring.t_rev)

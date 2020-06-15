@@ -545,7 +545,7 @@ class _synchronous_data_program(_ring_function):
                 nTurns = self.shape[1] - 1
             useTurns = np.arange(nTurns + 1)
             time = self._time_from_turn(mass, circumference)
-            momentum = self[0]
+            momentum = self.copy()
 
         # TODO: Handle passed number of turns
         elif self.timebase == 'single':
@@ -559,7 +559,10 @@ class _synchronous_data_program(_ring_function):
         newArray[1, :] = time
 
         for s in range(self.shape[0]):
-            newArray[s + 2] = momentum
+            if self.timebase == 'by_time':
+                newArray[s + 2] = momentum
+            else:
+                newArray[s + 2] = momentum[s]
 
         newArray = newArray.view(momentum_program)
 
