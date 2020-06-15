@@ -80,6 +80,15 @@ particle = Proton()
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
 
+# To declare a Ring with a ramp (turn based program)
+length = 628
+alpha_0 = 1e-3
+momentum = machine_program(26e9, n_turns=100)
+particle = Proton()
+
+section = RingSection(length, alpha_0, momentum)
+ring = Ring(particle, section)
+
 # To declare a Ring with a ramp (time based program)
 length = 628
 alpha_0 = 1e-3
