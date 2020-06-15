@@ -210,52 +210,58 @@ class Ring:
         # Extracting the synchronous data from the sections,
         # converting to momentum
         # and checking if the synchronous data type and sizes are correct
-        if len(self.Section_list) == 1:
+        momentum_list = []
+        momentum_by_turn = True
+        for index_section, section in enumerate(self.Section_list):
 
-            self.synchronous_data = section.synchronous_data
+            momentum = section.synchronous_data.convert(
+                self.Particle.mass,
+                self.Particle.charge,
+                self.bending_radius[index_section],
+                inPlace=False)
 
-            self.synchronous_data.convert(self.Particle.mass,
-                                          self.Particle.charge,
-                                          self.bending_radius,
-                                          inPlace=True)
+            momentum_list.append(momentum)
 
-        else:
+            if index_section == 0:
 
-            sync_data_list = []
+                if momentum.timebase == 'by_time':
+                    self.synchronous_data = momentum
+                    momentum_by_turn = False
 
-            for index_section, section in enumerate(self.Section_list):
-                sync_data_list.append(section.synchronous_data.convert(
-                    self.Particle.mass,
-                    self.Particle.charge,
-                    self.bending_radius[index_section],
-                    inPlace=False))
+            else:
 
-                if index_section > 0:
+                if momentum.timebase != momentum_list[0].timebase:
 
-                    if (section.synchronous_data.timebase == 'by_time'
-                        and sync_data_list[0].timebase == 'by_turn') or \
-                        (section.synchronous_data.timebase == 'by_turn'
-                         and sync_data_list[0].timebase == 'by_time'):
-                        raise excpt.InputError(
-                            'The synchronous data for' +
-                            'the different sections is mixing time and turn ' +
-                            'based programs which is not supported.')
+                    raise excpt.InputError(
+                        'The synchronous data for' +
+                        'the different sections is mixing time and turn ' +
+                        'based programs which is not supported.')
 
-                    if (sync_data_list[0].timebase == 'by_time') and not \
-                            (section.synchronous_data ==
-                             sync_data_list[0]).all():
+                if (momentum_list[0].timebase == 'by_time'):
+                    if (momentum == momentum_list[0]).all():
+
                         warn_message = 'The synchronous data for all sections ' + \
                             'are defined time based and ' + \
-                            'are not identical. This case is not yet fully ' + \
-                            'tested and is under implementation. Presently, ' + \
+                            'are identical. Presently, ' + \
                             'the momentum is assumed constant for one turn over ' + \
                             'all sections, no increment in delta_E from ' + \
                             'one section to the next. Please use custom ' + \
                             'turn based program if needed.'
                         warnings.warn(warn_message)
 
+                    else:
+
+                        raise excpt.InputError(
+                            'The synchronous data for all sections ' +
+                            'are defined time based and ' +
+                            'are not identical. This case is not yet ' +
+                            'implemented.')
+
+        # If the input synchronous data are by turn and not by time
+        # for all sections, these are simply combined.
+        if momentum_by_turn:
             self.synchronous_data = ring_programs.momentum_program.combine_single_sections(
-                *sync_data_list)
+                *momentum_list)
 
         # Processing the momentum program
         # Getting the options to get at which time samples the interpolation
