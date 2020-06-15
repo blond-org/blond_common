@@ -207,11 +207,17 @@ class Ring:
         self.bending_radius = np.array([
             section.bending_radius for section in self.Section_list])
 
-        # Extracting the synchronous data from the sections
+        # Extracting the synchronous data from the sections,
+        # converting to momentum
         # and checking if the synchronous data type and sizes are correct
         if len(self.Section_list) == 1:
 
             self.synchronous_data = section.synchronous_data
+
+            self.synchronous_data.convert(self.Particle.mass,
+                                          self.Particle.charge,
+                                          self.bending_radius,
+                                          inPlace=True)
 
         else:
 
@@ -221,7 +227,7 @@ class Ring:
                 sync_data_list.append(section.synchronous_data.convert(
                     self.Particle.mass,
                     self.Particle.charge,
-                    self.bending_radius,
+                    self.bending_radius[index_section],
                     inPlace=False))
 
                 if index_section > 0:
@@ -274,12 +280,6 @@ class Ring:
         # Getting options for the interpolation
         interpolation = kwargs.pop('interpolation', 'linear')
         store_turns = kwargs.pop('store_turns', True)
-
-        # Converting the synchronous data to momentum before processing
-        self.synchronous_data.convert(self.Particle.mass,
-                                      self.Particle.charge,
-                                      self.bending_radius,
-                                      inPlace=True)
 
         # Processing the momentum program and interpolating on the
         # values defined by sample_func
