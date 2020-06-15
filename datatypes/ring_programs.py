@@ -907,7 +907,7 @@ class _synchronous_data_program(_ring_function):
             next_time = next_time + rt.beta_to_trev(next_beta, circumference)
             nTurns += 1
 
-            if next_time >= next_store_time:
+            if (next_time >= next_store_time) and (next_time < input_time[-1]):
                 time_interp.append(next_time)
                 momentum_interp.append(next_momentum)
                 use_turns.append(nTurns)
@@ -1003,7 +1003,7 @@ class _synchronous_data_program(_ring_function):
             next_time = future_time
             nTurns += 1
 
-            if next_time >= next_store_time:
+            if (next_time >= next_store_time) and (next_time < input_time[-1]):
                 time_interp.append(next_time)
                 momentum_interp.append(next_momentum)
                 use_turns.append(nTurns)

@@ -99,7 +99,8 @@ particle = Proton()
 
 section = RingSection(length, alpha_0, momentum, alpha_1=alpha_1,
                       orbit_bump=orbit_bump)
-ring = Ring(particle, section, eta_orders=1)
+ring = Ring(particle, section, eta_orders=1, interpolation='derivative',
+            t_start=0.01)
 
 # To declare a Ring with multiple sections (parameters can be adjusted
 # section by section)
