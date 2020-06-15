@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import warnings
 
 # BLonD_Common imports
 from ...rf_functions import potential as pot
@@ -235,8 +236,8 @@ class Beam_Parameters:
     def _time_bounds(self, t_rev):
         
         tRight = t_rev/self.harmonic_divide
-        tLeft = -0.05*tRight
-        tRight *= 1.05
+        tLeft = -0.1*tRight
+        tRight *= 1.1
         
         return (tLeft, tRight)
     
@@ -287,7 +288,7 @@ class Beam_Parameters:
         #TODO: revisit relative_max_val_precision
         try:
             maxLocs, _, _, _, _ = pot.find_potential_wells_cubic(inTime, inWell,
-                                     mest = int(3*np.max(self.rf.harmonic)), 
+                                     mest = int(1E5),
                                      relative_max_val_precision_limit=1E-4)
         except:
             plt.plot(inTime, inWell)
@@ -297,14 +298,14 @@ class Beam_Parameters:
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
         particleLoc = self.particle_tracks[particle][sample]
         
-#        plt.plot(inTime, inWell)
-#        for i, (t, w) in enumerate(zip(times, wells)):
-#            plt.plot(t, w+i*100)
-#        plt.axvline(particleLoc, color='red')
+        # plt.plot(inTime, inWell)
+        # for i, (t, w) in enumerate(zip(times, wells)):
+        #     plt.plot(t, w+i*100)
+        # plt.axvline(particleLoc, color='red')
 #        for locs in maxLocs:
 #            for l in locs:
 #                plt.axvline(l)
-#        plt.show()
+        # plt.show()
 #        
 #        sys.exit()
         
@@ -319,10 +320,11 @@ class Beam_Parameters:
         except:
             plt.clf()
             plt.plot(inTime, inWell)
+            plt.axvline(particleLoc)
             plt.show()
-            print(maxLocs)
+            print(maxLocs, particleLoc)
             print(f"Sample: {sample}")
-            # np.save('easyBrokenWell', [inTime, inWell])
+            # np.save('heavyBeamLoadingWell2', [inTime, inWell])
             raise
 
         #check which subwells are within the bounds of the largest well 
@@ -370,7 +372,8 @@ class Beam_Parameters:
                            pars['eta_0'])
     
     
-    def bucket_parameters(self, update_bunch_parameters = False):
+    def bucket_parameters(self, update_bunch_parameters = False,
+                          over_fill = False):
 
         '''
         Store bucket heights, areas, lengths and centers through the ramp
@@ -411,7 +414,18 @@ class Beam_Parameters:
             buckets = self.buckets_by_particle(n)
             for b in range(len(buckets)):
                 if update_bunch_parameters:
-                    buckets[b].bunch_emittance = self.bunch_emittance[n, b]
+                    try:
+                        buckets[b].bunch_emittance = self.bunch_emittance[n, b]
+                    except excpt.BunchSizeError:
+                        if over_fill:
+                            warnings.warn(f"Requested emittance "
+                                          +f"{self.bunch_emittance[n, b]} "
+                                          +f"exceeds acceptance of bucket "
+                                          +f"{n, b}, using bucket acceptance"
+                                          +f"of {buckets[b].area} instead.")
+                            buckets[b].bunch_emittance = buckets[b].area
+                        else:
+                            raise
                     
                 self.bunch_heights[n, b] = buckets[b].bunch_height
                 self.heights[n, b] = buckets[b].half_height
