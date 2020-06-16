@@ -17,13 +17,13 @@ import numpy as np
 import warnings
 
 # BLonD_Common imports
-from ...datatypes import datatypes as dTypes
+from ...datatypes import ring_programs
 from ...datatypes.blond_function import machine_program
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 
 
-class Section:
+class RingSection:
     r""" Class containing the general properties of a section of the
     accelerator that are independent of the RF system or the beam.
 
@@ -34,12 +34,9 @@ class Section:
 
     Parameters
     ----------
-    section_length : float (opt: list or np.ndarray)
-        Length [m] accelerator section;
-        can be input as single float or as a program (1D array is a
-        turn-by-turn program and 2D array is a time dependent program).
-        If a turn-by-turn program is passed, should be of the same size
-        as the synchronous data.
+    length : float
+        Length [m] of accelerator section on the reference orbit (see
+        orbit_length option).
     alpha_0 : float (opt: list or np.ndarray)
         Momentum compaction factor of zeroth order :math:`\alpha_{0}`;
         can be input as single float or as a program (1D array is a
@@ -69,23 +66,15 @@ class Section:
     bending_radius : float
         Optional: Radius [m] of the bending magnets,
         required if 'bending field' is set for the synchronous_data_type
-    alpha_1 : float (opt: list or np.ndarray)
-        Optional : Momentum compaction factor of first order
-        :math:`\alpha_{1}`;
-        can be input as single float or as a program (1D array is a
-        turn-by-turn program and 2D array is a time dependent program).
-        If a turn-by-turn program is passed, should be of the same size
-        as the synchronous data.
-    alpha_2 : float (opt: list or np.ndarray)
-        Optional : Momentum compaction factor of second order
-        :math:`\alpha_{2}`;
+    orbit_bump : float (opt: list or np.ndarray)
+        Length of orbit bump to add as increment to the design length;
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
         If a turn-by-turn program is passed, should be of the same size
         as the synchronous data.
     alpha_n : float (opt: list or np.ndarray)
         Optional : Higher order momentum compaction can also be passed through
-        extra keyword arguments;
+        keyword arguments (orders not limited, e.g. alpha_3 is recognized);
         can be input as single float or as a program (1D array is a
         turn-by-turn program and 2D array is a time dependent program).
         If a turn-by-turn program is passed, should be of the same size
@@ -93,26 +82,23 @@ class Section:
 
     Attributes
     ----------
-    section_length : datatype._ring_function
-        Length of the section [m]
-    synchronous_data : datatype._ring_program
+    length_design : float
+        Length of the section on the reference orbit [m]
+    length : datatype.machine_program.orbit_length
+        Length of the beam trajectory, including possible
+        orbit bump programs [m]
+    synchronous_data : datatype.machine_program._ring_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
         momentum_program, kinetic_energy_program, total_energy_program,
         bending_field_program
     bending_radius : float (or None)
         Bending radius in dipole magnets, :math:`\rho` [m]
-    alpha_0 : datatype.momentum_compaction
+    alpha_0 : datatype.machine_program.momentum_compaction
         Momentum compaction factor of zeroth order
-    alpha_1 : datatype.momentum_compaction (or None)
-        Momentum compaction factor of first order
-    alpha_2 : datatype.momentum_compaction (or None)
-        Momentum compaction factor of second order
-    alpha_n : datatype.momentum_compaction (or undefined)
-        Momentum compaction factor of higer orders
-    alpha_order : int
-        Maximum order of momentum compaction
-    alpha_orders_defined : int
+    alpha_n : datatype.machine_program.momentum_compaction (or undefined)
+        Momentum compaction factor of higher orders
+    alpha_orders : int
         Orders of momentum compaction defined by the user
 
     Examples
@@ -122,42 +108,44 @@ class Section:
     >>> from blond_common.interfaces.input_parameters.ring_section import \
     >>>     Section
     >>>
-    >>> section_length = 300
+    >>> length = 300
     >>> alpha_0 = 1e-3
     >>> momentum = 26e9
     >>>
-    >>> section = Section(section_length, alpha_0, momentum)
+    >>> section = RingSection(length, alpha_0, momentum)
 
     >>> # To declare a section of a synchrotron with very complex
     >>> # parameters and programs
     >>> from blond_common.interfaces.input_parameters.ring_section import \
     >>>     Section
     >>>
-    >>> section_length = 300
-    >>> alpha_0 = 1e-3
+    >>> length = 300
+    >>> alpha_0 = [1e-3, 0.9e-3, 1e-3]
     >>> alpha_1 = 1e-4
     >>> alpha_2 = 1e-5
     >>> alpha_5 = 1e-9
+    >>> orbit_bump = [0., 1e-3, 0.]
     >>> energy = machine_program([[0, 1, 2],
     >>>                           [26e9, 27e9, 28e9]])
     >>>
-    >>> section = Section(section_length, alpha_0, energy=energy,
-    >>>                   alpha_1=alpha_1, alpha_2=alpha_2, alpha_5=alpha_5)
+    >>> section = RingSection(length, alpha_0, energy=energy,
+    >>>                       alpha_1=alpha_1, alpha_2=alpha_2,
+    >>>                       alpha_5=alpha_5, orbit_bump=orbit_bump)
     """
 
-    def __init__(self, section_length, alpha_0,
+    def __init__(self, length, alpha_0,
                  momentum=None, kin_energy=None, energy=None,
-                 bending_field=None, bending_radius=None,
+                 bending_field=None, bending_radius=None, orbit_bump=None,
                  alpha_1=None, alpha_2=None, **kwargs):
 
         # Setting section length
-        self.section_length = dTypes._ring_function(section_length)
+        self.length_design = float(length)
 
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
         assrt.single_not_none(*syncDataInput,
-                              msg='Exactly one of '+str(syncDataTypes) +
+                              msg='Exactly one of ' + str(syncDataTypes) +
                               ' must be declared',
                               exception=excpt.InputError)
 
@@ -177,52 +165,68 @@ class Section:
 
         # Reshaping the input synchronous data to the adequate format and
         # get back the momentum program
-        if not isinstance(synchronous_data, dTypes._ring_program):
+        if not isinstance(synchronous_data,
+                          ring_programs._synchronous_data_program):
             synchronous_data \
-                = dTypes._ring_program.conversions[func_type](synchronous_data)
+                = ring_programs._synchronous_data_program._conversions[
+                    func_type](synchronous_data)
 
         self.synchronous_data = synchronous_data
+
+        # Setting orbit length
+        if orbit_bump is None:
+            self.length = ring_programs.orbit_length_program(
+                self.length_design)
+        else:
+            if not isinstance(orbit_bump, ring_programs.orbit_length_program):
+                orbit_bump = ring_programs.orbit_length_program(orbit_bump)
+            if orbit_bump.timebase == 'by_time':
+                orbit_bump[:, 1, :] += self.length_design
+            else:
+                orbit_bump += self.length_design
+            self._check_and_set_alpha_and_orbit(orbit_bump)
 
         # Setting the linear momentum compaction factor
         # Checking that the synchronous data and the momentum compaction
         # have the same length if defined turn-by-turn, raise a warning if one
         # is defined by turn and the other time based
-        self.alpha_order = 0
-        if not isinstance(alpha_0, dTypes.momentum_compaction):
-            alpha_0 = dTypes.momentum_compaction(alpha_0, order=0)
+        self.alpha_orders = [0]
+        alpha_order_max = 0
+        if not isinstance(alpha_0, ring_programs.momentum_compaction):
+            alpha_0 = ring_programs.momentum_compaction(alpha_0, order=0)
         else:
             if alpha_0.order != 0:
                 raise excpt.InputError(
                     "The order of the datatype passed as keyword " +
                     "argument alpha_%s do not match" % (0))
 
-        self._check_and_set_momentum_compaction(alpha_0, 0)
+        self._check_and_set_alpha_and_orbit(alpha_0, 0)
 
         # Treating non-linear momentum compaction factor if declared
         # Listing all the declared alpha first
         alpha_n = {1: alpha_1, 2: alpha_2}
 
         if alpha_1 is not None:
-            self.alpha_order = 1
+            alpha_order_max = 1
         if alpha_2 is not None:
-            self.alpha_order = 2
+            alpha_order_max = 2
 
         for argument in kwargs:
             if 'alpha' in argument:
                 try:
                     order = int(argument.split('_')[-1])
-                    self.alpha_order = np.max([self.alpha_order, order])
+                    alpha_order_max = np.max([alpha_order_max, order])
                     alpha_n[order] = kwargs[argument]
                 except Exception:
                     raise excpt.InputError(
-                        'The keyword argument '+argument+' was interpreted ' +
-                        'as non-linear momentum compaction factor. ' +
+                        'The keyword argument ' + argument + ' was ' +
+                        'interpreted as non-linear momentum compaction ' +
+                        'factor. ' +
                         'The correct syntax is alpha_n.')
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
-        self.alpha_orders_defined = [0]
-        for order in range(1, self.alpha_order+1):
+        for order in range(1, alpha_order_max + 1):
             alpha = alpha_n.pop(order, None)
 
             if alpha is None:
@@ -230,45 +234,65 @@ class Section:
                 # This condition can be replaced by 'continue' to avoid
                 # populating the object with 0 programs
             else:
-                self.alpha_orders_defined.append(order)
+                self.alpha_orders.append(order)
 
-            if not isinstance(alpha, dTypes.momentum_compaction):
-                alpha = dTypes.momentum_compaction(alpha, order=order)
+            if not isinstance(alpha, ring_programs.momentum_compaction):
+                alpha = ring_programs.momentum_compaction(alpha, order=order)
             else:
                 if alpha.order != order:
                     raise excpt.InputError(
                         "The order of the datatype passed as keyword " +
                         "argument alpha_%s do not match" % (order))
 
-            self._check_and_set_momentum_compaction(alpha, order)
+            self._check_and_set_alpha_and_orbit(alpha, order)
 
-    def _check_and_set_momentum_compaction(self, alpha, order):
+    def _check_and_set_alpha_and_orbit(self, alpha_or_orbit, order=None):
         '''
-        Internal function to check that the input momentum compaction is
-        coherent with the synchronous data. If the synchronous data is turn
-        based, the momentum compaction should have the same length. If the
-        synchronous is time based while the momentum compaction is turn based,
-        raises a warning.
+        Internal function to check that the input momentum compaction or orbit
+        length is coherent with the synchronous data. If the synchronous data
+        is turn based, the momentum compaction or orbit should have the same
+        length.
+        If the synchronous is time based while the momentum compaction or
+        orbit is turn based, raises a warning.
         '''
 
-        setattr(self, 'alpha_'+str(order), alpha)
+        # attr_name is the attribute to apply to RingSection
+        # attr_name_err is for the warning message
+        if order is not None:
+            attr_name = 'alpha_' + str(order)
+            attr_name_err = attr_name
+        else:
+            attr_name = 'length'
+            attr_name_err = 'orbit_bump'
+
+        setattr(self, attr_name, alpha_or_orbit)
+
+        if (self.synchronous_data.timebase == 'single') and \
+                (alpha_or_orbit.timebase != 'single'):
+
+            warn_message = 'The synchronous data was defined as single element while the ' + \
+                'input ' + attr_name_err + ' was defined turn or time based. ' + \
+                'Only the first element of the program will be taken in ' + \
+                'the Ring object after treatment.'
+            warnings.warn(warn_message)
 
         if (self.synchronous_data.timebase == 'by_turn') and \
-                (alpha.timebase == 'by_turn'):
+                (alpha_or_orbit.timebase == 'by_turn'):
 
-            if (alpha.shape[-1] > 1) and \
-                    (self.synchronous_data.shape[-1] > alpha.shape[-1]):
+            if (alpha_or_orbit.shape[-1] > 1) and \
+                    (self.synchronous_data.shape[-1]
+                     > alpha_or_orbit.shape[-1]):
 
                 raise excpt.InputError(
-                            'The momentum compaction alpha_'+str(order) +
-                            ' was passed as a turn based program but with ' +
-                            'different length than the synchronous data. ' +
-                            'Turn based programs should have the same length.')
+                    'The input ' + attr_name_err +
+                    ' was passed as a turn based program but with ' +
+                    'different length than the synchronous data. ' +
+                    'Turn based programs should have the same length.')
 
         elif (self.synchronous_data.timebase == 'by_time') and \
-                (alpha.timebase == 'by_turn'):
+                (alpha_or_orbit.timebase == 'by_turn'):
 
             warn_message = 'The synchronous data was defined time based while the ' + \
-                'momentum compaction was defined turn base, this may' + \
-                'lead to errors in the Ring object after interpolation'
+                'input ' + attr_name_err + ' was defined turn base, this may' + \
+                'lead to errors in the Ring object after interpolation.'
             warnings.warn(warn_message)

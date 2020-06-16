@@ -412,6 +412,9 @@ class _synchronous_data_program(_ring_function):
             newArray[i] = section
         
         newArray.timebase = timeBases[0]
+        if newArray.timebase == 'by_time':
+            newArray[:, 0, :] = use_times
+
         if newArray.shape[0] > 1:
             newArray.sectioning = 'multi_section'
         else:
@@ -1301,6 +1304,9 @@ class momentum_compaction(_ring_function):
             newArray[i] = section
         
         newArray.timebase = timeBases[0]
+        if newArray.timebase == 'by_time':
+            newArray[:, 0, :] = use_times
+
         if newArray.shape[0] > 1:
             newArray.sectioning = 'multi_section'
         else:
@@ -1326,3 +1332,101 @@ class momentum_compaction(_ring_function):
     def order(self, value):
         self._check_data_type('order', value)
         self._order = value
+
+
+class orbit_length_program(_ring_function):
+    """
+    Class defining section and ring orbit lengths programs
+
+    Parameters
+    ----------
+    *args : float, 1D iterable of floats, 2D iterable of floats
+        The data defining the programs
+    time : iterable of floats
+        The time array to be used for the data, to be used if the time
+        dependent data is not given as 2D array
+    n_turns : int
+        The number of turns to be used, if a single value is given it will be
+        extended to n_turns length
+    interpolation : str
+        The type of interpolation to be used
+
+    Attributes
+    ----------
+    data_type : dict
+        Dictionary containing relevant information to define the datatype
+    timebase : str
+        Either 'single', 'by_turn', or 'by_time' depending on the definition
+        of the datatype.  As a string it is used as a key for the data_type
+        dict
+    interpolation : str
+        Identifier of the type of interpolation to be used when reshaping
+        the array, currently only 'linear' has been implemented
+    sectioning : str
+        identification of if the data defines a single machine section
+        or multiple machine sections
+    """
+
+    def __new__(cls, *args, time=None, n_turns=None,
+                interpolation='linear'):
+
+        return super().__new__(cls, *args, time=time,
+                               n_turns=n_turns, allow_single=True,
+                               interpolation='linear')
+
+    @classmethod
+    def combine_single_sections(cls, *args, interpolation=None):
+        """
+        Combine multiple single sections into a single array.
+
+        Parameters
+        ----------
+        cls : class
+            The class of the final datatype.
+        *args : datatypes
+            The datatype arrays to be combined.
+        interpolation : str, optional
+            The interpolation method to be used for time dependent data, only
+            used if not already defined in the data.  The default is None.
+
+        Raises
+        ------
+        excpt.InputError
+            If the passed data are not orbit_length type an InputError
+            is raised.
+            If the passed data do not all have the same order an InputError is
+            raised.
+
+        Returns
+        -------
+        newArray : datatype
+            The new array combining all of the passed sections.
+        """
+        if not all(isinstance(a, orbit_length_program) for a in args):
+            raise excpt.InputError("Only orbit_length_program objects can be "
+                                   + "combined")
+
+        newArray, timeBases, use_times, use_turns \
+            = cls._combine_single_sections(*args,
+                                           interpolation=interpolation)
+
+        for i, a in enumerate(args):
+            if timeBases[0] != 'single':
+                section = a.reshape(use_time=use_times,
+                                    use_turns=use_turns)
+            else:
+                section = a.copy()
+            newArray[i] = section
+
+        newArray.timebase = timeBases[0]
+        if newArray.timebase == 'by_time':
+            newArray[:, 0, :] = use_times
+
+        if newArray.shape[0] > 1:
+            newArray.sectioning = 'multi_section'
+        else:
+            newArray.sectioning = 'single_section'
+
+        newArray.interpolation = interpolation
+
+        return newArray
