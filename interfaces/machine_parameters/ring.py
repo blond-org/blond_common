@@ -176,20 +176,12 @@ class Ring:
                                    "Particle object or a str.")
 
         # Getting all sections and checking their types
-        if isinstance(Section_list, RingSection):
-            Section_list = [Section_list]
-        if not isinstance(Section_list, list):
-            raise excpt.InputError("The Section_list should be a list or " +
-                                   "a single RingSection object instance.")
-        else:
-            for section in Section_list:
-                if not isinstance(section, RingSection):
-                    raise excpt.InputError(
-                        "The Section_list should be exclusively composed " +
-                        "of RingSection object instances.")
-
-                # Setting the Ring as attribute of the sections for reference
-                section._Ring = self
+        if not hasattr(Section_list, '__iter__'):
+            Section_list = (Section_list,)
+        if not all(isinstance(s, RingSection) for s in Section_list):
+            raise excpt.InputError(
+                "The Section_list should be exclusively composed " +
+                "of RingSection object instances.")
 
         self.Section_list = Section_list
         self.n_sections = len(self.Section_list)
@@ -404,151 +396,61 @@ class Ring:
             setattr(self, 'eta_%d' % (order), np.zeros(self.momentum.shape))
         self._eta_generation()
 
-#     @classmethod
-#     def direct_input(self, section_length, alpha, Particle,
-#                      momentum=None, kin_energy=None, energy=None,
-#                      bending_field=None, bending_radius=None,
-#                      **kwargs):
-#
-#         # Checking that at least one synchronous data input is passed
-#         syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
-#         syncDataInput = (momentum, kin_energy, energy, bending_field)
-#         assrt.single_not_none(*syncDataInput,
-#                               msg='Exactly one of ' + str(syncDataTypes) +
-#                               ' must be declared',
-#                               exception=excpt.InputError)
-#
-#         # Checking that the bending_radius is passed with the bending_field
-#         if bending_field is not None and bending_radius is None:
-#             raise excpt.InputError("If bending_field is used, bending_radius "
-#                                    + "must be defined.")
-#
-#         # Taking the first synchronous_data input not declared as None
-#         # The assertion above ensures that only one is declared
-#         for func_type, synchronous_data in zip(syncDataTypes, syncDataInput):
-#             if synchronous_data is not None:
-#                 break
-#
-#         # Setting ring length, circumerence, radius, bending radius if defined
-#         self.section_length = np.array(section_length, ndmin=1, dtype=float)
-#         self.circumference_design = np.sum(self.section_length)
-#         self.radius = self.circumference_design / (2 * np.pi)
-#
-#         if bending_radius is not None:
-#             self.bending_radius = float(bending_radius)
-#         else:
-#             self.bending_radius = bending_radius
-#
-#         # Primary particle mass and charge used for energy calculations
-#         # If a string is passed, will generate the relevant Particle object
-#         # based on the name
-#         if isinstance(Particle, beam.Particle):
-#             self.Particle = Particle
-#         else:
-#             self.Particle = beam.make_particle(Particle)
-#
-#         # Reshaping the input synchronous data to the adequate format and
-#         # get back the momentum program from RingOptions
-#         if not isinstance(synchronous_data, dTypes._ring_program):
-#             synchronous_data = \
-#                 dTypes._ring_program.conversions[func_type](synchronous_data)
-#
-#         if synchronous_data.shape[0] != len(self.section_length):
-#             raise excpt.InputDataError("ERROR in Ring: Number of sections " +
-#                                        "and ring length size do not match!")
-#
-#         t_start = kwargs.pop('t_start', 0)
-#         t_stop = kwargs.pop('t_stop', np.inf)
-#         interp_time = kwargs.pop('interp_time', 0)
-#
-#         if not hasattr(interp_time, '__iter__'):
-#             interp_time = (interp_time, )
-#
-#         sample_func, start, stop = tmng.time_from_sampling(*interp_time)
-#
-#         if t_start > start:
-#             start = t_start
-#         if t_stop < stop:
-#             stop = t_stop
-#
-#         synchronous_data.convert(self.Particle.mass, self.Particle.charge,
-#                                  self.bending_radius)
-#
-#         interpolation = kwargs.pop("interpolation", 'linear')
-#         store_turns = kwargs.pop('store_turns', True)
-#
-#         self.momentum = synchronous_data.preprocess(
-#             self.Particle.mass,
-#             self.circumference_design, sample_func,
-#             interpolation, start, stop,
-#             store_turns=store_turns)
-#
-#         self.n_sections = self.momentum.shape[0] - 2
-#         self.cycle_time = self.momentum[1]
-#         if store_turns:
-#             self.parameters_at_turn = self._parameters_at_turn
-#             self.use_turns = self.momentum[0].astype(int)
-#         else:
-#             self.parameters_at_turn = self._no_parameters_at_turn
-#             self.use_turns = self.momentum[0]
-#         # Updating the number of turns in case it was changed after ramp
-#         # interpolation
-#         self.n_turns = self.momentum.n_turns
-#
-#         # Derived from momentum
-#         self.beta = rt.mom_to_beta(self.momentum[2:], self.Particle.mass)
-#         self.gamma = rt.mom_to_gamma(self.momentum[2:], self.Particle.mass)
-#         self.energy = rt.momentum_to_energy(self.momentum[2:],
-#                                             self.Particle.mass)
-#         self.kin_energy = rt.momentum_to_kin_energy(self.momentum[2:],
-#                                                     self.Particle.mass)
-#         self.t_rev_design = np.dot(self.section_length, 1 / (self.beta * c))
-#         self.delta_E = np.diff(self.energy, axis=1)
-#         if self.n_turns > len(self.use_turns):
-#             self.delta_E = np.zeros(self.energy.shape)
-#             self._recalc_delta_E()
-#
-#         self.momentum = self.momentum[2:]
-#
-#         self.f_rev_design = 1 / self.t_rev_design
-#         self.omega_rev_design = 2 * np.pi * self.f_rev_design
-#
-#         # Momentum compaction, checks, and derived slippage factors
-#
-#         if not hasattr(alpha, '__iter__'):
-#             alpha = (alpha, )
-#
-#         if isinstance(alpha, dict):
-#             try:
-#                 if not all([k % 1 == 0 for k in alpha.keys()]):
-#                     raise TypeError
-#             except TypeError:
-#                 raise excpt.InputError("If alpha is dict all keys must be "
-#                                        + "numeric and integer")
-#
-#             maxAlpha = np.max(tuple(alpha.keys())).astype(int)
-#             alpha = [alpha.pop(i, 0) for i in range(maxAlpha + 1)]
-#
-#         if isinstance(alpha, dTypes._function):
-#             alpha = (alpha,)
-#
-#         for i, a in enumerate(alpha):
-#             if not isinstance(a, dTypes.momentum_compaction):
-#                 a = dTypes.momentum_compaction(a, order=i)
-#
-#             setattr(self, 'alpha_' + str(i), a.reshape(self.n_sections,
-#                                                        self.cycle_time,
-#                                                        self.use_turns))
-#             setattr(self, 'eta_' + str(i), np.zeros([self.n_sections,
-#                                                      len(self.use_turns)]))
-#         self.alpha_order = i
-#
-#         for i in range(3 - self.alpha_order):
-#             if not hasattr(self, f'alpha_{i}'):
-#                 setattr(self, 'alpha_' + str(i), np.zeros([self.n_sections,
-#                                                            len(self.use_turns)]))
-#                 setattr(self, 'eta_' + str(i), np.zeros([self.n_sections,
-#                                                          len(self.use_turns)]))
+    @classmethod
+    def direct_input(cls, Particle, length, alpha_0,
+                     momentum=None, kin_energy=None, energy=None,
+                     bending_field=None, bending_radius=None, orbit_bump=None,
+                     alpha_1=None, alpha_2=None, **kwargs):
+
+        # Getting the number of sections for the length list
+        length = np.array(length, ndmin=1, dtype=float)
+        n_sections = len(length)
+
+        # Checking that at least one synchronous data input is passed
+        syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
+        syncDataInput = (momentum, kin_energy, energy, bending_field)
+        assrt.single_not_none(*syncDataInput,
+                              msg='Exactly one of ' + str(syncDataTypes) +
+                              ' must be declared',
+                              exception=excpt.InputError)
+
+        # Taking the first synchronous_data input not declared as None
+        # The assertion above ensures that only one is declared
+        for func_type, synchronous_data in zip(syncDataTypes, syncDataInput):
+            if synchronous_data is not None:
+                break
+
+        # Casting synchronous data to datatype
+        if not isinstance(synchronous_data,
+                          ring_programs._synchronous_data_program):
+            synchronous_data \
+                = ring_programs._synchronous_data_program._conversions[
+                    func_type](synchronous_data)
+
+        # Casting orbit bump to datatype
+        if orbit_bump is not None:
+            if not isinstance(orbit_bump, ring_programs.orbit_length_program):
+                orbit_bump = ring_programs.orbit_length_program(orbit_bump)
+                print(orbit_bump.shape, type(orbit_bump))
+        else:
+            orbit_bump = [None] * n_sections
+
+        # Building all sections
+        Section_list = []
+        for index_section in range(n_sections):
+
+            # Passing sync_data as kwarg with the right func_type
+            sync_data = {func_type: synchronous_data[index_section]}
+
+            section = RingSection(
+                length[index_section], alpha_0, **sync_data,
+                orbit_bump=orbit_bump[index_section],
+                alpha_1=alpha_1, alpha_2=alpha_2,
+                **kwargs)
+
+            Section_list.append(section)
+
+        return cls(Particle, Section_list, **kwargs)
 
     def _eta_generation(self):
         """ Function to generate the slippage factors (zeroth, first, and
