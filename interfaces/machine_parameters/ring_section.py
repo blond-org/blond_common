@@ -105,7 +105,7 @@ class RingSection:
     --------
     >>> # To declare a section of a synchrotron with very simple
     >>> # parameters
-    >>> from blond_common.interfaces.input_parameters.ring_section import \
+    >>> from blond_common.interfaces.machine_parameters.ring_section import \
     >>>     Section
     >>>
     >>> length = 300
@@ -116,7 +116,7 @@ class RingSection:
 
     >>> # To declare a section of a synchrotron with very complex
     >>> # parameters and programs
-    >>> from blond_common.interfaces.input_parameters.ring_section import \
+    >>> from blond_common.interfaces.machine_parameters.ring_section import \
     >>>     Section
     >>>
     >>> length = 300

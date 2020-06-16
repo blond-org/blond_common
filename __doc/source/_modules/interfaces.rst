@@ -6,7 +6,7 @@ Modules
 
 .. toctree::
 
-    interfaces.input_parameters
+    interfaces.machine_parameters
 
 Examples
 ---------------
