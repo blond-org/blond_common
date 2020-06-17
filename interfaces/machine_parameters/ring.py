@@ -303,14 +303,14 @@ class Ring:
 
         # Storing the momentum program and computing all associated values
         self.momentum = momentum_processed[2:]
-        self.beta = rt.mom_to_beta(
-            momentum_processed[2:], self.Particle.mass)
-        self.gamma = rt.mom_to_gamma(
-            momentum_processed[2:], self.Particle.mass)
-        self.energy = rt.momentum_to_energy(
-            momentum_processed[2:], self.Particle.mass)
-        self.kin_energy = rt.momentum_to_kin_energy(
-            momentum_processed[2:], self.Particle.mass)
+        self.beta = np.array(rt.mom_to_beta(
+            self.momentum, self.Particle.mass))
+        self.gamma = np.array(rt.mom_to_gamma(
+            self.momentum, self.Particle.mass))
+        self.energy = self.momentum.to_total_energy(
+            inPlace=False, rest_mass=self.Particle.mass)
+        self.kin_energy = self.momentum.to_kin_energy(
+            inPlace=False, rest_mass=self.Particle.mass)
 
         # Extracting and combining the orbit length programs
         self.section_length = ring_programs.orbit_length_program.combine_single_sections(
