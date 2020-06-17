@@ -16,7 +16,7 @@
 import sys
 
 # BLonD Common import
-sys.path.append('./../../../')
+sys.path.append('./../../../')  # Add blond_common to PYTHONPATH if not done
 from blond_common.interfaces.machine_parameters.ring_section import \
     RingSection, machine_program
 
