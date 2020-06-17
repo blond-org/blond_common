@@ -342,10 +342,11 @@ class Ring:
         self.omega_rev = 2 * np.pi * self.f_rev
 
         # Recalculating the delta_E
-        self.delta_E = np.diff(self.energy, axis=1)
         if self.n_turns > len(self.use_turns):
             self.delta_E = np.zeros(self.energy.shape)
             self._recalc_delta_E()
+        else:
+            self.delta_E = np.diff(self.energy, axis=1)
 
         # Determining the momentum compaction orders defined in all sections
         # The orders 1 and 2 are presently set by default to zeros if
