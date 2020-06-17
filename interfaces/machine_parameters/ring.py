@@ -69,7 +69,7 @@ class Ring:
         :math:`R = C/(2 \pi)` [m]
     bending_radius : float
         Bending radius in dipole magnets on design orbit, :math:`\rho` [m]
-    alpha_orders : list
+    alpha_orders : list of int
         Number of orders of the momentum compaction factor
     alpha_0 : float matrix [n_sections, n_turns+1]
         Linear momentum compaction factor :math:`\alpha_{0,k,n}`
