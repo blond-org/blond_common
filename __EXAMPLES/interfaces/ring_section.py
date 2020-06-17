@@ -9,7 +9,7 @@
 
 '''
 **Examples of usage of the RingSection object.**
-    :Authors: **Simon Albright**, **Alexandre Lasheen**
+    :Authors: **Alexandre Lasheen**
 '''
 
 # General import
@@ -48,7 +48,7 @@ print(section.length,
 # To declare a RingSection with turn-by-turn program as input
 length = 300  # m
 alpha_0 = [1e-3, 1e-3, 1e-3]
-momentum = [26e9, 27e9, 28e9]  # eV
+momentum = [26e9, 27e9, 28e9]  # eV/c
 
 section = RingSection(length, alpha_0, momentum)
 
@@ -57,10 +57,10 @@ print(section.length,
       section.alpha_0)
 
 # To declare a RingSection with time based program as input
-length = 300  # n
+length = 300  # m
 alpha_0 = 1e-3
 momentum = [[0, 1, 2],
-            [26e9, 27e9, 28e9]]  # [s, eV]
+            [26e9, 27e9, 28e9]]  # [s, eV/c]
 
 section = RingSection(length, alpha_0, momentum)
 
@@ -71,7 +71,7 @@ print(section.length,
 # To declare a RingSection using the input program function, turn based
 length = 300  # m
 alpha_0 = 1e-3
-momentum = machine_program(26e9, n_turns=5)  # eV
+momentum = machine_program(26e9, n_turns=5)  # eV/c
 
 section = RingSection(length, alpha_0, momentum)
 
@@ -84,7 +84,7 @@ length = 300  # m
 alpha_0 = 1e-3
 momentum = machine_program([[0, 1, 2],
                             [26e9, 27e9, 28e9]],
-                           interpolation='linear')  # [s, eV]
+                           interpolation='linear')  # [s, eV/c]
 
 section = RingSection(length, alpha_0, momentum)
 
@@ -140,5 +140,6 @@ print(section.length,
       section.alpha_0,
       section.alpha_1,
       section.alpha_2,
+      section.alpha_3,
       section.alpha_5,
       section.alpha_orders)
