@@ -144,7 +144,8 @@ class RingSection:
         self.length_design = float(length)
 
         # Checking that at least one synchronous data input is passed
-        syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
+        syncDataTypes = ('momentum', 'kinetic_energy', 'total_energy',
+                         'bending_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
         assrt.single_not_none(*syncDataInput,
                               msg='Exactly one of ' + str(syncDataTypes) +
@@ -170,8 +171,8 @@ class RingSection:
         if not isinstance(synchronous_data,
                           ring_programs._synchronous_data_program):
             synchronous_data \
-                = ring_programs._synchronous_data_program._conversions[
-                    func_type](synchronous_data)
+                = getattr(ring_programs, func_type + '_program')(
+                    synchronous_data)
 
         self.synchronous_data = synchronous_data
 
