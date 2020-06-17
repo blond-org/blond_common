@@ -87,6 +87,8 @@ class RingSection:
     length : datatype.machine_program.orbit_length
         Length of the beam trajectory, including possible
         orbit bump programs [m]
+    orbit_bump : datatype.machine_program.orbit_length
+        Length of the orbit bump only [m]
     synchronous_data : datatype.machine_program._ring_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
@@ -177,14 +179,22 @@ class RingSection:
         if orbit_bump is None:
             self.length = ring_programs.orbit_length_program(
                 self.length_design)
+            self.orbit_bump = None
         else:
             if not isinstance(orbit_bump, ring_programs.orbit_length_program):
                 orbit_bump = ring_programs.orbit_length_program(orbit_bump)
-            if orbit_bump.timebase == 'by_time':
-                orbit_bump[:, 1, :] += self.length_design
-            else:
-                orbit_bump += self.length_design
+
             self._check_and_set_alpha_and_orbit(orbit_bump)
+
+            # orbit_bump was checked, the length attribute is created
+            # as a copy to keep all datatypes info and length_design
+            # is added onto it
+            self.length = orbit_bump.copy()
+
+            if orbit_bump.timebase == 'by_time':
+                self.length[:, 1, :] += self.length_design
+            else:
+                self.length += self.length_design
 
         # Setting the linear momentum compaction factor
         # Checking that the synchronous data and the momentum compaction
@@ -259,19 +269,17 @@ class RingSection:
         # attr_name is the attribute to apply to RingSection
         # attr_name_err is for the warning message
         if order is not None:
-            attr_name = 'alpha_' + str(order)
-            attr_name_err = attr_name
+            attr = 'alpha_' + str(order)
         else:
-            attr_name = 'length'
-            attr_name_err = 'orbit_bump'
+            attr = 'orbit_bump'
 
-        setattr(self, attr_name, alpha_or_orbit)
+        setattr(self, attr, alpha_or_orbit)
 
         if (self.synchronous_data.timebase == 'single') and \
                 (alpha_or_orbit.timebase != 'single'):
 
             warn_message = 'The synchronous data was defined as single element while the ' + \
-                'input ' + attr_name_err + ' was defined turn or time based. ' + \
+                'input ' + attr + ' was defined turn or time based. ' + \
                 'Only the first element of the program will be taken in ' + \
                 'the Ring object after treatment.'
             warnings.warn(warn_message)
@@ -284,7 +292,7 @@ class RingSection:
                      > alpha_or_orbit.shape[-1]):
 
                 raise excpt.InputError(
-                    'The input ' + attr_name_err +
+                    'The input ' + attr +
                     ' was passed as a turn based program but with ' +
                     'different length than the synchronous data. ' +
                     'Turn based programs should have the same length.')
@@ -293,6 +301,6 @@ class RingSection:
                 (alpha_or_orbit.timebase == 'by_turn'):
 
             warn_message = 'The synchronous data was defined time based while the ' + \
-                'input ' + attr_name_err + ' was defined turn base, this may' + \
+                'input ' + attr + ' was defined turn base, this may' + \
                 'lead to errors in the Ring object after interpolation.'
             warnings.warn(warn_message)
