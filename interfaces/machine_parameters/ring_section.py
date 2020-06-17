@@ -87,8 +87,8 @@ class RingSection:
     length : datatype.machine_program.orbit_length
         Length of the beam trajectory, including possible
         orbit bump programs [m]
-    orbit_bump : datatype.machine_program.orbit_length
-        Length of the orbit bump only [m]
+    orbit_bump : None or datatype.machine_program.orbit_length
+        Length of the orbit bump only if declared by the user [m]
     synchronous_data : datatype.machine_program._ring_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
