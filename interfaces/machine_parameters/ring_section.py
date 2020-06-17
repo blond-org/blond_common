@@ -234,7 +234,7 @@ class RingSection:
                     order = int(argument.split('_')[-1])
                     alpha_order_max = np.max([alpha_order_max, order])
                     alpha_n[order] = kwargs[argument]
-                except Exception:
+                except ValueError:
                     raise excpt.InputError(
                         'The keyword argument ' + argument + ' was ' +
                         'interpreted as non-linear momentum compaction ' +
