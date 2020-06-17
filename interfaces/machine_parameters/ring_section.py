@@ -168,8 +168,7 @@ class RingSection:
         if not isinstance(synchronous_data,
                           ring_programs._synchronous_data_program):
             synchronous_data \
-                = ring_programs._synchronous_data_program._conversions[
-                    func_type](synchronous_data)
+                = getattr(ring_programs, func_type)(synchronous_data)
 
         self.synchronous_data = synchronous_data
 
