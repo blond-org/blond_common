@@ -286,7 +286,7 @@ class Ring:
             store_turns=store_turns)
 
         # Getting the cycle time from the interpolation
-        self.cycle_time = momentum_processed[1]
+        self.cycle_time = np.array(momentum_processed[1])
 
         # The machine turn numbers corresponding to the cycle_time
         # are kept if the store_turns is enabled
