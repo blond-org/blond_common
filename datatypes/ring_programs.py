@@ -19,9 +19,9 @@ from ..devtools import exceptions as excpt
 from ..devtools import assertions as assrt
 from ..utilities import rel_transforms as rt
 from . import blond_function as bf
-from ._core import _function, _expand_function, _check_time_turns,\
-    _get_dats_types, _check_data_types, _expand_singletons,\
-    _check_turn_numbers
+from ._core import (_function, _expand_function, _check_time_turns,
+                    _get_dats_types, _check_data_types, _expand_singletons,
+                    _check_turn_numbers)
 
 
 class _ring_function(_function):
