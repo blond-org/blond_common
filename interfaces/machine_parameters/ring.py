@@ -169,11 +169,8 @@ class Ring:
         # based on the name
         if isinstance(Particle, beam.Particle):
             self.Particle = Particle
-        elif isinstance(Particle, str):
-            self.Particle = beam.make_particle(Particle)
         else:
-            raise excpt.InputError("The input Particle should be a " +
-                                   "Particle object or a str.")
+            self.Particle = beam.make_particle(Particle)
 
         # Getting all sections and checking their types
         if not hasattr(RingSection_list, '__iter__'):
