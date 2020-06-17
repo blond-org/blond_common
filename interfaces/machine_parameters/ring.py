@@ -266,7 +266,8 @@ class Ring:
         # Getting the sample times
         sample_func, start, stop = tmng.time_from_sampling(*interp_time)
 
-        # Keeping only the values between the user defined bounds
+        # Setting interpolation bounds to user defined values if they are
+        # within the bounds defined by interp_time
         if t_start > start:
             start = t_start
         if t_stop < stop:
