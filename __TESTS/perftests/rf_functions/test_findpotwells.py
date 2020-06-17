@@ -20,6 +20,7 @@ import sys
 import numpy as np
 import os
 import time
+from scipy.constants import u, c, e
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -29,9 +30,16 @@ if os.path.abspath(this_directory + '../../../../') not in sys.path:
     sys.path.insert(0, os.path.abspath(this_directory + '../../../../'))
 
 from blond_common.rf_functions.potential import find_potential_wells_cubic
+from blond_common.interfaces.beam.beam import Particle
+from blond_common.interfaces.machine_parameters.ring import Ring, RingSection
+
+from blond_common.interfaces.machine_parameters.rf_parameters import RFStation
+from blond_common.rf_functions.potential import rf_voltage_generation
+from blond_common.rf_functions.potential import rf_potential_generation
+
 
 # Input data folder
-input_folder = this_directory+'/../../input/rf_functions/'
+input_folder = this_directory + '/../../input/rf_functions/'
 
 
 class TestFindPotWells(object):
@@ -39,62 +47,57 @@ class TestFindPotWells(object):
     # Initialization ----------------------------------------------------------
 
     def __init__(self, iterations=100):
-        
+
         self.iterations = iterations
-        
-        # Defining a ramp with a program time vs. energy (warning: initial energy cannot be 0)
-    
-        from blond_common.interfaces.beam.beam import Particle
-        from blond_common.interfaces.input_parameters.ring import Ring
-        from scipy.constants import u, c, e
-    
-        ring_length = 2*np.pi*100                   # Machine circumference [m]
+
+        # Defining a ramp with a program time vs. energy (warning: initial
+        # energy cannot be 0)
+
+        # Machine circumference [m]
+        ring_length = 2 * np.pi * 100
         bending_radius = 70.079                     # Bending radius [m]
     #     bending_field = 1.136487 # Bending field [T]
-        bending_field = [[0, 1e-3], [1.136487, 1.136487]] # Bending field [T]
+        bending_field = [[0, 1e-3], [1.136487, 1.136487]]  # Bending field [T]
         gamma_transition = 6.1                      # Transition gamma
-        alpha_0 = 1/gamma_transition**2.
-    
+        alpha_0 = 1 / gamma_transition**2.
+
         particle_charge = 39                            # Particle charge [e]
-        particle_mass = 128.883*u*c**2./e               # Particle mass [eV/c2]
+        particle_mass = 128.883 * u * c**2. / \
+            e               # Particle mass [eV/c2]
         particle = Particle(particle_mass, particle_charge)
-    
-        ring = Ring(ring_length, alpha_0, particle, bending_field=bending_field,
-                    bending_radius=bending_radius)
-    
-        from blond_common.interfaces.input_parameters.rf_parameters import RFStation
-    
+
+        ring = Ring(particle, RingSection(ring_length, alpha_0,
+                                          bending_field=bending_field,
+                                          bending_radius=bending_radius))
+
         harmonic = [21, 28, 169]
-        #voltage = [80e3, 0, 0]  # V, h21 Single RF
+        # voltage = [80e3, 0, 0]  # V, h21 Single RF
         voltage = [6e3, 20e3, 0]  # V, h21->h28 batch compression
         voltage = [0, 16.1e3, 12.4e3]  # V, h28->h169 rebucketting
         phi_rf = [np.pi, np.pi, np.pi]  # rad
-    
+
         rf_station = RFStation(ring, harmonic, voltage, phi_rf)
-    
-        from blond_common.rf_functions.potential import rf_voltage_generation
-    
+
         n_points = 10000
         t_rev = ring.t_rev[0]
         voltage = rf_station.voltage[:, 0]
         harmonic = rf_station.harmonic[:, 0]
         phi_rf = rf_station.phi_rf[:, 0]
-        time_bounds = [-ring.t_rev[0]/harmonic[0]*2, ring.t_rev[0]/harmonic[0]*2]
-    
+        time_bounds = [-ring.t_rev[0] / harmonic[0]
+                       * 2, ring.t_rev[0] / harmonic[0] * 2]
+
         self.time_array, self.rf_voltage_array = rf_voltage_generation(
-            n_points, t_rev, voltage, harmonic, phi_rf, time_bounds=time_bounds)
-    
-        from blond_common.rf_functions.potential import rf_potential_generation
-    
+            n_points, t_rev, voltage, harmonic, phi_rf,
+            time_bounds=time_bounds)
+
         n_points = 10000
         eta_0 = ring.eta_0[0, 0]
         charge = ring.Particle.charge
-        energy_increment_bis = charge*5e3
-    
+        energy_increment_bis = charge * 5e3
+
         self.time_array, self.rf_potential_array = rf_potential_generation(
             n_points, t_rev, voltage, harmonic, phi_rf, eta_0, charge,
             energy_increment_bis, time_bounds=time_bounds)
-         
 
     def _find_tests(self):
         '''
@@ -103,7 +106,7 @@ class TestFindPotWells(object):
 
         self.alltests = []
         for att in dir(self):
-            if 'test_' in att:
+            if 'test_' in att and hasattr(att, '__call__'):
                 self.alltests.append(att)
 
     def run_tests(self):
@@ -137,8 +140,8 @@ class TestFindPotWells(object):
 
             runtime[iteration], result[iteration] = test_function()
 
-        mean_runtime = np.mean(runtime/self.iterations)
-        std_runtime = np.std(runtime/self.iterations)
+        mean_runtime = np.mean(runtime / self.iterations)
+        std_runtime = np.std(runtime / self.iterations)
         mean_result = np.mean(result)
         std_result = np.std(result)
 
@@ -160,10 +163,10 @@ class TestFindPotWells(object):
             self.time_array, self.rf_potential_array,
             mest=200)
         t1 = time.perf_counter()
-        
+
         n_potentials = len(output[0])
 
-        runtime = t1-t0
+        runtime = t1 - t0
         result = n_potentials
 
         return runtime, result
