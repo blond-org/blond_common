@@ -41,7 +41,7 @@ class Ring:
     Particle : class
         A Particle-based class defining the primary, synchronous particle (mass
         and charge) that is reference for the momentum/energy in the ring.
-    Section_list : list
+    RingSection_list : list (or iterable) of RingSection objects
         The list of all the sections to build the Ring.
     t_start : float (optional, default 0)
         Starting time from which the time array input should be taken into
@@ -162,7 +162,7 @@ class Ring:
 
     """
 
-    def __init__(self, Particle, Section_list, **kwargs):
+    def __init__(self, Particle, RingSection_list, **kwargs):
 
         # Primary particle mass and charge used for energy calculations
         # If a string is passed, will generate the relevant Particle object
@@ -176,20 +176,20 @@ class Ring:
                                    "Particle object or a str.")
 
         # Getting all sections and checking their types
-        if not hasattr(Section_list, '__iter__'):
-            Section_list = (Section_list,)
-        if not all(isinstance(s, RingSection) for s in Section_list):
+        if not hasattr(RingSection_list, '__iter__'):
+            RingSection_list = (RingSection_list,)
+        if not all(isinstance(s, RingSection) for s in RingSection_list):
             raise excpt.InputError(
-                "The Section_list should be exclusively composed " +
+                "The RingSection_list should be exclusively composed " +
                 "of RingSection object instances.")
 
-        self.Section_list = Section_list
-        self.n_sections = len(self.Section_list)
+        self.RingSection_list = RingSection_list
+        self.n_sections = len(self.RingSection_list)
 
         # Extracting the length of sections to get circumference on design
         # orbit
         self.section_length_design = np.array(
-            [section.length_design for section in self.Section_list])
+            [section.length_design for section in self.RingSection_list])
         self.circumference_design = np.sum(self.section_length_design)
 
         # Computing ring radius on design orbit
@@ -197,14 +197,14 @@ class Ring:
 
         # Extracting the bending radius from all sections
         self.bending_radius = np.array([
-            section.bending_radius for section in self.Section_list])
+            section.bending_radius for section in self.RingSection_list])
 
         # Extracting the synchronous data from the sections,
         # converting to momentum
         # and checking if the synchronous data type and sizes are correct
         momentum_list = []
         momentum_by_turn = True
-        for index_section, section in enumerate(self.Section_list):
+        for index_section, section in enumerate(self.RingSection_list):
 
             momentum = section.synchronous_data.convert(
                 self.Particle.mass,
@@ -316,7 +316,7 @@ class Ring:
 
         # Extracting and combining the orbit length programs
         self.section_length = ring_programs.orbit_length_program.combine_single_sections(
-            *[section.length for section in self.Section_list],
+            *[section.length for section in self.RingSection_list],
             interpolation='linear')
 
         # Reshaping to match the dimensions of the synchronous data program
@@ -353,7 +353,7 @@ class Ring:
         # The orders 1 and 2 are presently set by default to zeros if
         # not defined in sections for the calculation of all orders of eta
         self.alpha_orders = []
-        for section in self.Section_list:
+        for section in self.RingSection_list:
             self.alpha_orders += section.alpha_orders
 
         # Add alpha orders if eta_orders is defined
@@ -377,7 +377,7 @@ class Ring:
             alpha_prog = []
             alpha_name = 'alpha_%d' % (order)
 
-            for section in self.Section_list:
+            for section in self.RingSection_list:
 
                 if hasattr(section, alpha_name):
                     alpha_prog.append(getattr(section, alpha_name))
@@ -436,7 +436,7 @@ class Ring:
             orbit_bump = [None] * n_sections
 
         # Building all sections
-        Section_list = []
+        RingSection_list = []
         for index_section in range(n_sections):
 
             # Passing sync_data as kwarg with the right func_type
@@ -448,9 +448,9 @@ class Ring:
                 alpha_1=alpha_1, alpha_2=alpha_2,
                 **kwargs)
 
-            Section_list.append(section)
+            RingSection_list.append(section)
 
-        return cls(Particle, Section_list, **kwargs)
+        return cls(Particle, RingSection_list, **kwargs)
 
     def _eta_generation(self):
         """ Function to generate the slippage factors (zeroth, first, and
