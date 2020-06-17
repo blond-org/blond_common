@@ -378,9 +378,9 @@ class Ring:
 
             for section in self.RingSection_list:
 
-                if hasattr(section, alpha_name):
+                try:
                     alpha_prog.append(getattr(section, alpha_name))
-                else:
+                except AttributeError:
                     alpha_prog.append(ring_programs.momentum_compaction(
                         0, order=order))
 
