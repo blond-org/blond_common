@@ -29,6 +29,16 @@ from ...maths import calculus as calc
 from .ring_section import RingSection
 
 
+# Default options of the Ring object
+_Ring_opt_dflt = {}
+_Ring_opt_dflt['t_start'] = 0
+_Ring_opt_dflt['t_stop'] = np.inf
+_Ring_opt_dflt['interp_time'] = 0
+_Ring_opt_dflt['interpolation'] = 'linear'
+_Ring_opt_dflt['store_turns'] = True
+_Ring_opt_dflt['eta_orders'] = 0
+
+
 class Ring:
     r""" Class containing the general properties of the synchrotron that are
     independent of the RF system or the beam.
@@ -255,9 +265,9 @@ class Ring:
         # Processing the momentum program
         # Getting the options to get at which time samples the interpolation
         # is made
-        t_start = kwargs.pop('t_start', 0)
-        t_stop = kwargs.pop('t_stop', np.inf)
-        interp_time = kwargs.pop('interp_time', 0)
+        t_start = kwargs.pop('t_start', _Ring_opt_dflt['t_start'])
+        t_stop = kwargs.pop('t_stop', _Ring_opt_dflt['t_stop'])
+        interp_time = kwargs.pop('interp_time', _Ring_opt_dflt['interp_time'])
 
         # Treating the input of the interp_time option
         if not hasattr(interp_time, '__iter__'):
@@ -274,8 +284,9 @@ class Ring:
             stop = t_stop
 
         # Getting options for the interpolation
-        interpolation = kwargs.pop('interpolation', 'linear')
-        store_turns = kwargs.pop('store_turns', True)
+        interpolation = kwargs.pop('interpolation',
+                                   _Ring_opt_dflt['interpolation'])
+        store_turns = kwargs.pop('store_turns', _Ring_opt_dflt['store_turns'])
 
         # Processing the momentum program and interpolating on the
         # values defined by sample_func
@@ -356,7 +367,8 @@ class Ring:
             self.alpha_orders += section.alpha_orders
 
         # Add alpha orders if eta_orders is defined
-        self.eta_orders = kwargs.pop('eta_orders', 0)
+        self.eta_orders = kwargs.pop('eta_orders',
+                                     _Ring_opt_dflt['eta_orders'])
         if self.eta_orders >= 1:
             self.alpha_orders += [1]
         if self.eta_orders >= 2:
@@ -455,6 +467,10 @@ class Ring:
             raise excpt.InputDataError(
                 "Inconsistent data for Ring.direct_input !")
 
+        # Getting all kwargs for Ring separately
+        kwargs_ring = {k: kwargs.pop(k, _Ring_opt_dflt[k])
+                       for k in _Ring_opt_dflt}
+
         # Building all sections
         RingSection_list = []
         for i in range(n_sections):
@@ -471,7 +487,7 @@ class Ring:
 
             RingSection_list.append(RingSection(**sectionInput))
 
-        return cls(Particle, RingSection_list, **kwargs)
+        return cls(Particle, RingSection_list, **kwargs_ring)
 
     def _eta_generation(self):
         """ Function to generate the slippage factors (zeroth, first, and
