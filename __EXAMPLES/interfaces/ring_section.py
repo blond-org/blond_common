@@ -25,7 +25,7 @@ momentum = 26e9  # eV/c
 
 section = RingSection(length, alpha_0, momentum)
 
-print('Simple input')
+print('-- Simple input')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -41,7 +41,7 @@ energy = 26e9  # eV
 
 section = RingSection(length, alpha_0, energy=energy)
 
-print('Other sync data - Total energy')
+print('-- Other sync data - Total energy')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Total energy {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -58,7 +58,7 @@ section = RingSection(length, alpha_0,
                       bending_field=bending_field,
                       bending_radius=bending_radius)
 
-print('Other sync. data - B field')
+print('-- Other sync. data - B field')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -72,7 +72,7 @@ momentum = [26e9, 27e9, 28e9]  # eV/c
 
 section = RingSection(length, alpha_0, momentum)
 
-print('Programs - Turn by turn')
+print('-- Programs - Turn by turn')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -86,7 +86,7 @@ momentum = machine_program(26e9, n_turns=5)  # eV/c
 
 section = RingSection(length, alpha_0, momentum)
 
-print('Programs - Turn based with machine_program')
+print('-- Programs - Turn based with machine_program')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -101,7 +101,7 @@ momentum = [[0, 1, 2],
 
 section = RingSection(length, alpha_0, momentum)
 
-print('Programs - Time based')
+print('-- Programs - Time based')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -117,7 +117,7 @@ momentum = machine_program([[0, 1, 2],
 
 section = RingSection(length, alpha_0, momentum)
 
-print('Programs - Time based with machine_program')
+print('-- Programs - Time based with machine_program')
 print(f'Section length {section.length} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
@@ -135,7 +135,7 @@ section = RingSection(length, alpha_0,
                       bending_radius=bending_radius,
                       orbit_bump=orbit_bump)
 
-print('Orbit bump')
+print('-- Orbit bump')
 print(f'Section length {section.length_design} [m]')
 print(f'Section length with orbit bump {section.length} [m]')
 print(f'Orbit bump {section.orbit_bump} [m]')
@@ -156,7 +156,7 @@ energy = machine_program([[0, 1, 2],
 section = RingSection(length, alpha_0, energy=energy,
                       alpha_1=alpha_1, alpha_2=alpha_2, alpha_5=alpha_5)
 
-print('Non-linear momentum compaction factor')
+print('-- Non-linear momentum compaction factor')
 print(f'Section length {section.length_design} [m]')
 print(f'Sync. data - Momentum {section.synchronous_data} [eV/c]')
 print(f'Linear momentum compaction {section.alpha_0}')
