@@ -35,9 +35,9 @@ from ...datatypes import datatypes as dTypes
 from ...utilities import timing
 
 
-'''
-WARNING: This module is deprecated and kept only for reference before deletion!
-'''
+
+warnings.warn('WARNING: This module is deprecated and kept only for reference before deletion!')
+
 
 
 class _RingOptions(object):
