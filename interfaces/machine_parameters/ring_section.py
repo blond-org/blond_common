@@ -263,11 +263,13 @@ class RingSection:
 
             self._check_and_set_alpha_and_orbit(alpha, order)
 
-        # Warning if kwargs were unused
-        if len(kwargs) > 0:
-            warnings.warn(
-                "Unused kwargs have been detected, " +
-                f"they are {list(kwargs.keys())}")
+        # This warning is commented to avoid raising unecessary
+        # warnings in Ring.direct_input()
+#         # Warning if kwargs were unused
+#         if len(kwargs) > 0:
+#             warnings.warn(
+#                 "Unused kwargs have been detected, " +
+#                 f"they are {list(kwargs.keys())}")
 
     def _check_and_set_alpha_and_orbit(self, alpha_or_orbit, order=None):
         '''

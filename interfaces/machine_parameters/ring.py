@@ -432,7 +432,7 @@ class Ring:
 
         # Getting the momentum compaction factors (linear and non linear)
         alphas = {'alpha_0': alpha_0, 'alpha_1': alpha_1,
-                  **{k: v for k, v in kwargs if 'alpha_' in k}}
+                  **{k: v for k in kwargs if 'alpha_' in k}}
         for k in alphas:
             if alphas[k] is None:
                 alphas[k] = [None] * n_sections
@@ -461,9 +461,14 @@ class Ring:
 
             sectionInput = {'length': length[i],
                             'bending_radius': bending_radius,
-                            **{k: sync_data[k][i] for k in sync_data},
-                            **{k: alphas[k][i] for k in alphas},
+                            **{k: sync_data[k][i].view(np.ndarray)
+                               for k in sync_data
+                               if sync_data[k][i] is not None},
+                            **{k: alphas[k][i].view(np.ndarray)
+                               for k in alphas
+                               if alphas[k][i] is not None},
                             **kwargs}
+
             RingSection_list.append(RingSection(**sectionInput))
 
         return cls(Particle, RingSection_list, **kwargs)
