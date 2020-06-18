@@ -208,7 +208,6 @@ class RingSection:
         # have the same length if defined turn-by-turn, raise a warning if one
         # is defined by turn and the other time based
         self.alpha_orders = [0]
-        alpha_order_max = 0
         if not isinstance(alpha_0, ring_programs.momentum_compaction):
             alpha_0 = ring_programs.momentum_compaction(alpha_0, order=0)
         else:
