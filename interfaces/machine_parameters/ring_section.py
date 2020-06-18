@@ -311,3 +311,11 @@ class RingSection:
                 'input ' + attr + ' was defined turn base, this may' + \
                 'lead to errors in the Ring object after interpolation.'
             warnings.warn(warn_message)
+
+        elif (self.synchronous_data.timebase == 'by_turn') and \
+                (alpha_or_orbit.timebase == 'by_time'):
+
+            warn_message = 'The synchronous data was defined turn based while the ' + \
+                'input ' + attr + ' was defined time base, this may' + \
+                'lead to errors in the Ring object after interpolation.'
+            warnings.warn(warn_message)
