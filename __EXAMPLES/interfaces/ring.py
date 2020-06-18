@@ -12,14 +12,11 @@
     :Authors: **Simon Albright**, **Alexandre Lasheen**
 '''
 
-# General import
-import sys
-
 # BLonD Common import
-sys.path.append('./../../../')
 from blond_common.interfaces.machine_parameters.ring import \
     Ring, RingSection, machine_program
 from blond_common.interfaces.beam.beam import Proton, Electron, Particle
+
 
 # To declare a Ring with simple input
 length = 628
@@ -28,6 +25,7 @@ momentum = 26e9
 particle = Proton()  # can also be 'proton'
 
 ring = Ring(particle, RingSection(length, alpha_0, momentum))
+
 
 # To declare a Ring with other synchronous data (all possible definitions
 # from the RingSection object)
@@ -39,6 +37,7 @@ particle = Proton()  # can also be 'proton'
 section = RingSection(length, alpha_0, energy=tot_energy)
 ring = Ring(particle, section)
 
+
 # To declare a Ring with other particle type (electrons)
 length = 80e3
 alpha_0 = 1e-3
@@ -47,6 +46,7 @@ particle = Electron()  # can also be 'electron'
 
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
+
 
 # To declare a Ring with other particle type (ions)
 length = 80e3
@@ -58,6 +58,7 @@ particle = Particle(user_mass, user_charge)
 
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
+
 
 # To declare a Ring with non-linear momentum compaction factor
 length = 628
@@ -71,6 +72,7 @@ ring = Ring(particle, section)
 
 print(ring.alpha_1)
 
+
 # To declare a Ring with a ramp (turn based program)
 length = 628
 alpha_0 = 1e-3
@@ -79,6 +81,7 @@ particle = Proton()
 
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
+
 
 # To declare a Ring with a ramp (turn based program)
 length = 628
@@ -89,6 +92,7 @@ particle = Proton()
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
 
+
 # To declare a Ring with a ramp (time based program)
 length = 628
 alpha_0 = 1e-3
@@ -97,6 +101,7 @@ particle = Proton()
 
 section = RingSection(length, alpha_0, momentum)
 ring = Ring(particle, section)
+
 
 # To declare a Ring with time based programs
 length = 628
@@ -110,6 +115,7 @@ section = RingSection(length, alpha_0, momentum, alpha_1=alpha_1,
                       orbit_bump=orbit_bump)
 ring = Ring(particle, section, eta_orders=1, interpolation='derivative',
             t_start=0.01)
+
 
 # To declare a Ring with multiple sections (parameters can be adjusted
 # section by section)
@@ -129,6 +135,7 @@ print(ring.circumference_design,
       ring.momentum,
       ring.t_rev_design,
       ring.t_rev)
+
 
 # To declare a Ring with multiple sections and different momentum program
 length = 628 / 3
