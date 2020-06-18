@@ -69,14 +69,16 @@ class Ring:
         Design circumference of the synchrotron. Sum of ring segment design
         lengths,
         :math:`C_s = \sum_k L_{s,k}` [m]
-    circumference : float
+    circumference : float matrix [n_sections, n_turns+1]
         Circumference of the synchrotron including possible orbit bumps,
         :math:`C = \sum_k L_k` [m]
     radius_design : float
         Design radius of the synchrotron, :math:`R_s = C_s/(2 \pi)` [m]
-    radius : float
+    radius : float matrix [n_sections, n_turns+1]
         Radius of the synchrotron including possible orbit bumps,
         :math:`R = C/(2 \pi)` [m]
+    orbit_bump : float matrix [n_sections, n_turns+1]
+        Orbit bump for each section
     bending_radius : float
         Bending radius in dipole magnets on design orbit, :math:`\rho` [m]
     alpha_orders : list of int
@@ -336,6 +338,9 @@ class Ring:
         # bumps)
         self.circumference = np.sum(self.section_length, axis=0)
         self.radius = self.circumference / (2 * np.pi)
+
+        # Getting orbit bunp from comparison of circumference vs. design
+        self.orbit_bump = self.circumference - self.circumference_design
 
         # Computing the revolution period on the design orbit
         # as well as revolution frequency and angular frequency
