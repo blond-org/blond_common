@@ -441,7 +441,7 @@ class Ring:
                                   syncDataTypes[i] + '_program')(sync_data[k])
 
         # Extending bending_radius to list of None if not defined
-        if orbit_bump is None:
+        if bending_radius is None:
             bending_radius = [None] * n_sections
 
         # Getting the momentum compaction factors (linear and non linear)
@@ -486,7 +486,7 @@ class Ring:
                                for k in alphas
                                if alphas[k][i] is not None},
                             **kwargs}
-            print(sectionInput)
+
             RingSection_list.append(RingSection(**sectionInput))
 
         return cls(Particle, RingSection_list, **kwargs_ring)
