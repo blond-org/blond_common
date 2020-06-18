@@ -225,7 +225,6 @@ class RingSection:
 
         if alpha_1 is not None:
             alpha_n[1] = alpha_1
-            alpha_order_max = 1
 
         for argument in list(kwargs.keys()):
             if 'alpha' in argument:
@@ -238,8 +237,9 @@ class RingSection:
                         'factor. ' +
                         'The correct syntax is alpha_n.')
 
-                alpha_order_max = np.max([alpha_order_max, order])
                 alpha_n[order] = kwargs.pop(argument)
+
+        alpha_order_max = np.max(list(alpha_n.keys()) + [0])
 
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
