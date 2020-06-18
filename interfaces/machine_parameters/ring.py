@@ -426,17 +426,19 @@ class Ring:
         # Checking that at least one synchronous data input is passed
         syncDataTypes = ('momentum', 'kinetic_energy', 'total_energy',
                          'bending_field')
+        syncDataArgs = ('momentum', 'kin_energy', 'energy', 'bending_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
 
-        sync_data = {k: v for k, v in zip(syncDataTypes, syncDataInput)}
-        for k in sync_data:
+        sync_data = {k: v for k, v in zip(syncDataArgs, syncDataInput)}
+        for i, k in enumerate(sync_data):
             if sync_data[k] is None:
                 sync_data[k] = [None] * n_sections
             else:
                 if not isinstance(
                         sync_data[k], ring_programs._synchronous_data_program):
                     sync_data[k] \
-                        = getattr(ring_programs, k + '_program')(sync_data[k])
+                        = getattr(ring_programs,
+                                  syncDataTypes[i] + '_program')(sync_data[k])
 
         # Extending bending_radius to list of None if not defined
         if orbit_bump is None:
@@ -484,7 +486,7 @@ class Ring:
                                for k in alphas
                                if alphas[k][i] is not None},
                             **kwargs}
-
+            print(sectionInput)
             RingSection_list.append(RingSection(**sectionInput))
 
         return cls(Particle, RingSection_list, **kwargs_ring)
