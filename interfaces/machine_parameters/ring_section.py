@@ -227,12 +227,10 @@ class RingSection:
             alpha_n[1] = alpha_1
             alpha_order_max = 1
 
-        for argument in kwargs:
+        for argument in list(kwargs.keys()):
             if 'alpha' in argument:
                 try:
                     order = int(argument.split('_')[-1])
-                    alpha_order_max = np.max([alpha_order_max, order])
-                    alpha_n[order] = kwargs[argument]
                 except ValueError:
                     raise excpt.InputError(
                         'The keyword argument ' + argument + ' was ' +
@@ -240,18 +238,22 @@ class RingSection:
                         'factor. ' +
                         'The correct syntax is alpha_n.')
 
+                alpha_order_max = np.max([alpha_order_max, order])
+                alpha_n[order] = kwargs.pop(argument)
+
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
         for order in range(1, alpha_order_max + 1):
 
             try:
                 alpha = alpha_n.pop(order)
-                self.alpha_orders.append(order)
             except KeyError:
                 # This condition can be replaced by 'continue' to avoid
-                # populating the object with 0 programs
-                alpha = 0
+                # populating the object with 0 programs in the future
                 # continue
+                alpha = 0
+            else:
+                self.alpha_orders.append(order)
 
             if not isinstance(alpha, ring_programs.momentum_compaction):
                 alpha = ring_programs.momentum_compaction(alpha, order=order)
@@ -263,13 +265,11 @@ class RingSection:
 
             self._check_and_set_alpha_and_orbit(alpha, order)
 
-        # This warning is commented to avoid raising unecessary
-        # warnings in Ring.direct_input()
-#         # Warning if kwargs were unused
-#         if len(kwargs) > 0:
-#             warnings.warn(
-#                 "Unused kwargs have been detected, " +
-#                 f"they are {list(kwargs.keys())}")
+        # Warning if kwargs were unused
+        if len(kwargs) > 0:
+            warnings.warn(
+                "Unused kwargs have been detected, " +
+                f"they are {list(kwargs.keys())}")
 
     def _check_and_set_alpha_and_orbit(self, alpha_or_orbit, order=None):
         '''
