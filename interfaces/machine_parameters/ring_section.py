@@ -138,7 +138,7 @@ class RingSection:
     def __init__(self, length, alpha_0,
                  momentum=None, kin_energy=None, energy=None,
                  bending_field=None, bending_radius=None, orbit_bump=None,
-                 alpha_1=None, alpha_2=None, **kwargs):
+                 alpha_1=None, **kwargs):
 
         # Setting section length
         self.length_design = float(length)
@@ -221,12 +221,11 @@ class RingSection:
 
         # Treating non-linear momentum compaction factor if declared
         # Listing all the declared alpha first
-        alpha_n = {1: alpha_1, 2: alpha_2}
+        alpha_n = {}
 
         if alpha_1 is not None:
+            alpha_n[1] = alpha_1
             alpha_order_max = 1
-        if alpha_2 is not None:
-            alpha_order_max = 2
 
         for argument in kwargs:
             if 'alpha' in argument:
@@ -244,14 +243,15 @@ class RingSection:
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
         for order in range(1, alpha_order_max + 1):
-            alpha = alpha_n.pop(order, None)
 
-            if alpha is None:
-                alpha = 0
+            try:
+                alpha = alpha_n.pop(order)
+                self.alpha_orders.append(order)
+            except KeyError:
                 # This condition can be replaced by 'continue' to avoid
                 # populating the object with 0 programs
-            else:
-                self.alpha_orders.append(order)
+                alpha = 0
+                # continue
 
             if not isinstance(alpha, ring_programs.momentum_compaction):
                 alpha = ring_programs.momentum_compaction(alpha, order=order)
