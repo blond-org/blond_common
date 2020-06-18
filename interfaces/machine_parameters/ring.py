@@ -399,55 +399,66 @@ class Ring:
     def direct_input(cls, Particle, length, alpha_0,
                      momentum=None, kin_energy=None, energy=None,
                      bending_field=None, bending_radius=None, orbit_bump=None,
-                     alpha_1=None, alpha_2=None, **kwargs):
+                     alpha_1=None, **kwargs):
 
         # Getting the number of sections for the length list
         length = np.array(length, ndmin=1, dtype=float)
         n_sections = len(length)
 
         # Checking that at least one synchronous data input is passed
-        syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
+        syncDataTypes = ('momentum', 'kinetic_energy', 'total_energy',
+                         'bending_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
-        assrt.single_not_none(*syncDataInput,
-                              msg='Exactly one of ' + str(syncDataTypes) +
-                              ' must be declared',
-                              exception=excpt.InputError)
 
-        # Taking the first synchronous_data input not declared as None
-        # The assertion above ensures that only one is declared
-        for func_type, synchronous_data in zip(syncDataTypes, syncDataInput):
-            if synchronous_data is not None:
-                break
+        sync_data = {k: v for k, v in zip(syncDataTypes, syncDataInput)}
+        for k in sync_data:
+            if sync_data[k] is None:
+                sync_data[k] = [None] * n_sections
+            else:
+                if not isinstance(
+                        sync_data[k], ring_programs._synchronous_data_program):
+                    sync_data[k] \
+                        = getattr(ring_programs, k + '_program')(sync_data[k])
 
-        # Casting synchronous data to datatype
-        if not isinstance(synchronous_data,
-                          ring_programs._synchronous_data_program):
-            synchronous_data \
-                = ring_programs._synchronous_data_program._conversions[
-                    func_type](synchronous_data)
+        # Extending bending_radius to list of None if not defined
+        if orbit_bump is None:
+            bending_radius = [None] * n_sections
 
-        # Casting orbit bump to datatype
-        if orbit_bump is not None:
+        # Getting the momentum compaction factors (linear and non linear)
+        alphas = {'alpha_0': alpha_0, 'alpha_1': alpha_1,
+                  **{k: v for k, v in kwargs if 'alpha_' in k}}
+        for k in alphas:
+            if alphas[k] is None:
+                alphas[k] = [None] * n_sections
+            else:
+                if not isinstance(
+                        alphas[k], ring_programs.momentum_compaction):
+                    alphas[k] = ring_programs.momentum_compaction(
+                        alphas[k], order=int(k.split('_')[-1]))
+
+        # Extending orbit_bump to list of None if not defined
+        if orbit_bump is None:
+            orbit_bump = [None] * n_sections
+        else:
             if not isinstance(orbit_bump, ring_programs.orbit_length_program):
                 orbit_bump = ring_programs.orbit_length_program(orbit_bump)
-                print(orbit_bump.shape, type(orbit_bump))
-        else:
-            orbit_bump = [None] * n_sections
+
+        # Checking the data before building sections
+        if not all([len(v) == n_sections
+                    for v in {**sync_data, **alphas}.values()]):
+            raise excpt.InputDataError(
+                "Inconsistent data for Ring.direct_input !")
 
         # Building all sections
         RingSection_list = []
-        for index_section in range(n_sections):
+        for i in range(n_sections):
 
-            # Passing sync_data as kwarg with the right func_type
-            sync_data = {func_type: synchronous_data[index_section]}
-
-            section = RingSection(
-                length[index_section], alpha_0, **sync_data,
-                orbit_bump=orbit_bump[index_section],
-                alpha_1=alpha_1, alpha_2=alpha_2,
-                **kwargs)
-
-            RingSection_list.append(section)
+            sectionInput = {'length': length[i],
+                            'bending_radius': bending_radius,
+                            **{k: sync_data[k][i] for k in sync_data},
+                            **{k: alphas[k][i] for k in alphas},
+                            **kwargs}
+            RingSection_list.append(RingSection(**sectionInput))
 
         return cls(Particle, RingSection_list, **kwargs)
 
