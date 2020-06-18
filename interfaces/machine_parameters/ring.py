@@ -395,6 +395,12 @@ class Ring:
             setattr(self, 'eta_%d' % (order), np.zeros(self.momentum.shape))
         self._eta_generation()
 
+        # Warning if kwargs were unused
+        if len(kwargs) > 0:
+            warnings.warn(
+                "Unused kwargs have been detected, " +
+                f"they are {list(kwargs.keys())}")
+
     @classmethod
     def direct_input(cls, Particle, length, alpha_0,
                      momentum=None, kin_energy=None, energy=None,

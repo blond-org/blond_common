@@ -263,6 +263,12 @@ class RingSection:
 
             self._check_and_set_alpha_and_orbit(alpha, order)
 
+        # Warning if kwargs were unused
+        if len(kwargs) > 0:
+            warnings.warn(
+                "Unused kwargs have been detected, " +
+                f"they are {list(kwargs.keys())}")
+
     def _check_and_set_alpha_and_orbit(self, alpha_or_orbit, order=None):
         '''
         Internal function to check that the input momentum compaction or orbit
