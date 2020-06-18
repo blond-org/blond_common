@@ -240,7 +240,7 @@ class Ring:
 
                     else:
 
-                        raise excpt.InputError(
+                        raise NotImplementedError(
                             'The synchronous data for all sections ' +
                             'are defined time based and ' +
                             'are not identical. This case is not yet ' +
