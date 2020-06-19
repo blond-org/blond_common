@@ -125,6 +125,8 @@ class TestRingSection(unittest.TestCase):
         with self.subTest('Orbit length input - section.length'):
             np.testing.assert_equal(
                 length + orbit_bump, section.length)
+            np.testing.assert_equal(
+                orbit_bump, section.orbit_bump)
 
     def test_turn_by_turn_prog(self):
         # Test turn by turn program
@@ -201,6 +203,8 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 alpha_0[0], section.alpha_0)
             np.testing.assert_equal(
+                orbit_bump, section.orbit_bump[0, :])
+            np.testing.assert_equal(
                 length + np.array(orbit_bump), section.length[0, :])
 
         with self.subTest('Turn by turn program - Only momentum compaction'):
@@ -227,6 +231,8 @@ class TestRingSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :])
+            np.testing.assert_equal(
+                orbit_bump, section.orbit_bump[0, :])
             np.testing.assert_equal(
                 length + np.array(orbit_bump), section.length[0, :])
 
@@ -308,6 +314,8 @@ class TestRingSection(unittest.TestCase):
             np.testing.assert_equal(
                 alpha_0[1][0], section.alpha_0)
             np.testing.assert_equal(
+                orbit_bump, section.orbit_bump[0, :, :])
+            np.testing.assert_equal(
                 [time_base, length + np.array(orbit_bump)[1, :]],
                 section.length[0, :, :])
 
@@ -335,6 +343,8 @@ class TestRingSection(unittest.TestCase):
                 momentum, section.synchronous_data[0, :, :])
             np.testing.assert_equal(
                 alpha_0, section.alpha_0[0, :, :])
+            np.testing.assert_equal(
+                orbit_bump, section.orbit_bump[0, :, :])
             np.testing.assert_equal(
                 [time_base, length + np.array(orbit_bump)[1, :]],
                 section.length[0, :, :])
@@ -491,12 +501,10 @@ class TestRingSection(unittest.TestCase):
                 alpha_0_single, section.alpha_0)
             np.testing.assert_equal(
                 momentum_single, section.synchronous_data)
-
-            # WARNING: the user input is being modified (no deep copy
-            # of the datatype)
-
             np.testing.assert_equal(
-                orbit_single, section.length)
+                orbit_single, section.orbit_bump)
+            np.testing.assert_equal(
+                length + orbit_single, section.length)
 
         with self.subTest('Datatype input - Turn based'):
             section = RingSection(length, alpha_0_turn, momentum_turn,
@@ -507,12 +515,10 @@ class TestRingSection(unittest.TestCase):
                 alpha_0_turn, section.alpha_0)
             np.testing.assert_equal(
                 momentum_turn, section.synchronous_data)
-
-            # WARNING: the user input is being modified (no deep copy
-            # of the datatype)
-
             np.testing.assert_equal(
-                orbit_turn, section.length)
+                orbit_turn, section.orbit_bump)
+            np.testing.assert_equal(
+                length + orbit_turn, section.length)
 
         with self.subTest('Datatype input - Time based'):
             section = RingSection(length, alpha_0_time, momentum_time,
@@ -523,11 +529,10 @@ class TestRingSection(unittest.TestCase):
                 alpha_0_time, section.alpha_0)
             np.testing.assert_equal(
                 momentum_time, section.synchronous_data)
-
-            # WARNING: the user input is being modified (no deep copy
-            # of the datatype)
-
-            np.testing.assert_equal(orbit_time, section.length)
+            np.testing.assert_equal(orbit_time, section.orbit_bump)
+            np.testing.assert_equal(
+                length + np.array(orbit_time)[:, 1, :],
+                section.length[:, 1, :])
 
     # Exception raising test -------------------------------------------
 
@@ -537,8 +542,8 @@ class TestRingSection(unittest.TestCase):
         length = 300  # m
         alpha_0 = 1e-3
 
-        error_message = "Exactly one of \('momentum', 'kin_energy', " +\
-            "'energy', 'B_field'\) must be declared"
+        error_message = "Exactly one of \('momentum', 'kinetic_energy', " + \
+            "'total_energy', 'bending_field'\) must be declared"
 
         with self.assertRaisesRegex(excpt.InputError, error_message):
             RingSection(length, alpha_0)

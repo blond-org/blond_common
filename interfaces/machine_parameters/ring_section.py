@@ -87,6 +87,8 @@ class RingSection:
     length : datatype.machine_program.orbit_length
         Length of the beam trajectory, including possible
         orbit bump programs [m]
+    orbit_bump : None or datatype.machine_program.orbit_length
+        Length of the orbit bump only if declared by the user [m]
     synchronous_data : datatype.machine_program._ring_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
@@ -136,13 +138,14 @@ class RingSection:
     def __init__(self, length, alpha_0,
                  momentum=None, kin_energy=None, energy=None,
                  bending_field=None, bending_radius=None, orbit_bump=None,
-                 alpha_1=None, alpha_2=None, **kwargs):
+                 alpha_1=None, **kwargs):
 
         # Setting section length
         self.length_design = float(length)
 
         # Checking that at least one synchronous data input is passed
-        syncDataTypes = ('momentum', 'kin_energy', 'energy', 'B_field')
+        syncDataTypes = ('momentum', 'kinetic_energy', 'total_energy',
+                         'bending_field')
         syncDataInput = (momentum, kin_energy, energy, bending_field)
         assrt.single_not_none(*syncDataInput,
                               msg='Exactly one of ' + str(syncDataTypes) +
@@ -168,30 +171,43 @@ class RingSection:
         if not isinstance(synchronous_data,
                           ring_programs._synchronous_data_program):
             synchronous_data \
-                = ring_programs._synchronous_data_program._conversions[
-                    func_type](synchronous_data)
+                = getattr(ring_programs, func_type + '_program')(
+                    synchronous_data)
 
         self.synchronous_data = synchronous_data
 
         # Setting orbit length
         if orbit_bump is None:
+
             self.length = ring_programs.orbit_length_program(
                 self.length_design)
+            self.orbit_bump = None
+
         else:
+
             if not isinstance(orbit_bump, ring_programs.orbit_length_program):
                 orbit_bump = ring_programs.orbit_length_program(orbit_bump)
-            if orbit_bump.timebase == 'by_time':
-                orbit_bump[:, 1, :] += self.length_design
-            else:
-                orbit_bump += self.length_design
+
             self._check_and_set_alpha_and_orbit(orbit_bump)
+
+            # orbit_bump was checked
+            # The length attribute is created with no further checks
+            if orbit_bump.timebase == 'by_time':
+
+                self.length = ring_programs.orbit_length_program(
+                    [self.length_design] * len(self.orbit_bump[0, 0, :]),
+                    time=self.orbit_bump[0, 0, :])
+                self.length[:, 1, :] += self.orbit_bump[:, 1, :]
+
+            else:
+
+                self.length = self.orbit_bump + self.length_design
 
         # Setting the linear momentum compaction factor
         # Checking that the synchronous data and the momentum compaction
         # have the same length if defined turn-by-turn, raise a warning if one
         # is defined by turn and the other time based
         self.alpha_orders = [0]
-        alpha_order_max = 0
         if not isinstance(alpha_0, ring_programs.momentum_compaction):
             alpha_0 = ring_programs.momentum_compaction(alpha_0, order=0)
         else:
@@ -204,35 +220,37 @@ class RingSection:
 
         # Treating non-linear momentum compaction factor if declared
         # Listing all the declared alpha first
-        alpha_n = {1: alpha_1, 2: alpha_2}
+        alpha_n = {}
 
         if alpha_1 is not None:
-            alpha_order_max = 1
-        if alpha_2 is not None:
-            alpha_order_max = 2
+            alpha_n[1] = alpha_1
 
-        for argument in kwargs:
+        for argument in list(kwargs.keys()):
             if 'alpha' in argument:
                 try:
                     order = int(argument.split('_')[-1])
-                    alpha_order_max = np.max([alpha_order_max, order])
-                    alpha_n[order] = kwargs[argument]
-                except Exception:
+                except ValueError:
                     raise excpt.InputError(
                         'The keyword argument ' + argument + ' was ' +
                         'interpreted as non-linear momentum compaction ' +
                         'factor. ' +
                         'The correct syntax is alpha_n.')
 
+                alpha_n[order] = kwargs.pop(argument)
+
+        alpha_order_max = np.max(list(alpha_n.keys()) + [0])
+
         # Setting all the valid non-linear alpha and replacing
         # undeclared orders with zeros
         for order in range(1, alpha_order_max + 1):
-            alpha = alpha_n.pop(order, None)
 
-            if alpha is None:
-                alpha = 0
+            try:
+                alpha = alpha_n.pop(order)
+            except KeyError:
                 # This condition can be replaced by 'continue' to avoid
-                # populating the object with 0 programs
+                # populating the object with 0 programs in the future
+                # continue
+                alpha = 0
             else:
                 self.alpha_orders.append(order)
 
@@ -245,6 +263,12 @@ class RingSection:
                         "argument alpha_%s do not match" % (order))
 
             self._check_and_set_alpha_and_orbit(alpha, order)
+
+        # Warning if kwargs were unused
+        if len(kwargs) > 0:
+            warnings.warn(
+                "Unused kwargs have been detected, " +
+                f"they are {list(kwargs.keys())}")
 
     def _check_and_set_alpha_and_orbit(self, alpha_or_orbit, order=None):
         '''
@@ -259,19 +283,17 @@ class RingSection:
         # attr_name is the attribute to apply to RingSection
         # attr_name_err is for the warning message
         if order is not None:
-            attr_name = 'alpha_' + str(order)
-            attr_name_err = attr_name
+            attr = 'alpha_' + str(order)
         else:
-            attr_name = 'length'
-            attr_name_err = 'orbit_bump'
+            attr = 'orbit_bump'
 
-        setattr(self, attr_name, alpha_or_orbit)
+        setattr(self, attr, alpha_or_orbit)
 
         if (self.synchronous_data.timebase == 'single') and \
                 (alpha_or_orbit.timebase != 'single'):
 
             warn_message = 'The synchronous data was defined as single element while the ' + \
-                'input ' + attr_name_err + ' was defined turn or time based. ' + \
+                'input ' + attr + ' was defined turn or time based. ' + \
                 'Only the first element of the program will be taken in ' + \
                 'the Ring object after treatment.'
             warnings.warn(warn_message)
@@ -284,7 +306,7 @@ class RingSection:
                      > alpha_or_orbit.shape[-1]):
 
                 raise excpt.InputError(
-                    'The input ' + attr_name_err +
+                    'The input ' + attr +
                     ' was passed as a turn based program but with ' +
                     'different length than the synchronous data. ' +
                     'Turn based programs should have the same length.')
@@ -293,6 +315,14 @@ class RingSection:
                 (alpha_or_orbit.timebase == 'by_turn'):
 
             warn_message = 'The synchronous data was defined time based while the ' + \
-                'input ' + attr_name_err + ' was defined turn base, this may' + \
+                'input ' + attr + ' was defined turn base, this may' + \
+                'lead to errors in the Ring object after interpolation.'
+            warnings.warn(warn_message)
+
+        elif (self.synchronous_data.timebase == 'by_turn') and \
+                (alpha_or_orbit.timebase == 'by_time'):
+
+            warn_message = 'The synchronous data was defined turn based while the ' + \
+                'input ' + attr + ' was defined time base, this may' + \
                 'lead to errors in the Ring object after interpolation.'
             warnings.warn(warn_message)
