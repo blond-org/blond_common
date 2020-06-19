@@ -12,6 +12,9 @@ from ..devtools import assertions as assrt
 from ..utilities import rel_transforms as rt
 from . import blond_function as bf
 
+warnings.warn('WARNING: this module is deprecated, all the ' +
+              'functions were displaced to the other specific modules')
+
 #TODO: Overwrite some np funcs (e.g. __iadd__) where necessary
 #TODO: In derived classes handle passing datatype as input
 #TODO: Check for ragged array
