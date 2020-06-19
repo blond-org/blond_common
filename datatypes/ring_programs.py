@@ -135,6 +135,7 @@ class _ring_function(_function):
                                    + "combined")
 
         timeBases = [a.timebase for a in args]
+        #TODO: clean up try/except
         try:
             assrt.equal_arrays(*timeBases, msg='Attempting to combine '
                                + 'sections with different '
