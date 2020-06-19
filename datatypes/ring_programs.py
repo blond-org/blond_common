@@ -335,6 +335,10 @@ class _synchronous_data_program(_ring_function):
         datatype
             If inPlace is False a new datatype array is returned.
         """
+        if self.source == 'B_field':
+            return self._no_convert(inPlace)
+        else:
+            return self._convert('B_field', inPlace, **kwargs)
 
     def to_kin_energy(self, inPlace=True, **kwargs):
         """
