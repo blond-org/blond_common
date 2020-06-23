@@ -280,8 +280,12 @@ class RFStation:
         # for the drift
         alpha_order = 2#Ring.alpha_order
         for i in range(alpha_order+1):
-            dummy = getattr(Ring, 'eta_' + str(i))
-            setattr(self, "eta_%s" % i, dummy[self.section_index])
+            try:
+                dummy = getattr(Ring, 'eta_' + str(i))
+            except AttributeError:
+                setattr(self, "eta_%s" % i, 0)
+            else:
+                setattr(self, "eta_%s" % i, dummy[self.section_index])
         self.sign_eta_0 = np.sign(self.eta_0)
 
         # Reshape design voltage
@@ -393,9 +397,9 @@ class RFStation:
         self = object.__new__(cls)
         self.section_index = int(section_index-1)
         self._ring_pars(Ring)
-        
+
         rfShape = [len(args), len(self.cycle_time)]
-        
+
         self.voltage = rfProgs.voltage_program.zeros(rfShape)
         self.phi_rf_d = rfProgs.phase_program.zeros(rfShape)
         self.harmonic = np.zeros(rfShape)
@@ -403,25 +407,25 @@ class RFStation:
         for i, a in enumerate(args):
             self.voltage[i], self.phi_rf_d[i], self.harmonic[i] \
                             = a.sample(self.cycle_time, self.use_turns)
-        
+
         return self
-        
-    
+
+
     def _ring_pars(self, Ring):
 
         self.Particle = Ring.Particle
         self.n_turns = Ring.n_turns
         self.cycle_time = Ring.cycle_time
-        self.ring_circumference = Ring.ring_circumference
-        self.section_length = Ring.ring_length[self.section_index]
-        self.length_ratio = float(self.section_length/self.ring_circumference)
+        self.ring_circumference = Ring.circumference
+        self.section_length = Ring.section_length[self.section_index]
+        self.length_ratio = self.section_length/self.ring_circumference
         self.t_rev = Ring.t_rev
         self.momentum = Ring.momentum[self.section_index]
         self.beta = Ring.beta[self.section_index]
         self.gamma = Ring.gamma[self.section_index]
         self.energy = Ring.energy[self.section_index]
         self.delta_E = Ring.delta_E[self.section_index]
-        self.alpha_order = Ring.alpha_order
+        self.alpha_orders = Ring.alpha_orders
         self.charge = self.Particle.charge
         self.use_turns = Ring.use_turns.astype(int)
 
