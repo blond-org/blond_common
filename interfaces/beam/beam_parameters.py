@@ -7,7 +7,7 @@ import warnings
 # BLonD_Common imports
 from ...rf_functions import potential as pot
 from ...maths import calculus as calc
-from ...datatypes import datatypes as dt
+from ...datatypes import beam_data as bDat
 from ...beam_dynamics import bucket as buck
 from ...devtools import exceptions as excpt
 
@@ -51,8 +51,8 @@ class Beam_Parameters:
         self.potential_well_array = np.zeros([self.n_samples, 
                                               self.potential_resolution])
 
-        if not isinstance(bunch_emittance, dt.emittance):
-            self.bunch_emittance = dt.emittance(bunch_emittance, units = 'eVs').reshape(\
+        if not isinstance(bunch_emittance, bDat.emittance):
+            self.bunch_emittance = bDat.emittance(bunch_emittance, units = 'eVs').reshape(\
                                                n_sections = len(self.init_coord), 
                                                use_time = self.ring.cycle_time, 
                                                use_turns = self.ring.use_turns)
@@ -122,7 +122,7 @@ class Beam_Parameters:
             else:
                 bunching = 'multi_bunch'
             self.particle_tracks \
-                    = dt.synchronous_phase.zeros([len(self.init_coord),
+                    = bDat.synchronous_phase.zeros([len(self.init_coord),
                                                   self.n_samples],
                                                 {'timebase': 'by_turn',
                                                  'bunching': bunching,
@@ -389,23 +389,23 @@ class Beam_Parameters:
 
         data_type = {'timebase': 'by_turn', 'bunching': bunching}
 
-        self.heights = dt.height.zeros([n_pars, self.n_samples], 
+        self.heights = bDat.height.zeros([n_pars, self.n_samples], 
                                        {**data_type, 'units': 'eV', 
                                         'height_type': 'half_height'})
-        self.bunch_heights = dt.height.zeros([n_pars, self.n_samples], 
+        self.bunch_heights = bDat.height.zeros([n_pars, self.n_samples], 
                                              {**data_type, 'units': 'eV', 
                                               'height_type': 'half_height'})
-        self.areas = dt.acceptance.zeros([n_pars, self.n_samples], 
+        self.areas = bDat.acceptance.zeros([n_pars, self.n_samples], 
                                          {**data_type, 'units': 'eV'})
-        self.bunch_emittances = dt.emittance.zeros([n_pars, self.n_samples], 
+        self.bunch_emittances = bDat.emittance.zeros([n_pars, self.n_samples], 
                                                {**data_type, 
                                             'emittance_type': 'matched_area',
                                             'units': 'eVs'})
-        self.lengths = dt.length.zeros([n_pars, self.n_samples], 
+        self.lengths = bDat.length.zeros([n_pars, self.n_samples], 
                                                {**data_type, 
                                                 'length_type': 'full',
                                                 'units': 's'})
-        self.bunch_lengths = dt.length.zeros([n_pars, self.n_samples], 
+        self.bunch_lengths = bDat.length.zeros([n_pars, self.n_samples], 
                                                {**data_type, 
                                                 'length_type': 'full',
                                                 'units': 's'})

@@ -22,7 +22,7 @@ from ..beam.beam import Proton
 import sys
 
 #BLonD_Common imports
-from ...datatypes import datatypes as dTypes
+from ...datatypes import rf_programs as rfProgs
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 
@@ -224,7 +224,7 @@ class RFStation:
 
 
         #Coercion of voltage to RF_section_function datatype
-        if not isinstance(voltage, dTypes.voltage_program):
+        if not isinstance(voltage, rfProgs.voltage_program):
             if not hasattr(voltage, '__iter__'):
                 voltage = (voltage, )
             if isinstance(voltage, dict):
@@ -236,15 +236,15 @@ class RFStation:
                 voltage = useV
 
             try:
-                voltage = dTypes.voltage_program(*voltage, 
-                                                 harmonics = harmonic, 
-                                                 interpolation = 'linear')
+                voltage = rfProgs.voltage_program(*voltage, 
+                                                  harmonics = harmonic, 
+                                                  interpolation = 'linear')
             except excpt.DataDefinitionError:
-                voltage = dTypes.voltage_program(*voltage, 
-                                                 harmonics = harmonic)
+                voltage = rfProgs.voltage_program(*voltage, 
+                                                  harmonics = harmonic)
 
         #Coercion of phase to RF_section_function datatype
-        if not isinstance(phi_rf_d, dTypes.phase_program):
+        if not isinstance(phi_rf_d, rfProgs.phase_program):
             if not hasattr(phi_rf_d, '__iter__'):
                 phi_rf_d = (phi_rf_d, )
             if isinstance(phi_rf_d, dict):
@@ -255,11 +255,11 @@ class RFStation:
                     raise RuntimeError("Unrecognised harmonics in phi_rf_d")
                 phi_rf_d = usePhi
             try:
-                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                phi_rf_d = rfProgs.phase_program(*phi_rf_d, 
                                                  harmonics = harmonic, 
                                                  interpolation = 'linear')
             except excpt.DataDefinitionError:
-                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                phi_rf_d = rfProgs.phase_program(*phi_rf_d, 
                                                 harmonics = harmonic)
 
         if not hasattr(harmonic, '__iter__'):
@@ -312,10 +312,10 @@ class RFStation:
         # Calculating omega and phi offsets
         if omega_rf_offset is None:
             useoff = (0,)*self.harmonic.shape[0]
-            omega_rf_offset = dTypes.omega_offset(*useoff, 
+            omega_rf_offset = rfProgs.omega_offset(*useoff, 
                                                   harmonics=harmonic)
 
-        if not isinstance(omega_rf_offset, dTypes.omega_offset):
+        if not isinstance(omega_rf_offset, rfProgs.omega_offset):
 
             if isinstance(omega_rf_offset, dict):
                 useoff = []
@@ -326,12 +326,12 @@ class RFStation:
                 omega_rf_offset = useoff
 
             try:
-                omega_rf_offset = dTypes.omega_offset(*omega_rf_offset, 
+                omega_rf_offset = rfProgs.omega_offset(*omega_rf_offset, 
                                                  harmonics = harmonic, 
                                                  interpolation = 'linear')
 
             except excpt.DataDefinitionError:
-                omega_rf_offset = dTypes.omega_offset(*omega_rf_offset, 
+                omega_rf_offset = rfProgs.omega_offset(*omega_rf_offset, 
                                                       harmonics = harmonic)
 
         self.omega_rf_offset = omega_rf_offset.reshape(self.harmonic[:,0],
@@ -340,9 +340,9 @@ class RFStation:
 
         if phi_rf_offset is None:
             useoff = (0,)*self.harmonic.shape[0]
-            phi_rf_offset = dTypes.phase_offset(*useoff, 
+            phi_rf_offset = rfProgs.phase_offset(*useoff, 
                                                 harmonics=harmonic)
-        if not isinstance(phi_rf_offset, dTypes.phase_offset):
+        if not isinstance(phi_rf_offset, rfProgs.phase_offset):
 
             if isinstance(phi_rf_offset, dict):
                 useoff = []
@@ -353,12 +353,12 @@ class RFStation:
                 phi_rf_offset = useoff
 
             try:
-                phi_rf_offset = dTypes.phase_offset(*phi_rf_offset, 
-                                                 harmonics = harmonic, 
-                                                 interpolation = 'linear')
+                phi_rf_offset = rfProgs.phase_offset(*phi_rf_offset, 
+                                                     harmonics = harmonic, 
+                                                     interpolation = 'linear')
 
             except excpt.DataDefinitionError:
-                phi_rf_offset = dTypes.phase_offset(*phi_rf_offset, 
+                phi_rf_offset = rfProgs.phase_offset(*phi_rf_offset, 
                                                    harmonics = harmonic)
 
         self.phi_rf_offset = phi_rf_offset.reshape(self.harmonic[:,0],
@@ -396,8 +396,8 @@ class RFStation:
         
         rfShape = [len(args), len(self.cycle_time)]
         
-        self.voltage = dTypes.voltage_program.zeros(rfShape)
-        self.phi_rf_d = dTypes.phase_program.zeros(rfShape)
+        self.voltage = rfProgs.voltage_program.zeros(rfShape)
+        self.phi_rf_d = rfProgs.phase_program.zeros(rfShape)
         self.harmonic = np.zeros(rfShape)
         
         for i, a in enumerate(args):
