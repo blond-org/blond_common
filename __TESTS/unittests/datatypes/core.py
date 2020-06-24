@@ -66,14 +66,53 @@ class test_core(unittest.TestCase):
     def test_slicing(self):
 
         test = core._function.zeros(10, data_type={'timebase': 'fake'})
+        sliced = test[:5]
 
-        slice1 = test[:5]
-        slice2 = test[5:]
+        self.assertEqual(sliced.data_type['timebase'], 'fake',
+                             msg='sliced data_type not copied correctly')
+        self.assertIsInstance(sliced, core._function,
+                              msg='Type incorrect after slicing')
 
-        self.assertEqual(slice1.data_type['timebase'], 'fake1',
-                             msg='slice1 data_type not copied correctly')
-        self.assertEqual(slice2.data_type['timebase'], 'fake',
-                             msg='slice1 data_type not copied correctly')
+
+    def test_copy(self):
+
+        test = core._function.zeros(10, data_type={'timebase': 'fake'})
+        copied = test.copy()
+
+        self.assertEqual(copied.data_type['timebase'], 'fake',
+                             msg='copied data_type not copied correctly')
+        self.assertIsInstance(copied, core._function,
+                                      msg='Type incorrect after copying')
+
+
+    def test_reshape(self):
+
+        test1 = core._function(np.array([[[1, 2, 3], [1, 2, 3]]]),
+                           data_type={'timebase': 'by_time'},
+                           interpolation='linear')
+        test2 = test1.reshape(1, [1.5])
+        self.assertEqual(test2, 1.5,
+                                 msg='Interpolation not computed correctly')
+        self.assertIsInstance(test2, core._function,
+                                  msg='Type incorrect after reshape')
+        self.assertEqual(test2.timebase, 'interpolated',
+                         msg = 'After reshape timebase should be interpolated')
+
+
+        test3 = core._function(np.array([[[1, 2, 3], [1, 2, 3]],
+                                         [[1, 2, 3], [4, 5, 6]]]),
+                           data_type={'timebase': 'by_time'},
+                           interpolation='linear')
+        test4 = test3.reshape(2, [1.5])
+
+        self.assertEqual(test4[0][0], 1.5,
+                                 msg='Interpolation not computed correctly')
+        self.assertEqual(test4[1][0], 4.5,
+                                 msg='Interpolation not computed correctly')
+        self.assertIsInstance(test4, core._function,
+                                  msg='Type incorrect after reshape')
+        self.assertEqual(test4.timebase, 'interpolated',
+                         msg = 'After reshape timebase should be interpolated')
 
 if __name__ == '__main__':
 
