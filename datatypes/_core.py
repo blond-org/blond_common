@@ -122,6 +122,7 @@ class _function(np.ndarray):
                     raise excpt.InputDataError("data_type has "
                                                     + "unrecognised option '"
                                                     + str(d) + "'")
+        return
 
     @property
     def timebase(self):
@@ -359,7 +360,11 @@ class _function(np.ndarray):
             elif self.timebase == 'by_time':
                     newArray[s] = self._interpolate(s, use_time)
 
-        return newArray.view(self.__class__)
+        newArray = newArray.view(self.__class__)
+        newArray.data_type = self.data_type
+        newArray.timebase = 'interpolated'
+
+        return newArray
 
 
 ###############################################
