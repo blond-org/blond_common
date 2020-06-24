@@ -226,12 +226,15 @@ class _function(np.ndarray):
             If the funtion has fewer turns of data available than required
             for the use_turns bassed, a DataDefinitionError is raised.
         """
+
         if n_sections > 1 and self.shape[0] == 1:
+
             warnings.warn("multi-section required, but "
                           + str(self.__class__.__name__) + " function is single"
                           + " section, expanding to match n_sections")
 
         elif n_sections != self.shape[0]:
+
             raise excpt.DataDefinitionError("n_sections (" \
                                                  + str(n_sections) \
                                                  + ") does not match function "
@@ -295,7 +298,7 @@ class _function(np.ndarray):
         if self.interpolation == 'linear':
             return self._interpolate_linear(section, use_time)
         else:
-            raise RuntimeError("Invalid interpolation requested")
+            raise NotImplementedError("Only linear interpolation implemented")
 
 
     def _interpolate_linear(self, section, use_time):
