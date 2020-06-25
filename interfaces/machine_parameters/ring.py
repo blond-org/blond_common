@@ -319,9 +319,11 @@ class Ring:
             self.momentum = momentum_processed[2:]
         else:
             self.momentum = ring_programs.momentum_program.zeros(
-                (self.n_sections, self.n_turns+1))
+                (self.n_sections, len(momentum_processed[2])))
             for index_section in range(self.n_sections):
-                self.momentum[index_section] = momentum_processed[2:]
+                self.momentum[index_section] = momentum_processed[2]
+
+        # Converting all values associated to momentum
         self.beta = np.array(rt.mom_to_beta(
             self.momentum, self.Particle.mass))
         self.gamma = np.array(rt.mom_to_gamma(
