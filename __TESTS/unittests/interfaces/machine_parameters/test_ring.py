@@ -399,7 +399,7 @@ class TestRing(unittest.TestCase):
                 momentum, ring.momentum)
 
     def test_simple_input_multisection_othermethods(self):
-        # Test other methods to pass the simplest input
+        # Test other methods to pass the simplest input with multisection
 
         length = 300  # m
         alpha_0 = 1e-3
@@ -419,7 +419,7 @@ class TestRing(unittest.TestCase):
                 ring_reference.momentum, ring.momentum)
 
     def test_other_synchronous_data_multisection(self):
-        # Test passing other sync data
+        # Test passing other sync data in multisection
 
         length = 300  # m
         alpha_0 = 1e-3
@@ -461,7 +461,7 @@ class TestRing(unittest.TestCase):
                 momentum, ring.momentum[1, :])
 
     def test_non_linear_momentum_compaction_multisection(self):
-        # Test passing non linear momentum compaction factor
+        # Test passing non linear momentum compaction factor in multisection
 
         length = 300  # m
         alpha_0 = 1e-3
@@ -535,6 +535,48 @@ class TestRing(unittest.TestCase):
         with self.assertWarnsRegex(Warning, warn_message):
             section = RingSection(length, alpha_0, momentum)
             Ring(particle, [section], **kwargs)
+
+    def test_exception_mix_time_turn(self):
+        # Test the exception when time/turn programs are mixed for various
+        # sections
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum_1 = [26e9, 27e9, 28e9]  # eV/c
+        momentum_2 = [[0, 100e-6], [26e9, 26e9]]  # eV/c
+        particle = Proton()
+
+        error_message = (
+            'The synchronous data for' +
+            'the different sections is mixing time and turn ' +
+            'based programs which is not supported.')
+
+        with self.assertRaisesRegex(excpt.InputError, error_message):
+            section_1 = RingSection(length / 2, alpha_0, momentum_1)
+            section_2 = RingSection(length / 2, alpha_0, momentum_2)
+            Ring(particle, [section_1, section_2])
+
+    def test_warning_time_prog_multisection(self):
+        # Test the warning when identical time programs are given
+        # for each section
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = [[0, 100e-6], [26e9, 26e9]]  # eV/c
+        particle = Proton()
+
+        warn_message = 'The synchronous data for all sections ' + \
+            'are defined time based and ' + \
+            'are identical. Presently, ' + \
+            'the momentum is assumed constant for one turn over ' + \
+            'all sections, no increment in delta_E from ' + \
+            'one section to the next. Please use custom ' + \
+            'turn based program if needed.'
+
+        with self.assertWarnsRegex(Warning, warn_message):
+            section_1 = RingSection(length / 2, alpha_0, momentum)
+            section_2 = RingSection(length / 2, alpha_0, momentum)
+            Ring(particle, [section_1, section_2])
 
 
 if __name__ == '__main__':

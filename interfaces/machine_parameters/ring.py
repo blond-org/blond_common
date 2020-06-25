@@ -312,10 +312,16 @@ class Ring:
 
         # Updating the number of turns in case it was changed after ramp
         # interpolation
-        self.n_turns = momentum_processed.n_turns
+        self.n_turns = momentum_processed.n_turns - 1
 
         # Storing the momentum program and computing all associated values
-        self.momentum = momentum_processed[2:]
+        if momentum_by_turn:
+            self.momentum = momentum_processed[2:]
+        else:
+            self.momentum = ring_programs.momentum_program.zeros(
+                (self.n_sections, self.n_turns+1))
+            for index_section in range(self.n_sections):
+                self.momentum[index_section] = momentum_processed[2:]
         self.beta = np.array(rt.mom_to_beta(
             self.momentum, self.Particle.mass))
         self.gamma = np.array(rt.mom_to_gamma(
@@ -339,7 +345,7 @@ class Ring:
         self.circumference = np.sum(self.section_length, axis=0)
         self.radius = self.circumference / (2 * np.pi)
 
-        # Getting orbit bunp from comparison of circumference vs. design
+        # Getting orbit bump from comparison of circumference vs. design
         self.orbit_bump = self.circumference - self.circumference_design
 
         # Computing the revolution period on the design orbit
