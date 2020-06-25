@@ -59,15 +59,52 @@ class TestRing(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = 1e-3
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
         particle = Proton()
 
         section = RingSection(length, alpha_0, momentum)
-        ring = Ring(particle, section)
+        ring = Ring(particle, [section])
 
         with self.subTest('Simple input - length'):
             np.testing.assert_equal(
                 length, ring.circumference)
+
+        with self.subTest('Simple input - alpha_0'):
+            np.testing.assert_equal(
+                alpha_0, ring.alpha_0)
+
+        with self.subTest('Simple input - momentum'):
+            np.testing.assert_equal(
+                momentum, ring.momentum)
+
+    def test_simple_input_othermethods(self):
+        # Test the simplest input
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        particle = Proton()
+
+        section = RingSection(length, alpha_0, momentum)
+        ring_reference = Ring(particle, [section])
+
+        with self.subTest('Simple input - Single section'):
+            ring = Ring(particle, section)
+            np.testing.assert_equal(
+                ring_reference.circumference, ring.circumference)
+            np.testing.assert_equal(
+                ring_reference.alpha_0, ring.alpha_0)
+            np.testing.assert_equal(
+                ring_reference.momentum, ring.momentum)
+
+        with self.subTest('Simple input - Direct classmethod'):
+            ring = Ring.direct_input(particle, length, alpha_0, momentum)
+            np.testing.assert_equal(
+                ring_reference.circumference, ring.circumference)
+            np.testing.assert_equal(
+                ring_reference.alpha_0, ring.alpha_0)
+            np.testing.assert_equal(
+                ring_reference.momentum, ring.momentum)
 
     # Exception raising test --------------------------------------------------
 
