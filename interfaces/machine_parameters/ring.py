@@ -515,7 +515,7 @@ class Ring:
                 Third Edition, 2012.
         """
 
-        for i in range(self.eta_orders + 1):
+        for i in range(np.min([self.eta_orders + 1, 3])):
             getattr(self, '_eta' + str(i))()
 
     def _eta0(self):

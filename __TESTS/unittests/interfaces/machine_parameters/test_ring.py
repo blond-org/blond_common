@@ -578,6 +578,42 @@ class TestRing(unittest.TestCase):
             section_2 = RingSection(length / 2, alpha_0, momentum)
             Ring(particle, [section_1, section_2])
 
+    def test_error_time_prog_multisection(self):
+        # Test the error when different time programs are given
+        # for each section
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum_1 = [[0, 100e-6], [26e9, 26e9]]  # eV/c
+        momentum_2 = [[0, 100e-6], [27e9, 27e9]]  # eV/c
+        particle = Proton()
+
+        error_message = ('The synchronous data for all sections ' +
+                         'are defined time based and ' +
+                         'are not identical. This case is not yet ' +
+                         'implemented.')
+
+        with self.assertRaisesRegex(NotImplementedError, error_message):
+            section_1 = RingSection(length / 2, alpha_0, momentum_1)
+            section_2 = RingSection(length / 2, alpha_0, momentum_2)
+            Ring(particle, [section_1, section_2])
+
+    def test_warning_eta_order(self):
+        # Test the warning when identical time programs are given
+        # for each section
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        eta_orders = 4
+        particle = Proton()
+
+        warn_message = 'The eta_orders can only be computed up to eta_2!'
+
+        with self.assertWarnsRegex(Warning, warn_message):
+            section = RingSection(length, alpha_0, momentum)
+            Ring(particle, [section], eta_orders=eta_orders)
+
 
 if __name__ == '__main__':
 
