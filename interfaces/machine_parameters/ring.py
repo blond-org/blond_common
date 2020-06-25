@@ -366,7 +366,7 @@ class Ring:
         self.omega_rev = 2 * np.pi * self.f_rev
 
         # Recalculating the delta_E
-        if self.n_turns > len(self.use_turns):
+        if (self.n_turns+1) > len(self.use_turns):
             self.delta_E = np.zeros(self.energy.shape)
             self._recalc_delta_E()
         else:
