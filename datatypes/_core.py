@@ -155,7 +155,8 @@ class _function(np.ndarray):
         self._data_type[element] = value
 
 
-    def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
+    def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None,
+                      store_time = False):
         """
         Construct an empty numpy array of the required shape for the reshaped
         array to populate
@@ -199,7 +200,11 @@ class _function(np.ndarray):
             raise excpt.InputError("If function is defined by_time "
                                         + "use_time must be given")
 
-        return np.zeros([n_sections, nPts])
+        if store_time:
+            return self.zeros([n_sections, 2, nPts],
+                                      data_type = self.data_type)
+        else:
+            return self.zeros([n_sections, nPts], data_type = self.data_type)
 
 
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
@@ -323,7 +328,8 @@ class _function(np.ndarray):
             return np.interp(use_time, self[section, 0], self[section, 1])
 
 
-    def reshape(self, n_sections = 1, use_time = None, use_turns = None):
+    def reshape(self, n_sections = 1, use_time = None, use_turns = None,
+                store_time = False):
         """
         Reshape the datatype array to the given number of sections and either
         the given use_time or given use_turns.
@@ -344,30 +350,38 @@ class _function(np.ndarray):
         datatype
             The newly interpolated array.
         """
-        self._comp_definition_reshape(n_sections, use_time, use_turns)        
-        newArray = self._prep_reshape(n_sections, use_time, use_turns)
-        
+
+        if self.timebase == 'by_turn' and store_time:
+            raise excpt.InputError("A function defined by_turn cannot have "
+                                   + "store_time=True")
+
+        self._comp_definition_reshape(n_sections, use_time, use_turns)
+        interpArray = self._prep_reshape(n_sections, use_time, use_turns,
+                                         store_time)
+
         for s in range(n_sections):
             if self.timebase == 'single':
                 if self.shape[0] == 1:
-                    newArray[s] += self
+                    interpArray[s] += self
                 else:
-                    newArray[s] += self[s]
+                    interpArray[s] += self[s]
 
             elif self.timebase == 'by_turn':
                 if self.shape[0] == 1:
-                    newArray[s] = self[0, use_turns]
+                    interpArray[s] = self[0, use_turns]
                 else:
-                    newArray[s] = self[s, use_turns]
+                    interpArray[s] = self[s, use_turns]
 
             elif self.timebase == 'by_time':
-                    newArray[s] = self._interpolate(s, use_time)
+                    interpArray[s] = self._interpolate(s, use_time)
 
-        newArray = newArray.view(self.__class__)
-        newArray.data_type = self.data_type
-        newArray.timebase = 'interpolated'
+        if store_time:
+            interpArray[:,0,:] = use_time
+            interpArray.timebase = 'by_time'
+        else:
+            interpArray.timebase = 'interpolated'
 
-        return newArray
+        return interpArray
 
 
 ###############################################
