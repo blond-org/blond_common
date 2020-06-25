@@ -517,6 +517,23 @@ class TestRing(unittest.TestCase):
             np.testing.assert_equal(
                 50e-6, params['cycle_time'])
 
+    def test_parameters_at_sample(self):
+        # Test passing non linear momentum compaction factor
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        particle = Proton()
+        momentum = [26e9, 27e9, 28e9]  # eV/c
+
+        section = RingSection(length, alpha_0, momentum)
+        ring = Ring(particle, [section])
+
+        params = ring.parameters_at_sample(1)
+
+        with self.subTest('Time based program - momentum'):
+            np.testing.assert_equal(
+                momentum[1], params['momentum'])
+
     # Exception raising test --------------------------------------------------
 
     def test_assert_wrong_section_list(self):
