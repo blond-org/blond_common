@@ -18,7 +18,7 @@ import sys
 import unittest
 import numpy as np
 import os
-from scipy.constants import e, c
+from scipy.constants import c
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -35,6 +35,13 @@ from blond_common import datatypes as dTypes
 
 
 class TestRing(unittest.TestCase):
+    '''
+    TODO:
+    - testing parameters_at_... functions
+    - direct_input multisection and datatypes tests
+    - options tests (t_start, t_stop, interp_time, store_turns...)
+    - calculated parameters tests (delta_E, f_rev)
+    '''
 
     # Initialization ----------------------------------------------------------
 
@@ -65,7 +72,7 @@ class TestRing(unittest.TestCase):
         section = RingSection(length, alpha_0, momentum)
         ring = Ring(particle, [section])
 
-        with self.subTest('Simple input - length'):
+        with self.subTest('Simple input - circumference'):
             np.testing.assert_equal(
                 length, ring.circumference)
 
@@ -178,24 +185,57 @@ class TestRing(unittest.TestCase):
         bending_radius = 70  # m
         b_field = momentum / c / particle.charge / bending_radius  # T
 
-        with self.subTest('Simple input - tot_energy'):
+        with self.subTest('Other sync data - tot_energy'):
             section = RingSection(length, alpha_0, energy=tot_energy)
             ring = Ring(particle, [section])
             np.testing.assert_allclose(
                 tot_energy, ring.energy)
 
-        with self.subTest('Simple input - kin_energy'):
+        with self.subTest('Other sync data - kin_energy'):
             # NB: allclose due to double conversion
             section = RingSection(length, alpha_0, kin_energy=kin_energy)
             ring = Ring(particle, [section])
             np.testing.assert_allclose(
                 kin_energy, ring.kin_energy)
 
-        with self.subTest('Simple input - b_field'):
+        with self.subTest('Other sync data - b_field'):
             # NB: allclose due to double conversion
             section = RingSection(length, alpha_0, bending_field=b_field,
                                   bending_radius=bending_radius)
             ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                momentum, ring.momentum)
+
+    def test_other_synchronous_data_other_input(self):
+        # Test passing other sync data
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        particle = Proton()
+        momentum = 26e9  # eV/c
+        tot_energy = 26e9  # eV
+        kin_energy = 26e9  # eV
+        bending_radius = 70  # m
+        b_field = momentum / c / particle.charge / bending_radius  # T
+
+        with self.subTest('Other sync data - Direct - tot_energy'):
+            ring = Ring.direct_input(particle, length, alpha_0,
+                                     energy=tot_energy)
+            np.testing.assert_allclose(
+                tot_energy, ring.energy)
+
+        with self.subTest('Other sync data - Direct - kin_energy'):
+            # NB: allclose due to double conversion
+            ring = Ring.direct_input(
+                particle, length, alpha_0, kin_energy=kin_energy)
+            np.testing.assert_allclose(
+                kin_energy, ring.kin_energy)
+
+        with self.subTest('Other sync data - Direct - b_field'):
+            # NB: allclose due to double conversion
+            ring = Ring.direct_input(particle, length, alpha_0,
+                                     bending_field=b_field,
+                                     bending_radius=bending_radius)
             np.testing.assert_allclose(
                 momentum, ring.momentum)
 
@@ -216,15 +256,15 @@ class TestRing(unittest.TestCase):
                               alpha_5=alpha_5)
         ring = Ring(particle, [section])
 
-        with self.subTest('Simple input - alpha_1'):
+        with self.subTest('Nonlinear alpha - alpha_1'):
             np.testing.assert_equal(
                 alpha_1, ring.alpha_1)
 
-        with self.subTest('Simple input - alpha_2'):
+        with self.subTest('Nonlinear alpha - alpha_2'):
             np.testing.assert_equal(
                 alpha_2, ring.alpha_2)
 
-        with self.subTest('Simple input - alpha_5'):
+        with self.subTest('Nonlinear alpha - alpha_5'):
             np.testing.assert_equal(
                 alpha_5, ring.alpha_5)
 
@@ -335,6 +375,127 @@ class TestRing(unittest.TestCase):
             np.testing.assert_allclose(
                 np.mean(momentum[1]), np.mean(ring.momentum))
 
+    def test_simple_input_multisection(self):
+        # Test the simplest input in multisection configuration
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        particle = Proton()
+
+        section = RingSection(length / 2, alpha_0, momentum)
+        ring = Ring(particle, [section, section])
+
+        with self.subTest('Simple input - Multisection - circumference'):
+            np.testing.assert_equal(
+                length, ring.circumference)
+
+        with self.subTest('Simple input - Multisection - alpha_0'):
+            np.testing.assert_equal(
+                alpha_0, ring.alpha_0)
+
+        with self.subTest('Simple input - Multisection - momentum'):
+            np.testing.assert_equal(
+                momentum, ring.momentum)
+
+    def test_simple_input_multisection_othermethods(self):
+        # Test other methods to pass the simplest input
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        particle = Proton()
+
+        section = RingSection(length / 2, alpha_0, momentum)
+        ring_reference = Ring(particle, [section, section])
+
+        with self.subTest('Simple input - Multisection tuple'):
+            ring = Ring(particle, (section, section))
+            np.testing.assert_equal(
+                ring_reference.circumference, ring.circumference)
+            np.testing.assert_equal(
+                ring_reference.alpha_0, ring.alpha_0)
+            np.testing.assert_equal(
+                ring_reference.momentum, ring.momentum)
+
+    def test_other_synchronous_data_multisection(self):
+        # Test passing other sync data
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        particle = Proton()
+        momentum = 26e9  # eV/c
+        tot_energy = 26e9  # eV
+        kin_energy = 26e9  # eV
+        bending_radius = 70  # m
+        b_field = momentum / c / particle.charge / bending_radius  # T
+
+        with self.subTest('Other sync data - Multisection - tot_energy'):
+            section_1 = RingSection(length / 2, alpha_0, momentum)
+            section_2 = RingSection(length / 2, alpha_0, energy=tot_energy)
+            ring = Ring(particle, [section_1, section_2])
+            np.testing.assert_allclose(
+                momentum, ring.momentum[0, :])
+            np.testing.assert_allclose(
+                tot_energy, ring.energy[1, :])
+
+        with self.subTest('Other sync data - Multisection - kin_energy'):
+            # NB: allclose due to double conversion
+            section_1 = RingSection(length / 2, alpha_0, momentum)
+            section_2 = RingSection(length / 2, alpha_0, kin_energy=kin_energy)
+            ring = Ring(particle, [section_1, section_2])
+            np.testing.assert_allclose(
+                momentum, ring.momentum[0, :])
+            np.testing.assert_allclose(
+                kin_energy, ring.kin_energy[1, :])
+
+        with self.subTest('Other sync data - Multisection - b_field'):
+            # NB: allclose due to double conversion
+            section_1 = RingSection(length / 2, alpha_0, momentum)
+            section_2 = RingSection(length / 2, alpha_0, bending_field=b_field,
+                                    bending_radius=bending_radius)
+            ring = Ring(particle, [section_1, section_2])
+            np.testing.assert_allclose(
+                momentum, ring.momentum[0, :])
+            np.testing.assert_allclose(
+                momentum, ring.momentum[1, :])
+
+    def test_non_linear_momentum_compaction_multisection(self):
+        # Test passing non linear momentum compaction factor
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        particle = Proton()
+        alpha_1 = 1e-6
+        alpha_2 = 1e-9
+        alpha_5 = 1e-12
+
+        section_1 = RingSection(length, alpha_0, momentum)
+        section_2 = RingSection(length, alpha_0, momentum,
+                                alpha_1=alpha_1,
+                                alpha_2=alpha_2,
+                                alpha_5=alpha_5)
+        ring = Ring(particle, [section_1, section_2])
+
+        with self.subTest('Non linear alpha - Multisection - alpha_1'):
+            np.testing.assert_equal(
+                0, ring.alpha_1[0, :])
+            np.testing.assert_equal(
+                alpha_1, ring.alpha_1[1, :])
+
+        with self.subTest('Non linear alpha - Multisection - alpha_2'):
+            np.testing.assert_equal(
+                0, ring.alpha_2[0, :])
+            np.testing.assert_equal(
+                alpha_2, ring.alpha_2[1, :])
+
+        with self.subTest('Non linear alpha - Multisection - alpha_5'):
+            np.testing.assert_equal(
+                0, ring.alpha_5[0, :])
+            np.testing.assert_equal(
+                alpha_5, ring.alpha_5[1, :])
+
     # Exception raising test --------------------------------------------------
 
     def test_assert_wrong_section_list(self):
@@ -357,6 +518,23 @@ class TestRing(unittest.TestCase):
         with self.subTest('Wrong RingSection_list - multisection other type'):
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 Ring(particle, [section, 'test'])
+
+    def test_unused_kwarg(self):
+        # Test the warning that kwargs were not used
+        # (e.g. miss-typed or bad option)
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        particle = Proton()
+        kwargs = {'bad_kwarg': 0}
+        warn_message = (
+            "Unused kwargs have been detected, " +
+            f"they are \['{list(kwargs.keys())[0]}'\]")
+
+        with self.assertWarnsRegex(Warning, warn_message):
+            section = RingSection(length, alpha_0, momentum)
+            Ring(particle, [section], **kwargs)
 
 
 if __name__ == '__main__':
