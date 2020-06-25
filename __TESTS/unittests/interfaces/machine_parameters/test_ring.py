@@ -172,29 +172,31 @@ class TestRing(unittest.TestCase):
         length = 300  # m
         alpha_0 = 1e-3
         particle = Proton()
+        momentum = 26e9  # eV/c
         tot_energy = 26e9  # eV
         kin_energy = 26e9  # eV
         bending_radius = 70  # m
-        momentum = 26e9  # eV/c
         b_field = momentum / c / particle.charge / bending_radius  # T
 
         with self.subTest('Simple input - tot_energy'):
             section = RingSection(length, alpha_0, energy=tot_energy)
             ring = Ring(particle, [section])
-            np.testing.assert_equal(
+            np.testing.assert_allclose(
                 tot_energy, ring.energy)
 
         with self.subTest('Simple input - kin_energy'):
+            # NB: allclose due to double conversion
             section = RingSection(length, alpha_0, kin_energy=kin_energy)
             ring = Ring(particle, [section])
-            np.testing.assert_equal(
+            np.testing.assert_allclose(
                 kin_energy, ring.kin_energy)
 
         with self.subTest('Simple input - b_field'):
+            # NB: allclose due to double conversion
             section = RingSection(length, alpha_0, bending_field=b_field,
                                   bending_radius=bending_radius)
             ring = Ring(particle, [section])
-            np.testing.assert_equal(
+            np.testing.assert_allclose(
                 momentum, ring.momentum)
 
     def test_non_linear_momentum_compaction(self):
@@ -249,6 +251,89 @@ class TestRing(unittest.TestCase):
                 alpha_2, ring.alpha_2)
             np.testing.assert_equal(
                 alpha_5, ring.alpha_5)
+
+    def test_turn_based_sync_program(self):
+        # Test passing turn based momentum program
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        particle = Proton()
+        momentum = [26e9, 27e9, 28e9]  # eV/c
+        tot_energy = [26e9, 27e9, 28e9]  # eV
+        kin_energy = [26e9, 27e9, 28e9]  # eV
+        bending_radius = 70  # m
+        b_field = np.array(momentum) / c / \
+            particle.charge / bending_radius  # T
+
+        with self.subTest('Turn based program - momentum'):
+            section = RingSection(length, alpha_0, momentum)
+            ring = Ring(particle, [section])
+            np.testing.assert_equal(
+                momentum, ring.momentum[0, :])
+
+        with self.subTest('Turn based program - tot_energy'):
+            # NB: allclose due to double conversion
+            section = RingSection(length, alpha_0, energy=tot_energy)
+            ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                tot_energy, ring.energy[0, :])
+
+        with self.subTest('Turn based program - kin_energy'):
+            # NB: allclose due to double conversion
+            section = RingSection(length, alpha_0, kin_energy=kin_energy)
+            ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                kin_energy, ring.kin_energy[0, :])
+
+        with self.subTest('Turn based program - bending_field'):
+            # NB: allclose due to double conversion
+            section = RingSection(length, alpha_0, bending_field=b_field,
+                                  bending_radius=bending_radius)
+            ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                momentum, ring.momentum[0, :])
+
+    def test_time_based_sync_program(self):
+        # Test passing non linear momentum compaction factor
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        particle = Proton()
+        momentum = [[0, 100e-6], [26e9, 26e9]]  # eV/c
+        tot_energy = [[0, 100e-6], [26e9, 26e9]]  # eV
+        kin_energy = [[0, 100e-6], [26e9, 26e9]]  # eV
+        bending_radius = 70  # m
+        b_field = np.array(momentum)
+        b_field[1, :] *= 1 / c / \
+            particle.charge / bending_radius  # T
+
+        with self.subTest('Time based program - momentum'):
+            section = RingSection(length, alpha_0, momentum)
+            ring = Ring(particle, [section])
+            np.testing.assert_equal(
+                np.mean(momentum[1]), np.mean(ring.momentum))
+
+        with self.subTest('Time based program - tot_energy'):
+            # NB: allclose due to double conversion
+            section = RingSection(length, alpha_0, energy=tot_energy)
+            ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                np.mean(tot_energy[1]), np.mean(ring.energy))
+
+        with self.subTest('Time based program - kin_energy'):
+            # NB: allclose due to double conversion
+            section = RingSection(length, alpha_0, kin_energy=kin_energy)
+            ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                np.mean(kin_energy[1]), np.mean(ring.kin_energy))
+
+        with self.subTest('Time based program - b_field'):
+            # NB: allclose due to double conversion
+            section = RingSection(length, alpha_0, bending_field=b_field,
+                                  bending_radius=bending_radius)
+            ring = Ring(particle, [section])
+            np.testing.assert_allclose(
+                np.mean(momentum[1]), np.mean(ring.momentum))
 
     # Exception raising test --------------------------------------------------
 
