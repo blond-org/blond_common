@@ -85,34 +85,149 @@ class test_core(unittest.TestCase):
                                       msg='Type incorrect after copying')
 
 
-    def test_reshape(self):
+    def test_reshape_basic(self):
 
-        test1 = core._function(np.array([[[1, 2, 3], [1, 2, 3]]]),
+        ############
+        #TIME BASED#
+        ############
+        test = core._function(np.array([[[1, 2, 3], [1, 2, 3]]]),
                            data_type={'timebase': 'by_time'},
                            interpolation='linear')
-        test2 = test1.reshape(1, [1.5])
-        self.assertEqual(test2, 1.5,
+        test = test.reshape(1, [1.5], [1])
+        self.assertEqual(test, 1.5,
                                  msg='Interpolation not computed correctly')
-        self.assertIsInstance(test2, core._function,
+        self.assertIsInstance(test, core._function,
                                   msg='Type incorrect after reshape')
-        self.assertEqual(test2.timebase, 'interpolated',
+        self.assertEqual(test.timebase, 'interpolated',
                          msg = 'After reshape timebase should be interpolated')
 
-
-        test3 = core._function(np.array([[[1, 2, 3], [1, 2, 3]],
+        test = core._function(np.array([[[1, 2, 3], [1, 2, 3]],
                                          [[1, 2, 3], [4, 5, 6]]]),
                            data_type={'timebase': 'by_time'},
                            interpolation='linear')
-        test4 = test3.reshape(2, [1.5])
+        test = test.reshape(2, [1.5], [1])
 
-        self.assertEqual(test4[0][0], 1.5,
+        self.assertEqual(test[0][0], 1.5,
                                  msg='Interpolation not computed correctly')
-        self.assertEqual(test4[1][0], 4.5,
+        self.assertEqual(test[1][0], 4.5,
                                  msg='Interpolation not computed correctly')
-        self.assertIsInstance(test4, core._function,
+        self.assertIsInstance(test, core._function,
                                   msg='Type incorrect after reshape')
-        self.assertEqual(test4.timebase, 'interpolated',
+        self.assertEqual(test.timebase, 'interpolated',
                          msg = 'After reshape timebase should be interpolated')
+
+        ############
+        #TURN BASED#
+        ############
+        test = core._function(np.array([[1, 2, 3, 1, 2, 3]]),
+                           data_type={'timebase': 'by_turn'},
+                           interpolation='linear')
+        test = test.reshape(1, [1.5], use_turns = [1])
+        self.assertEqual(test, 2, msg='Interpolation not computed correctly')
+        self.assertIsInstance(test, core._function,
+                                  msg='Type incorrect after reshape')
+        self.assertEqual(test.timebase, 'interpolated',
+                         msg = 'After reshape timebase should be interpolated')
+
+        test = core._function(np.array([[1, 2, 3, 1, 2, 3],
+                                          [1, 2, 3, 4, 5, 6]]),
+                            data_type={'timebase': 'by_turn'},
+                            interpolation='linear')
+        test = test.reshape(2, use_time = [1.5, 2.5], use_turns = [1, 3])
+
+        self.assertEqual(test[0][0], 2,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[0][1], 1,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[1][0], 2,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[1][1], 4,
+                                  msg='Interpolation not computed correctly')
+        self.assertIsInstance(test, core._function,
+                                  msg='Type incorrect after reshape')
+        self.assertEqual(test.timebase, 'interpolated',
+                         msg = 'After reshape timebase should be interpolated')
+
+        ###############
+        #SINGLE VALUED#
+        ###############
+        test = core._function(np.array([1]),
+                           data_type={'timebase': 'single'},
+                           interpolation='linear')
+        test = test.reshape(1, [1.5], use_turns = [1])
+        self.assertEqual(test, 1, msg='Interpolation not computed correctly')
+        self.assertIsInstance(test, core._function,
+                                  msg='Type incorrect after reshape')
+        self.assertEqual(test.timebase, 'interpolated',
+                         msg = 'After reshape timebase should be interpolated')
+
+        test = core._function(np.array([1, 2, 3]),
+                            data_type={'timebase': 'single'},
+                            interpolation='linear')
+        test = test.reshape(3, use_time = [1.5, 2.5], use_turns = [1, 3])
+
+        self.assertEqual(test[0][0], 1,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[0][1], 1,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[1][0], 2,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[1][1], 2,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[2][0], 3,
+                                  msg='Interpolation not computed correctly')
+        self.assertEqual(test[2][1], 3,
+                                  msg='Interpolation not computed correctly')
+        self.assertIsInstance(test, core._function,
+                                  msg='Type incorrect after reshape')
+        self.assertEqual(test.timebase, 'interpolated',
+                         msg = 'After reshape timebase should be interpolated')
+
+
+    def test_reshape_store_time(self):
+
+        test = core._function(np.array([[[1, 2, 3], [1, 2, 3]],
+                                          [[1, 2, 3], [4, 5, 6]]]),
+                            data_type={'timebase': 'by_time'},
+                            interpolation='linear')
+        test = test.reshape(2, [1.5], store_time = True)
+
+        self.assertEqual(test.shape, (2, 2, 1),
+                             msg = 'The reshaped array has the wrong shape')
+        self.assertEqual(test[0,0,0], 1.5,
+                                     msg = 'The new time axis is incorrect')
+        self.assertEqual(test[1,0,0], 1.5,
+                                     msg = 'The new time axis is incorrect')
+        self.assertEqual(test[0,1,0], 1.5,
+                                     msg = 'The interpolation is incorrect')
+        self.assertEqual(test[1,1,0], 4.5,
+                                     msg = 'The interpolation is incorrect')
+
+        test = core._function(np.array([1, 2]),
+                              data_type={'timebase': 'single'},
+                              interpolation='linear')
+        test = test.reshape(2, [1.5], store_time = True)
+
+        self.assertEqual(test.shape, (2, 2, 1),
+                             msg = 'The reshaped array has the wrong shape')
+        self.assertEqual(test[0,0,0], 1.5,
+                                     msg = 'The new time axis is incorrect')
+        self.assertEqual(test[1,0,0], 1.5,
+                                     msg = 'The new time axis is incorrect')
+        self.assertEqual(test[0,1,0], 1,
+                                     msg = 'The interpolation is incorrect')
+        self.assertEqual(test[1,1,0], 2,
+                                     msg = 'The interpolation is incorrect')
+
+        test = core._function.zeros([2, 3], data_type={'timebase':
+                                                           'by_turn'})
+        with self.assertRaises(exceptions.InputError, \
+                               msg='store_time should raise an InputError '
+                                   +'for a function defined by_turn'):
+            test.reshape(2, use_turns = [1], store_time = True)
+
+
+
 
 if __name__ == '__main__':
 
