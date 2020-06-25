@@ -451,7 +451,7 @@ class Ring:
 
         # Getting the momentum compaction factors (linear and non linear)
         alphas = {'alpha_0': alpha_0, 'alpha_1': alpha_1,
-                  **{k: v for k in kwargs if 'alpha_' in k}}
+                  **{k: kwargs[k] for k in kwargs if 'alpha_' in k}}
         for k in alphas:
             if alphas[k] is None:
                 alphas[k] = [None] * n_sections
