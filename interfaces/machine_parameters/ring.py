@@ -312,10 +312,18 @@ class Ring:
 
         # Updating the number of turns in case it was changed after ramp
         # interpolation
-        self.n_turns = momentum_processed.n_turns
+        self.n_turns = momentum_processed.n_turns - 1
 
         # Storing the momentum program and computing all associated values
-        self.momentum = momentum_processed[2:]
+        if momentum_by_turn:
+            self.momentum = momentum_processed[2:]
+        else:
+            self.momentum = ring_programs.momentum_program.zeros(
+                (self.n_sections, len(momentum_processed[2])))
+            for index_section in range(self.n_sections):
+                self.momentum[index_section] = momentum_processed[2]
+
+        # Converting all values associated to momentum
         self.beta = np.array(rt.mom_to_beta(
             self.momentum, self.Particle.mass))
         self.gamma = np.array(rt.mom_to_gamma(
@@ -339,7 +347,7 @@ class Ring:
         self.circumference = np.sum(self.section_length, axis=0)
         self.radius = self.circumference / (2 * np.pi)
 
-        # Getting orbit bunp from comparison of circumference vs. design
+        # Getting orbit bump from comparison of circumference vs. design
         self.orbit_bump = self.circumference - self.circumference_design
 
         # Computing the revolution period on the design orbit
@@ -358,7 +366,7 @@ class Ring:
         self.omega_rev = 2 * np.pi * self.f_rev
 
         # Recalculating the delta_E
-        if self.n_turns > len(self.use_turns):
+        if (self.n_turns+1) > len(self.use_turns):
             self.delta_E = np.zeros(self.energy.shape)
             self._recalc_delta_E()
         else:
@@ -451,7 +459,7 @@ class Ring:
 
         # Getting the momentum compaction factors (linear and non linear)
         alphas = {'alpha_0': alpha_0, 'alpha_1': alpha_1,
-                  **{k: v for k in kwargs if 'alpha_' in k}}
+                  **{k: kwargs[k] for k in kwargs if 'alpha_' in k}}
         for k in alphas:
             if alphas[k] is None:
                 alphas[k] = [None] * n_sections
@@ -507,7 +515,7 @@ class Ring:
                 Third Edition, 2012.
         """
 
-        for i in range(self.eta_orders + 1):
+        for i in range(np.min([self.eta_orders + 1, 3])):
             getattr(self, '_eta' + str(i))()
 
     def _eta0(self):
