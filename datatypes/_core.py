@@ -1,5 +1,6 @@
 # General imports
 import numpy as np
+import numbers
 import sys
 import os
 import warnings
@@ -73,6 +74,51 @@ class _function(np.ndarray):
             return
 
         self.data_type = getattr(obj, 'data_type', None)
+
+
+    def __add__(self, other):
+        return self._add(other, inPlace = False)
+
+
+    def _add(self, other, inPlace = False):
+        if isinstance(other, self.__class__):
+            self._check_data_and_type(other)
+            newArray = self._operate_equivalent_functions(other, np.add)
+            if not inPlace:
+                return newArray
+
+
+    def _operate_equivalent_functions(self, other, operation):
+        newArray = self.copy()
+        if self.timebase == 'by_time':
+            newArray[:,1,:] = operation(self[:,1,:], other[:,1,:])
+        else:
+            newArray[:] = operation(self, other)
+
+        return newArray
+
+
+    def _operate_other(self, other, operation):
+        if isinstance(other, numbers.Number):
+            return self._operate_equivalent_functions(other, operation)
+
+
+    def _type_check(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError("Datatypes should be the same, but they are "
+                            + f"{self.__class__} and {other.__class__}.")
+
+
+    def _data_check(self, other):
+        if self.data_type != other.data_type:
+            raise TypeError("Datatypes should have the same `data_type` dict "
+                            +f"but they are {self.data_type} and "
+                            +f"{other.data_type}")
+
+
+    def _check_data_and_type(self, other):
+        self._type_check(other)
+        self._data_check(other)
 
 
     @classmethod
