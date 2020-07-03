@@ -58,7 +58,7 @@ class TestRingSection(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = 1e-3
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
 
         section = RingSection(length, alpha_0, momentum)
 
@@ -112,7 +112,7 @@ class TestRingSection(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = 1e-3
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
         orbit_bump = 0.001  # m
 
         section = RingSection(length, alpha_0, momentum,
@@ -354,7 +354,7 @@ class TestRingSection(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = 1e-3
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
         alpha_1 = 1e-6
         alpha_2 = 1e-9
         alpha_5 = 1e-12
@@ -419,10 +419,10 @@ class TestRingSection(unittest.TestCase):
         alpha_0_time = machine_program([[0, 1, 2],
                                         [1e-3, 1.1e-3, 1.2e-3]])
 
-        momentum_single = machine_program(26e9)  # eV
-        momentum_turn = machine_program(26e9, n_turns=5)  # eV
+        momentum_single = machine_program(26e9)  # eV/c
+        momentum_turn = machine_program(26e9, n_turns=5)  # eV/c
         momentum_time = machine_program([[0, 1, 2],
-                                         [26e9, 27e9, 28e9]])  # [s, eV]
+                                         [26e9, 27e9, 28e9]])  # [s, eV/c]
 
         orbit_single = machine_program(0.001)  # m
         orbit_turn = machine_program(0.001, n_turns=5)  # m
@@ -478,12 +478,12 @@ class TestRingSection(unittest.TestCase):
             [[0, 1, 2],
              [1e-3, 1.1e-3, 1.2e-3]])
 
-        momentum_single = dTypes.ring_programs.momentum_program(26e9)  # eV
+        momentum_single = dTypes.ring_programs.momentum_program(26e9)  # eV/c
         momentum_turn = dTypes.ring_programs.momentum_program(
-            26e9, n_turns=5)  # eV
+            26e9, n_turns=5)  # eV/c
         momentum_time = dTypes.ring_programs.momentum_program(
             [[0, 1, 2],
-             [26e9, 27e9, 28e9]])  # [s, eV]
+             [26e9, 27e9, 28e9]])  # [s, eV/c]
 
         orbit_single = dTypes.ring_programs.orbit_length_program(0.001)  # m
         orbit_turn = dTypes.ring_programs.orbit_length_program(
@@ -568,7 +568,7 @@ class TestRingSection(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = [1e-3, 1e-3]
-        momentum = [26e9, 27e9, 28e9]  # eV
+        momentum = [26e9, 27e9, 28e9]  # eV/c
         alpha_1 = [1e-6, 1e-6]
         orbit_bump = [0.01, 0.01]  # m
 
@@ -613,17 +613,17 @@ class TestRingSection(unittest.TestCase):
                 RingSection(length, alpha_0[0], momentum,
                             orbit_bump=orbit_bump)
 
-    def test_warning_turn_time_mix(self):
+    def test_warning_time_turn_mix(self):
         # Test the warning that time based programs and turn based
         # were mixed
 
         length = 300  # m
-        momentum = [[0, 1, 2], [26e9, 27e9, 28e9]]  # eV
+        momentum = [[0, 1, 2], [26e9, 27e9, 28e9]]  # eV/c
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
         orbit_bump = [0.01, 0.01]  # m
 
-        with self.subTest('Turn/time program mix - alpha_0'):
+        with self.subTest('Time/turn program mix - alpha_0'):
 
             order = 0
             attr_name = 'alpha_' + str(order)
@@ -635,7 +635,7 @@ class TestRingSection(unittest.TestCase):
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0, momentum)
 
-        with self.subTest('Turn/time program mix - alpha_1'):
+        with self.subTest('Time/turn program mix - alpha_1'):
 
             order = 1
             attr_name = 'alpha_' + str(order)
@@ -647,7 +647,7 @@ class TestRingSection(unittest.TestCase):
             with self.assertWarnsRegex(Warning, warn_message):
                 RingSection(length, alpha_0[0], momentum, alpha_1=alpha_1)
 
-        with self.subTest('Turn/time program mix - orbit_bump'):
+        with self.subTest('Time/turn program mix - orbit_bump'):
 
             attr_name = 'orbit_bump'
             warn_message = (
@@ -659,12 +659,58 @@ class TestRingSection(unittest.TestCase):
                 RingSection(length, alpha_0[0], momentum,
                             orbit_bump=orbit_bump)
 
+    def test_warning_turn_time_mix(self):
+        # Test the warning that time based programs and turn based
+        # were mixed
+
+        length = 300  # m
+        momentum = [26e9, 27e9, 28e9]  # eV/c
+        alpha_0 = [[0, 1, 2], [1e-3, 1e-3, 1e-3]]
+        alpha_1 = [[0, 1, 2], [1e-6, 1e-6, 1e-6]]
+        orbit_bump = [[0, 1, 2], [0.01, 0.01, 0.01]]  # m
+
+        with self.subTest('Turn/time program mix - alpha_0'):
+
+            order = 0
+            attr_name = 'alpha_' + str(order)
+            warn_message = (
+                'The synchronous data was defined turn based while the ' +
+                'input ' + attr_name + ' was defined time base, this may' +
+                'lead to errors in the Ring object after interpolation.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0, momentum)
+
+        with self.subTest('Turn/time program mix - alpha_1'):
+
+            order = 1
+            attr_name = 'alpha_' + str(order)
+            warn_message = (
+                'The synchronous data was defined turn based while the ' +
+                'input ' + attr_name + ' was defined time base, this may' +
+                'lead to errors in the Ring object after interpolation.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0[1][0], momentum, alpha_1=alpha_1)
+
+        with self.subTest('Turn/time program mix - orbit_bump'):
+
+            attr_name = 'orbit_bump'
+            warn_message = (
+                'The synchronous data was defined turn based while the ' +
+                'input ' + attr_name + ' was defined time base, this may' +
+                'lead to errors in the Ring object after interpolation.')
+
+            with self.assertWarnsRegex(Warning, warn_message):
+                RingSection(length, alpha_0[1][0], momentum,
+                            orbit_bump=orbit_bump)
+
     def test_warning_single_prog_mix(self):
         # Test the warning that single value programs and turn/time based
         # were mixed
 
         length = 300  # m
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
         alpha_0 = [1e-3, 1e-3]
         alpha_1 = [1e-6, 1e-6]
         orbit_bump = [0.01, 0.01]  # m
@@ -674,9 +720,9 @@ class TestRingSection(unittest.TestCase):
             order = 0
             attr_name = 'alpha_' + str(order)
             warn_message = (
-                'The synchronous data was defined as single element while the ' +
-                'input ' + attr_name + ' was defined turn or time based. ' +
-                'Only the first element of the program will be taken in ' +
+                'The synchronous data was defined as single element while ' +
+                'the input ' + attr_name + ' was defined turn or time based.' +
+                ' Only the first element of the program will be taken in ' +
                 'the Ring object after treatment.')
 
             with self.assertWarnsRegex(Warning, warn_message):
@@ -687,9 +733,9 @@ class TestRingSection(unittest.TestCase):
             order = 1
             attr_name = 'alpha_' + str(order)
             warn_message = (
-                'The synchronous data was defined as single element while the ' +
-                'input ' + attr_name + ' was defined turn or time based. ' +
-                'Only the first element of the program will be taken in ' +
+                'The synchronous data was defined as single element while ' +
+                'the input ' + attr_name + ' was defined turn or time based.' +
+                ' Only the first element of the program will be taken in ' +
                 'the Ring object after treatment.')
 
             with self.assertWarnsRegex(Warning, warn_message):
@@ -699,9 +745,9 @@ class TestRingSection(unittest.TestCase):
 
             attr_name = 'orbit_bump'
             warn_message = (
-                'The synchronous data was defined as single element while the ' +
-                'input ' + attr_name + ' was defined turn or time based. ' +
-                'Only the first element of the program will be taken in ' +
+                'The synchronous data was defined as single element while ' +
+                'the input ' + attr_name + ' was defined turn or time based.' +
+                ' Only the first element of the program will be taken in ' +
                 'the Ring object after treatment.')
 
             with self.assertWarnsRegex(Warning, warn_message):
@@ -713,7 +759,7 @@ class TestRingSection(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = 1e-3
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
         alpha5 = 1e-12
 
         error_message = ('The keyword argument alpha5 was interpreted ' +
@@ -729,7 +775,7 @@ class TestRingSection(unittest.TestCase):
 
         length = 300  # m
         alpha_0 = dTypes.ring_programs.momentum_compaction(1e-3, order=0)
-        momentum = 26e9  # eV
+        momentum = 26e9  # eV/c
         alpha_1 = dTypes.ring_programs.momentum_compaction(1e-6, order=1)
 
         with self.subTest('Wrong datatype order - alpha_0'):
@@ -756,6 +802,21 @@ class TestRingSection(unittest.TestCase):
             with self.assertRaisesRegex(excpt.InputError, error_message):
                 RingSection(length, alpha_0, momentum, alpha_1=alpha_1,
                             alpha_3=alpha_1)
+
+    def test_unused_kwarg(self):
+        # Test the warning that kwargs were not used
+        # (e.g. miss-typed or bad option)
+
+        length = 300  # m
+        alpha_0 = 1e-3
+        momentum = 26e9  # eV/c
+        kwargs = {'bad_kwarg': 0}
+        warn_message = (
+            "Unused kwargs have been detected, " +
+            f"they are \['{list(kwargs.keys())[0]}'\]")
+
+        with self.assertWarnsRegex(Warning, warn_message):
+            RingSection(length, alpha_0, momentum, **kwargs)
 
 
 if __name__ == '__main__':

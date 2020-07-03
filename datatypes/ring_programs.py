@@ -545,17 +545,17 @@ class _synchronous_data_program(_ring_function):
         # TODO: nTurns != self.shape[1]
         elif self.timebase == 'by_turn':
             if targetNTurns < np.inf:
-                nTurns = targetNTurns - 1
+                nTurns = targetNTurns
             else:
-                nTurns = self.shape[1] - 1
-            useTurns = np.arange(nTurns + 1)
+                nTurns = self.shape[1]
+            useTurns = np.arange(nTurns)
             time = self._time_from_turn(mass, circumference)
             momentum = self.copy()
 
         # TODO: Handle passed number of turns
         elif self.timebase == 'single':
             time = [0]
-            nTurns = 0
+            nTurns = 1
             useTurns = [0]
             momentum = self.copy()
 
