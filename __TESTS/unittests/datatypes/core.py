@@ -17,6 +17,7 @@ Test dataypes._core.py
 import sys
 import unittest
 import numpy as np
+import numpy.testing as npTest
 import os
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
@@ -227,6 +228,51 @@ class test_core(unittest.TestCase):
             test.reshape(2, use_turns = [1], store_time = True)
 
 
+    def test_addition(self):
+
+        test = core._function(1, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test += 5
+        self.assertEqual(test, 6, msg='Single value in place addition '
+                                         + 'incorrect')
+
+        test = core._function(1, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test2 = test + 1
+        self.assertEqual(test2, 2, msg='Single value addition '
+                                         + 'incorrect')
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test += 5
+        compare = [[6, 7, 8], [9, 10, 11]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by turn in place addition incorrect")
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test2 = test + 1
+        compare = [[2, 3, 4], [5, 6, 7]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by turn addition incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test += 5
+        compare = [[[1, 2, 3], [9, 10, 11]]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by time in place addition incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test2 = test + 1
+        compare = [[[1, 2, 3], [5, 6, 7]]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by time addition incorrect")
 
 
 if __name__ == '__main__':
