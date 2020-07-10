@@ -50,20 +50,20 @@ class _function(np.ndarray):
         
         if data_type is None:
             raise excpt.InputError("data_type must be specified")
-        
+
         try:
             obj = np.asarray(input_array).view(cls)
         except ValueError:
             raise excpt.InputError("Function components could not be " \
                                         + "correctly coerced into ndarray, " \
                                         + "check input dimensionality")
-        
+
         obj.data_type = data_type
-        
+
         obj.interpolation = interpolation
-        
+
         return obj
-    
+
     def __array_finalize__(self, obj):
         """
         Parameters
@@ -77,30 +77,66 @@ class _function(np.ndarray):
 
 
     def __add__(self, other):
-        return self._add(other, inPlace = False)
+        return self._operate(other, np.add, inPlace = False)
+
+    def __iadd__(self, other):
+        self._operate(other, np.add, inPlace = True)
+        return self
 
 
-    def _add(self, other, inPlace = False):
+    def __mul__(self, other):
+        return self._operate(other, np.multiply, inPlace = False)
+
+    def __imul__(self, other):
+        self._operate(other, np.multiply, inPlace = True)
+        return self
+
+
+    def _operate(self, other, operation, inPlace = False):
         if isinstance(other, self.__class__):
             self._check_data_and_type(other)
-            newArray = self._operate_equivalent_functions(other, np.add)
-            if not inPlace:
-                return newArray
+            newArray = self._operate_equivalent_functions(other, operation)
+        else:
+            newArray = self._operate_other_functions(other, operation)
+
+        if not inPlace:
+            return newArray
+        if inPlace:
+            if self.timebase == 'by_time':
+                self[:,1,:] = newArray[:,1,:]
+            else:
+                self[:] = newArray[:]
+
+        return
 
 
     def _operate_equivalent_functions(self, other, operation):
+
+        if self.timebase != other.timebase:
+            raise TypeError("Only functions with the same timebase can be "
+                            + "used.")
+
+        if self.timebase == 'by_time':
+            return self._operate_general(other[:,1,:], operation)
+        else:
+            return self._operate_general(other, operation)
+
+
+    def _operate_other_functions(self, other, operation):
+        if isinstance(other, numbers.Number):
+            return self._operate_general(other, operation)
+        else:
+            raise RuntimeError("broke")
+
+
+    def _operate_general(self, other, operation):
+
         newArray = self.copy()
         if self.timebase == 'by_time':
-            newArray[:,1,:] = operation(self[:,1,:], other[:,1,:])
+            newArray[:,1,:] = operation(self[:,1,:], other)
         else:
             newArray[:] = operation(self, other)
-
         return newArray
-
-
-    def _operate_other(self, other, operation):
-        if isinstance(other, numbers.Number):
-            return self._operate_equivalent_functions(other, operation)
 
 
     def _type_check(self, other):
@@ -185,6 +221,23 @@ class _function(np.ndarray):
     def timebase(self, value):
         self._check_data_type('timebase', value)
         self._timebase = value
+
+
+    @property
+    def interpolation(self):
+        """
+        Get or set the timebase.  Setting the timebase will update the
+        data_type dict.
+        """
+        try:
+            return self._interpolation
+        except AttributeError:
+            return None
+
+    @interpolation.setter
+    def interpolation(self, value):
+        self._check_data_type('interpolation', value)
+        self._interpolation = value
 
 
     def _check_data_type(self, element, value):
@@ -404,7 +457,8 @@ class _function(np.ndarray):
         self._comp_definition_reshape(n_sections, use_time, use_turns)
         interpArray = self._prep_reshape(n_sections, use_time, use_turns,
                                          store_time)
-
+        interpArray.testPar = "test parameter interpArray"
+        self.testPar = "test parameter selfArray"
         for s in range(n_sections):
             if self.timebase == 'single':
                 if self.shape[0] == 1:
