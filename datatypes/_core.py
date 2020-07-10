@@ -104,6 +104,8 @@ class _function(np.ndarray):
         if inPlace:
             if self.timebase == 'by_time':
                 self[:,1,:] = newArray[:,1,:]
+            elif self.timebase == 'single':
+                self[()] = newArray[()]
             else:
                 self[:] = newArray[:]
 
@@ -134,6 +136,8 @@ class _function(np.ndarray):
         newArray = self.copy()
         if self.timebase == 'by_time':
             newArray[:,1,:] = operation(self[:,1,:], other)
+        elif self.timebase == 'single':
+            newArray[()] = operation(self, other)
         else:
             newArray[:] = operation(self, other)
         return newArray
