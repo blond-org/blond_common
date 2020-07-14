@@ -241,8 +241,9 @@ class test_core(unittest.TestCase):
         test2 = test * 2
         self.assertEqual(test2, 4, msg='Single value multiplication '
                                          + 'incorrect')
-        
-        
+        test2 = 2 * test
+        self.assertEqual(test2, 4, msg='Single value rmultiplication '
+                                         + 'incorrect')
 
         test = core._function([[1, 2, 3], [4, 5, 6]],
                               data_type = {'timebase': 'by_turn'},
@@ -260,6 +261,10 @@ class test_core(unittest.TestCase):
         compare = [[2, 4, 6], [8, 10, 12]]
         npTest.assert_array_equal(test2, compare,
                               err_msg = "by turn multiplication incorrect")
+        test2 = 2 * test
+        compare = [[2, 4, 6], [8, 10, 12]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by turn rmultiplication incorrect")
 
         test = core._function([[[1, 2, 3], [4, 5, 6]]],
                               data_type = {'timebase': 'by_time'},
@@ -277,6 +282,10 @@ class test_core(unittest.TestCase):
         compare = [[[1, 2, 3], [8, 10, 12]]]
         npTest.assert_array_equal(test2, compare,
                               err_msg = "by time multiplication incorrect")
+        test2 = 2 * test
+        compare = [[[1, 2, 3], [8, 10, 12]]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by time rmultiplication incorrect")
 
 
     def test_addition(self):
@@ -291,6 +300,9 @@ class test_core(unittest.TestCase):
                               interpolation = 'linear')
         test2 = test + 1
         self.assertEqual(test2, 2, msg='Single value addition '
+                                         + 'incorrect')
+        test2 = 1 + test
+        self.assertEqual(test2, 2, msg='Single value raddition '
                                          + 'incorrect')
 
         test = core._function([[1, 2, 3], [4, 5, 6]],
@@ -308,6 +320,10 @@ class test_core(unittest.TestCase):
         compare = [[2, 3, 4], [5, 6, 7]]
         npTest.assert_array_equal(test2, compare,
                               err_msg = "by turn addition incorrect")
+        test2 = 1 + test
+        compare = [[2, 3, 4], [5, 6, 7]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by turn raddition incorrect")
 
         test = core._function([[[1, 2, 3], [4, 5, 6]]],
                               data_type = {'timebase': 'by_time'},
@@ -324,6 +340,10 @@ class test_core(unittest.TestCase):
         compare = [[[1, 2, 3], [5, 6, 7]]]
         npTest.assert_array_equal(test2, compare,
                               err_msg = "by time addition incorrect")
+        test2 = 1 + test
+        compare = [[[1, 2, 3], [5, 6, 7]]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by time raddition incorrect")
 
 
 if __name__ == '__main__':
