@@ -1217,9 +1217,15 @@ class bending_field_program(_synchronous_data_program):
     """A str identifying the data"""
 
 
+
 for data in [momentum_program, total_energy_program, kinetic_energy_program,
              bending_field_program]:
     data._add_to_conversions()
+"""
+Loop over all defined _synchronous_data_program objects and added them to the
+available conversions.
+"""
+
 
 
 class momentum_compaction(_ring_function):
