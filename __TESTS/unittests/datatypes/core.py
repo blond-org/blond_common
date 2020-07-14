@@ -228,6 +228,57 @@ class test_core(unittest.TestCase):
             test.reshape(2, use_turns = [1], store_time = True)
 
 
+    def test_multiplication(self):
+
+        test = core._function(2, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test *= 5
+        self.assertEqual(test, 10, msg='Single value in place multiplication '
+                                         + 'incorrect')
+
+        test = core._function(2, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test2 = test * 2
+        self.assertEqual(test2, 4, msg='Single value multiplication '
+                                         + 'incorrect')
+        
+        
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test *= 2
+        compare = [[2, 4, 6], [8, 10, 12]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by turn in place multiplication " +
+                                          "incorrect")
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test2 = test * 2
+        compare = [[2, 4, 6], [8, 10, 12]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by turn multiplication incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test *= 2
+        compare = [[[1, 2, 3], [8, 10, 12]]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by time in place multiplication "
+                                          + "incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test2 = test * 2
+        compare = [[[1, 2, 3], [8, 10, 12]]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by time multiplication incorrect")
+
+
     def test_addition(self):
 
         test = core._function(1, data_type = {'timebase': 'single'},
