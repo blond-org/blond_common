@@ -83,6 +83,8 @@ class _function(np.ndarray):
         self._operate(other, np.add, inPlace = True)
         return self
 
+    __radd__ = __add__
+    __riadd__ = __iadd__
 
     def __mul__(self, other):
         return self._operate(other, np.multiply, inPlace = False)
@@ -91,6 +93,8 @@ class _function(np.ndarray):
         self._operate(other, np.multiply, inPlace = True)
         return self
 
+    __rmul__ = __mul__
+    __rimul__ = __imul__
 
     def _operate(self, other, operation, inPlace = False):
         if isinstance(other, self.__class__):
