@@ -61,7 +61,8 @@ class _ring_function(_function):
 
     """
     def __new__(cls, *args, time=None, n_turns=None,
-                allow_single=False, interpolation=None, **kwargs):
+                allow_single=False, interpolation=None, dtype=None,
+                **kwargs):
         args = _expand_function(*args)
         _check_time_turns(time, n_turns)
 
@@ -85,7 +86,8 @@ class _ring_function(_function):
 
         data_type = {**data_type, **kwargs}
 
-        return super().__new__(cls, data_points, data_type, interpolation)
+        return super().__new__(cls, data_points, data_type, interpolation,
+                               dtype)
 
     @classmethod
     def _combine_single_sections(cls, *args,
@@ -261,9 +263,10 @@ class _synchronous_data_program(_ring_function):
     synchronous programs, and the value is the corresponding class.
     """
 
-    def __new__(cls, *args, time=None, n_turns=None, interpolation=None):
+    def __new__(cls, *args, time=None, n_turns=None, interpolation=None,
+                dtype=None):
         return super().__new__(cls, *args, time=time, n_turns=n_turns,
-                               interpolation=interpolation)
+                               interpolation=interpolation, dtype=dtype)
 
     def to_momentum(self, inPlace=True, **kwargs):
         """
@@ -1256,11 +1259,12 @@ class momentum_compaction(_ring_function):
         The order of the momentum compaction factor program
     """
     def __new__(cls, *args, order=0, time=None, n_turns=None,
-                interpolation='linear'):
+                interpolation='linear', dtype=None):
 
         return super().__new__(cls, *args, time=time,
                                n_turns=n_turns, allow_single=True,
-                               interpolation='linear', order=order)
+                               interpolation='linear', dtype=dtype,
+                               order=order)
 
     @classmethod
     def combine_single_sections(cls, *args, interpolation=None):
@@ -1374,11 +1378,11 @@ class orbit_length_program(_ring_function):
     """
 
     def __new__(cls, *args, time=None, n_turns=None,
-                interpolation='linear'):
+                interpolation='linear', dtype=None):
 
         return super().__new__(cls, *args, time=time,
                                n_turns=n_turns, allow_single=True,
-                               interpolation='linear')
+                               interpolation='linear', dtype=dtype)
 
     @classmethod
     def combine_single_sections(cls, *args, interpolation=None):
