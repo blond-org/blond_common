@@ -52,7 +52,8 @@ class _RF_function(_function):
         The harmonics covered by the function.
     """
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear', allow_single = True, **kwargs):
+                interpolation = 'linear', allow_single = True, dtype = None,
+                **kwargs):
 
         args = _expand_function(*args)
 
@@ -82,7 +83,7 @@ class _RF_function(_function):
                      **kwargs}
         
         return super().__new__(cls, data_points, data_type, 
-                               interpolation)
+                               interpolation, dtype)
 
 
     @property
