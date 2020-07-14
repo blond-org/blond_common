@@ -46,13 +46,14 @@ class _function(np.ndarray):
         the array, currently only 'linear' has been implemented
     """
     
-    def __new__(cls, input_array, data_type=None, interpolation = None):
+    def __new__(cls, input_array, data_type=None, interpolation = None,
+                dtype = None):
         
         if data_type is None:
             raise excpt.InputError("data_type must be specified")
 
         try:
-            obj = np.asarray(input_array).view(cls)
+            obj = np.asarray(input_array, dtype=dtype).view(cls)
         except ValueError:
             raise excpt.InputError("Function components could not be " \
                                         + "correctly coerced into ndarray, " \
@@ -95,6 +96,16 @@ class _function(np.ndarray):
 
     __rmul__ = __mul__
     __rimul__ = __imul__
+
+    def __truediv__(self, other):
+        print("in truediv")
+        return self._operate(other, np.true_divide, inPlace = False)
+
+    def __itruediv__(self, other):
+        self._operate(other, np.true_divide, inPlace = True)
+        return self
+
+    # __rtruediv__ = __truediv__
 
     def _operate(self, other, operation, inPlace = False):
         if isinstance(other, self.__class__):
@@ -139,11 +150,11 @@ class _function(np.ndarray):
 
         newArray = self.copy()
         if self.timebase == 'by_time':
-            newArray[:,1,:] = operation(self[:,1,:], other)
+            newArray[:,1,:] = operation(self[:,1,:], other, casting = 'unsafe')
         elif self.timebase == 'single':
-            newArray[()] = operation(self, other)
+            newArray[()] = operation(self, other, casting = 'unsafe')
         else:
-            newArray[:] = operation(self, other)
+            newArray[:] = operation(self, other, casting = 'unsafe')
         return newArray
 
 
