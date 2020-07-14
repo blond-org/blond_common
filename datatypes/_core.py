@@ -98,14 +98,11 @@ class _function(np.ndarray):
     __rimul__ = __imul__
 
     def __truediv__(self, other):
-        print("in truediv")
         return self._operate(other, np.true_divide, inPlace = False)
 
     def __itruediv__(self, other):
         self._operate(other, np.true_divide, inPlace = True)
         return self
-
-    # __rtruediv__ = __truediv__
 
     def _operate(self, other, operation, inPlace = False):
         if isinstance(other, self.__class__):
