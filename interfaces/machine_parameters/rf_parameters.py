@@ -22,7 +22,7 @@ from ..beam.beam import Proton
 import sys
 
 #BLonD_Common imports
-from ...datatypes import datatypes as dTypes
+from ...datatypes import rf_programs as rfProgs
 from ...devtools import exceptions as excpt
 from ...devtools import assertions as assrt
 
@@ -208,7 +208,7 @@ class RFStation:
     >>> rf_station = RFStation(ring, [35640, 71280], [6e6, 6e5], [0, 0], 2)
 
     """
-
+    #TODO: move offsets to tracking only version
     def __init__(self, Ring, harmonic, voltage, phi_rf_d,
                  section_index=1, omega_rf_offset=None, phi_rf_offset=None):
 
@@ -224,7 +224,7 @@ class RFStation:
 
 
         #Coercion of voltage to RF_section_function datatype
-        if not isinstance(voltage, dTypes.voltage_program):
+        if not isinstance(voltage, rfProgs.voltage_program):
             if not hasattr(voltage, '__iter__'):
                 voltage = (voltage, )
             if isinstance(voltage, dict):
@@ -236,15 +236,15 @@ class RFStation:
                 voltage = useV
 
             try:
-                voltage = dTypes.voltage_program(*voltage, 
-                                                 harmonics = harmonic, 
-                                                 interpolation = 'linear')
+                voltage = rfProgs.voltage_program(*voltage, 
+                                                  harmonics = harmonic, 
+                                                  interpolation = 'linear')
             except excpt.DataDefinitionError:
-                voltage = dTypes.voltage_program(*voltage, 
-                                                 harmonics = harmonic)
+                voltage = rfProgs.voltage_program(*voltage, 
+                                                  harmonics = harmonic)
 
         #Coercion of phase to RF_section_function datatype
-        if not isinstance(phi_rf_d, dTypes.phase_program):
+        if not isinstance(phi_rf_d, rfProgs.phase_program):
             if not hasattr(phi_rf_d, '__iter__'):
                 phi_rf_d = (phi_rf_d, )
             if isinstance(phi_rf_d, dict):
@@ -255,11 +255,11 @@ class RFStation:
                     raise RuntimeError("Unrecognised harmonics in phi_rf_d")
                 phi_rf_d = usePhi
             try:
-                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                phi_rf_d = rfProgs.phase_program(*phi_rf_d, 
                                                  harmonics = harmonic, 
                                                  interpolation = 'linear')
             except excpt.DataDefinitionError:
-                phi_rf_d = dTypes.phase_program(*phi_rf_d, 
+                phi_rf_d = rfProgs.phase_program(*phi_rf_d, 
                                                 harmonics = harmonic)
 
         if not hasattr(harmonic, '__iter__'):
@@ -273,31 +273,19 @@ class RFStation:
         self.n_rf = len(voltage.harmonics)
         
 
-        # Imported from Ring
-        self.Particle = Ring.Particle
-        self.n_turns = Ring.n_turns
-        self.cycle_time = Ring.cycle_time
-        self.ring_circumference = Ring.ring_circumference
-        self.section_length = Ring.ring_length[self.section_index]
-        self.length_ratio = float(self.section_length/self.ring_circumference)
-        self.t_rev = Ring.t_rev
-        self.momentum = Ring.momentum[self.section_index]
-        self.beta = Ring.beta[self.section_index]
-        self.gamma = Ring.gamma[self.section_index]
-        self.energy = Ring.energy[self.section_index]
-        self.delta_E = Ring.delta_E[self.section_index]
-        self.alpha_order = Ring.alpha_order
-        self.charge = self.Particle.charge
-        
-        self.use_turns = Ring.use_turns.astype(int)
+        self._ring_pars(Ring)
 
         # The order alpha_order used here can be replaced by Ring.alpha_order
         # when the assembler can differentiate the cases 'simple' and 'full'
         # for the drift
         alpha_order = 2#Ring.alpha_order
         for i in range(alpha_order+1):
-            dummy = getattr(Ring, 'eta_' + str(i))
-            setattr(self, "eta_%s" % i, dummy[self.section_index])
+            try:
+                dummy = getattr(Ring, 'eta_' + str(i))
+            except AttributeError:
+                setattr(self, "eta_%s" % i, 0)
+            else:
+                setattr(self, "eta_%s" % i, dummy[self.section_index])
         self.sign_eta_0 = np.sign(self.eta_0)
 
         # Reshape design voltage
@@ -328,10 +316,10 @@ class RFStation:
         # Calculating omega and phi offsets
         if omega_rf_offset is None:
             useoff = (0,)*self.harmonic.shape[0]
-            omega_rf_offset = dTypes.omega_offset(*useoff, 
+            omega_rf_offset = rfProgs.omega_offset(*useoff, 
                                                   harmonics=harmonic)
 
-        if not isinstance(omega_rf_offset, dTypes.omega_offset):
+        if not isinstance(omega_rf_offset, rfProgs.omega_offset):
 
             if isinstance(omega_rf_offset, dict):
                 useoff = []
@@ -342,23 +330,23 @@ class RFStation:
                 omega_rf_offset = useoff
 
             try:
-                omega_rf_offset = dTypes.omega_offset(*omega_rf_offset, 
+                omega_rf_offset = rfProgs.omega_offset(*omega_rf_offset, 
                                                  harmonics = harmonic, 
                                                  interpolation = 'linear')
 
             except excpt.DataDefinitionError:
-                omega_rf_offset = dTypes.omega_offset(*omega_rf_offset, 
+                omega_rf_offset = rfProgs.omega_offset(*omega_rf_offset, 
                                                       harmonics = harmonic)
 
         self.omega_rf_offset = omega_rf_offset.reshape(self.harmonic[:,0],
                                                        Ring.cycle_time, 
                                                        Ring.use_turns)
-            
+
         if phi_rf_offset is None:
             useoff = (0,)*self.harmonic.shape[0]
-            phi_rf_offset = dTypes.phase_offset(*useoff, 
+            phi_rf_offset = rfProgs.phase_offset(*useoff, 
                                                 harmonics=harmonic)
-        if not isinstance(phi_rf_offset, dTypes.phase_offset):
+        if not isinstance(phi_rf_offset, rfProgs.phase_offset):
 
             if isinstance(phi_rf_offset, dict):
                 useoff = []
@@ -369,39 +357,78 @@ class RFStation:
                 phi_rf_offset = useoff
 
             try:
-                phi_rf_offset = dTypes.phase_offset(*phi_rf_offset, 
-                                                 harmonics = harmonic, 
-                                                 interpolation = 'linear')
+                phi_rf_offset = rfProgs.phase_offset(*phi_rf_offset, 
+                                                     harmonics = harmonic, 
+                                                     interpolation = 'linear')
 
             except excpt.DataDefinitionError:
-                phi_rf_offset = dTypes.phase_offset(*phi_rf_offset, 
+                phi_rf_offset = rfProgs.phase_offset(*phi_rf_offset, 
                                                    harmonics = harmonic)
 
         self.phi_rf_offset = phi_rf_offset.reshape(self.harmonic[:,0],
                                                    Ring.cycle_time, 
                                                    Ring.use_turns)
-            
         
-        self.phi_rf_offset += self.omega_rf_offset.calc_delta_phase(
+        deltaPhaseFromOmega = self.omega_rf_offset.calc_delta_phase(
                                                     Ring.omega_rev)
-
-        self.omega_rf_offset += self.phi_rf_offset.calc_delta_omega(
+        deltaOmegaFromPhase = self.phi_rf_offset.calc_delta_omega(
                                                     Ring.omega_rev)        
         
-        self.phi_rf_d += self.phi_rf_offset
-        self.omega_rf_d += self.omega_rf_offset
+        self.phi_rf = np.array(self.phi_rf_d)
+        self.omega_rf = np.array(self.omega_rf_d)
+        
+        self.phi_rf += deltaPhaseFromOmega + self.phi_rf_offset
+        self.omega_rf += deltaOmegaFromPhase + self.omega_rf_offset
         
         # Copy of the desing rf programs in the one used for tracking
         # and that can be changed by feedbacks
-        self.phi_rf = np.array(self.phi_rf_d)
         self.dphi_rf = np.zeros(self.n_rf)
-        self.omega_rf = np.array(self.omega_rf_d)
         self.t_rf = 2*np.pi / self.omega_rf
 
         # From helper functions
         self.phi_s = calculate_phi_s(self, self.Particle)
         self.Q_s = calculate_Q_s(self, self.Particle)
         self.omega_s0 = self.Q_s*Ring.omega_rev
+
+
+    @classmethod
+    def from_rf_systems(cls, Ring, *args, section_index=1):
+
+        self = object.__new__(cls)
+        self.section_index = int(section_index-1)
+        self._ring_pars(Ring)
+
+        rfShape = [len(args), len(self.cycle_time)]
+
+        self.voltage = rfProgs.voltage_program.zeros(rfShape)
+        self.phi_rf_d = rfProgs.phase_program.zeros(rfShape)
+        self.harmonic = np.zeros(rfShape)
+        
+        for i, a in enumerate(args):
+            self.voltage[i], self.phi_rf_d[i], self.harmonic[i] \
+                            = a.sample(self.cycle_time, self.use_turns)
+
+        return self
+
+
+    def _ring_pars(self, Ring):
+
+        self.Particle = Ring.Particle
+        self.n_turns = Ring.n_turns
+        self.cycle_time = Ring.cycle_time
+        self.ring_circumference = Ring.circumference
+        self.section_length = Ring.section_length[self.section_index]
+        self.length_ratio = self.section_length/self.ring_circumference
+        self.t_rev = Ring.t_rev
+        self.momentum = Ring.momentum[self.section_index]
+        self.beta = Ring.beta[self.section_index]
+        self.gamma = Ring.gamma[self.section_index]
+        self.energy = Ring.energy[self.section_index]
+        self.delta_E = Ring.delta_E[self.section_index]
+        self.alpha_orders = Ring.alpha_orders
+        self.charge = self.Particle.charge
+        self.use_turns = Ring.use_turns.astype(int)
+
 
     def eta_tracking(self, beam, counter, dE):
         r"""Function to calculate the slippage factor as a function of the

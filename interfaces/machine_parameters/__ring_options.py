@@ -35,6 +35,11 @@ from ...datatypes import datatypes as dTypes
 from ...utilities import timing
 
 
+
+warnings.warn('WARNING: This module is deprecated and kept only for reference before deletion!')
+
+
+
 class _RingOptions(object):
     r""" Class to preprocess the synchronous data for Ring, interpolating it to
     every turn.
