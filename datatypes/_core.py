@@ -140,18 +140,29 @@ class _function(np.ndarray):
         if isinstance(other, numbers.Number):
             return self._operate_general(other, operation)
         else:
-            raise RuntimeError("broke")
+            try:
+                otherShape = other.shape
+            except AttributeError:
+                raise RuntimeError("unrecognised other")
+            else:
+                if otherShape == self.shape:
+                    return self._operate_general(other, operation)
+                else:
+                    raise RuntimeError("other shape incorrect")
 
 
     def _operate_general(self, other, operation):
 
         newArray = self.copy()
         if self.timebase == 'by_time':
-            newArray[:,1,:] = operation(self[:,1,:], other, casting = 'unsafe')
+            newArray[:,1,:] = operation(self[:,1,:], other)
         elif self.timebase == 'single':
-            newArray[()] = operation(self, other, casting = 'unsafe')
+            newArray[()] = operation(self, other)
         else:
-            newArray[:] = operation(self, other, casting = 'unsafe')
+            if self.shape == ():
+                newArray[()] = operation(self, other)
+            else:
+                newArray[:] = operation(self, other)
         return newArray
 
 
