@@ -737,10 +737,12 @@ def _check_dims(data, time = None, n_turns = None):
     try:
         iter(data)
     except TypeError:
-        if n_turns is None:
+        if n_turns is None and time is None:
             return data, 'single'
-        else:
+        elif n_turns is not None:
             return [data]*n_turns, 'by_turn'
+        else:
+            return [time, [data]*len(time)], 'by_time'
     else:
         data = np.array(data)
 
