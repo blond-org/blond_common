@@ -137,13 +137,13 @@ class _ring_function(_function):
                                    + "combined")
 
         timeBases = [a.timebase for a in args]
-        #TODO: clean up try/except
+
         try:
             assrt.equal_arrays(*timeBases, msg='Attempting to combine '
                                + 'sections with different '
                                + 'timebases',
                                exception=excpt.InputError)
-        except:
+        except excpt.InputError:
             turns = len([t for t in timeBases if t == 'by_turn']) == 0
             times = len([t for t in timeBases if t == 'by_time']) == 0
             if turns == times:

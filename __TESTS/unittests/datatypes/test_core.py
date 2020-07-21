@@ -346,6 +346,98 @@ class test_core(unittest.TestCase):
                               err_msg = "by time raddition incorrect")
 
 
+    def test_subtraction(self):
+
+        test = core._function(1, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test -= 5
+        self.assertEqual(test, -4, msg='Single value in place subtraction '
+                                         + 'incorrect')
+
+        test = core._function(1, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test2 = test - 1
+        self.assertEqual(test2, 0, msg='Single value subtraction '
+                                         + 'incorrect')
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test -= 5
+        compare = [[-4, -3, -2], [-1, 0, 1]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by turn in place subtraction incorrect")
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test2 = test - 1
+        compare = [[0, 1, 2], [3, 4, 5]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by turn subtraction incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test -= 5
+        compare = [[[1, 2, 3], [-1, 0, 1]]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by time in place subtraction incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test2 = test - 1
+        compare = [[[1, 2, 3], [3, 4, 5]]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by time subtraction incorrect")
+
+
+    def test_exceptions(self):
+
+        test1 = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+
+        test2 = core._function([[1, 2, 3]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+
+        with self.assertRaises(TypeError, msg='addition with different '
+                               + 'data_type dicts should raise a TypeError'):
+            test1 += test2
+        with self.assertRaises(TypeError, msg='subtraction with different '
+                               + 'data_type dicts should raise a TypeError'):
+            test1 -= test2
+        with self.assertRaises(TypeError, msg='multiplication with different '
+                               + 'data_type dicts should raise a TypeError'):
+            test1 *= test2
+        with self.assertRaises(TypeError, msg='division with different '
+                               + 'data_type dicts should raise a TypeError'):
+            test1 /= test2
+
+        with self.assertRaises(exceptions.InputDataError, msg='unrecognised '
+                               +'data_type dict options should raise an '
+                               +'InputDataError.'):
+            core._function(1, data_type = {'fake_option_string': None},
+                              interpolation = 'linear')
+
+        with self.assertRaises(exceptions.InputError, msg='_prep_reshape '
+                               +'with use_time=None and use_turns=None should '
+                               'raise an InputError.'):
+            test1._prep_reshape(1)
+
+        with self.assertRaises(exceptions.InputError, msg='_prep_reshape '
+                               +'with use_turns should raise an InputError if'
+                               +' timebase == "by_time"'):
+            test1._prep_reshape(1, use_turns=[1, 2])
+
+        with self.assertRaises(exceptions.InputError, msg='_prep_reshape '
+                               +'with use_time should raise an InputError if'
+                               +' timebase == "by_turn"'):
+            test2._prep_reshape(1, use_time=[1, 2])
+
+
 if __name__ == '__main__':
 
     unittest.main()

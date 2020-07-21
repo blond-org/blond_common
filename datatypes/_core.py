@@ -46,11 +46,8 @@ class _function(np.ndarray):
         the array, currently only 'linear' has been implemented
     """
     
-    def __new__(cls, input_array, data_type=None, interpolation = None,
+    def __new__(cls, input_array, data_type, interpolation = None,
                 dtype = None):
-        
-        if data_type is None:
-            raise excpt.InputError("data_type must be specified")
 
         try:
             obj = np.asarray(input_array, dtype=dtype).view(cls)
@@ -135,6 +132,7 @@ class _function(np.ndarray):
     def _operate_equivalent_functions(self, other, operation):
 
         if self.timebase != other.timebase:
+            #should never be reached
             raise TypeError("Only functions with the same timebase can be "
                             + "used.")
 
@@ -240,9 +238,8 @@ class _function(np.ndarray):
                 if hasattr(self, d):
                     setattr(self, d, value[d])
                 else:
-                    raise excpt.InputDataError("data_type has "
-                                                    + "unrecognised option '"
-                                                    + str(d) + "'")
+                    raise excpt.InputDataError("data_type has unrecognised "
+                                               + f"option '{d}'")
         return
 
     @property
