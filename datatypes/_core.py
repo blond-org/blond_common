@@ -46,11 +46,8 @@ class _function(np.ndarray):
         the array, currently only 'linear' has been implemented
     """
     
-    def __new__(cls, input_array, data_type=None, interpolation = None,
+    def __new__(cls, input_array, data_type, interpolation = None,
                 dtype = None):
-        
-        if data_type is None:
-            raise excpt.InputError("data_type must be specified")
 
         try:
             obj = np.asarray(input_array, dtype=dtype).view(cls)
