@@ -19,6 +19,7 @@ import unittest
 import numpy as np
 import numpy.testing as npTest
 import os
+import scipy.constants as cont
 
 this_directory = os.path.dirname(os.path.realpath(__file__)) + "/"
 
@@ -140,12 +141,184 @@ class test_ring_programs(unittest.TestCase):
         self.assertEqual(bend.source, 'B_field', msg='momentum_program source'
                                                  + ' str incorrect')
 
+        conversions = {'momentum': ringProg.momentum_program,
+                       'energy': ringProg.total_energy_program,
+                       'kin_energy': ringProg.kinetic_energy_program,
+                       'B_field': ringProg.bending_field_program}
 
-    def test_conversions(self):
+        self.assertEqual(mom._conversions, conversions,
+                         msg = 'Momentum program _conversions dict incorrect')
+        self.assertEqual(totEn._conversions, conversions,
+                         msg = 'Energy program _conversions dict incorrect')
+        self.assertEqual(kinEn._conversions, conversions,
+                         msg = 'KinEnergy program _conversions dict incorrect')
+        self.assertEqual(bend._conversions, conversions,
+                         msg = 'B Field program _conversions dict incorrect')
 
-        conversions = {'momentum': ringProg}
+
+    def test_synchronous_conversions(self):
+
+        m_p = cont.physical_constants['proton mass energy equivalent in MeV']
+        m_p = m_p[0]*1E6
+        charge = 1
+        rho = 8.7
+
+        ###############
+        #FROM MOMENTUM#
+        ###############
+        mom = ringProg.momentum_program(1E9)
+
+        newB = mom.to_B_field(False, bending_radius = rho, charge = charge)
+        self.assertIsInstance(newB, ringProg.bending_field_program,
+                              msg = 'type cast to bending_field_program '
+                                  + 'incorrect')
+        self.assertAlmostEqual(newB[0], 0.38340701, places = 4,
+                               msg='P to B conversion inaccurate')
+        self.assertEqual(newB.data_type, mom.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newE = mom.to_total_energy(False, rest_mass = m_p)
+        self.assertIsInstance(newE, ringProg.total_energy_program,
+                              msg = 'type cast to total_energy_program '
+                                  + 'incorrect')
+        self.assertAlmostEqual(newE[0]/1E9, 1.37126019, places = 4,
+                               msg='P to E conversion inaccurate')
+        self.assertEqual(newE.data_type, mom.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newKE = mom.to_kin_energy(False, rest_mass = m_p)
+        self.assertIsInstance(newKE, ringProg.kinetic_energy_program,
+                              msg = 'type cast to kinetic_energy_program '
+                                  + 'incorrect')
+        self.assertAlmostEqual(newKE[0]/1E8, 4.32988103, places = 4,
+                               msg='P to KE conversion inaccurate')
+        self.assertEqual(newKE.data_type, mom.data_type,
+                          msg = 'data_type dict not copied correctly')
+
+        ####################
+        #FROM BENDING FIELD#
+        ####################
+        B = ringProg.bending_field_program([0.5, 0.5])
+
+        newP = B.to_momentum(False, bending_radius = rho, charge = charge)
+        self.assertIsInstance(newP, ringProg.momentum_program,
+                              msg = 'type cast to momentum_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newP/1E9, [[1.30409719]*2],
+                                             decimal = 4, err_msg='B to P '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newP.data_type, B.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newE = B.to_total_energy(False, rest_mass = m_p, bending_radius = rho,
+                                 charge = 1)
+        self.assertIsInstance(newE, ringProg.total_energy_program,
+                              msg = 'type cast to total_energy_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newE/1E9, [[1.60655657]*2],
+                                             decimal = 4, err_msg='B to E '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newE.data_type, B.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newKE = B.to_kin_energy(False, rest_mass = m_p, bending_radius = rho,
+                                 charge = 1)
+        self.assertIsInstance(newKE, ringProg.kinetic_energy_program,
+                              msg = 'type cast to kinetic_energy_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newKE/1E8, [[6.68284477]*2],
+                                             decimal = 4, err_msg='B to KE '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newKE.data_type, B.data_type,
+                          msg = 'data_type dict not copied correctly')
 
 
+        ###################
+        #FROM TOTAL ENERGY#
+        ###################
+        E = ringProg.total_energy_program(2E9, 2E9, time = [0, 1])
+
+        compareArray = np.zeros([2, 2, 2])
+        compareArray[:,0] = [0, 1]
+
+        newP = E.to_momentum(False, rest_mass = m_p)
+        compareArray[:,1] = 1.76625182
+        self.assertIsInstance(newP, ringProg.momentum_program,
+                              msg = 'type cast to momentum_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newP/1E9, compareArray,
+                                             decimal = 4, err_msg='E to P '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newP.data_type, E.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newB = E.to_B_field(False, rest_mass = m_p, bending_radius = rho,
+                            charge = 1)
+        compareArray[:,1] = 0.67719332
+        self.assertIsInstance(newB, ringProg.bending_field_program,
+                              msg = 'type cast to bending_field_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newB, compareArray,
+                                             decimal = 4, err_msg='E to B '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newE.data_type, B.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newKE = E.to_kin_energy(False, rest_mass = m_p)
+        compareArray[:,1] = 1.06172791
+        self.assertIsInstance(newKE, ringProg.kinetic_energy_program,
+                              msg = 'type cast to kinetic_energy_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newKE/1E9, compareArray,
+                                             decimal = 4, err_msg='B to KE '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newKE.data_type, E.data_type,
+                          msg = 'data_type dict not copied correctly')
+
+
+        #####################
+        #FROM KINETIC ENERGY#
+        #####################
+        KE = ringProg.kinetic_energy_program([160E6, 250E6], [160E6, 250E6])
+
+        compareArray = np.zeros([2, 2])
+
+        newP = KE.to_momentum(False, rest_mass = m_p)
+        compareArray[:,0] = 5.70830157
+        compareArray[:,1] = 7.29133763
+        self.assertIsInstance(newP, ringProg.momentum_program,
+                              msg = 'type cast to momentum_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newP/1E8, compareArray,
+                                             decimal = 4, err_msg='KE to P '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newP.data_type, KE.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newB = KE.to_B_field(False, rest_mass = m_p, bending_radius = rho,
+                             charge = 1)
+        compareArray[:,0] = 0.21886028
+        compareArray[:,1] = 0.27955499
+        self.assertIsInstance(newB, ringProg.bending_field_program,
+                              msg = 'type cast to bending_field_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newB, compareArray,
+                                             decimal = 4, err_msg='KE to B '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newB.data_type, KE.data_type,
+                         msg = 'data_type dict not copied correctly')
+
+        newE = KE.to_total_energy(False, rest_mass = m_p)
+        compareArray[:,0] = 1.09827209
+        compareArray[:,1] = 1.18827209
+        self.assertIsInstance(newE, ringProg.total_energy_program,
+                              msg = 'type cast to kinetic_energy_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newE/1E9, compareArray,
+                                             decimal = 4, err_msg='KE to E '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newE.data_type, KE.data_type,
+                          msg = 'data_type dict not copied correctly')
 
 if __name__ == '__main__':
 
