@@ -765,7 +765,7 @@ class _synchronous_data_program(_ring_function):
         if inPlace:
             return None
         else:
-            return super().__new__(self.__class__, *self)
+            return super().__new__(self.__class__, self)
 
     def _time_from_turn(self, mass, circumference):
         """
