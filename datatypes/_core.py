@@ -132,6 +132,7 @@ class _function(np.ndarray):
     def _operate_equivalent_functions(self, other, operation):
 
         if self.timebase != other.timebase:
+            #should never be reached
             raise TypeError("Only functions with the same timebase can be "
                             + "used.")
 
