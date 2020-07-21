@@ -346,6 +346,52 @@ class test_core(unittest.TestCase):
                               err_msg = "by time raddition incorrect")
 
 
+    def test_subtraction(self):
+
+        test = core._function(1, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test -= 5
+        self.assertEqual(test, -4, msg='Single value in place subtraction '
+                                         + 'incorrect')
+
+        test = core._function(1, data_type = {'timebase': 'single'},
+                              interpolation = 'linear')
+        test2 = test - 1
+        self.assertEqual(test2, 0, msg='Single value subtraction '
+                                         + 'incorrect')
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test -= 5
+        compare = [[-4, -3, -2], [-1, 0, 1]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by turn in place subtraction incorrect")
+
+        test = core._function([[1, 2, 3], [4, 5, 6]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+        test2 = test - 1
+        compare = [[0, 1, 2], [3, 4, 5]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by turn subtraction incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test -= 5
+        compare = [[[1, 2, 3], [-1, 0, 1]]]
+        npTest.assert_array_equal(test, compare,
+                              err_msg = "by time in place subtraction incorrect")
+
+        test = core._function([[[1, 2, 3], [4, 5, 6]]],
+                              data_type = {'timebase': 'by_time'},
+                              interpolation = 'linear')
+        test2 = test - 1
+        compare = [[[1, 2, 3], [3, 4, 5]]]
+        npTest.assert_array_equal(test2, compare,
+                              err_msg = "by time subtraction incorrect")
+
 if __name__ == '__main__':
 
     unittest.main()
