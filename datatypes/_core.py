@@ -87,6 +87,14 @@ class _function(np.ndarray):
     __radd__ = __add__
     __riadd__ = __iadd__
 
+
+    def __sub__(self, other):
+        return self._operate(other, np.subtract, inPlace = False)
+
+    def __isub__(self, other):
+        self._operate(other, np.subtract, inPlace = True)
+        return self
+
     def __mul__(self, other):
         return self._operate(other, np.multiply, inPlace = False)
 
@@ -155,7 +163,11 @@ class _function(np.ndarray):
 
         newArray = self.copy()
         if self.timebase == 'by_time':
-            newArray[:,1,:] = operation(self[:,1,:], other)
+            if len(self.shape) == 3:
+                newArray[:,1,:] = operation(self[:,1,:], other)
+            else:
+                #TODO: Is this safe?
+                newArray[:] = operation(self, other)
         elif self.timebase == 'single':
             newArray[()] = operation(self, other)
         else:
@@ -737,10 +749,12 @@ def _check_dims(data, time = None, n_turns = None):
     try:
         iter(data)
     except TypeError:
-        if n_turns is None:
+        if n_turns is None and time is None:
             return data, 'single'
-        else:
+        elif n_turns is not None:
             return [data]*n_turns, 'by_turn'
+        else:
+            return [time, [data]*len(time)], 'by_time'
     else:
         data = np.array(data)
 

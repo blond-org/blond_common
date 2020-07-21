@@ -729,12 +729,9 @@ class _synchronous_data_program(_ring_function):
         assrt.all_not_none(*checkList, msg=errorMsg,
                            exception=excpt.InputError)
 
-        for s in range(self.shape[0]):
-            if self.timebase == 'by_time':
-                newArray[s, 1] = conversion_function(self[s, 1], **arguments)
-                newArray[s, 0] = self[s, 0]
-            else:
-                newArray[s] = conversion_function(self[s], **arguments)
+        newArray[:] = conversion_function(self, **arguments)
+        if self.timebase == 'by_time':
+            newArray[:,0] = self[:,0]
 
         if inPlace:
             for s in range(self.shape[0]):
@@ -768,7 +765,7 @@ class _synchronous_data_program(_ring_function):
         if inPlace:
             return None
         else:
-            return super().__new__(self.__class__, *self)
+            return super().__new__(self.__class__, self)
 
     def _time_from_turn(self, mass, circumference):
         """
