@@ -238,9 +238,8 @@ class _function(np.ndarray):
                 if hasattr(self, d):
                     setattr(self, d, value[d])
                 else:
-                    raise excpt.InputDataError("data_type has "
-                                                    + "unrecognised option '"
-                                                    + str(d) + "'")
+                    raise excpt.InputDataError("data_type has unrecognised "
+                                               + f"option '{d}'")
         return
 
     @property
