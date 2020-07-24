@@ -378,7 +378,49 @@ class test_ring_programs(unittest.TestCase):
                           msg = 'data_type dict not copied correctly')
 
 
+    def test_momentum_compaction(self):
 
+        alpha0 = ringProg.momentum_compaction(1)
+        expectDType = {'timebase': 'single', 'order': 0,
+                       'interpolation': 'linear',
+                       'sectioning': 'single_section'}
+        self.assertEqual(alpha0.data_type, expectDType,
+                         msg='Data type dictionary does not match expected')
+
+        alpha1 = ringProg.momentum_compaction([1, 2], order=1)
+        expectDType = {'timebase': 'by_turn', 'order': 1,
+                       'interpolation': 'linear',
+                       'sectioning': 'single_section'}
+        self.assertEqual(alpha1.data_type, expectDType,
+                         msg='Data type dictionary does not match expected')
+
+        with self.assertRaises(exceptions.InputError,
+                           msg='momentum_compaction.combine_single_sections '
+                              +'should raise an InputError if different orders'
+                              +' of alpha are given.'):
+            ringProg.momentum_compaction.combine_single_sections(alpha0,
+                                                                 alpha1)
+
+        alpha0_2 = ringProg.momentum_compaction(1, [1, 2])
+        expectDType = {'timebase': 'by_turn', 'order': 0,
+                       'interpolation': 'linear',
+                       'sectioning': 'multi_section'}
+        self.assertEqual(alpha0_2.data_type, expectDType,
+                         msg='Data type dictionary does not match expected')
+
+        alpha1_2 = ringProg.momentum_compaction(1, time = [1, 2], order=1)
+        expectDType = {'timebase': 'by_time', 'order': 1,
+                       'interpolation': 'linear',
+                       'sectioning': 'single_section'}
+        self.assertEqual(alpha1_2.data_type, expectDType,
+                         msg='Data type dictionary does not match expected')
+
+        with self.assertRaises(exceptions.InputError,
+                           msg='momentum_compaction.combine_single_sections '
+                              +'should raise an InputError if different '
+                              +'timebases are used.'):
+            ringProg.momentum_compaction.combine_single_sections(alpha1,
+                                                                 alpha1_2)
 
 if __name__ == '__main__':
 
