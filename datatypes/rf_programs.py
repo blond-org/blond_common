@@ -104,7 +104,8 @@ class _RF_function(_function):
 
 
     #TODO: Safe treatment of use_turns > n_turns
-    def reshape(self, harmonics = None, use_time = None, use_turns = None):
+    def reshape(self, harmonics = None, use_time = None, use_turns = None,
+                store_time = False):
         """
         Reshape the datatype array to the given number of sections and either
         the given use_time or given use_turns.
@@ -134,8 +135,9 @@ class _RF_function(_function):
             use_turns = [int(turn) for turn in use_turns]
 
         newArray = self._prep_reshape(len(harmonics), 
-                                      use_time = use_time, 
-                                      use_turns = use_turns)
+                                      use_time = use_time,
+                                      use_turns = use_turns,
+                                      store_time = store_time)
         
         for i, h in enumerate(harmonics):
             for j, s in enumerate(self.harmonics):
@@ -155,8 +157,11 @@ class _RF_function(_function):
         
         newArray = newArray.view(self.__class__)
 
-        newArray.data_type = {'timebase':  'interpolated',
-                              'harmonics': harmonics}
+        if store_time:
+            newArray[:, 0, :] = use_time
+            newArray.timebase = 'by_time'
+        else:
+            newArray.timebase = 'interpolated'
 
         return newArray
 
