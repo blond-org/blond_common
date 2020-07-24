@@ -155,6 +155,19 @@ class test_ring_programs(unittest.TestCase):
         self.assertEqual(bend._conversions, conversions,
                          msg = 'B Field program _conversions dict incorrect')
 
+        m_p = cont.physical_constants['proton mass energy equivalent in MeV']
+        m_p = m_p[0]*1E6
+        
+        ringProg.momentum_program.combine_single_sections(mom, mom)
+        ringProg.momentum_program.combine_single_sections(totEn, totEn,
+                                                          rest_mass = m_p)
+        ringProg.momentum_program.combine_single_sections(kinEn, kinEn,
+                                                          rest_mass = m_p,
+                                                        interpolation='linear')
+        ringProg.momentum_program.combine_single_sections(bend, bend,
+                                                          charge = 1,
+                                                          bending_radius = 8)
+
 
     def test_synchronous_conversions(self):
 
