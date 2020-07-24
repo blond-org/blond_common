@@ -157,7 +157,8 @@ class test_ring_programs(unittest.TestCase):
 
         m_p = cont.physical_constants['proton mass energy equivalent in MeV']
         m_p = m_p[0]*1E6
-        
+
+        #TODO: Check values and permutations
         ringProg.momentum_program.combine_single_sections(mom, mom)
         ringProg.momentum_program.combine_single_sections(totEn, totEn,
                                                           rest_mass = m_p)
