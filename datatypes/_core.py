@@ -494,8 +494,7 @@ class _function(np.ndarray):
         self._comp_definition_reshape(n_sections, use_time, use_turns)
         interpArray = self._prep_reshape(n_sections, use_time, use_turns,
                                          store_time)
-        interpArray.testPar = "test parameter interpArray"
-        self.testPar = "test parameter selfArray"
+
         for s in range(n_sections):
             if self.timebase == 'single':
                 if self.shape[0] == 1:
