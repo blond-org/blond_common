@@ -438,6 +438,18 @@ class test_core(unittest.TestCase):
             test2._prep_reshape(1, use_time=[1, 2])
 
 
+
+        test3 = core._function([[1, 2, 3], [1, 2, 3]],
+                              data_type = {'timebase': 'by_turn'},
+                              interpolation = 'linear')
+
+        with self.assertRaises(exceptions.DataDefinitionError,
+                               msg='_comp_definition_reshape with n_sections'
+                               +'!= shape[0] and shape[0]>1 should raise a '
+                               +'DataDefinitionError'):
+            test3._comp_definition_reshape(3, use_time = None, use_turns=[1, 2])
+
+
 if __name__ == '__main__':
 
     unittest.main()
