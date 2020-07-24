@@ -195,6 +195,16 @@ class test_ring_programs(unittest.TestCase):
         self.assertEqual(newKE.data_type, mom.data_type,
                           msg = 'data_type dict not copied correctly')
 
+        newP = mom.to_momentum(False)
+        self.assertIsInstance(newP, ringProg.momentum_program,
+                              msg = 'type cast to momentum_program '
+                                  + 'incorrect')
+        self.assertAlmostEqual(newP[0]/1E8, mom[0]/1E8, places = 9,
+                               msg='P to P conversion inaccurate')
+        self.assertEqual(newP.data_type, mom.data_type,
+                          msg = 'data_type dict not copied correctly')
+
+
         ####################
         #FROM BENDING FIELD#
         ####################
@@ -230,6 +240,16 @@ class test_ring_programs(unittest.TestCase):
                                              decimal = 4, err_msg='B to KE '
                                              + 'conversion inaccurate')
         self.assertEqual(newKE.data_type, B.data_type,
+                          msg = 'data_type dict not copied correctly')
+
+        newB = B.to_B_field(False)
+        self.assertIsInstance(newB, ringProg.bending_field_program,
+                              msg = 'type cast to bending_field_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newB, B,
+                                             decimal = 9, err_msg='B to B '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newB.data_type, B.data_type,
                           msg = 'data_type dict not copied correctly')
 
 
@@ -270,9 +290,20 @@ class test_ring_programs(unittest.TestCase):
                               msg = 'type cast to kinetic_energy_program '
                                   + 'incorrect')
         np.testing.assert_array_almost_equal(newKE/1E9, compareArray,
-                                             decimal = 4, err_msg='B to KE '
+                                             decimal = 4, err_msg='E to KE '
                                              + 'conversion inaccurate')
         self.assertEqual(newKE.data_type, E.data_type,
+                          msg = 'data_type dict not copied correctly')
+
+        newE = E.to_total_energy(False)
+        compareArray[:,1] = E[:,1]
+        self.assertIsInstance(newE, ringProg.total_energy_program,
+                              msg = 'type cast to total_energy_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newE, compareArray,
+                                             decimal = 9, err_msg='E to E '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newE.data_type, E.data_type,
                           msg = 'data_type dict not copied correctly')
 
 
@@ -312,13 +343,28 @@ class test_ring_programs(unittest.TestCase):
         compareArray[:,0] = 1.09827209
         compareArray[:,1] = 1.18827209
         self.assertIsInstance(newE, ringProg.total_energy_program,
-                              msg = 'type cast to kinetic_energy_program '
+                              msg = 'type cast to total_energy_program '
                                   + 'incorrect')
         np.testing.assert_array_almost_equal(newE/1E9, compareArray,
                                              decimal = 4, err_msg='KE to E '
                                              + 'conversion inaccurate')
         self.assertEqual(newE.data_type, KE.data_type,
                           msg = 'data_type dict not copied correctly')
+
+        newKE = KE.to_kin_energy(False)
+        compareArray[:,0] = KE[:,0]
+        compareArray[:,1] = KE[:,1]
+        self.assertIsInstance(newKE, ringProg.kinetic_energy_program,
+                              msg = 'type cast to kinetic_energy_program '
+                                  + 'incorrect')
+        np.testing.assert_array_almost_equal(newKE, compareArray,
+                                             decimal = 9, err_msg='KE to E '
+                                             + 'conversion inaccurate')
+        self.assertEqual(newKE.data_type, KE.data_type,
+                          msg = 'data_type dict not copied correctly')
+
+
+
 
 if __name__ == '__main__':
 

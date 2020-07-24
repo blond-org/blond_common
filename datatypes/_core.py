@@ -885,7 +885,8 @@ def _expand_function(*args):
     newArgs = []
     for a in args:
         if isinstance(a, _function) or isinstance(a, bf.machine_program):
-            newArgs.append(*a)
+            for sub in a:
+                newArgs.append(sub)
         else:
             newArgs.append(a)
     return tuple(newArgs)
