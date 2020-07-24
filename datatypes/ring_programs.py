@@ -144,6 +144,9 @@ class _ring_function(_function):
                                + 'timebases',
                                exception=excpt.InputError)
         except excpt.InputError:
+            #If only 1 on 'by_turn' or 'by_time' is given, it is assumed
+            #that the difference is caused by an instance of 'single'
+            #TODO: Improve checking
             turns = len([t for t in timeBases if t == 'by_turn']) == 0
             times = len([t for t in timeBases if t == 'by_time']) == 0
             if turns == times:
