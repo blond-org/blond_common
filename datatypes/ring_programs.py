@@ -416,6 +416,8 @@ class _synchronous_data_program(_ring_function):
             bending_radius = [bending_radius] * newArray.shape[0]
         for i, (a, b) in enumerate(zip(args, bending_radius)):
             if timeBases[0] != 'single':
+                if a.interpolation is None:
+                    a.interpolation = interpolation
                 section = a.reshape(use_time=use_times,
                                     use_turns=use_turns)
             else:
