@@ -438,7 +438,8 @@ class _function(np.ndarray):
         if self.interpolation == 'linear':
             return self._interpolate_linear(section, use_time)
         else:
-            raise NotImplementedError("Only linear interpolation implemented")
+            raise NotImplementedError("Only linear interpolation implemented, "
+                                      +f"{self.interpolation} not available.")
 
 
     def _interpolate_linear(self, section, use_time):
