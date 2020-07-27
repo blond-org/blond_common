@@ -819,6 +819,7 @@ def _interpolate_input(data_points, data_types, interpolation = 'linear'):
         raise RuntimeError("Only linear interpolation defined")
 
     if all(t == 'single' for t in data_types):
+        print("in if")
         return data_points
 
     if data_types[0] != 'by_time':
@@ -827,7 +828,10 @@ def _interpolate_input(data_points, data_types, interpolation = 'linear'):
 
     input_times = []
     for d in data_points:
-        input_times += d[0].tolist()
+        try:
+            input_times += d[0].tolist()
+        except AttributeError:
+            input_times += d[0]
 
     interp_times = sorted(set(input_times))
 
