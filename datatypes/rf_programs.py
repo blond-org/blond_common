@@ -78,10 +78,10 @@ class _RF_function(_function):
         if not 'by_turn' in data_types:
             data_points = _interpolate_input(data_points, data_types, 
                                             interpolation)
-                
+
         data_type = {'timebase': data_types[0], 'harmonics': harmonics, 
                      **kwargs}
-        
+
         return super().__new__(cls, data_points, data_type, 
                                interpolation, dtype)
 
