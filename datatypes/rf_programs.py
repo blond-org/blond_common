@@ -78,10 +78,10 @@ class _RF_function(_function):
         if not 'by_turn' in data_types:
             data_points = _interpolate_input(data_points, data_types, 
                                             interpolation)
-                
+
         data_type = {'timebase': data_types[0], 'harmonics': harmonics, 
                      **kwargs}
-        
+
         return super().__new__(cls, data_points, data_type, 
                                interpolation, dtype)
 
@@ -148,13 +148,17 @@ class _RF_function(_function):
             
             if self.timebase == 'single':
                 newArray[i] += self[j]
-    
+
             elif self.timebase == 'by_turn':
                 newArray[i] = self[j, use_turns]
-            
+
             elif self.timebase == 'by_time':
                 newArray[i] = self._interpolate(j, use_time)
-        
+
+            else:
+                raise RuntimeError("Only single, by_turn or by_time functions"
+                                   +f" can be reshaped, not {self.timebase}.")
+
         newArray = newArray.view(self.__class__)
 
         if store_time:
@@ -162,6 +166,8 @@ class _RF_function(_function):
             newArray.timebase = 'by_time'
         else:
             newArray.timebase = 'interpolated'
+
+        newArray.harmonics = harmonics
 
         return newArray
 
