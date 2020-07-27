@@ -109,6 +109,27 @@ class _function(np.ndarray):
         self._operate(other, np.true_divide, inPlace = True)
         return self
 
+    def __ge__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.greater_equal,
+                             inPlace = False).view(np.ndarray)
+
+    def __gt__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.greater,
+                             inPlace = False).view(np.ndarray)
+
+    def __le__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.less_equal,
+                             inPlace = False).view(np.ndarray)
+
+    def __lt__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.less,
+                             inPlace = False).view(np.ndarray)
+
+
     def _operate(self, other, operation, inPlace = False):
         if isinstance(other, self.__class__):
             self._check_data_and_type(other)
