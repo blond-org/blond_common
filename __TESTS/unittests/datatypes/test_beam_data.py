@@ -69,6 +69,54 @@ class test_beam_data(unittest.TestCase):
                                                     +' incorrect')
 
 
+    def test_acceptance(self):
+
+        func = bDat.acceptance(1)
+        expectDict = {'timebase': 'single', 'units': 'eVs',
+                      'interpolation': 'linear', 'bunching': 'single_bunch'}
+        self.assertEqual(func.data_type, expectDict, msg = 'data_type dict '
+                                                         +'contents incorrect')
+
+
+    def test_emittance(self):
+
+        func = bDat.emittance(1)
+        expectDict = {'timebase': 'single', 'units': 'eVs',
+                      'interpolation': 'linear', 'bunching': 'single_bunch',
+                      'emittance_type': 'matched_area'}
+        self.assertEqual(func.data_type, expectDict, msg = 'data_type dict '
+                                                         +'contents incorrect')
+
+
+    def test_length(self):
+
+        func = bDat.length(1)
+        expectDict = {'timebase': 'single', 'units': 's',
+                      'interpolation': 'linear', 'bunching': 'single_bunch',
+                      'length_type': 'full_length'}
+        self.assertEqual(func.data_type, expectDict, msg = 'data_type dict '
+                                                         +'contents incorrect')
+
+
+    def test_height(self):
+
+        func = bDat.height(1)
+        expectDict = {'timebase': 'single', 'units': 'eV',
+                      'interpolation': 'linear', 'bunching': 'single_bunch',
+                      'height_type': 'half_height'}
+        self.assertEqual(func.data_type, expectDict, msg = 'data_type dict '
+                                                          +'contents incorrect')
+
+
+    def test_synchronous_phase(self):
+
+        func = bDat.synchronous_phase(1)
+        expectDict = {'timebase': 'single', 'units': 's',
+                      'interpolation': 'linear', 'bunching': 'single_bunch'}
+        self.assertEqual(func.data_type, expectDict, msg = 'data_type dict '
+                                                         +'contents incorrect')
+
+
 if __name__ == '__main__':
 
     unittest.main()
