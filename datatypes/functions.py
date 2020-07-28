@@ -132,10 +132,15 @@ def vstack(*args, interpolation = 'linear'):
             
             useTimes += interp_time
             
-            reshaped = f.reshape(use_time = interp_time)
+            reshaped = f.reshape(f.shape[0], use_time = interp_time)
         
             for n in range(nSections):
                 subFunctions[n] += reshaped[n].tolist()
+        
+        if not all(np.diff(useTimes) > 0):
+            raise RuntimeError("Resulting time is not monotonically "
+                               +"increasing, check start and stop times, "
+                               +"and/or function time values.")
         
         newArray = functions[0].__class__.zeros([nSections, 2, len(useTimes)])
         for i, f in enumerate(subFunctions):
