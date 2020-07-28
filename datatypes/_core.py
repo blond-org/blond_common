@@ -71,7 +71,12 @@ class _function(np.ndarray):
         if obj is None:
             return
 
-        self.data_type = getattr(obj, 'data_type', None)
+        #Duplicate data_type dict to prevent two objects referencing the same
+        # dict
+        try:
+            self.data_type = {**getattr(obj, 'data_type')}
+        except AttributeError:
+            self.data_type = None
 
 
     def __add__(self, other):
@@ -358,9 +363,10 @@ class _function(np.ndarray):
 
         if store_time:
             return self.zeros([n_sections, 2, nPts],
-                                      data_type = self.data_type)
+                                      data_type = {**self.data_type})
         else:
-            return self.zeros([n_sections, nPts], data_type = self.data_type)
+            return self.zeros([n_sections, nPts],
+                              data_type = {**self.data_type})
 
 
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
