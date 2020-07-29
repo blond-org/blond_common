@@ -340,16 +340,19 @@ class _freq_phase_off(_RF_function):
         
         delta_omega = omega_offset.zeros(delta_phase.shape, self.data_type)
         delta_omega.timebase = 'interpolated'
-        for i, h in enumerate(self.harmonics):
-            if self.timebase in ('by_turn', 'interpolated'):
-                delta_omega[i] = h*(design_omega_rev/(2*np.pi)) \
-                                    * np.gradient(delta_phase[i])
-            else:
-                delta_omega[i] = h*(design_omega_rev[1]/(2*np.pi)) \
-                                    * np.gradient(delta_phase[i])\
-                                        /np.gradient(design_omega_rev[0])
-        
-        return delta_omega
+        if delta_omega.shape[-1] == 1:
+            return delta_omega
+        else:
+            for i, h in enumerate(self.harmonics):
+                if self.timebase in ('by_turn', 'interpolated'):
+                    delta_omega[i] = h*(design_omega_rev/(2*np.pi)) \
+                                        * np.gradient(delta_phase[i])
+                else:
+                    delta_omega[i] = h*(design_omega_rev[1]/(2*np.pi)) \
+                                        * np.gradient(delta_phase[i])\
+                                            /np.gradient(design_omega_rev[0])
+            
+            return delta_omega
     
     
     def calc_delta_phase(self, design_omega_rev, wrap=False):
@@ -409,18 +412,21 @@ class _freq_phase_off(_RF_function):
 
         delta_phase = phase_offset.zeros(delta_omega.shape, self.data_type)
         delta_phase.timebase = 'interpolated'
-        for i, h in enumerate(self.harmonics):
-            if self.timebase in ('by_turn', 'interpolated'):
-                delta_phase[i] = np.cumsum(2*np.pi\
-                                           *(delta_omega[i]\
-                                             /(h*design_omega_rev)))
-            else:
-                delta_phase[i] = np.cumsum(2*np.pi\
+        if delta_phase.shape[-1] == 1:
+            return delta_phase
+        else:
+            for i, h in enumerate(self.harmonics):
+                if self.timebase in ('by_turn', 'interpolated'):
+                    delta_phase[i] = np.cumsum(2*np.pi\
                                                *(delta_omega[i]\
-                                                 /(h*design_omega_rev[1]))) \
-                                    * np.gradient(design_omega_rev[0])
-            
-        return delta_phase
+                                                 /(h*design_omega_rev)))
+                else:
+                    delta_phase[i] = np.cumsum(2*np.pi\
+                                                 *(delta_omega[i]\
+                                                 /(h*design_omega_rev[1])))\
+                                        * np.gradient(design_omega_rev[0])
+                
+            return delta_phase
 
 
 class phase_offset(_freq_phase_off):
