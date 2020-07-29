@@ -209,8 +209,17 @@ class _function(np.ndarray):
 
 
     def _data_check(self, other):
-        if self.data_type != other.data_type:
-            raise TypeError("Datatypes should have the same `data_type` dict "
+
+        #Shouldn't be necessary, but sometimes '==' between two dicts that
+        # include np.array values raises a ValueError
+        keys = (k in other.data_type for k in self.data_type)
+        if all(keys):
+            vals = (tuple((self.data_type[k]==other.data_type[k],)) for k
+                                                            in self.data_type)
+            if all(vals):
+                return
+            
+        raise TypeError("Datatypes should have the same `data_type` dict "
                             +f"but they are {self.data_type} and "
                             +f"{other.data_type}")
 
