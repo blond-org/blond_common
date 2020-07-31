@@ -132,7 +132,7 @@ def vstack(*args, interpolation = 'linear'):
             
             useTimes += interp_time
             
-            reshaped = f.reshape(f.shape[0], use_time = interp_time)
+            reshaped = f.reshape(use_time = interp_time)
         
             for n in range(nSections):
                 subFunctions[n] += reshaped[n].tolist()

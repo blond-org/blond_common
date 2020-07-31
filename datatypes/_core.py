@@ -500,7 +500,7 @@ class _function(np.ndarray):
             return np.interp(use_time, self[section, 0], self[section, 1])
 
 
-    def reshape(self, n_sections = 1, use_time = None, use_turns = None,
+    def reshape(self, n_sections = None, use_time = None, use_turns = None,
                 store_time = False):
         """
         Reshape the datatype array to the given number of sections and either
@@ -526,6 +526,9 @@ class _function(np.ndarray):
         if self.timebase == 'by_turn' and store_time:
             raise excpt.InputError("A function defined by_turn cannot have "
                                    + "store_time=True")
+
+        if n_sections is None:
+            n_sections = self.shape[0]
 
         self._comp_definition_reshape(n_sections, use_time, use_turns)
         interpArray = self._prep_reshape(n_sections, use_time, use_turns,
