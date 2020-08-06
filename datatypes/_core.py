@@ -162,7 +162,9 @@ class _function(np.ndarray):
             raise TypeError("Only functions with the same timebase can be "
                             + "used.")
 
-        if self.timebase == 'by_time':
+        #TODO: How to handle indexed functions?
+        #      Change timebase after operation?  Convert to ndarray?
+        if self.timebase == 'by_time' and len(self.shape) == 3:
             return self._operate_general(other[:,1,:], operation)
         else:
             return self._operate_general(other, operation)
