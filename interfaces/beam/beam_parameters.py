@@ -298,47 +298,7 @@ class Beam_Parameters:
         times, wells = pot.potential_well_cut_cubic(inTime, inWell, maxLocs)
         particleLoc = self.particle_tracks[particle][sample]
         
-        # plt.plot(inTime, inWell)
-        # for i, (t, w) in enumerate(zip(times, wells)):
-        #     plt.plot(t, w+i*100)
-        # plt.axvline(particleLoc, color='red')
-#        for locs in maxLocs:
-#            for l in locs:
-#                plt.axvline(l)
-        # plt.show()
-#        
-#        sys.exit()
-        
-        #Check which subwells contain current particle
-        relevant = [i for i, t in enumerate(times) if particleLoc>t[0] and 
-                                                      particleLoc<t[-1]]
-
-        subTime = [times[r] for r in relevant]
-        subWell = [wells[r] for r in relevant]
-        try:
-            biggest = pot.sort_potential_wells(subTime, subWell, by='size')[0][0]
-        except:
-            plt.clf()
-            plt.plot(inTime, inWell)
-            plt.axvline(particleLoc)
-            plt.show()
-            print(maxLocs, particleLoc)
-            print(f"Sample: {sample}")
-            # np.save('heavyBeamLoadingWell2', [inTime, inWell])
-            raise
-
-        #check which subwells are within the bounds of the largest well 
-        #containing the current particle
-        relevant = [i for i, t in enumerate(times) if t[0] >= biggest[0] and
-                                                      t[-1] <= biggest[-1]]
-        
-        times = [times[r] for r in relevant]
-        wells = [wells[r] for r in relevant]
-
-        mins = [np.min(w) for w in wells]
-        wells -= np.min(mins)
-        
-        times, wells = pot.sort_potential_wells(times, wells, by='t_start')
+        times, wells = pot.choose_potential_wells(particleLoc, times, wells)
         
         return times, wells
     

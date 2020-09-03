@@ -851,3 +851,28 @@ def voltage_from_single_h_tune(energy, beta, delta_E, eta, charge, harmonic,
     heeta = harmonic*charge*np.abs(eta)
         
     return np.sqrt(delta_E**2 + (twoPiBetaE*tune**2/heeta)**2)
+
+
+def choose_potential_wells(phis, times, wells):
+    
+    relevant = [i for i, t in enumerate(times) if phis>t[0] and 
+                                                      phis<t[-1]]
+
+    subTime = [times[r] for r in relevant]
+    subWell = [wells[r] for r in relevant]
+    biggest = sort_potential_wells(subTime, subWell, by='size')[0][0]
+
+    #check which subwells are within the bounds of the largest well 
+    #containing the current particle
+    relevant = [i for i, t in enumerate(times) if t[0] >= biggest[0] and
+                                                  t[-1] <= biggest[-1]]
+    
+    times = [times[r] for r in relevant]
+    wells = [wells[r] for r in relevant]
+
+    mins = [np.min(w) for w in wells]
+    wells -= np.min(mins)
+    
+    times, wells = sort_potential_wells(times, wells, by='t_start')
+    
+    return times, wells
