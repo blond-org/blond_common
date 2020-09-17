@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module gathering all general input parameters used for the simulation.**
+**Module handling all parameters related to the RingSection object.**
     :Authors: **Simon Albright**, **Alexandre Lasheen**
 '''
 
