@@ -119,7 +119,7 @@ class RingSection:
     >>> # To declare a section of a synchrotron with very complex
     >>> # parameters and programs
     >>> from blond_common.interfaces.machine_parameters.ring_section import \
-    >>>     Section
+    >>>     RingSection
     >>>
     >>> length = 300
     >>> alpha_0 = [1e-3, 0.9e-3, 1e-3]
