@@ -241,13 +241,13 @@ class Ring:
                 if (momentum_list[0].timebase == 'by_time'):
                     if (momentum == momentum_list[0]).all():
 
-                        warn_message = 'The synchronous data for all sections ' + \
-                            'are defined time based and ' + \
+                        warn_message = 'The synchronous data for all ' + \
+                            'sections are defined time based and ' + \
                             'are identical. Presently, ' + \
-                            'the momentum is assumed constant for one turn over ' + \
-                            'all sections, no increment in delta_E from ' + \
-                            'one section to the next. Please use custom ' + \
-                            'turn based program if needed.'
+                            'the momentum is assumed constant for one ' + \
+                            'turn over all sections, no increment in ' + \
+                            'delta_E from one section to the next. Please ' + \
+                            'use custom turn based program if needed.'
                         warnings.warn(warn_message)
 
                     else:
@@ -536,7 +536,8 @@ class Ring:
 
         for i in range(0, self.n_sections):
             self.eta_2[i] = - self.beta[i]**2 * (5 * self.beta[i]**2 - 1) / \
-                (2 * self.gamma[i]**2) + self.alpha_2[i] - 2 * self.alpha_0[i] *\
+                (2 * self.gamma[i]**2) + self.alpha_2[i] - \
+                2 * self.alpha_0[i] * \
                 self.alpha_1[i] + self.alpha_1[i] / self.gamma[i]**2 + \
                 self.alpha_0[i]**2 * self.eta_0[i] - 3 * self.beta[i]**2 * \
                 self.alpha_0[i] / (2 * self.gamma[i]**2)
