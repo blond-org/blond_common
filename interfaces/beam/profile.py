@@ -18,6 +18,7 @@
 from __future__ import division, print_function
 from builtins import object
 import numpy as np
+import scipy as sp
 import numpy.fft as fft
 
 # BLonD_common imports
@@ -311,6 +312,7 @@ class Profile:
         #Duplicating initially, will be replaced by any smoothing functions
         self.time_array = self.time_array_loaded.copy()
         self.profile_array = self.profile_array_loaded.copy()
+        self.bin_centers = self.time_array + np.diff(self.time_array[:2])
         
     
     def beam_spectrum_freq_generation(self, n_sampling_fft = None):
@@ -327,6 +329,33 @@ class Profile:
         """
 
         self._beam_spectrum = fft.rfft(self.profile_array, n_sampling_fft)
+
+
+    def beam_profile_derivative(self, mode='gradient'):
+        """
+        The input is one of the three available methods for differentiating
+        a function. The two outputs are the bin centres and the discrete
+        derivative of the Beam profile respectively.*
+        """
+
+        x = self.bin_centers
+        dist_centers = x[1] - x[0]
+
+        if mode == 'filter1d':
+            derivative = sp.ndimage.gaussian_filter1d(
+                self.n_macroparticles, sigma=1, order=1, mode='wrap') / \
+                dist_centers
+        elif mode == 'gradient':
+            derivative = np.gradient(self.profile_array, dist_centers)
+        elif mode == 'diff':
+            derivative = np.diff(self.profile_array) / dist_centers
+            diffCenters = x[0:-1] + dist_centers/2
+            derivative = np.interp(x, diffCenters, derivative)
+        else:
+            #ProfileDerivativeError
+            raise RuntimeError('Option for derivative is not recognized.')
+
+        self._beam_derivative = derivative
     
     @property
     def beam_spectrum_freq(self):
@@ -345,3 +374,17 @@ class Profile:
         except AttributeError:
             self.beam_spectrum_generation()
             return self._beam_spectrum
+        
+    @property
+    def beam_derivative(self):
+        
+        try:
+            return self._beam_derivative
+        except AttributeError:
+            self.beam_profile_derivative()
+            return self._beam_derivative
+    
+    @property
+    def beam_current(self):
+        
+        return self.profile_array/self.bin_size

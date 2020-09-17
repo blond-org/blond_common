@@ -13,11 +13,9 @@ from blond_common.maths.calculus import minmax_location_cubic
 
 
 def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
-                                       relative_max_val_precision_limit=1e-6,
-
+                                       relative_max_val_precision_limit=1e-5,
                                        mest=10, edge_is_max=False,
                                        verbose=False):
-
 
     potwell_max_locs = []
     potwell_max_vals = []
@@ -38,6 +36,8 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
     max_pos = min_max_results[0][1]
     min_val = min_max_results[1][0]
     max_val = min_max_results[1][1]
+
+    deepest_min = np.min(min_val)
 
     most_left_min_pos = np.min(min_pos)
     most_right_min_pos = np.max(min_pos)
@@ -131,6 +131,7 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
             elif (index_left == 0) and (index_max != 0):
                 # This indexes set corresponds to the same max
                 continue
+
             elif (index_left == (index_max+1)) and (index_max != 0):
 
                 # No more max on the left, checking edge
@@ -144,7 +145,8 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
             right_pos = present_max_pos
             right_val = present_max_val
 
-            if np.isclose(left_max_val, present_max_val,
+            if np.isclose(left_max_val-deepest_min,
+                          present_max_val-deepest_min,
                           rtol=relative_max_val_precision_limit, atol=0):
                 # The left max is identical to the present max, a pot. well
                 # is found
@@ -343,6 +345,7 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
             elif (index_right == 0) and (index_max != (len(max_val)-1)):
                 # This indexes set corresponds to the same max
                 continue
+
             elif (index_right == (len(max_val)-index_max)) and \
                     (index_max != (len(max_val)-1)):
 
@@ -357,7 +360,8 @@ def find_potential_wells_cubic_animate(time_array_full, potential_well_full,
             left_pos = present_max_pos
             left_val = present_max_val
 
-            if np.isclose(right_max_val, present_max_val,
+            if np.isclose(right_max_val-deepest_min,
+                          present_max_val-deepest_min,
                           rtol=relative_max_val_precision_limit, atol=0):
                 # The right max is identical to the present max, a pot.
                 # well is found

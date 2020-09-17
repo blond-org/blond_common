@@ -75,7 +75,7 @@ class Bucket:
 
     @classmethod
     def from_dicts(cls, rfDict, machDict, tLeft = None, tRight = None,
-                   potential_resolution = 1000):
+                   potential_resolution = 1000, induced_voltage = None):
         
         if tRight is None:
             tRight = 1.05*machDict['t_rev']
@@ -91,6 +91,9 @@ class Bucket:
                                                  rfDict['phi_rf_d'],
                                                  time_bounds = timeBounds)
         
+        if induced_voltage is not None:
+            vWave += np.interp(vTime, induced_voltage[0], induced_voltage[1])
+        
         time, well, _ = pot.rf_potential_generation_cubic(vTime, vWave, 
                                                           machDict['eta_0'], 
                                                           machDict['charge'],
@@ -105,6 +108,7 @@ class Bucket:
         
         return cls(times, wells, machDict['beta'], machDict['energy'],
                    machDict['eta_0'])
+    
 
     def _identify_substructure(self):
         
@@ -315,6 +319,8 @@ class Bucket:
             raise excpt.InputError("Target potential must be positive")
         
         pts = np.where(self.well <= potential)[0]
+        if len(pts) < 2:
+            raise excpt.InputError("Too few points below target potential")
         leftPt = pts[0]
         rightPt = pts[-1]
 
@@ -397,18 +403,24 @@ class Bucket:
         return np.array([outlineTime, outlineEnergy])
     
     
-    def outline_from_emittance(self, target_emittance, nPts = 1000):
+    def outline_from_emittance(self, target_emittance, nPts = 1000,
+                               over_fill = False):
 
         self.smooth_well()
 
         if target_emittance > self.area:
-            raise excpt.BunchSizeError("target_emittance exceeds bucket area")
+            if not over_fill:
+                raise excpt.BunchSizeError("target_emittance exceeds "
+                                           + "bucket area")
+            else:
+                target_emittance = self.area
         
         def emit_func(potential, *args):
 
             nPts = args[0]
             try:
-                interpTime = self._interp_time_from_potential(potential[0], nPts)
+                interpTime = self._interp_time_from_potential(potential[0], 
+                                                              nPts)
             except excpt.InputError:
                 return self.area
             
@@ -424,11 +436,11 @@ class Bucket:
             emittance = 2*np.trapz(energyContour, interpTime)
             
             return np.abs(target_emittance - emittance)
-    
+        
         result = opt.minimize(emit_func, np.max(self.well)/2, 
                               method='Nelder-Mead', args=(nPts,))
 
-        try:        
+        try:
             interpTime = self._interp_time_from_potential(result['x'][0], nPts)
         except excpt.InputError:
             interpTime = self.time.copy()
@@ -482,7 +494,7 @@ class Bucket:
     ##################################################
 
     def _set_bunch(self, bunch_length = None, bunch_emittance = None,
-                           bunch_height = None):
+                           bunch_height = None, over_fill = False):
         
         allowed = ('bunch_length', 'bunch_emittance', 'bunch_height')
         assrt.single_not_none(bunch_length, bunch_emittance, bunch_height,
@@ -499,7 +511,8 @@ class Bucket:
             if bunch_emittance == 0:
                 outline = [[0, 0], [0,0]]
             else:
-                outline = self.outline_from_emittance(bunch_emittance)
+                outline = self.outline_from_emittance(bunch_emittance, 
+                                                      over_fill = over_fill)
         elif bunch_height is not None:
             if bunch_height == 0:
                 outline = [[0, 0], [0,0]]
@@ -543,10 +556,14 @@ class Bucket:
         
     
     def make_profiles(self, dist_type, length = None, emittance = None, 
-                      dE = None, use_action = False):
+                      dE = None, use_action = False, recalculate = False,
+                      over_fill = False):
+        
+        if not recalculate and hasattr(self, 'time_profile'):
+            return
         
         if not all(par is None for par in (length, emittance, dE)):
-            self._set_bunch(length, emittance, dE)
+            self._set_bunch(length, emittance, dE, over_fill)
         
         self.dE_array = np.linspace(np.min(self.separatrix[1]), 
                                     np.max(self.separatrix[1]), len(self.time))
