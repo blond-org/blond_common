@@ -84,21 +84,21 @@ class RingSection:
     ----------
     length_design : float
         Length of the section on the reference orbit [m]
-    length : datatype.machine_program.orbit_length
+    length : datatype.ring_programs.orbit_length_program
         Length of the beam trajectory, including possible
         orbit bump programs [m]
-    orbit_bump : None or datatype.machine_program.orbit_length
+    orbit_bump : None or datatype.ring_programs.orbit_length_program
         Length of the orbit bump only if declared by the user [m]
-    synchronous_data : datatype.machine_program._ring_program
+    synchronous_data : datatype.machine_program._synchronous_data_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
         momentum_program, kinetic_energy_program, total_energy_program,
         bending_field_program
     bending_radius : float (or None)
         Bending radius in dipole magnets, :math:`\rho` [m]
-    alpha_0 : datatype.machine_program.momentum_compaction
+    alpha_0 : datatype.ring_programs.momentum_compaction
         Momentum compaction factor of zeroth order
-    alpha_n : datatype.machine_program.momentum_compaction (or undefined)
+    alpha_n : datatype.ring_programs.momentum_compaction (or undefined)
         Momentum compaction factor of higher orders
     alpha_orders : int
         Orders of momentum compaction defined by the user
@@ -108,7 +108,7 @@ class RingSection:
     >>> # To declare a section of a synchrotron with very simple
     >>> # parameters
     >>> from blond_common.interfaces.machine_parameters.ring_section import \
-    >>>     Section
+    >>>     RingSection
     >>>
     >>> length = 300
     >>> alpha_0 = 1e-3
