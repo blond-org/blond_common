@@ -117,7 +117,7 @@ harmonic_2 = [[0, 1, 2], [2, 2, 2]]  # [s, unitless]
 voltage_2 = [[0, 1, 2], [1e3, 1.1e3, 1.2e3]]  # [s, V]
 phase_2 = [[0, 0.5, 2], [np.pi, np.pi - 0.1, np.pi - 0.2]]  # [s, rad]
 
-harmonic_3 = [[0, 1, 2], [3, 3, 3]]  # [s, unitless]
+harmonic_3 = [[0, 1, 2], [2, 3, 3]]  # [s, unitless]
 voltage_3 = [[0, 1, 2], [0.5e3, 1.0e3, 1.5e3]]  # [s, V]
 phase_3 = [[0, 1.5, 2], [0., 0.1, 0.2]]  # [s, rad]
 
