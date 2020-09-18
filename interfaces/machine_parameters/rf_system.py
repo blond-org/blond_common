@@ -8,13 +8,14 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module gathering all general input parameters used for the simulation.**
+**Module handling all parameters related to the RFSystem object.**
     :Authors: **Simon Albright**, **Alexandre Lasheen**
 '''
 
 
 # General imports
 import numpy as np
+import warnings
 
 # BLonD_Common imports
 from ...datatypes import rf_programs, blond_function
@@ -104,16 +105,23 @@ class RFSystem:
             frequency = blond_function.machine_program(frequency)
         self.frequency = frequency
 
+        # Ref data for _check_and_set
+        if frequency is None:
+            ref_data_freq = 'harmonic'
+        else:
+            ref_data_freq = 'frequency'
+
         # Setting the voltage program as a datatypes.voltage_program
         if not isinstance(voltage, rf_programs.voltage_program):
             voltage = rf_programs.voltage_program(
                 voltage, harmonics=self.harmonic)
-        self.voltage = voltage
+        self._check_and_set_rf_prog(voltage, 'voltage', ref_data_freq)
 
         # Setting the phase program as a datatypes.phase_program
         if not isinstance(phase, rf_programs.phase_program):
             phase = rf_programs.phase_program(phase, harmonics=self.harmonic)
-        self.phase = phase
+        self._check_and_set_rf_prog(phase, 'phase', ref_data_freq)
+        self._check_and_set_rf_prog(phase, 'phase', 'voltage')
 
     def sample(self, use_time=None, use_turns=None):
 
@@ -192,3 +200,45 @@ class RFSystem:
                 unique_constant_harmonics[idx_combined]))
 
         return combined_system_list
+
+    def _check_and_set_rf_prog(self, rf_prog, prog_type, reference_prog):
+        '''
+        Internal function to check that the input rf program length is
+        coherent with the reference program. If the reference program
+        is turn based, the rf program should have the same length.
+        If the reference program is time based while the rf program is turn
+        based, raises a warning.
+        '''
+
+        setattr(self, prog_type, rf_prog)
+        ref_attr = getattr(self, reference_prog)
+
+        if (ref_attr.timebase == 'by_turn') and \
+                (rf_prog.timebase == 'by_turn'):
+
+            if (rf_prog.shape[-1] > 1) and \
+                    (ref_attr.shape[-1]
+                     > rf_prog.shape[-1]):
+
+                raise excpt.InputError(
+                    'The input ' + prog_type +
+                    ' was passed as a turn based program but with ' +
+                    'different length than the ' + reference_prog +
+                    ' program. Turn based programs should have the same ' +
+                    'length.')
+
+        elif (ref_attr.timebase == 'by_time') and \
+                (rf_prog.timebase == 'by_turn'):
+
+            warn_message = 'The ' + reference_prog + ' was defined time based while the ' + \
+                'input ' + prog_type + ' was defined turn base, this may' + \
+                'lead to errors in the RFStation object after interpolation.'
+            warnings.warn(warn_message)
+
+        elif (ref_attr.timebase == 'by_turn') and \
+                (rf_prog.timebase == 'by_time'):
+
+            warn_message = 'The ' + reference_prog + ' was defined turn based while the ' + \
+                'input ' + prog_type + ' was defined time base, this may' + \
+                'lead to errors in the RFStation object after interpolation.'
+            warnings.warn(warn_message)
