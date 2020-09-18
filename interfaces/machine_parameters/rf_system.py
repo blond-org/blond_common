@@ -18,7 +18,7 @@ import numpy as np
 import warnings
 
 # BLonD_Common imports
-from ...datatypes import rf_programs
+from ...datatypes import rf_programs, blond_function
 from ...devtools import assertions as assrt
 from ...devtools import exceptions as excpt
 
@@ -97,12 +97,16 @@ class RFSystem:
         # Passing harmonic and frequency as datatypes
         # Using blond_function.machine_program for now in absence
         # of dedicated programs
-        if not isinstance(harmonic, rf_programs._RF_function):
-            harmonic = rf_programs._RF_function(harmonic, harmonics=harmonic)
+        if not isinstance(harmonic, blond_function.machine_program):
+            harmonic = blond_function.machine_program(harmonic)
+            harmonic = rf_programs._RF_function(
+                harmonic, harmonics=harmonic)
         self.harmonic = harmonic
 
-        if not isinstance(frequency, rf_programs._RF_function):
-            frequency = rf_programs._RF_function(frequency, harmonics=harmonic)
+        if not isinstance(frequency, blond_function.machine_program):
+            frequency = blond_function.machine_program(frequency)
+            frequency = rf_programs._RF_function(
+                frequency, harmonics=frequency)
         self.frequency = frequency
 
         # Ref data for _check_and_set
@@ -231,7 +235,7 @@ class RFSystem:
                 (rf_prog.timebase == 'by_turn'):
 
             warn_message = 'The ' + reference_prog + ' was defined time based while the ' + \
-                'input ' + prog_type + ' was defined turn base, this may ' + \
+                'input ' + prog_type + ' was defined turn base, this may' + \
                 'lead to errors in the RFStation object after interpolation.'
             warnings.warn(warn_message)
 
@@ -239,6 +243,6 @@ class RFSystem:
                 (rf_prog.timebase == 'by_time'):
 
             warn_message = 'The ' + reference_prog + ' was defined turn based while the ' + \
-                'input ' + prog_type + ' was defined time base, this may ' + \
+                'input ' + prog_type + ' was defined time base, this may' + \
                 'lead to errors in the RFStation object after interpolation.'
             warnings.warn(warn_message)
