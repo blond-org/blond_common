@@ -65,6 +65,7 @@ print(f'RF harmonic {rf_system.harmonic}')
 print(f'RF frequency {rf_system.frequency} [Hz]')
 print()
 
+
 # To declare an RFSystem with time-based program as input
 voltage = [[0, 1, 2],
            [1e3, 1.1e3, 1.2e3]]  # [s, V]
@@ -80,6 +81,7 @@ print(f'RF phase {rf_system.phase} [rad]')
 print(f'RF harmonic {rf_system.harmonic}')
 print(f'RF frequency {rf_system.frequency} [s, Hz]')
 print()
+
 
 # To declare many RF systems with time based programs, and combining
 # them into one representing the total voltage seen by the beam

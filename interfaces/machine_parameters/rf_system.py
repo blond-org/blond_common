@@ -150,25 +150,33 @@ class RFSystem:
                 combined_system_list.append(single_system)
             else:
 
+                single_system_unique_harmonics.timebase = 'single'
                 if single_system_unique_harmonics not in \
                         unique_constant_harmonics:
+
                     unique_constant_harmonics.append(
                         single_system_unique_harmonics)
 
-                    # WARNING: only considering the combination of
-                    # RFSystems with only one voltage program for now
                     voltage_per_harmonic.append(
-                        [single_system.voltage[0].view(np.ndarray)])
+                        [single_system.voltage[i].view(np.ndarray)
+                         for i in range(single_system.voltage.shape[0])])
+
                     phase_per_harmonic.append(
-                        [single_system.phase[0].view(np.ndarray)])
+                        [single_system.phase[i].view(np.ndarray)
+                         for i in range(single_system.phase.shape[0])])
                 else:
+
                     idx_harmonic = np.where(
                         single_system_unique_harmonics ==
                         unique_constant_harmonics)[0][0]
-                    voltage_per_harmonic[idx_harmonic].append(
-                        single_system.voltage[0].view(np.ndarray))
-                    phase_per_harmonic[idx_harmonic].append(
-                        single_system.phase[0].view(np.ndarray))
+
+                    voltage_per_harmonic[idx_harmonic] += [
+                        single_system.voltage[i].view(np.ndarray)
+                        for i in range(single_system.voltage.shape[0])]
+
+                    phase_per_harmonic[idx_harmonic] += [
+                        single_system.phase[i].view(np.ndarray)
+                        for i in range(single_system.phase.shape[0])]
 
         # Regenerating RFSystems with n-dimensional voltage and phase programs
         for idx_combined in range(len(unique_constant_harmonics)):
