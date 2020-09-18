@@ -125,29 +125,38 @@ class RFSystem:
     @classmethod
     def combine_systems(cls, RFSystem_list):
 
+        # Initializing lists where the combined data from the systems
+        # are stored
         combined_system_list = []
         unique_constant_harmonics = []
-
         voltage_per_harmonic = []
         phase_per_harmonic = []
 
         for single_system in RFSystem_list:
 
+            # Extracing the harmonic from the single_system (datatype)
             if single_system.harmonic.timebase == 'by_time':
                 hamonic_values = single_system.harmonic[:, 1, :]
             else:
                 hamonic_values = single_system.harmonic
 
+            # Finding the unique values of harmonics in the system
             single_system_unique_harmonics = np.unique(hamonic_values)
 
+            # Not combining the system with others if harmonic is a varying
+            # program or if the system is defined using fixed frequency
             if (len(single_system_unique_harmonics) > 1) or \
                     (single_system_unique_harmonics[0] is None):
                 combined_system_list.append(single_system)
             else:
+
                 if single_system_unique_harmonics not in \
                         unique_constant_harmonics:
                     unique_constant_harmonics.append(
                         single_system_unique_harmonics)
+
+                    # WARNING: only considering the combination of
+                    # RFSystems with only one voltage program for now
                     voltage_per_harmonic.append(
                         [single_system.voltage[0].view(np.ndarray)])
                     phase_per_harmonic.append(
@@ -161,6 +170,7 @@ class RFSystem:
                     phase_per_harmonic[idx_harmonic].append(
                         single_system.phase[0].view(np.ndarray))
 
+        # Regenerating RFSystems with n-dimensional voltage and phase programs
         for idx_combined in range(len(unique_constant_harmonics)):
             combined_system_list.append(cls(
                 rf_programs.voltage_program(
