@@ -17,16 +17,33 @@ import numpy as np
 
 # BLonD Common import
 # Add blond_common to PYTHONPATH if not done
+from blond_common.interfaces.machine_parameters.ring import \
+    Ring, RingSection
 from blond_common.interfaces.machine_parameters.rf_station import \
     RFSystem, RFStation
+from blond_common.datatypes import blond_function, rf_programs
+
+# Generate a base Ring object with 1xRingSection
+length = 6911  # m
+alpha_0 = 1 / 18**2.
+momentum = [[0, 0.1, 0.2], [26e9, 27e9, 28e9]]  # [s, eV/c]
+particle = 'proton'
+
+ring = Ring(particle, [RingSection(length, alpha_0, momentum)])
 
 
 # To declare an RFSystem with simple input, using rf harmonic
-voltage = 1e3  # V
-phase = np.pi  # rad
-harmonic = 2
+voltage = 4.5e6  # V
+phase = np.array([[0, 1, 2], [0, np.pi/2, np.pi]])  # rad
+harmonic = [[0, 1, 2], [4620, 4620, 4620]]
+f_rf = 200e6  # Hz
 
 rf_system = RFSystem(voltage, phase, harmonic)
+
+rf_station = RFStation(ring, [RFSystem(voltage, phase, harmonic),
+                              RFSystem(voltage, phase + np.pi / 2, harmonic),
+                              RFSystem(voltage, phase, frequency=f_rf)])
+# rf_station = RFStation.direct_input()
 
 print('-- Simple input, rf harmonic')
 print(f'RF voltage {rf_system.voltage} [V]')
