@@ -98,15 +98,13 @@ class RFSystem:
         # Using blond_function.machine_program for now in absence
         # of dedicated programs
         if not isinstance(harmonic, blond_function.machine_program):
-            harmonic = blond_function.machine_program(harmonic)
             harmonic = rf_programs._RF_function(
-                harmonic, harmonics=harmonic)
+                harmonic, harmonics=[None])
         self.harmonic = harmonic
 
         if not isinstance(frequency, blond_function.machine_program):
-            frequency = blond_function.machine_program(frequency)
             frequency = rf_programs._RF_function(
-                frequency, harmonics=frequency)
+                frequency, harmonics=[None])
         self.frequency = frequency
 
         # Ref data for _check_and_set
@@ -115,15 +113,26 @@ class RFSystem:
         else:
             ref_data_freq = 'frequency'
 
+        # Getting the harmonics to be passed to the voltage/phase datatypes
+        if self.harmonic.timebase == 'by_time':
+            unique_harmonics = np.unique(self.harmonic[:, 1, :])
+        else:
+            unique_harmonics = np.unique(self.harmonic)
+        if (len(unique_harmonics) > 1) or (unique_harmonics[0] is None):
+            unique_harmonics = None
+        else:
+            unique_harmonics = int(unique_harmonics)
+
         # Setting the voltage program as a datatypes.voltage_program
         if not isinstance(voltage, rf_programs.voltage_program):
             voltage = rf_programs.voltage_program(
-                voltage, harmonics=self.harmonic)
+                voltage, harmonics=unique_harmonics)
         self._check_and_set_rf_prog(voltage, 'voltage', ref_data_freq)
 
         # Setting the phase program as a datatypes.phase_program
         if not isinstance(phase, rf_programs.phase_program):
-            phase = rf_programs.phase_program(phase, harmonics=self.harmonic)
+            phase = rf_programs.phase_program(
+                phase, harmonics=unique_harmonics)
         self._check_and_set_rf_prog(phase, 'phase', ref_data_freq)
         self._check_and_set_rf_prog(phase, 'phase', 'voltage')
 
@@ -195,12 +204,12 @@ class RFSystem:
             combined_system_list.append(cls(
                 rf_programs.voltage_program(
                     *voltage_per_harmonic[idx_combined],
-                    harmonics=[unique_constant_harmonics[idx_combined]] *
+                    harmonics=[int(unique_constant_harmonics[idx_combined])] *
                     len(voltage_per_harmonic[idx_combined])),
                 rf_programs.phase_program(
                     *phase_per_harmonic[idx_combined],
-                    harmonics=[unique_constant_harmonics[idx_combined]] *
-                    len(voltage_per_harmonic[idx_combined])),
+                    harmonics=[int(unique_constant_harmonics[idx_combined])] *
+                    len(phase_per_harmonic[idx_combined])),
                 unique_constant_harmonics[idx_combined]))
 
         return combined_system_list
