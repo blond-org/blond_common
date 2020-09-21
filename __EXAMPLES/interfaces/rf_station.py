@@ -26,7 +26,7 @@ from blond_common.datatypes import blond_function, rf_programs
 # Generate a base Ring object with 1xRingSection
 length = 6911  # m
 alpha_0 = 1 / 18**2.
-momentum = [[0, 0.1, 0.2], [26e9, 27e9, 28e9]]  # [s, eV/c]
+momentum = [[0, 1, 2], [26e9, 27e9, 28e9]]  # [s, eV/c]
 particle = 'proton'
 
 ring = Ring(particle, [RingSection(length, alpha_0, momentum)])

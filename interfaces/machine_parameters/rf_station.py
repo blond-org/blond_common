@@ -220,6 +220,19 @@ class RFStation:
         # Getting the settings from the corresponding section in ring
         self._ring_pars(ring)
 
+        # The order alpha_order used here can be replaced by ring.alpha_order
+        # when the assembler can differentiate the cases 'simple' and 'full'
+        # for the drift
+        alpha_order = 2  # ring.alpha_order
+        for i in range(alpha_order + 1):
+            try:
+                dummy = getattr(ring, 'eta_' + str(i))
+            except AttributeError:
+                setattr(self, "eta_%s" % i, 0)
+            else:
+                setattr(self, "eta_%s" % i, dummy[self.section_index])
+        self.sign_eta_0 = np.sign(self.eta_0)
+
         # Extracting the harmonic and frequency programs from the rf systems
         # and replacing None values
         all_harmonics = []
@@ -277,14 +290,19 @@ class RFStation:
 
             if combine_systems and (voltage.shape[0] > 1):
                 # TODO: raise error if voltage/phase shape mismatch?
-                voltage, phase = vector_sum(
-                    voltage[0, :], voltage[1, :], phase[0, :], phase[1, :])
-            else:
-                voltage = voltage[0, :]
-                phase = phase[0, :]
+                summed_voltage = 0
+                summed_phase = 0
+                for idx_prog in range(len(voltage)):
+                    summed_voltage, summed_phase = vector_sum(
+                        summed_voltage, voltage[idx_prog, :],
+                        summed_phase, phase[idx_prog, :])
 
-            all_voltage.append(voltage)
-            all_phase.append(phase)
+                all_voltage.append(summed_voltage)
+                all_phase.append(summed_phase)
+            else:
+                for idx_prog in range(len(voltage)):
+                    all_voltage.append(voltage[idx_prog, :])
+                    all_phase.append(phase[idx_prog, :])
 
         harmonics_for_dtype = []
         for idx_rf in range(len(all_harmonics)):
@@ -303,6 +321,21 @@ class RFStation:
             *all_phase,
             harmonics=harmonics_for_dtype,
             interpolation='linear')
+
+        # Checking if the RFStation is empty
+        if np.sum(self.voltage) == 0:
+            self.empty = True
+        else:
+            self.empty = False
+
+        # Computing the rf angular frequency and rf period
+        self.omega_rf = 2 * np.pi * self.f_rf
+        self.t_rf = 2 * np.pi / self.omega_rf
+
+        # From helper functions
+        self.phi_s = calculate_phi_s(self, self.Particle).view(np.ndarray)
+        self.Q_s = calculate_Q_s(self, self.Particle).view(np.ndarray)
+        self.omega_s0 = (self.Q_s * ring.omega_rev).view(np.ndarray)
 
     @classmethod
     def direct_input(self, ring, voltage, phi_rf, harmonic, frequency=None,
@@ -355,23 +388,6 @@ class RFStation:
                            msg='Declared harmonics and harmonics of voltage and phase'
                            + ' functions do not all match', exception=excpt.InputDataError)
 
-        self.n_rf = len(voltage.harmonics)
-
-        self._ring_pars(ring)
-
-        # The order alpha_order used here can be replaced by ring.alpha_order
-        # when the assembler can differentiate the cases 'simple' and 'full'
-        # for the drift
-        alpha_order = 2  # ring.alpha_order
-        for i in range(alpha_order + 1):
-            try:
-                dummy = getattr(ring, 'eta_' + str(i))
-            except AttributeError:
-                setattr(self, "eta_%s" % i, 0)
-            else:
-                setattr(self, "eta_%s" % i, dummy[self.section_index])
-        self.sign_eta_0 = np.sign(self.eta_0)
-
         # Reshape design voltage
         self.voltage = voltage.reshape(use_time=ring.cycle_time,
                                        use_turns=ring.use_turns)
@@ -379,12 +395,6 @@ class RFStation:
         self.harmonic = np.zeros(self.voltage.shape)
         for i, h in enumerate(harmonic):
             self.harmonic[i] = h
-
-        # Checking if the RFStation is empty
-        if np.sum(self.voltage) == 0:
-            self.empty = True
-        else:
-            self.empty = False
 
         # Reshape design phase
         self.phi_rf = phi_rf.reshape(use_time=ring.cycle_time,
@@ -464,12 +474,6 @@ class RFStation:
         # Copy of the design rf programs in the one used for tracking
         # and that can be changed by feedbacks
         self.dphi_rf = np.zeros(self.n_rf)
-        self.t_rf = 2 * np.pi / self.omega_rf
-
-        # From helper functions
-        self.phi_s = calculate_phi_s(self, self.Particle)
-        self.Q_s = calculate_Q_s(self, self.Particle)
-        self.omega_s0 = self.Q_s * ring.omega_rev
 
     def _ring_pars(self, ring):
 
@@ -650,7 +654,8 @@ def calculate_phi_s(RFStation, Particle=Proton(),
             if np.sign(eta0[indexTurn]) > 0:
                 phase_array = np.linspace(
                     -float(RFStation.phi_rf[0, indexTurn + 1]),
-                    -float(RFStation.phi_rf[0, indexTurn + 1]) + 2 * np.pi, 1000)
+                    -float(RFStation.phi_rf[0, indexTurn + 1]) + 2 * np.pi,
+                    1000)
             else:
                 phase_array = np.linspace(
                     -float(RFStation.phi_rf[0, indexTurn + 1]) - np.pi,
