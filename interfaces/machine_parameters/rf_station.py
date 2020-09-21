@@ -260,12 +260,16 @@ class RFStation:
         for rf_system in self.RFSystem_list:
 
             voltage = rf_system.voltage
+            # NB: harmonics redefined to avoid issue with dtypes.reshape
+            # with same harmonics
             voltage.harmonics = np.arange(voltage.shape[0]) + 1
             voltage = voltage.reshape(
                 use_time=ring.cycle_time,
                 use_turns=ring.use_turns).view(np.ndarray)
 
             phase = rf_system.phase
+            # NB: harmonics redefined to avoid issue with dtypes.reshape
+            # with same harmonics
             phase.harmonics = np.arange(phase.shape[0]) + 1
             phase = phase.reshape(
                 use_time=ring.cycle_time,

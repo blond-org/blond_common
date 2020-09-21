@@ -40,12 +40,12 @@ phase_2[1, :] += np.pi
 harmonic = [[0, 1, 2], [4620, 4620, 4620]]
 f_rf = 200e6  # Hz
 
-rf_system = RFSystem(voltage, phase, harmonic)
-
-rf_station = RFStation(ring, [RFSystem(voltage, phase, harmonic),
-                              RFSystem(voltage, phase_2, harmonic),
-                              RFSystem(voltage, phase, frequency=f_rf)],
+rf_station = RFStation(ring,
+                       [RFSystem(voltage, phase, harmonic),
+                        RFSystem(voltage, phase_2, harmonic),
+                        RFSystem(voltage, phase, frequency=f_rf)],
                        combine_systems=True)
+
 # rf_station = RFStation.direct_input()
 
 print('-- Simple input, rf harmonic')
