@@ -34,20 +34,23 @@ ring = Ring(particle, [RingSection(length, alpha_0, momentum)])
 
 # To declare an RFSystem with simple input, using rf harmonic
 voltage = 4.5e6  # V
-phase = np.array([[0, 1, 2], [0, np.pi/2, np.pi]])  # rad
+phase = np.array([[0, 1, 2], [0, np.pi / 2, np.pi]])  # rad
+phase_2 = np.array([[0, 1, 2], [0, np.pi / 2, np.pi]])  # rad
+phase_2[1, :] += np.pi
 harmonic = [[0, 1, 2], [4620, 4620, 4620]]
 f_rf = 200e6  # Hz
 
 rf_system = RFSystem(voltage, phase, harmonic)
 
 rf_station = RFStation(ring, [RFSystem(voltage, phase, harmonic),
-                              RFSystem(voltage, phase + np.pi / 2, harmonic),
-                              RFSystem(voltage, phase, frequency=f_rf)])
+                              RFSystem(voltage, phase_2, harmonic),
+                              RFSystem(voltage, phase, frequency=f_rf)],
+                       combine_systems=True)
 # rf_station = RFStation.direct_input()
 
 print('-- Simple input, rf harmonic')
-print(f'RF voltage {rf_system.voltage} [V]')
-print(f'RF phase {rf_system.phase} [rad]')
-print(f'RF harmonic {rf_system.harmonic}')
-print(f'RF frequency {rf_system.frequency} [Hz]')
+print(f'RF voltage {rf_station.voltage} [V]')
+print(f'RF phase {rf_station.phi_rf} [rad]')
+print(f'RF harmonic {rf_station.harmonic}')
+print(f'RF frequency {rf_station.f_rf} [Hz]')
 print()

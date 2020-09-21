@@ -192,7 +192,8 @@ class RFStation:
 
     """
 
-    def __init__(self, ring, RFSystem_list, section_index=1, vector_sum=True):
+    def __init__(self, ring, RFSystem_list, section_index=1,
+                 combine_systems=False):
 
         # Corresponding RFStation and RingSection index and check
         self.section_index = int(section_index - 1)
@@ -210,7 +211,10 @@ class RFStation:
                 "The RFSystem_list should be exclusively composed " +
                 "of RFSystem object instances.")
 
-        self.RFSystem_list = RFSystem_list
+        if combine_systems:
+            self.RFSystem_list = RFSystem.combine_systems(RFSystem_list)
+        else:
+            self.RFSystem_list = RFSystem_list
         self.n_rf = len(self.RFSystem_list)
 
         # Getting the settings from the corresponding section in ring
@@ -256,15 +260,26 @@ class RFStation:
         for rf_system in self.RFSystem_list:
 
             voltage = rf_system.voltage
-            voltage = voltage.reshape(use_time=ring.cycle_time,
-                                      use_turns=ring.use_turns)
-
-            all_voltage.append(voltage)
+            voltage.harmonics = np.arange(voltage.shape[0]) + 1
+            voltage = voltage.reshape(
+                use_time=ring.cycle_time,
+                use_turns=ring.use_turns).view(np.ndarray)
 
             phase = rf_system.phase
-            phase = phase.reshape(use_time=ring.cycle_time,
-                                  use_turns=ring.use_turns)
+            phase.harmonics = np.arange(phase.shape[0]) + 1
+            phase = phase.reshape(
+                use_time=ring.cycle_time,
+                use_turns=ring.use_turns).view(np.ndarray)
 
+            if combine_systems and (voltage.shape[0] > 1):
+                # TODO: raise error if voltage/phase shape mismatch?
+                voltage, phase = vector_sum(
+                    voltage[0, :], voltage[1, :], phase[0, :], phase[1, :])
+            else:
+                voltage = voltage[0, :]
+                phase = phase[0, :]
+
+            all_voltage.append(voltage)
             all_phase.append(phase)
 
         harmonics_for_dtype = []
@@ -287,7 +302,7 @@ class RFStation:
 
     @classmethod
     def direct_input(self, ring, voltage, phi_rf, harmonic, frequency=None,
-                     section_index=1, vector_sum=True):
+                     section_index=1, combine_systems=False):
 
         # Coercion of voltage to RF_section_function datatype
         if not isinstance(voltage, rf_programs.voltage_program):
