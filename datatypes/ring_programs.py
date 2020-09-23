@@ -61,7 +61,8 @@ class _ring_function(_function):
 
     """
     def __new__(cls, *args, time=None, n_turns=None,
-                allow_single=False, interpolation=None, **kwargs):
+                allow_single=False, interpolation=None, dtype=None,
+                **kwargs):
         args = _expand_function(*args)
         _check_time_turns(time, n_turns)
 
@@ -85,7 +86,8 @@ class _ring_function(_function):
 
         data_type = {**data_type, **kwargs}
 
-        return super().__new__(cls, data_points, data_type, interpolation)
+        return super().__new__(cls, data_points, data_type, interpolation,
+                               dtype)
 
     @classmethod
     def _combine_single_sections(cls, *args,
@@ -135,13 +137,16 @@ class _ring_function(_function):
                                    + "combined")
 
         timeBases = [a.timebase for a in args]
-        #TODO: clean up try/except
+
         try:
             assrt.equal_arrays(*timeBases, msg='Attempting to combine '
                                + 'sections with different '
                                + 'timebases',
                                exception=excpt.InputError)
-        except:
+        except excpt.InputError:
+            #If only 1 on 'by_turn' or 'by_time' is given, it is assumed
+            #that the difference is caused by an instance of 'single'
+            #TODO: Improve checking
             turns = len([t for t in timeBases if t == 'by_turn']) == 0
             times = len([t for t in timeBases if t == 'by_time']) == 0
             if turns == times:
@@ -261,9 +266,10 @@ class _synchronous_data_program(_ring_function):
     synchronous programs, and the value is the corresponding class.
     """
 
-    def __new__(cls, *args, time=None, n_turns=None, interpolation=None):
+    def __new__(cls, *args, time=None, n_turns=None, interpolation=None,
+                dtype=None):
         return super().__new__(cls, *args, time=time, n_turns=n_turns,
-                               interpolation=interpolation)
+                               interpolation=interpolation, dtype=dtype)
 
     def to_momentum(self, inPlace=True, **kwargs):
         """
@@ -410,6 +416,8 @@ class _synchronous_data_program(_ring_function):
             bending_radius = [bending_radius] * newArray.shape[0]
         for i, (a, b) in enumerate(zip(args, bending_radius)):
             if timeBases[0] != 'single':
+                if a.interpolation is None:
+                    a.interpolation = interpolation
                 section = a.reshape(use_time=use_times,
                                     use_turns=use_turns)
             else:
@@ -726,12 +734,9 @@ class _synchronous_data_program(_ring_function):
         assrt.all_not_none(*checkList, msg=errorMsg,
                            exception=excpt.InputError)
 
-        for s in range(self.shape[0]):
-            if self.timebase == 'by_time':
-                newArray[s, 1] = conversion_function(self[s, 1], **arguments)
-                newArray[s, 0] = self[s, 0]
-            else:
-                newArray[s] = conversion_function(self[s], **arguments)
+        newArray[:] = conversion_function(self, **arguments)
+        if self.timebase == 'by_time':
+            newArray[:,0] = self[:,0]
 
         if inPlace:
             for s in range(self.shape[0]):
@@ -765,7 +770,7 @@ class _synchronous_data_program(_ring_function):
         if inPlace:
             return None
         else:
-            return super().__new__(self.__class__, *self)
+            return super().__new__(self.__class__, self)
 
     def _time_from_turn(self, mass, circumference):
         """
@@ -1214,9 +1219,15 @@ class bending_field_program(_synchronous_data_program):
     """A str identifying the data"""
 
 
+
 for data in [momentum_program, total_energy_program, kinetic_energy_program,
              bending_field_program]:
     data._add_to_conversions()
+"""
+Loop over all defined _synchronous_data_program objects and added them to the
+available conversions.
+"""
+
 
 
 class momentum_compaction(_ring_function):
@@ -1256,11 +1267,12 @@ class momentum_compaction(_ring_function):
         The order of the momentum compaction factor program
     """
     def __new__(cls, *args, order=0, time=None, n_turns=None,
-                interpolation='linear'):
+                interpolation='linear', dtype=None):
 
         return super().__new__(cls, *args, time=time,
                                n_turns=n_turns, allow_single=True,
-                               interpolation='linear', order=order)
+                               interpolation='linear', dtype=dtype,
+                               order=order)
 
     @classmethod
     def combine_single_sections(cls, *args, interpolation=None):
@@ -1374,11 +1386,11 @@ class orbit_length_program(_ring_function):
     """
 
     def __new__(cls, *args, time=None, n_turns=None,
-                interpolation='linear'):
+                interpolation='linear', dtype=None):
 
         return super().__new__(cls, *args, time=time,
                                n_turns=n_turns, allow_single=True,
-                               interpolation='linear')
+                               interpolation='linear', dtype=dtype)
 
     @classmethod
     def combine_single_sections(cls, *args, interpolation=None):

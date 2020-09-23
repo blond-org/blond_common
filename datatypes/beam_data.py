@@ -54,7 +54,7 @@ class _beam_data(_function):
     """
     
     def __new__(cls, *args, units, time = None, n_turns = None, 
-                interpolation = 'linear', **kwargs):
+                interpolation = 'linear', dtype=None, **kwargs):
         
         _check_time_turns(time, n_turns)
             
@@ -79,7 +79,8 @@ class _beam_data(_function):
         data_type = {'timebase': data_types[0], 'bunching': bunching,
                      'units': units, **kwargs}
         
-        return super().__new__(cls, data_points, data_type, interpolation)
+        return super().__new__(cls, data_points, data_type, interpolation,
+                               dtype)
 
 
     @property
@@ -154,11 +155,11 @@ class acceptance(_beam_data):
     """
     
     def __new__(cls, *args, units = 'eVs', time = None, n_turns = None, 
-                interpolation = 'linear'):
+                interpolation = 'linear', dtype=None):
         
         return super().__new__(cls, *args, units = units, time = time, 
                                n_turns = n_turns, 
-                               interpolation = interpolation)
+                               interpolation = interpolation, dtype=dtype)
 
 
 class emittance(_beam_data):
@@ -205,13 +206,14 @@ class emittance(_beam_data):
     """
     
     def __new__(cls, *args, emittance_type = 'matched_area', units = 'eVs', 
-                time = None, n_turns = None, interpolation = 'linear'):
+                time = None, n_turns = None, interpolation = 'linear',
+                dtype=None):
         
         return super().__new__(cls, *args, 
                                emittance_type = emittance_type,
                                units = units, time = time, 
                                n_turns = n_turns,
-                               interpolation = interpolation)
+                               interpolation = interpolation, dtype=dtype)
 
 
     @property
@@ -275,12 +277,13 @@ class length(_beam_data):
     """
     
     def __new__(cls, *args, length_type = 'full_length', units = 's',
-                time = None, n_turns = None, interpolation = 'linear'):
+                time = None, n_turns = None, interpolation = 'linear',
+                dtype=None):
         
         return super().__new__(cls, *args, length_type = length_type, 
                                units = units, time = time, 
                                n_turns = n_turns,
-                               interpolation = interpolation)
+                               interpolation = interpolation, dtype=dtype)
 
 
     @property
@@ -343,11 +346,12 @@ class height(_beam_data):
     """
     
     def __new__(cls, *args, height_type = 'half_height', units = 'eV',
-                time = None, n_turns = None, interpolation = 'linear'):
+                time = None, n_turns = None, interpolation = 'linear',
+                dtype=None):
         
         return super().__new__(cls, *args, height_type = height_type, 
                                units = units, time = time, n_turns = n_turns,
-                               interpolation = interpolation)
+                               interpolation = interpolation, dtype=dtype)
 
 
     @property
@@ -403,8 +407,8 @@ class synchronous_phase(_beam_data):
     """
     
     def __new__(cls, *args, units = 's', time = None, n_turns = None, 
-                interpolation = 'linear'):
+                interpolation = 'linear', dtype=None):
         
         return super().__new__(cls, *args, units = units, time = time, 
                                n_turns = n_turns, 
-                               interpolation = interpolation)
+                               interpolation = interpolation, dtype=dtype)

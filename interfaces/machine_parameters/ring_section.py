@@ -192,16 +192,17 @@ class RingSection:
 
             # orbit_bump was checked
             # The length attribute is created with no further checks
-            if orbit_bump.timebase == 'by_time':
+            self.length = self.orbit_bump + self.length_design
+            # if orbit_bump.timebase == 'by_time':
 
-                self.length = ring_programs.orbit_length_program(
-                    [self.length_design] * len(self.orbit_bump[0, 0, :]),
-                    time=self.orbit_bump[0, 0, :])
-                self.length[:, 1, :] += self.orbit_bump[:, 1, :]
+            #     self.length = ring_programs.orbit_length_program(
+            #         [self.length_design] * len(self.orbit_bump[0, 0, :]),
+            #         time=self.orbit_bump[0, 0, :])
+            #     self.length[:, 1, :] += self.orbit_bump[:, 1, :]
 
-            else:
+            # else:
 
-                self.length = self.orbit_bump + self.length_design
+            #     self.length = self.orbit_bump + self.length_design
 
         # Setting the linear momentum compaction factor
         # Checking that the synchronous data and the momentum compaction
