@@ -33,24 +33,35 @@ class RFSystem:
     Parameters
     ----------
     voltage : float (opt: list or np.ndarray)
-        ...
+        The input rf voltage in [V]
+        Can be input as a single float value or as a program
+        (1D is turn-by-turn, 2D is time based).
     phase : float (opt: list or np.ndarray)
-        ...
+        The input rf phase in [rad].
+        Can be input as a single float value or as a program
+        (1D is turn-by-turn, 2D is time based)
     harmonic : float (opt: list or np.ndarray)
-        ...
+        The input rf harmonic
+        Either the harmonic or the frequency can be passed as input
+        Can be input as a single float value or as a program
+        (1D is turn-by-turn, 2D is time based)
     frequency : float (opt: list or np.ndarray)
-        ...
+        The input rf frequency in [Hz] (can be non integer harmonic of the
+        revolution frequency)
+        Either the harmonic or the frequency can be passed as input
+        Can be input as a single float value or as a program
+        (1D is turn-by-turn, 2D is time based).
 
     Attributes
     ----------
     voltage : datatype.rf_programs.voltage_program
-        ...
+        The input rf voltage in [V]
     phase : datatype.rf_programs.voltage_program
-        ...
-    harmonic : datatype.blond_functions.machine_program
-        ...
-    frequency : datatype.blond_functions.machine_program
-        ...
+        The input rf phase in [rad]
+    harmonic : datatype.blond_functions.machine_program or None
+        The input rf harmonic
+    frequency : datatype.blond_functions.machine_program or None
+        The input rf frequency in [Hz]
 
     Examples
     --------

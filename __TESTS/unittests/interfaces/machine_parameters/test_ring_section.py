@@ -548,7 +548,7 @@ class TestRingSection(unittest.TestCase):
                 length + np.array(orbit_time)[:, 1, :],
                 section.length[:, 1, :])
 
-    # Exception raising test -------------------------------------------
+    # Exception raising test --------------------------------------------------
 
     def test_assert_synchronous_data_input(self):
         # Test the exception that at least one synchronous data is passed
