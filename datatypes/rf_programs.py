@@ -52,7 +52,8 @@ class _RF_function(_function):
         The harmonics covered by the function.
     """
     def __new__(cls, *args, harmonics, time = None, n_turns = None, \
-                interpolation = 'linear', allow_single = True, **kwargs):
+                interpolation = 'linear', allow_single = True, dtype = None,
+                **kwargs):
 
         args = _expand_function(*args)
 
@@ -77,12 +78,12 @@ class _RF_function(_function):
         if not 'by_turn' in data_types:
             data_points = _interpolate_input(data_points, data_types, 
                                             interpolation)
-                
+
         data_type = {'timebase': data_types[0], 'harmonics': harmonics, 
                      **kwargs}
-        
+
         return super().__new__(cls, data_points, data_type, 
-                               interpolation)
+                               interpolation, dtype)
 
 
     @property
@@ -103,7 +104,8 @@ class _RF_function(_function):
 
 
     #TODO: Safe treatment of use_turns > n_turns
-    def reshape(self, harmonics = None, use_time = None, use_turns = None):
+    def reshape(self, harmonics = None, use_time = None, use_turns = None,
+                store_time = False):
         """
         Reshape the datatype array to the given number of sections and either
         the given use_time or given use_turns.
@@ -133,8 +135,9 @@ class _RF_function(_function):
             use_turns = [int(turn) for turn in use_turns]
 
         newArray = self._prep_reshape(len(harmonics), 
-                                      use_time = use_time, 
-                                      use_turns = use_turns)
+                                      use_time = use_time,
+                                      use_turns = use_turns,
+                                      store_time = store_time)
         
         for i, h in enumerate(harmonics):
             for j, s in enumerate(self.harmonics):
@@ -145,17 +148,26 @@ class _RF_function(_function):
             
             if self.timebase == 'single':
                 newArray[i] += self[j]
-    
+
             elif self.timebase == 'by_turn':
                 newArray[i] = self[j, use_turns]
-            
+
             elif self.timebase == 'by_time':
                 newArray[i] = self._interpolate(j, use_time)
-        
+
+            else:
+                raise RuntimeError("Only single, by_turn or by_time functions"
+                                   +f" can be reshaped, not {self.timebase}.")
+
         newArray = newArray.view(self.__class__)
 
-        newArray.data_type = {'timebase':  'interpolated',
-                              'harmonics': harmonics}
+        if store_time:
+            newArray[:, 0, :] = use_time
+            newArray.timebase = 'by_time'
+        else:
+            newArray.timebase = 'interpolated'
+
+        newArray.harmonics = harmonics
 
         return newArray
 
@@ -328,16 +340,19 @@ class _freq_phase_off(_RF_function):
         
         delta_omega = omega_offset.zeros(delta_phase.shape, self.data_type)
         delta_omega.timebase = 'interpolated'
-        for i, h in enumerate(self.harmonics):
-            if self.timebase in ('by_turn', 'interpolated'):
-                delta_omega[i] = h*(design_omega_rev/(2*np.pi)) \
-                                    * np.gradient(delta_phase[i])
-            else:
-                delta_omega[i] = h*(design_omega_rev[1]/(2*np.pi)) \
-                                    * np.gradient(delta_phase[i])\
-                                        /np.gradient(design_omega_rev[0])
-        
-        return delta_omega
+        if delta_omega.shape[-1] == 1:
+            return delta_omega
+        else:
+            for i, h in enumerate(self.harmonics):
+                if self.timebase in ('by_turn', 'interpolated'):
+                    delta_omega[i] = h*(design_omega_rev/(2*np.pi)) \
+                                        * np.gradient(delta_phase[i])
+                else:
+                    delta_omega[i] = h*(design_omega_rev[1]/(2*np.pi)) \
+                                        * np.gradient(delta_phase[i])\
+                                            /np.gradient(design_omega_rev[0])
+            
+            return delta_omega
     
     
     def calc_delta_phase(self, design_omega_rev, wrap=False):
@@ -397,18 +412,21 @@ class _freq_phase_off(_RF_function):
 
         delta_phase = phase_offset.zeros(delta_omega.shape, self.data_type)
         delta_phase.timebase = 'interpolated'
-        for i, h in enumerate(self.harmonics):
-            if self.timebase in ('by_turn', 'interpolated'):
-                delta_phase[i] = np.cumsum(2*np.pi\
-                                           *(delta_omega[i]\
-                                             /(h*design_omega_rev)))
-            else:
-                delta_phase[i] = np.cumsum(2*np.pi\
+        if delta_phase.shape[-1] == 1:
+            return delta_phase
+        else:
+            for i, h in enumerate(self.harmonics):
+                if self.timebase in ('by_turn', 'interpolated'):
+                    delta_phase[i] = np.cumsum(2*np.pi\
                                                *(delta_omega[i]\
-                                                 /(h*design_omega_rev[1]))) \
-                                    * np.gradient(design_omega_rev[0])
-            
-        return delta_phase
+                                                 /(h*design_omega_rev)))
+                else:
+                    delta_phase[i] = np.cumsum(2*np.pi\
+                                                 *(delta_omega[i]\
+                                                 /(h*design_omega_rev[1])))\
+                                        * np.gradient(design_omega_rev[0])
+                
+            return delta_phase
 
 
 class phase_offset(_freq_phase_off):

@@ -8,7 +8,7 @@
 # Project website: http://blond.web.cern.ch/
 
 '''
-**Module handling all parameters related to the RingSection object.**
+**Module gathering all general input parameters used for the simulation.**
     :Authors: **Simon Albright**, **Alexandre Lasheen**
 '''
 
@@ -84,21 +84,21 @@ class RingSection:
     ----------
     length_design : float
         Length of the section on the reference orbit [m]
-    length : datatype.ring_programs.orbit_length_program
+    length : datatype.machine_program.orbit_length
         Length of the beam trajectory, including possible
         orbit bump programs [m]
-    orbit_bump : None or datatype.ring_programs.orbit_length_program
+    orbit_bump : None or datatype.machine_program.orbit_length
         Length of the orbit bump only if declared by the user [m]
-    synchronous_data : datatype.machine_program._synchronous_data_program
+    synchronous_data : datatype.machine_program._ring_program
         The user input synchronous data, with no conversion applied.
         The datatype depends on the user input and can be
         momentum_program, kinetic_energy_program, total_energy_program,
         bending_field_program
     bending_radius : float (or None)
         Bending radius in dipole magnets, :math:`\rho` [m]
-    alpha_0 : datatype.ring_programs.momentum_compaction
+    alpha_0 : datatype.machine_program.momentum_compaction
         Momentum compaction factor of zeroth order
-    alpha_n : datatype.ring_programs.momentum_compaction (or undefined)
+    alpha_n : datatype.machine_program.momentum_compaction (or undefined)
         Momentum compaction factor of higher orders
     alpha_orders : int
         Orders of momentum compaction defined by the user
@@ -108,7 +108,7 @@ class RingSection:
     >>> # To declare a section of a synchrotron with very simple
     >>> # parameters
     >>> from blond_common.interfaces.machine_parameters.ring_section import \
-    >>>     RingSection
+    >>>     Section
     >>>
     >>> length = 300
     >>> alpha_0 = 1e-3
@@ -119,7 +119,7 @@ class RingSection:
     >>> # To declare a section of a synchrotron with very complex
     >>> # parameters and programs
     >>> from blond_common.interfaces.machine_parameters.ring_section import \
-    >>>     RingSection
+    >>>     Section
     >>>
     >>> length = 300
     >>> alpha_0 = [1e-3, 0.9e-3, 1e-3]
@@ -192,16 +192,17 @@ class RingSection:
 
             # orbit_bump was checked
             # The length attribute is created with no further checks
-            if orbit_bump.timebase == 'by_time':
+            self.length = self.orbit_bump + self.length_design
+            # if orbit_bump.timebase == 'by_time':
 
-                self.length = ring_programs.orbit_length_program(
-                    [self.length_design] * len(self.orbit_bump[0, 0, :]),
-                    time=self.orbit_bump[0, 0, :])
-                self.length[:, 1, :] += self.orbit_bump[:, 1, :]
+            #     self.length = ring_programs.orbit_length_program(
+            #         [self.length_design] * len(self.orbit_bump[0, 0, :]),
+            #         time=self.orbit_bump[0, 0, :])
+            #     self.length[:, 1, :] += self.orbit_bump[:, 1, :]
 
-            else:
+            # else:
 
-                self.length = self.orbit_bump + self.length_design
+            #     self.length = self.orbit_bump + self.length_design
 
         # Setting the linear momentum compaction factor
         # Checking that the synchronous data and the momentum compaction

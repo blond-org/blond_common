@@ -97,11 +97,11 @@ class TestImpedanceSources(unittest.TestCase):
 
         imp = impSource._InputTable([1, 2, 3], [4, 5, 6], [7, 8, 9])
         
-        self.assertEqual(imp.frequency_array_loaded.tolist(), [1, 2, 3], 
+        self.assertEqual(imp.frequency_array_loaded.tolist(), [0, 1, 2, 3], 
                          "Expected frequency array to to be [0, 1, 2, 3]")
-        self.assertEqual(imp.Re_Z_array_loaded.tolist(), [4, 5, 6], 
+        self.assertEqual(imp.Re_Z_array_loaded.tolist(), [0, 4, 5, 6], 
                          "Expected real impedance array to be [0, 4, 5, 6]")
-        self.assertEqual(imp.Im_Z_array_loaded.tolist(), [7, 8, 9], 
+        self.assertEqual(imp.Im_Z_array_loaded.tolist(), [0, 7, 8, 9], 
                          "Expected imag impedance array to be [0, 7, 8, 9]")
 
         self.assertEqual(imp.time_array, 0, "Expected time array to be 0")

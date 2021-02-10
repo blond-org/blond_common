@@ -229,5 +229,20 @@ def B_field_to_kin_energy(B_Field, bending_radius, charge, rest_mass=None,
     return kin_energy
 
 
+def delta_P_to_delta_E(deltaP, momentum, rest_mass=None, n_nuc=None, atomic_mass=None):
+
+    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+
+    energy = momentum_to_energy(momentum, rest_mass)
+    deltaE = energy - np.sqrt(rest_mass**2 + (deltaP + momentum)**2)
     
+    return deltaE
+
+def delta_E_to_delta_P(deltaE, energy, rest_mass=None, n_nuc=None, atomic_mass=None):
+
+    rest_mass = _get_mass(rest_mass, n_nuc, atomic_mass)
+
+    momentum = energy_to_momentum(energy, rest_mass)
+    deltaP = energy - np.sqrt(rest_mass**2 + (deltaE + momentum)**2)
     
+    return deltaP

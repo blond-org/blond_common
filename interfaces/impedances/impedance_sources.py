@@ -177,11 +177,11 @@ class _InputTable(_ImpedanceObject):
         self.impedance_loaded = (self.Re_Z_array_loaded + 1j *
                                  self.Im_Z_array_loaded)
 
-#        if self.frequency_array_loaded[0] != 0:
-#            self.frequency_array_loaded = np.hstack(
-#                (0, self.frequency_array_loaded))
-#            self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
-#            self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
+        if self.frequency_array_loaded[0] != 0:
+            self.frequency_array_loaded = np.hstack(
+                (0, self.frequency_array_loaded))
+            self.Re_Z_array_loaded = np.hstack((0, self.Re_Z_array_loaded))
+            self.Im_Z_array_loaded = np.hstack((0, self.Im_Z_array_loaded))
         
         self.imped_calc(frequency)
 
