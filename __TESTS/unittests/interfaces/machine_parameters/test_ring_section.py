@@ -327,7 +327,7 @@ class TestRingSection(unittest.TestCase):
                 section.length[0, :, :])
 
         with self.subTest('Time based program - Only momentum compaction'):
-            
+
             warnings.filterwarnings(
                 "ignore",
                 message='The synchronous data was defined as single ' +
