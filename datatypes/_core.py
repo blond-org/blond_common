@@ -1,5 +1,6 @@
 # General imports
 import numpy as np
+import numbers
 import sys
 import os
 import warnings
@@ -45,24 +46,22 @@ class _function(np.ndarray):
         the array, currently only 'linear' has been implemented
     """
     
-    def __new__(cls, input_array, data_type=None, interpolation = None):
-        
-        if data_type is None:
-            raise excpt.InputError("data_type must be specified")
-        
+    def __new__(cls, input_array, data_type, interpolation = None,
+                dtype = None):
+
         try:
-            obj = np.asarray(input_array).view(cls)
+            obj = np.asarray(input_array, dtype=dtype).view(cls)
         except ValueError:
             raise excpt.InputError("Function components could not be " \
                                         + "correctly coerced into ndarray, " \
                                         + "check input dimensionality")
-        
+
         obj.data_type = data_type
-        
+
         obj.interpolation = interpolation
-        
+
         return obj
-    
+
     def __array_finalize__(self, obj):
         """
         Parameters
@@ -72,7 +71,164 @@ class _function(np.ndarray):
         if obj is None:
             return
 
-        self.data_type = getattr(obj, 'data_type', None)
+        #Duplicate data_type dict to prevent two objects referencing the same
+        # dict
+        try:
+            self.data_type = {**getattr(obj, 'data_type')}
+        except AttributeError:
+            self.data_type = None
+
+
+    def __add__(self, other):
+        return self._operate(other, np.add, inPlace = False)
+
+    def __iadd__(self, other):
+        self._operate(other, np.add, inPlace = True)
+        return self
+
+    __radd__ = __add__
+    __riadd__ = __iadd__
+
+
+    def __sub__(self, other):
+        return self._operate(other, np.subtract, inPlace = False)
+
+    def __isub__(self, other):
+        self._operate(other, np.subtract, inPlace = True)
+        return self
+
+    def __mul__(self, other):
+        return self._operate(other, np.multiply, inPlace = False)
+
+    def __imul__(self, other):
+        self._operate(other, np.multiply, inPlace = True)
+        return self
+
+    __rmul__ = __mul__
+    __rimul__ = __imul__
+
+    def __truediv__(self, other):
+        return self._operate(other, np.true_divide, inPlace = False)
+
+    def __itruediv__(self, other):
+        self._operate(other, np.true_divide, inPlace = True)
+        return self
+
+    def __ge__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.greater_equal,
+                             inPlace = False).view(np.ndarray)
+
+    def __gt__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.greater,
+                             inPlace = False).view(np.ndarray)
+
+    def __le__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.less_equal,
+                             inPlace = False).view(np.ndarray)
+
+    def __lt__(self, other):
+        #Casting to regular numpy array as _function of bool makes no sense.
+        return self._operate(other, np.less,
+                             inPlace = False).view(np.ndarray)
+
+
+    def _operate(self, other, operation, inPlace = False):
+        if isinstance(other, self.__class__):
+            self._check_data_and_type(other)
+            newArray = self._operate_equivalent_functions(other, operation)
+        else:
+            newArray = self._operate_other_functions(other, operation)
+
+        if not inPlace:
+            return newArray
+        if inPlace:
+            if self.timebase == 'by_time':
+                self[:,1,:] = newArray[:,1,:]
+            elif self.timebase == 'single':
+                self[()] = newArray[()]
+            else:
+                self[:] = newArray[:]
+
+        return
+
+
+    def _operate_equivalent_functions(self, other, operation):
+
+        if self.timebase != other.timebase:
+            #should never be reached
+            raise TypeError("Only functions with the same timebase can be "
+                            + "used.")
+
+        #TODO: How to handle indexed functions?
+        #      Change timebase after operation?  Convert to ndarray?
+        if self.timebase == 'by_time' and len(self.shape) == 3:
+            return self._operate_general(other[:,1,:], operation)
+        else:
+            return self._operate_general(other, operation)
+
+
+    def _operate_other_functions(self, other, operation):
+        if isinstance(other, numbers.Number):
+            return self._operate_general(other, operation)
+        else:
+            try:
+                otherShape = other.shape
+            except AttributeError:
+                raise RuntimeError("unrecognised other")
+            else:
+                if otherShape == self.shape:
+                    return self._operate_general(other, operation)
+                else:
+                    raise RuntimeError("other shape incorrect")
+
+
+    def _operate_general(self, other, operation):
+
+        newArray = self.copy()
+        if self.timebase == 'by_time':
+            if len(self.shape) == 3:
+                newArray[:,1,:] = operation(self[:,1,:], other)
+            else:
+                #TODO: Is this safe?
+                newArray[:] = operation(self, other)
+        elif self.timebase == 'single':
+            newArray[()] = operation(self, other)
+        else:
+            if self.shape == ():
+                newArray[()] = operation(self, other)
+            else:
+                newArray[:] = operation(self, other)
+        return newArray
+
+
+    def _type_check(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError("Datatypes should be the same, but they are "
+                            + f"{self.__class__} and {other.__class__}.")
+
+
+    def _data_check(self, other):
+
+        #Shouldn't be necessary, but sometimes '==' between two dicts that
+        # include np.array values raises a ValueError
+        keys = (k in other.data_type for k in self.data_type)
+        if all(keys):
+            vals = (tuple((self.data_type[k]==other.data_type[k],)) for k
+                                                            in self.data_type)
+            if all(vals):
+                return
+            
+        raise TypeError("Datatypes should have the same `data_type` dict "
+                            +f"but they are {self.data_type} and "
+                            +f"{other.data_type}")
+
+
+    def _check_data_and_type(self, other):
+        self._type_check(other)
+        self._data_check(other)
 
 
     @classmethod
@@ -119,9 +275,9 @@ class _function(np.ndarray):
                 if hasattr(self, d):
                     setattr(self, d, value[d])
                 else:
-                    raise excpt.InputDataError("data_type has "
-                                                    + "unrecognised option '"
-                                                    + str(d) + "'")
+                    raise excpt.InputDataError("data_type has unrecognised "
+                                               + f"option '{d}'")
+        return
 
     @property
     def timebase(self):
@@ -140,6 +296,23 @@ class _function(np.ndarray):
         self._timebase = value
 
 
+    @property
+    def interpolation(self):
+        """
+        Get or set the timebase.  Setting the timebase will update the
+        data_type dict.
+        """
+        try:
+            return self._interpolation
+        except AttributeError:
+            return None
+
+    @interpolation.setter
+    def interpolation(self, value):
+        self._check_data_type('interpolation', value)
+        self._interpolation = value
+
+
     def _check_data_type(self, element, value):
         """
         Attempt to assign a value to the data_type dict
@@ -154,7 +327,8 @@ class _function(np.ndarray):
         self._data_type[element] = value
 
 
-    def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None):
+    def _prep_reshape(self, n_sections = 1, use_time = None, use_turns = None,
+                      store_time = False):
         """
         Construct an empty numpy array of the required shape for the reshaped
         array to populate
@@ -198,7 +372,12 @@ class _function(np.ndarray):
             raise excpt.InputError("If function is defined by_time "
                                         + "use_time must be given")
 
-        return np.zeros([n_sections, nPts])
+        if store_time:
+            return self.zeros([n_sections, 2, nPts],
+                                      data_type = {**self.data_type})
+        else:
+            return self.zeros([n_sections, nPts],
+                              data_type = {**self.data_type})
 
 
     def _comp_definition_reshape(self, n_sections, use_time, use_turns):
@@ -225,12 +404,15 @@ class _function(np.ndarray):
             If the funtion has fewer turns of data available than required
             for the use_turns bassed, a DataDefinitionError is raised.
         """
+
         if n_sections > 1 and self.shape[0] == 1:
+
             warnings.warn("multi-section required, but "
                           + str(self.__class__.__name__) + " function is single"
                           + " section, expanding to match n_sections")
 
         elif n_sections != self.shape[0]:
+
             raise excpt.DataDefinitionError("n_sections (" \
                                                  + str(n_sections) \
                                                  + ") does not match function "
@@ -294,7 +476,8 @@ class _function(np.ndarray):
         if self.interpolation == 'linear':
             return self._interpolate_linear(section, use_time)
         else:
-            raise RuntimeError("Invalid interpolation requested")
+            raise NotImplementedError("Only linear interpolation implemented, "
+                                      +f"{self.interpolation} not available.")
 
 
     def _interpolate_linear(self, section, use_time):
@@ -319,7 +502,8 @@ class _function(np.ndarray):
             return np.interp(use_time, self[section, 0], self[section, 1])
 
 
-    def reshape(self, n_sections = 1, use_time = None, use_turns = None):
+    def reshape(self, n_sections = None, use_time = None, use_turns = None,
+                store_time = False):
         """
         Reshape the datatype array to the given number of sections and either
         the given use_time or given use_turns.
@@ -340,26 +524,41 @@ class _function(np.ndarray):
         datatype
             The newly interpolated array.
         """
-        self._comp_definition_reshape(n_sections, use_time, use_turns)        
-        newArray = self._prep_reshape(n_sections, use_time, use_turns)
-        
+
+        if self.timebase == 'by_turn' and store_time:
+            raise excpt.InputError("A function defined by_turn cannot have "
+                                   + "store_time=True")
+
+        if n_sections is None:
+            n_sections = self.shape[0]
+
+        self._comp_definition_reshape(n_sections, use_time, use_turns)
+        interpArray = self._prep_reshape(n_sections, use_time, use_turns,
+                                         store_time)
+
         for s in range(n_sections):
             if self.timebase == 'single':
                 if self.shape[0] == 1:
-                    newArray[s] += self
+                    interpArray[s] += self
                 else:
-                    newArray[s] += self[s]
+                    interpArray[s] += self[s]
 
             elif self.timebase == 'by_turn':
                 if self.shape[0] == 1:
-                    newArray[s] = self[0, use_turns]
+                    interpArray[s] = self[0, use_turns]
                 else:
-                    newArray[s] = self[s, use_turns]
+                    interpArray[s] = self[s, use_turns]
 
             elif self.timebase == 'by_time':
-                    newArray[s] = self._interpolate(s, use_time)
+                    interpArray[s] = self._interpolate(s, use_time)
 
-        return newArray.view(self.__class__)
+        if store_time:
+            interpArray[:,0,:] = use_time
+            interpArray.timebase = 'by_time'
+        else:
+            interpArray.timebase = 'interpolated'
+
+        return interpArray
 
 
 ###############################################
@@ -588,10 +787,12 @@ def _check_dims(data, time = None, n_turns = None):
     try:
         iter(data)
     except TypeError:
-        if n_turns is None:
+        if n_turns is None and time is None:
             return data, 'single'
-        else:
+        elif n_turns is not None:
             return [data]*n_turns, 'by_turn'
+        else:
+            return [time, [data]*len(time)], 'by_time'
     else:
         data = np.array(data)
 
@@ -667,7 +868,10 @@ def _interpolate_input(data_points, data_types, interpolation = 'linear'):
 
     input_times = []
     for d in data_points:
-        input_times += d[0].tolist()
+        try:
+            input_times += d[0].tolist()
+        except AttributeError:
+            input_times += d[0]
 
     interp_times = sorted(set(input_times))
 
@@ -725,7 +929,8 @@ def _expand_function(*args):
     newArgs = []
     for a in args:
         if isinstance(a, _function) or isinstance(a, bf.machine_program):
-            newArgs.append(*a)
+            for sub in a:
+                newArgs.append(sub)
         else:
             newArgs.append(a)
     return tuple(newArgs)

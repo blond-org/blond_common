@@ -118,12 +118,13 @@ class InducedVoltage:
         varImpedances = [i for i in self.var_impedances_loaded]
         
         for i in impedances:
-            i.update(f_rev)
+            # i.update(f_rev)
             i.imped_calc(self.interp_frequency_array)
             self.imped_induced.append(calc_induced_freq(self.beam_spectrum, 
                                                    i.impedance*normalisation))
         
         for i in varImpedances:
+            i.update(f_rev)
             i.imped_calc(self.interp_frequency_array)
             self.var_imped_induced.append(calc_induced_freq(self.beam_spectrum, 
                                                    i.impedance*normalisation))
@@ -207,6 +208,7 @@ def calc_induced_time(profile, wake):
 
 def calc_induced_inductive(derivative, inductive):
     return -derivative*inductive
+    # return derivative*inductive
         
         
 
