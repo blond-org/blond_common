@@ -302,6 +302,13 @@ class TestRingSection(unittest.TestCase):
                 length, section.length)
 
         with self.subTest('Time based program - Only orbit length'):
+
+            warnings.filterwarnings(
+                "ignore",
+                message='The synchronous data was defined as single ' +
+                'element while the input orbit_bump was defined turn ' +
+                'or time based. Only the first element of the program ' +
+                'will be taken in the Ring object after treatment.')
             section = RingSection(length, alpha_0[1][0], momentum[1][0],
                                   orbit_bump=orbit_bump)
             # The warning raised here is expected and treated by a specific
@@ -320,6 +327,13 @@ class TestRingSection(unittest.TestCase):
                 section.length[0, :, :])
 
         with self.subTest('Time based program - Only momentum compaction'):
+
+            warnings.filterwarnings(
+                "ignore",
+                message='The synchronous data was defined as single ' +
+                'element while the input alpha_0 was defined turn or ' +
+                'time based. Only the first element of the program will ' +
+                'be taken in the Ring object after treatment.')
             section = RingSection(length, alpha_0, momentum[1][0])
             # The warning raised here is expected and treated by a specific
             # unittest
@@ -534,7 +548,7 @@ class TestRingSection(unittest.TestCase):
                 length + np.array(orbit_time)[:, 1, :],
                 section.length[:, 1, :])
 
-    # Exception raising test -------------------------------------------
+    # Exception raising test --------------------------------------------------
 
     def test_assert_synchronous_data_input(self):
         # Test the exception that at least one synchronous data is passed

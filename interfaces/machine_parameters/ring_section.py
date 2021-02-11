@@ -281,8 +281,6 @@ class RingSection:
         orbit is turn based, raises a warning.
         '''
 
-        # attr_name is the attribute to apply to RingSection
-        # attr_name_err is for the warning message
         if order is not None:
             attr = 'alpha_' + str(order)
         else:
